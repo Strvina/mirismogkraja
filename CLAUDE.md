@@ -38,5 +38,5 @@ osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
 - Komentare u kodu i commit poruke piši na engleskom, komunikaciju sa mnom na srpskom.
 
 ## Struktura baze
-Puna specifikacija tabela je u sekciji "Dizajn baze podataka" ovog dokumenta/plana - drži se tih
-naziva tabela i kolona osim ako se izričito dogovorimo da ih menjamo.
+Puna specifikacija tabela je u `docs/database.md` - drži se tih naziva tabela i kolona osim ako se
+izričito dogovorimo da ih menjamo. Pročitaj taj fajl pre svakog taska koji dira bazu.
