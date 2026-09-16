@@ -22,8 +22,9 @@ nov stil. Ako nešto iz dizajna nije pokriveno (npr. izgled forme za checkout), 
 osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
 
 ## Kako radimo
-- Radimo **task po task**, taskovi su definisani u planu projekta (fajl `docs/plan.md` ili Redmine).
-  Ne preskačati unapred i ne raditi stvari iz sledećih taskova/faza dok trenutni nije završen.
+- Radimo **task po task**, taskovi su definisani kao GitHub Issues u ovom repou i praćeni na GitHub
+  Project board-u (https://github.com/users/Strvina/projects/1). Ne preskačati unapred i ne raditi
+  stvari iz sledećih taskova/faza dok trenutni nije završen i zatvoren.
 - Za svaki task: prvo predloži plan (koje fajlove praviš/menjaš, koje migracije, koje rute), pa tek
   onda piši kod - pogotovo za taskove koji diraju bazu (migracije se teško menjaju kasnije).
 - Svaka nova tabela ide kroz Laravel migraciju + Eloquent model sa definisanim relacijama
