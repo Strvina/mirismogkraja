@@ -9,11 +9,18 @@ export interface Category {
     name: string;
 }
 
+export interface ProductImage {
+    id: number;
+    path: string;
+    order: number;
+}
+
 export interface Product {
     id: number;
     household_id: number;
     category_id: number;
     category?: Category;
+    images?: ProductImage[];
     name: string;
     slug: string;
     description: string | null;

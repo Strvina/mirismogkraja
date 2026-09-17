@@ -1,7 +1,74 @@
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Category, type Household, type Product } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { FormEventHandler } from 'react';
 import ProductForm from './product-form';
+
+function ImagesManager({ household, product }: { household: Household; product: Product }) {
+    const { data, setData, post, processing, reset } = useForm<{ images: File[] }>({ images: [] });
+
+    const upload: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(route('households.products.images.store', [household.id, product.id]), {
+            forceFormData: true,
+            onSuccess: () => reset(),
+        });
+    };
+
+    const images = [...(product.images ?? [])].sort((a, b) => a.order - b.order);
+
+    return (
+        <div className="max-w-xl space-y-4 border-t pt-6">
+            <h2 className="font-semibold">Slike proizvoda</h2>
+
+            {images.length > 0 && (
+                <div className="grid grid-cols-3 gap-3">
+                    {images.map((image) => (
+                        <div key={image.id} className="relative">
+                            <img src={`/storage/${image.path}`} alt="" className="aspect-square w-full rounded-md object-cover" />
+                            {image.order === 0 ? (
+                                <span className="absolute top-1 left-1 rounded bg-primary px-1.5 py-0.5 text-[0.65rem] text-primary-foreground">
+                                    Glavna
+                                </span>
+                            ) : (
+                                <button
+                                    type="button"
+                                    className="absolute top-1 left-1 rounded bg-background/90 px-1.5 py-0.5 text-[0.65rem]"
+                                    onClick={() =>
+                                        router.patch(route('households.products.images.primary', [household.id, product.id, image.id]))
+                                    }
+                                >
+                                    Postavi kao glavnu
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                className="absolute top-1 right-1 rounded bg-destructive px-1.5 py-0.5 text-[0.65rem] text-destructive-foreground"
+                                onClick={() =>
+                                    router.delete(route('households.products.images.destroy', [household.id, product.id, image.id]))
+                                }
+                            >
+                                Ukloni
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <form onSubmit={upload} className="flex items-center gap-3">
+                <Input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => setData('images', Array.from(e.target.files ?? []))}
+                />
+                <Button disabled={processing || data.images.length === 0}>Dodaj slike</Button>
+            </form>
+        </div>
+    );
+}
 
 export default function ProductsEdit({
     household,
@@ -31,6 +98,7 @@ export default function ProductsEdit({
                     method="put"
                     submitLabel="Sačuvaj izmene"
                 />
+                <ImagesManager household={household} product={product} />
             </div>
         </AppLayout>
     );
