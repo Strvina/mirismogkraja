@@ -21,7 +21,9 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#4B5563',
+        // Matches the brand primary (terracotta-red, see docs/design-tokens.md)
+        // instead of the starter kit's generic gray.
+        color: '#8a3324',
     },
 });
 
