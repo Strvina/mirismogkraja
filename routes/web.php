@@ -18,3 +18,4 @@ require __DIR__.'/auth.php';
 require __DIR__.'/households.php';
 require __DIR__.'/marketplace.php';
 require __DIR__.'/products.php';
+require __DIR__.'/cart.php';

@@ -1,12 +1,25 @@
-import { type Household, type Product } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Button } from '@/components/ui/button';
+import { type Household, type Product, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
+import { useState } from 'react';
 
 type FullProduct = Product & { household: Household };
 
 export default function ProductShow({ product, similar }: { product: FullProduct; similar: Product[] }) {
+    const { auth } = usePage<SharedData>().props;
+    const [quantity, setQuantity] = useState(1);
     const images = [...(product.images ?? [])].sort((a, b) => a.order - b.order);
     const mainImage = images[0];
+
+    const addToCart = () => {
+        if (!auth.user) {
+            router.visit(route('login'));
+            return;
+        }
+
+        router.post(route('cart.store'), { product_id: product.id, quantity });
+    };
 
     return (
         <>
@@ -37,6 +50,17 @@ export default function ProductShow({ product, similar }: { product: FullProduct
                             </p>
 
                             {product.description && <p className="mt-6 leading-7 text-muted-foreground">{product.description}</p>}
+
+                            <div className="mt-6 flex items-center gap-3">
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={quantity}
+                                    onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+                                    className="w-20 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                />
+                                <Button onClick={addToCart}>Dodaj u korpu</Button>
+                            </div>
 
                             <Link
                                 href={route('marketplace.households.show', product.household.slug)}
