@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HouseholdController;
 use App\Http\Controllers\Admin\ProductController;
@@ -18,4 +19,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/proizvodi', [ProductController::class, 'index'])->name('products.index');
     Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    Route::get('/kategorije', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/kategorije', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/kategorije/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/kategorije/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 });
