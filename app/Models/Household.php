@@ -45,5 +45,10 @@ class Household extends Model
         return $this->hasMany(Product::class);
     }
 
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
     // hasMany(Review::class) is added once that model exists (task 5.1).
 }

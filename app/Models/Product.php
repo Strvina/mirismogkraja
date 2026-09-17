@@ -52,5 +52,8 @@ class Product extends Model
         return $this->hasMany(CartItem::class);
     }
 
-    // hasMany(OrderItem::class) is added once that model exists (task 4.4).
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }
