@@ -40,7 +40,12 @@ class HouseholdController extends Controller
      */
     public function store(StoreHouseholdRequest $request, HouseholdService $households): RedirectResponse
     {
-        $households->create($request->user(), $request->validated());
+        $households->create(
+            $request->user(),
+            $request->safe()->except(['cover_image', 'logo']),
+            $request->file('cover_image'),
+            $request->file('logo'),
+        );
 
         return to_route('households.index');
     }
@@ -60,7 +65,12 @@ class HouseholdController extends Controller
      */
     public function update(UpdateHouseholdRequest $request, Household $household, HouseholdService $households): RedirectResponse
     {
-        $households->update($household, $request->validated());
+        $households->update(
+            $household,
+            $request->safe()->except(['cover_image', 'logo']),
+            $request->file('cover_image'),
+            $request->file('logo'),
+        );
 
         return to_route('households.index');
     }

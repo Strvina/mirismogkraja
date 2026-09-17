@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Household;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class HouseholdService
@@ -13,12 +15,26 @@ class HouseholdService
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function create(User $user, array $attributes): Household
+    public function create(User $user, array $attributes, ?UploadedFile $coverImage = null, ?UploadedFile $logo = null): Household
     {
-        return $user->households()->create([
+        $household = $user->households()->create([
             ...$attributes,
             'slug' => $this->uniqueSlug($attributes['name']),
         ]);
+
+        if ($coverImage) {
+            $household->cover_image_path = $coverImage->store('households/covers', 'public');
+        }
+
+        if ($logo) {
+            $household->logo_path = $logo->store('households/logos', 'public');
+        }
+
+        if ($coverImage || $logo) {
+            $household->save();
+        }
+
+        return $household;
     }
 
     /**
@@ -26,15 +42,34 @@ class HouseholdService
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function update(Household $household, array $attributes): Household
+    public function update(Household $household, array $attributes, ?UploadedFile $coverImage = null, ?UploadedFile $logo = null): Household
     {
         if ($attributes['name'] !== $household->name) {
             $attributes['slug'] = $this->uniqueSlug($attributes['name'], ignore: $household);
         }
 
-        $household->update($attributes);
+        $household->fill($attributes);
+
+        if ($coverImage) {
+            $this->replaceImage($household, 'cover_image_path', $coverImage, 'households/covers');
+        }
+
+        if ($logo) {
+            $this->replaceImage($household, 'logo_path', $logo, 'households/logos');
+        }
+
+        $household->save();
 
         return $household;
+    }
+
+    private function replaceImage(Household $household, string $column, UploadedFile $file, string $directory): void
+    {
+        if ($household->{$column}) {
+            Storage::disk('public')->delete($household->{$column});
+        }
+
+        $household->{$column} = $file->store($directory, 'public');
     }
 
     private function uniqueSlug(string $name, ?Household $ignore = null): string

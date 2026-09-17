@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Household;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class HouseholdCrudTest extends TestCase
@@ -87,6 +89,40 @@ class HouseholdCrudTest extends TestCase
         $this->assertSame('Novo ime', $household->name);
         $this->assertSame('novo-ime', $household->slug);
         $this->assertSame('Vranje', $household->city);
+    }
+
+    public function test_cover_image_and_logo_can_be_uploaded_on_create()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('households.store'), [
+            'name' => 'Domaćinstvo Nićić',
+            'cover_image' => UploadedFile::fake()->create('cover.jpg', 10, 'image/jpeg'),
+            'logo' => UploadedFile::fake()->create('logo.jpg', 10, 'image/jpeg'),
+        ]);
+
+        $household = Household::sole();
+        Storage::disk('public')->assertExists($household->cover_image_path);
+        Storage::disk('public')->assertExists($household->logo_path);
+    }
+
+    public function test_uploading_a_new_cover_image_removes_the_old_one()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $household = Household::factory()->for($user)->create(['cover_image_path' => 'households/covers/old.jpg']);
+        Storage::disk('public')->put('households/covers/old.jpg', 'fake');
+
+        $this->actingAs($user)->put(route('households.update', $household), [
+            'name' => $household->name,
+            'cover_image' => UploadedFile::fake()->create('new.jpg', 10, 'image/jpeg'),
+        ]);
+
+        $household->refresh();
+        $this->assertNotSame('households/covers/old.jpg', $household->cover_image_path);
+        Storage::disk('public')->assertExists($household->cover_image_path);
+        Storage::disk('public')->assertMissing('households/covers/old.jpg');
     }
 
     public function test_owner_can_delete_their_household()
