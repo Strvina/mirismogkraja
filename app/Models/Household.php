@@ -6,6 +6,7 @@ use Database\Factories\HouseholdFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Household extends Model
 {
@@ -39,6 +40,10 @@ class Household extends Model
         return $this->belongsTo(User::class);
     }
 
-    // hasMany(Product::class) and hasMany(Review::class) are added once
-    // those models exist (task 3.3 and task 5.1).
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    // hasMany(Review::class) is added once that model exists (task 5.1).
 }
