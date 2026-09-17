@@ -9,4 +9,5 @@ Route::middleware('auth')->group(function () {
     Route::post('/naplata', [CheckoutController::class, 'store'])->name('checkout.store');
 
     Route::get('/porudzbine/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/porudzbine/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 });
