@@ -37,6 +37,10 @@ osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
 - Kad nisi siguran za poslovno pravilo (npr. da li seller može da menja cenu proizvoda posle
   porudžbine, da li kupac mora prvo da naruči da bi ostavio ocenu) - pitaj me, ne pretpostavljaj.
 - Komentare u kodu i commit poruke piši na engleskom, komunikaciju sa mnom na srpskom.
+- Git workflow: za SVAKI task napravi poseban branch (npr. `task/1.1-extend-users-migration`), radi i
+  commituj tamo, pa ga tek nakon što se proveri da radi (testovi prolaze, ponašanje je ispravno)
+  spoji u `master` (PR pa merge, ili direktan merge ako nema potrebe za review-om). Ne komituj
+  direktno na `master`.
 
 ## Struktura baze
 Puna specifikacija tabela je u `docs/database.md` - drži se tih naziva tabela i kolona osim ako se
