@@ -11,6 +11,33 @@ use Inertia\Response;
 
 class OrderController extends Controller
 {
+    /**
+     * "Moje porudžbine": orders the authenticated user placed as a buyer.
+     */
+    public function myOrders(Request $request): Response
+    {
+        return Inertia::render('orders/my-orders', [
+            'orders' => $request->user()->orders()->with('items')->latest()->get(),
+        ]);
+    }
+
+    /**
+     * "Porudžbine mog domaćinstva": orders containing at least one item
+     * fulfilled by a household the authenticated user owns. Only that
+     * seller's own items within each order are included.
+     */
+    public function householdOrders(Request $request): Response
+    {
+        $householdIds = $request->user()->households()->pluck('id');
+
+        $orders = Order::whereHas('items', fn ($query) => $query->whereIn('household_id', $householdIds))
+            ->with(['user', 'items' => fn ($query) => $query->whereIn('household_id', $householdIds)])
+            ->latest()
+            ->get();
+
+        return Inertia::render('orders/household-orders', ['orders' => $orders]);
+    }
+
     public function show(Order $order): Response
     {
         $this->authorize('view', $order);
