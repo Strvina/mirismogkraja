@@ -36,6 +36,13 @@ export default function HouseholdsIndex({ households }: { households: Household[
                     <div className="grid gap-4 md:grid-cols-2">
                         {households.map((household) => (
                             <div key={household.id} className="rounded-xl border p-4">
+                                {household.cover_image_path && (
+                                    <img
+                                        src={`/storage/${household.cover_image_path}`}
+                                        alt=""
+                                        className="mb-3 h-32 w-full rounded-md object-cover"
+                                    />
+                                )}
                                 <div className="flex items-start justify-between">
                                     <h2 className="font-serif text-lg">{household.name}</h2>
                                     <span className="rounded-full bg-muted px-2 py-1 text-xs">{statusLabels[household.status]}</span>

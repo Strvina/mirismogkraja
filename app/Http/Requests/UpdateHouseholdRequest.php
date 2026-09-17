@@ -27,6 +27,8 @@ class UpdateHouseholdRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'cover_image' => ['nullable', 'image', 'max:4096'],
+            'logo' => ['nullable', 'image', 'max:2048'],
         ];
     }
 }
