@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Household;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -36,15 +37,14 @@ class ProductController extends Controller
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
             ->get();
 
-        $cities = Product::where('status', 'active')
-            ->whereHas('household', fn ($query) => $query->where('status', 'active'))
-            ->with('household')
-            ->get()
-            ->pluck('household.city')
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
+        // Query cities directly off Household instead of loading every
+        // matching Product just to read household.city off each one.
+        $cities = Household::where('status', 'active')
+            ->whereNotNull('city')
+            ->whereHas('products', fn ($query) => $query->where('status', 'active'))
+            ->distinct()
+            ->orderBy('city')
+            ->pluck('city');
 
         return Inertia::render('marketplace/products/index', [
             'products' => $products,
@@ -69,6 +69,7 @@ class ProductController extends Controller
         $similar = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('status', 'active')
+            ->with('images')
             ->limit(4)
             ->get();
 
