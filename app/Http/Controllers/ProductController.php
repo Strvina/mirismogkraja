@@ -47,7 +47,7 @@ class ProductController extends Controller
 
         return Inertia::render('products/edit', [
             'household' => $household,
-            'product' => $product,
+            'product' => $product->load('images'),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
         ]);
     }
