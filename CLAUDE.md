@@ -38,9 +38,10 @@ osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
   porudžbine, da li kupac mora prvo da naruči da bi ostavio ocenu) - pitaj me, ne pretpostavljaj.
 - Komentare u kodu i commit poruke piši na engleskom, komunikaciju sa mnom na srpskom.
 - Git workflow: za SVAKI task napravi poseban branch (npr. `task/1.1-extend-users-migration`), radi i
-  commituj tamo, pa ga tek nakon što se proveri da radi (testovi prolaze, ponašanje je ispravno)
-  spoji u `master` (PR pa merge, ili direktan merge ako nema potrebe za review-om). Ne komituj
-  direktno na `master`.
+  commituj tamo, pa nakon što se proveri da radi (testovi prolaze, ponašanje je ispravno) otvori
+  pravi GitHub Pull Request (`gh pr create`, sa "Closes #N" u opisu da se Issue automatski zatvori) i
+  spoji ga (`gh pr merge`). Ne komituj direktno na `master` i ne radi lokalni `git merge` bez PR-a -
+  ovo daje vidljivu evidenciju (diff, veza sa Issue-om) za svaki task na GitHub-u.
 
 ## Struktura baze
 Puna specifikacija tabela je u `docs/database.md` - drži se tih naziva tabela i kolona osim ako se
