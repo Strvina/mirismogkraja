@@ -8,13 +8,12 @@ use App\Models\User;
 class OrderPolicy
 {
     /**
-     * The buyer who placed the order, or a seller who fulfills at least one
-     * item in it, can view it (task 4.8: "Moje porudžbine" / "Porudžbine mog
-     * domaćinstva").
+     * The buyer who placed the order, a seller who fulfills at least one item
+     * in it (task 4.8), or an admin (task 6.7) can view it.
      */
     public function view(User $user, Order $order): bool
     {
-        if ($user->id === $order->user_id) {
+        if ($user->id === $order->user_id || $user->hasRole('admin')) {
             return true;
         }
 
