@@ -30,6 +30,7 @@ class User extends Authenticatable
         'city',
         'lat',
         'lng',
+        'blocked_at',
     ];
 
     /**
@@ -54,7 +55,13 @@ class User extends Authenticatable
             'password' => 'hashed',
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
+            'blocked_at' => 'datetime',
         ];
+    }
+
+    public function isBlocked(): bool
+    {
+        return $this->blocked_at !== null;
     }
 
     public function households(): HasMany

@@ -109,6 +109,8 @@ export interface User {
     address: string | null;
     city: string | null;
     email_verified_at: string | null;
+    blocked_at?: string | null;
+    roles?: { id: number; name: string }[];
     created_at: string;
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
