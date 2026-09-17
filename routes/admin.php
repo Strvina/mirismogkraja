@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HouseholdController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,4 +15,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/domacinstva', [HouseholdController::class, 'index'])->name('households.index');
     Route::patch('/domacinstva/{household}/status', [HouseholdController::class, 'updateStatus'])->name('households.status');
+
+    Route::get('/proizvodi', [ProductController::class, 'index'])->name('products.index');
+    Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
 });
