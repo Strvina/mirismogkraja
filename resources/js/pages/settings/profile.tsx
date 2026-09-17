@@ -1,7 +1,7 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
@@ -21,16 +21,36 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(
+        auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null,
+    );
 
-    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm({
+    const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        city: string;
+        avatar: File | null;
+    }>({
         name: auth.user.name,
         email: auth.user.email,
+        phone: auth.user.phone ?? '',
+        address: auth.user.address ?? '',
+        city: auth.user.city ?? '',
+        avatar: null,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        patch(route('profile.update'), { forceFormData: true });
+    };
+
+    const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        setData('avatar', file);
+        setAvatarPreview(file ? URL.createObjectURL(file) : auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null);
     };
 
     return (
@@ -42,6 +62,23 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
+                        <div className="grid gap-2">
+                            <Label htmlFor="avatar">Avatar</Label>
+
+                            <div className="flex items-center gap-4">
+                                {avatarPreview && (
+                                    <img
+                                        src={avatarPreview}
+                                        alt="Avatar preview"
+                                        className="size-16 rounded-full object-cover"
+                                    />
+                                )}
+                                <Input id="avatar" type="file" accept="image/*" className="w-full max-w-xs" onChange={onAvatarChange} />
+                            </div>
+
+                            <InputError className="mt-2" message={errors.avatar} />
+                        </div>
+
                         <div className="grid gap-2">
                             <Label htmlFor="name">Name</Label>
 
@@ -73,6 +110,51 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             />
 
                             <InputError className="mt-2" message={errors.email} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="phone">Phone</Label>
+
+                            <Input
+                                id="phone"
+                                className="mt-1 block w-full"
+                                value={data.phone}
+                                onChange={(e) => setData('phone', e.target.value)}
+                                autoComplete="tel"
+                                placeholder="+381 6x xxx xxxx"
+                            />
+
+                            <InputError className="mt-2" message={errors.phone} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="address">Address</Label>
+
+                            <Input
+                                id="address"
+                                className="mt-1 block w-full"
+                                value={data.address}
+                                onChange={(e) => setData('address', e.target.value)}
+                                autoComplete="street-address"
+                                placeholder="Street and number"
+                            />
+
+                            <InputError className="mt-2" message={errors.address} />
+                        </div>
+
+                        <div className="grid gap-2">
+                            <Label htmlFor="city">City</Label>
+
+                            <Input
+                                id="city"
+                                className="mt-1 block w-full"
+                                value={data.city}
+                                onChange={(e) => setData('city', e.target.value)}
+                                autoComplete="address-level2"
+                                placeholder="City"
+                            />
+
+                            <InputError className="mt-2" message={errors.city} />
                         </div>
 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
