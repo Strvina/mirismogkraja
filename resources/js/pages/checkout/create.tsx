@@ -26,7 +26,7 @@ export default function CheckoutCreate({ cartItems }: { cartItems: CartItem[] })
             <Head title="Naplata" />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
-                <h1 className="text-xl font-semibold">Naplata</h1>
+                <h1 className="font-serif text-xl font-semibold">Naplata</h1>
 
                 <div className="max-w-xl space-y-2">
                     {cartItems.map((item) => (
@@ -52,7 +52,7 @@ export default function CheckoutCreate({ cartItems }: { cartItems: CartItem[] })
                             onChange={(e) => setData('shipping_address', e.target.value)}
                             required
                         />
-                        {errors.shipping_address && <p className="text-sm text-destructive">{errors.shipping_address}</p>}
+                        {errors.shipping_address && <p className="text-destructive text-sm">{errors.shipping_address}</p>}
                     </div>
                     <Button disabled={processing || cartItems.length === 0}>Potvrdi porudžbinu</Button>
                 </form>

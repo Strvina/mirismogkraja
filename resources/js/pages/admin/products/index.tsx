@@ -22,14 +22,14 @@ export default function AdminProductsIndex({ products }: { products: ProductWith
             <Head title="Proizvodi" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Proizvodi</h1>
+                <h1 className="font-serif text-xl font-semibold">Proizvodi</h1>
 
                 <div className="space-y-2">
                     {products.map((product) => (
                         <div key={product.id} className="flex items-center justify-between gap-3 rounded-xl border p-4">
                             <div>
                                 <p className="font-medium">{product.name}</p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-muted-foreground text-xs">
                                     {product.household.name} · {product.price} RSD · {product.status}
                                 </p>
                             </div>

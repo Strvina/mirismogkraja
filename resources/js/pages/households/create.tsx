@@ -14,7 +14,7 @@ export default function HouseholdsCreate() {
             <Head title="Novo domaćinstvo" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Novo domaćinstvo</h1>
+                <h1 className="font-serif text-xl font-semibold">Novo domaćinstvo</h1>
                 <HouseholdForm action={route('households.store')} method="post" submitLabel="Kreiraj" />
             </div>
         </AppLayout>

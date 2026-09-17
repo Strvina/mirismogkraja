@@ -17,19 +17,17 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
         router.delete(route('cart.destroy', item.id), { preserveScroll: true });
     };
 
-    const total = groups
-        .flatMap((g) => g.items)
-        .reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
+    const total = groups.flatMap((g) => g.items).reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Korpa" />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
-                <h1 className="text-xl font-semibold">Korpa</h1>
+                <h1 className="font-serif text-xl font-semibold">Korpa</h1>
 
                 {groups.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Korpa je prazna.</p>
+                    <p className="text-muted-foreground text-sm">Korpa je prazna.</p>
                 ) : (
                     <>
                         {groups.map((group) => (
@@ -40,7 +38,7 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                                         <div key={item.id} className="flex items-center justify-between gap-4">
                                             <div>
                                                 <p className="text-sm font-medium">{item.product.name}</p>
-                                                <p className="text-xs text-muted-foreground">
+                                                <p className="text-muted-foreground text-xs">
                                                     {item.product.price} RSD / {item.product.unit}
                                                 </p>
                                             </div>
@@ -50,7 +48,7 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                                                     min={1}
                                                     value={item.quantity}
                                                     onChange={(e) => updateQuantity(item, Number(e.target.value))}
-                                                    className="w-16 rounded-md border border-input bg-background px-2 py-1 text-sm"
+                                                    className="border-input bg-background w-16 rounded-md border px-2 py-1 text-sm"
                                                 />
                                                 <Button variant="destructive" size="sm" onClick={() => remove(item)}>
                                                     Ukloni

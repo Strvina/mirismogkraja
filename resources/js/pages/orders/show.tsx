@@ -31,8 +31,8 @@ export default function OrderShow({ order, canUpdateStatus }: { order: Order; ca
             <Head title={`Porudžbina #${order.id}`} />
 
             <div className="flex flex-1 flex-col gap-6 p-4">
-                <h1 className="text-xl font-semibold">Porudžbina #{order.id}</h1>
-                <p className="text-sm text-muted-foreground">
+                <h1 className="font-serif text-xl font-semibold">Porudžbina #{order.id}</h1>
+                <p className="text-muted-foreground text-sm">
                     Status: {statusLabels[order.status]} · Adresa: {order.shipping_address}
                 </p>
 

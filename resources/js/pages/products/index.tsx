@@ -22,23 +22,23 @@ export default function ProductsIndex({ household, products }: { household: Hous
 
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="text-xl font-semibold">Proizvodi — {household.name}</h1>
+                    <h1 className="font-serif text-xl font-semibold">Proizvodi — {household.name}</h1>
                     <Button asChild>
                         <Link href={route('households.products.create', household.id)}>Novi proizvod</Link>
                     </Button>
                 </div>
 
                 {products.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Nema još proizvoda.</p>
+                    <p className="text-muted-foreground text-sm">Nema još proizvoda.</p>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {products.map((product) => (
                             <div key={product.id} className="rounded-xl border p-4">
                                 <div className="flex items-start justify-between">
                                     <h2 className="font-serif text-lg">{product.name}</h2>
-                                    <span className="rounded-full bg-muted px-2 py-1 text-xs">{product.status}</span>
+                                    <span className="bg-muted rounded-full px-2 py-1 text-xs">{product.status}</span>
                                 </div>
-                                <p className="mt-1 text-sm text-muted-foreground">
+                                <p className="text-muted-foreground mt-1 text-sm">
                                     {product.price} RSD / {product.unit} · {product.category?.name}
                                 </p>
                                 <div className="mt-4 flex gap-2">

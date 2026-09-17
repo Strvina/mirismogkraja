@@ -11,19 +11,19 @@ export default function FavoritesIndex({ households, products }: { households: H
 
             <div className="flex flex-1 flex-col gap-8 p-4">
                 <div>
-                    <h1 className="text-xl font-semibold">Omiljeni proizvođači</h1>
+                    <h1 className="font-serif text-xl font-semibold">Omiljeni proizvođači</h1>
                     {households.length === 0 ? (
-                        <p className="mt-2 text-sm text-muted-foreground">Nema omiljenih proizvođača.</p>
+                        <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvođača.</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
                             {households.map((household) => (
                                 <Link
                                     key={household.id}
                                     href={route('marketplace.households.show', household.slug)}
-                                    className="rounded-xl border p-4 hover:bg-muted"
+                                    className="hover:bg-muted rounded-xl border p-4"
                                 >
                                     <p className="font-serif text-lg">{household.name}</p>
-                                    {household.city && <p className="text-sm text-muted-foreground">{household.city}</p>}
+                                    {household.city && <p className="text-muted-foreground text-sm">{household.city}</p>}
                                 </Link>
                             ))}
                         </div>
@@ -31,19 +31,19 @@ export default function FavoritesIndex({ households, products }: { households: H
                 </div>
 
                 <div>
-                    <h1 className="text-xl font-semibold">Omiljeni proizvodi</h1>
+                    <h1 className="font-serif text-xl font-semibold">Omiljeni proizvodi</h1>
                     {products.length === 0 ? (
-                        <p className="mt-2 text-sm text-muted-foreground">Nema omiljenih proizvoda.</p>
+                        <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvoda.</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
                             {products.map((product) => (
                                 <Link
                                     key={product.id}
                                     href={route('marketplace.products.show', product.slug)}
-                                    className="rounded-xl border p-4 hover:bg-muted"
+                                    className="hover:bg-muted rounded-xl border p-4"
                                 >
                                     <p className="font-medium">{product.name}</p>
-                                    <p className="text-sm text-muted-foreground">{product.price} RSD</p>
+                                    <p className="text-muted-foreground text-sm">{product.price} RSD</p>
                                 </Link>
                             ))}
                         </div>
