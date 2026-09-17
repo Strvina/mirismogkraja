@@ -4,6 +4,25 @@ export interface Auth {
     user: User;
 }
 
+export interface Category {
+    id: number;
+    name: string;
+}
+
+export interface Product {
+    id: number;
+    household_id: number;
+    category_id: number;
+    category?: Category;
+    name: string;
+    slug: string;
+    description: string | null;
+    price: string;
+    unit: 'kg' | 'g' | 'l' | 'ml' | 'kom' | 'paket';
+    stock_quantity: number;
+    status: 'draft' | 'active' | 'out_of_stock' | 'archived';
+}
+
 export interface Household {
     id: number;
     user_id: number;
