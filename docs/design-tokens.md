@@ -11,9 +11,10 @@ je naš projekat Laravel + Inertia + React. Ne možemo direktno kopirati `routes
 ikonice (lucide-react), i vizuelni obrasci (spacing, tipografija, layout sekcija) opisani ispod.
 
 **Napomena o imenu brenda**: landing page je brendiran kao "Ukusi našeg kraja" (naslovi, meta tagovi,
-email `zdravo@ukusinasegkraja.rs`), dok je naš projekat nazvan "Miris mog kraja" (CLAUDE.md). Treba
-odlučiti finalno ime pre nego što kopiramo copy tekstove doslovno - vizuelni stil ostaje isti,
-menja se samo tekst/brend.
+email `zdravo@ukusinasegkraja.rs`). Finalno ime brenda je odlučeno: **Vrelina juga**. Prilikom
+prekopiravanja landing sekcija (task 0.6) sav copy tekst (naslovi, meta tagovi, email adresa, footer)
+treba prilagoditi novom imenu - vizuelni stil (boje, fontovi, spacing) ostaje isti, menja se samo
+tekst/brend.
 
 ## Fontovi
 

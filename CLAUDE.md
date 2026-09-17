@@ -1,4 +1,4 @@
-# Projekat: Miris mog kraja – marketplace za domaćinstva
+# Projekat: Vrelina juga – marketplace za domaćinstva
 
 ## Šta je ovo
 Saas platforma koja promoviše domaćinstva (male proizvođače, poljoprivredna gazdinstva) i omogućava
