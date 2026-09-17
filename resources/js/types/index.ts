@@ -30,6 +30,14 @@ export interface Product {
     status: 'draft' | 'active' | 'out_of_stock' | 'archived';
 }
 
+export interface Review {
+    id: number;
+    user_id: number;
+    household_id: number;
+    rating: number;
+    comment: string | null;
+}
+
 export interface OrderItem {
     id: number;
     product_name: string;
