@@ -26,7 +26,7 @@ export default function AdminProductsIndex({ products }: { products: ProductWith
 
                 <div className="space-y-2">
                     {products.map((product) => (
-                        <div key={product.id} className="flex items-center justify-between gap-3 rounded-xl border p-4">
+                        <div key={product.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
                             <div>
                                 <p className="font-medium">{product.name}</p>
                                 <p className="text-muted-foreground text-xs">

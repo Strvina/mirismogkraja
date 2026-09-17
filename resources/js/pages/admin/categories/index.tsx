@@ -54,7 +54,7 @@ export default function AdminCategoriesIndex({ categories }: { categories: Categ
 
                 <div className="space-y-2">
                     {categories.map((category) => (
-                        <div key={category.id} className="flex items-center justify-between rounded-xl border p-4">
+                        <div key={category.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border p-4">
                             <div>
                                 <p className="font-medium">{category.name}</p>
                                 {category.parent && <p className="text-muted-foreground text-xs">Podkategorija: {category.parent.name}</p>}

@@ -14,9 +14,9 @@ export default function Navbar() {
 
     return (
         <header className="border-border bg-background border-b">
-            <div className="mx-auto flex h-20 max-w-[1380px] items-center justify-between px-5 sm:px-8 lg:px-12">
+            <div className="mx-auto flex h-auto min-h-20 max-w-[1380px] flex-wrap items-center justify-between gap-y-2 px-5 py-3 sm:px-8 lg:px-12">
                 <Brand />
-                <nav className="hidden items-center gap-8 text-sm font-medium lg:flex" aria-label="Glavna navigacija">
+                <nav className="flex items-center gap-6 text-sm font-medium sm:gap-8" aria-label="Glavna navigacija">
                     <Link href="/domacinstva" className="transition-opacity hover:opacity-70">
                         Domaćinstva
                     </Link>

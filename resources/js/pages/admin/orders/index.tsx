@@ -30,7 +30,7 @@ export default function AdminOrdersIndex({ orders }: { orders: OrderWithBuyer[] 
                         <Link
                             key={order.id}
                             href={route('orders.show', order.id)}
-                            className="hover:bg-muted flex items-center justify-between rounded-xl border p-4"
+                            className="hover:bg-muted flex flex-wrap items-center justify-between gap-2 rounded-xl border p-4"
                         >
                             <span>Porudžbina #{order.id}</span>
                             <span className="text-muted-foreground text-sm">{order.user.name}</span>
