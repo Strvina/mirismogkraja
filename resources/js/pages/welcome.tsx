@@ -69,6 +69,7 @@ function Brand() {
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
+    const becomeSellerHref = auth.user ? route('households.create') : route('register');
 
     return (
         <>
@@ -107,7 +108,7 @@ export default function Welcome() {
                             )}
                         </nav>
                         <Button asChild variant="outlineLight" className="hidden sm:inline-flex">
-                            <a href="#predstavi">Predstavi svoje domaćinstvo</a>
+                            <Link href={becomeSellerHref}>Predstavi svoje domaćinstvo</Link>
                         </Button>
                         <Button variant="outlineLight" size="icon" className="sm:hidden" aria-label="Otvori meni">
                             <Menu />
@@ -142,7 +143,7 @@ export default function Welcome() {
                                     </a>
                                 </Button>
                                 <Button asChild variant="outlineLight" size="xl">
-                                    <a href="#predstavi">Predstavi svoje domaćinstvo</a>
+                                    <Link href={becomeSellerHref}>Predstavi svoje domaćinstvo</Link>
                                 </Button>
                             </div>
                         </div>
@@ -332,9 +333,9 @@ export default function Welcome() {
                             Predstavite svoje proizvode i priču ljudima koji traže domaće.
                         </p>
                         <Button asChild variant="cream" size="xl" className="mt-8">
-                            <a href="mailto:zdravo@vrelinajuga.rs">
+                            <Link href={becomeSellerHref}>
                                 Predstavi svoje domaćinstvo <ArrowRight />
-                            </a>
+                            </Link>
                         </Button>
                     </div>
                 </section>
