@@ -4,6 +4,21 @@ export interface Auth {
     user: User;
 }
 
+export interface Household {
+    id: number;
+    user_id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    address: string | null;
+    city: string | null;
+    cover_image_path: string | null;
+    logo_path: string | null;
+    status: 'pending' | 'active' | 'blocked';
+    created_at: string;
+    updated_at: string;
+}
+
 export interface BreadcrumbItem {
     title: string;
     href: string;
