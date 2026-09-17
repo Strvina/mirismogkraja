@@ -12,6 +12,8 @@ class HouseholdService
 {
     /**
      * Create a new household owned by the given user, generating a unique slug from its name.
+     * This is the "Postani prodavac" flow (task 1.4): filling in household details is what
+     * grants the 'seller' role, on top of whatever role(s) the user already has.
      *
      * @param  array<string, mixed>  $attributes
      */
@@ -21,6 +23,10 @@ class HouseholdService
             ...$attributes,
             'slug' => $this->uniqueSlug($attributes['name']),
         ]);
+
+        if (! $user->hasRole('seller')) {
+            $user->assignRole('seller');
+        }
 
         if ($coverImage) {
             $household->cover_image_path = $coverImage->store('households/covers', 'public');

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Household;
 use App\Models\User;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,13 @@ use Tests\TestCase;
 class HouseholdCrudTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(RolesSeeder::class);
+    }
 
     public function test_guests_are_redirected_to_login()
     {
