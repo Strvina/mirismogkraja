@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\HouseholdController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,4 +28,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/kategorije/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::get('/porudzbine', [OrderController::class, 'index'])->name('orders.index');
+
+    Route::get('/ocene', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::delete('/ocene/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
