@@ -1,3 +1,4 @@
+import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
 import { type Household, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -6,7 +7,15 @@ import { useState } from 'react';
 
 type FullProduct = Product & { household: Household };
 
-export default function ProductShow({ product, similar }: { product: FullProduct; similar: Product[] }) {
+export default function ProductShow({
+    product,
+    similar,
+    isFavorited,
+}: {
+    product: FullProduct;
+    similar: Product[];
+    isFavorited: boolean;
+}) {
     const { auth } = usePage<SharedData>().props;
     const [quantity, setQuantity] = useState(1);
     const images = [...(product.images ?? [])].sort((a, b) => a.order - b.order);
@@ -60,6 +69,7 @@ export default function ProductShow({ product, similar }: { product: FullProduct
                                     className="w-20 rounded-md border border-input bg-background px-3 py-2 text-sm"
                                 />
                                 <Button onClick={addToCart}>Dodaj u korpu</Button>
+                                {auth.user && <FavoriteButton type="product" id={product.id} isFavorited={isFavorited} />}
                             </div>
 
                             <Link

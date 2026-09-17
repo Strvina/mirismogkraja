@@ -1,3 +1,4 @@
+import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
 import { type Household, type Product, type Review, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -10,12 +11,14 @@ export default function HouseholdShow({
     reviews,
     averageRating,
     canReview,
+    isFavorited,
 }: {
     household: Household;
     products: Product[];
     reviews: (Review & { user: { name: string } })[];
     averageRating: number;
     canReview: boolean;
+    isFavorited: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
     const [rating, setRating] = useState(5);
@@ -56,7 +59,7 @@ export default function HouseholdShow({
                                 className="size-16 rounded-full border object-cover"
                             />
                         )}
-                        <div>
+                        <div className="flex-1">
                             <h1 className="font-serif text-4xl">{household.name}</h1>
                             <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                                 {household.city && (
@@ -73,6 +76,7 @@ export default function HouseholdShow({
                                 )}
                             </div>
                         </div>
+                        {auth.user && <FavoriteButton type="household" id={household.id} isFavorited={isFavorited} />}
                     </div>
 
                     {household.description && (

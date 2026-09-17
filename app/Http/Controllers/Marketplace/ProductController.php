@@ -75,6 +75,10 @@ class ProductController extends Controller
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
             'similar' => $similar,
+            'isFavorited' => request()->user()?->favorites()
+                ->where('favoritable_type', 'product')
+                ->where('favoritable_id', $product->id)
+                ->exists() ?? false,
         ]);
     }
 }
