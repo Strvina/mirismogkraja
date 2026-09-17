@@ -47,6 +47,10 @@ class Product extends Model
         return $this->hasMany(ProductImage::class)->orderBy('order');
     }
 
-    // hasMany(CartItem::class) and hasMany(OrderItem::class) are added once
-    // those models exist (task 4.1 and task 4.4).
+    public function cartItems(): HasMany
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    // hasMany(OrderItem::class) is added once that model exists (task 4.4).
 }
