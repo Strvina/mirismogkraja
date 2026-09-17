@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type CartItem, type Household } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 type Group = { household: Household; items: CartItem[] };
 
@@ -62,7 +62,12 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                             </div>
                         ))}
 
-                        <p className="text-right text-lg font-semibold">Ukupno: {total.toFixed(2)} RSD</p>
+                        <div className="flex items-center justify-between">
+                            <p className="text-lg font-semibold">Ukupno: {total.toFixed(2)} RSD</p>
+                            <Button asChild>
+                                <Link href={route('checkout.create')}>Nastavi na naplatu</Link>
+                            </Button>
+                        </div>
                     </>
                 )}
             </div>

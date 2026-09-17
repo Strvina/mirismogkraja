@@ -30,6 +30,22 @@ export interface Product {
     status: 'draft' | 'active' | 'out_of_stock' | 'archived';
 }
 
+export interface OrderItem {
+    id: number;
+    product_name: string;
+    unit_price: string;
+    quantity: number;
+    subtotal: string;
+}
+
+export interface Order {
+    id: number;
+    status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+    total_price: string;
+    shipping_address: string;
+    items: OrderItem[];
+}
+
 export interface CartItem {
     id: number;
     quantity: number;
