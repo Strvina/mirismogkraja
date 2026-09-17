@@ -30,6 +30,12 @@ export interface Product {
     status: 'draft' | 'active' | 'out_of_stock' | 'archived';
 }
 
+export interface CartItem {
+    id: number;
+    quantity: number;
+    product: Product;
+}
+
 export interface Household {
     id: number;
     user_id: number;
