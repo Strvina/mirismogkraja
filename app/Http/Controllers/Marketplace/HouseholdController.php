@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Models\Household;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -50,8 +51,10 @@ class HouseholdController extends Controller
 
         return Inertia::render('marketplace/households/show', [
             'household' => $household,
-            // Products and reviews are wired in once those models exist
-            // (task 3.3 and task 5.1).
+            'products' => $household->products()->where('status', 'active')->with('images')->get(),
+            'reviews' => $household->reviews()->with('user:id,name')->latest()->get(),
+            'averageRating' => round($household->reviews()->avg('rating') ?? 0, 1),
+            'canReview' => request()->user()?->can('create', [Review::class, $household]) ?? false,
         ]);
     }
 }
