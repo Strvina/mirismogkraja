@@ -1,0 +1,81 @@
+import { type Household } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import { MapPin } from 'lucide-react';
+
+export default function HouseholdsIndex({
+    households,
+    cities,
+    filters,
+}: {
+    households: Household[];
+    cities: string[];
+    filters: { city: string | null };
+}) {
+    const filterByCity = (city: string) => {
+        router.get('/domacinstva', city ? { city } : {}, { preserveState: true });
+    };
+
+    return (
+        <>
+            <Head title="Domaćinstva | Vrelina juga" />
+
+            <main className="min-h-screen bg-background paper-grain">
+                <div className="mx-auto max-w-[1380px] px-5 py-12 sm:px-8 lg:px-12">
+                    <Link href="/" className="text-sm font-semibold text-primary">
+                        ← Vrelina juga
+                    </Link>
+
+                    <div className="mt-6 flex items-end justify-between gap-6">
+                        <h1 className="font-serif text-4xl sm:text-5xl">Domaćinstva</h1>
+
+                        {cities.length > 0 && (
+                            <select
+                                className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                value={filters.city ?? ''}
+                                onChange={(e) => filterByCity(e.target.value)}
+                            >
+                                <option value="">Svi gradovi</option>
+                                {cities.map((city) => (
+                                    <option key={city} value={city}>
+                                        {city}
+                                    </option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+
+                    {households.length === 0 ? (
+                        <p className="mt-10 text-sm text-muted-foreground">Nema domaćinstava za prikaz.</p>
+                    ) : (
+                        <div className="mt-10 grid gap-8 md:grid-cols-3">
+                            {households.map((household) => (
+                                <Link
+                                    key={household.id}
+                                    href={route('marketplace.households.show', household.slug)}
+                                    className="group"
+                                >
+                                    <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
+                                        {household.cover_image_path && (
+                                            <img
+                                                src={`/storage/${household.cover_image_path}`}
+                                                alt={household.name}
+                                                className="image-warm size-full object-cover transition duration-700 group-hover:scale-[1.025]"
+                                            />
+                                        )}
+                                    </div>
+                                    <h2 className="mt-4 font-serif text-2xl">{household.name}</h2>
+                                    {household.city && (
+                                        <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+                                            <MapPin className="size-3.5" />
+                                            {household.city}
+                                        </p>
+                                    )}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </main>
+        </>
+    );
+}
