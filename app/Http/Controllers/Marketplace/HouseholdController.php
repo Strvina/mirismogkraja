@@ -55,6 +55,10 @@ class HouseholdController extends Controller
             'reviews' => $household->reviews()->with('user:id,name')->latest()->get(),
             'averageRating' => round($household->reviews()->avg('rating') ?? 0, 1),
             'canReview' => request()->user()?->can('create', [Review::class, $household]) ?? false,
+            'isFavorited' => request()->user()?->favorites()
+                ->where('favoritable_type', 'household')
+                ->where('favoritable_id', $household->id)
+                ->exists() ?? false,
         ]);
     }
 }
