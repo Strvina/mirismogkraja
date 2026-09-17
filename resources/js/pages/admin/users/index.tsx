@@ -26,7 +26,7 @@ export default function AdminUsersIndex({ users }: { users: User[] }) {
             <Head title="Korisnici" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Korisnici</h1>
+                <h1 className="font-serif text-xl font-semibold">Korisnici</h1>
 
                 <div className="space-y-2">
                     {users.map((user) => {
@@ -35,7 +35,7 @@ export default function AdminUsersIndex({ users }: { users: User[] }) {
                             <div key={user.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
                                 <div>
                                     <p className="font-medium">{user.name}</p>
-                                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                                    <p className="text-muted-foreground text-xs">{user.email}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {ALL_ROLES.map((role) => (
@@ -50,11 +50,7 @@ export default function AdminUsersIndex({ users }: { users: User[] }) {
                                         </button>
                                     ))}
                                 </div>
-                                <Button
-                                    variant={user.blocked_at ? 'outline' : 'destructive'}
-                                    size="sm"
-                                    onClick={() => toggleBlock(user)}
-                                >
+                                <Button variant={user.blocked_at ? 'outline' : 'destructive'} size="sm" onClick={() => toggleBlock(user)}>
                                     {user.blocked_at ? 'Odblokiraj' : 'Blokiraj'}
                                 </Button>
                             </div>

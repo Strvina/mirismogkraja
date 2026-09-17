@@ -50,7 +50,7 @@ export default function ProductForm({
                 <Label htmlFor="category_id">Kategorija</Label>
                 <select
                     id="category_id"
-                    className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    className="border-input bg-background rounded-md border px-3 py-2 text-sm"
                     value={data.category_id}
                     onChange={(e) => setData('category_id', e.target.value)}
                     required
@@ -75,7 +75,7 @@ export default function ProductForm({
                 <Label htmlFor="description">Opis</Label>
                 <textarea
                     id="description"
-                    className="min-h-32 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    className="border-input bg-background min-h-32 rounded-md border px-3 py-2 text-sm"
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
                 />
@@ -101,7 +101,7 @@ export default function ProductForm({
                     <Label htmlFor="unit">Jedinica mere</Label>
                     <select
                         id="unit"
-                        className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        className="border-input bg-background rounded-md border px-3 py-2 text-sm"
                         value={data.unit}
                         onChange={(e) => setData('unit', e.target.value as Product['unit'])}
                     >
@@ -133,7 +133,7 @@ export default function ProductForm({
                     <Label htmlFor="status">Status</Label>
                     <select
                         id="status"
-                        className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        className="border-input bg-background rounded-md border px-3 py-2 text-sm"
                         value={data.status}
                         onChange={(e) => setData('status', e.target.value as Product['status'])}
                     >

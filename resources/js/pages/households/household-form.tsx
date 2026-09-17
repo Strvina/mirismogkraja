@@ -33,13 +33,7 @@ function ImageField({
             <Label htmlFor={id}>{label}</Label>
             <div className="flex items-center gap-4">
                 {preview && <img src={preview} alt="" className="size-16 rounded-md object-cover" />}
-                <Input
-                    id={id}
-                    type="file"
-                    accept="image/*"
-                    className="w-full max-w-xs"
-                    onChange={(e) => onChange(e.target.files?.[0] ?? null)}
-                />
+                <Input id={id} type="file" accept="image/*" className="w-full max-w-xs" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
             </div>
             <InputError message={error} />
         </div>
@@ -66,9 +60,7 @@ export default function HouseholdForm({
         logo: null,
     });
 
-    const [coverPreview, setCoverPreview] = useState<string | null>(
-        household?.cover_image_path ? `/storage/${household.cover_image_path}` : null,
-    );
+    const [coverPreview, setCoverPreview] = useState<string | null>(household?.cover_image_path ? `/storage/${household.cover_image_path}` : null);
     const [logoPreview, setLogoPreview] = useState<string | null>(household?.logo_path ? `/storage/${household.logo_path}` : null);
 
     const submit: FormEventHandler = (e) => {
@@ -112,7 +104,7 @@ export default function HouseholdForm({
                 <Label htmlFor="description">Opis</Label>
                 <textarea
                     id="description"
-                    className="min-h-32 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    className="border-input bg-background min-h-32 rounded-md border px-3 py-2 text-sm"
                     value={data.description}
                     onChange={(e) => setData('description', e.target.value)}
                 />

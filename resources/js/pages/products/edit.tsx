@@ -29,26 +29,22 @@ function ImagesManager({ household, product }: { household: Household; product: 
                         <div key={image.id} className="relative">
                             <img src={`/storage/${image.path}`} alt="" className="aspect-square w-full rounded-md object-cover" />
                             {image.order === 0 ? (
-                                <span className="absolute top-1 left-1 rounded bg-primary px-1.5 py-0.5 text-[0.65rem] text-primary-foreground">
+                                <span className="bg-primary text-primary-foreground absolute top-1 left-1 rounded px-1.5 py-0.5 text-[0.65rem]">
                                     Glavna
                                 </span>
                             ) : (
                                 <button
                                     type="button"
-                                    className="absolute top-1 left-1 rounded bg-background/90 px-1.5 py-0.5 text-[0.65rem]"
-                                    onClick={() =>
-                                        router.patch(route('households.products.images.primary', [household.id, product.id, image.id]))
-                                    }
+                                    className="bg-background/90 absolute top-1 left-1 rounded px-1.5 py-0.5 text-[0.65rem]"
+                                    onClick={() => router.patch(route('households.products.images.primary', [household.id, product.id, image.id]))}
                                 >
                                     Postavi kao glavnu
                                 </button>
                             )}
                             <button
                                 type="button"
-                                className="absolute top-1 right-1 rounded bg-destructive px-1.5 py-0.5 text-[0.65rem] text-destructive-foreground"
-                                onClick={() =>
-                                    router.delete(route('households.products.images.destroy', [household.id, product.id, image.id]))
-                                }
+                                className="bg-destructive text-destructive-foreground absolute top-1 right-1 rounded px-1.5 py-0.5 text-[0.65rem]"
+                                onClick={() => router.delete(route('households.products.images.destroy', [household.id, product.id, image.id]))}
                             >
                                 Ukloni
                             </button>
@@ -58,27 +54,14 @@ function ImagesManager({ household, product }: { household: Household; product: 
             )}
 
             <form onSubmit={upload} className="flex items-center gap-3">
-                <Input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => setData('images', Array.from(e.target.files ?? []))}
-                />
+                <Input type="file" accept="image/*" multiple onChange={(e) => setData('images', Array.from(e.target.files ?? []))} />
                 <Button disabled={processing || data.images.length === 0}>Dodaj slike</Button>
             </form>
         </div>
     );
 }
 
-export default function ProductsEdit({
-    household,
-    product,
-    categories,
-}: {
-    household: Household;
-    product: Product;
-    categories: Category[];
-}) {
+export default function ProductsEdit({ household, product, categories }: { household: Household; product: Product; categories: Category[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Moja domaćinstva', href: '/moja-domacinstva' },
         { title: household.name, href: `/moja-domacinstva/${household.id}/izmena` },
@@ -90,7 +73,7 @@ export default function ProductsEdit({
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Izmena — ${product.name}`} />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Izmena proizvoda</h1>
+                <h1 className="font-serif text-xl font-semibold">Izmena proizvoda</h1>
                 <ProductForm
                     product={product}
                     categories={categories}

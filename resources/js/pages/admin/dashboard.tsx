@@ -25,11 +25,11 @@ export default function AdminDashboard({ stats }: { stats: Stats }) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin" />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Admin panel</h1>
+                <h1 className="font-serif text-xl font-semibold">Admin panel</h1>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     {tiles.map((tile) => (
                         <div key={tile.label} className="rounded-xl border p-4">
-                            <p className="text-sm text-muted-foreground">{tile.label}</p>
+                            <p className="text-muted-foreground text-sm">{tile.label}</p>
                             <p className="mt-1 text-2xl font-semibold">{tile.value}</p>
                         </div>
                     ))}

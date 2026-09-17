@@ -15,13 +15,8 @@ export default function ProductsCreate({ household, categories }: { household: H
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Novi proizvod" />
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Novi proizvod</h1>
-                <ProductForm
-                    categories={categories}
-                    action={route('households.products.store', household.id)}
-                    method="post"
-                    submitLabel="Kreiraj"
-                />
+                <h1 className="font-serif text-xl font-semibold">Novi proizvod</h1>
+                <ProductForm categories={categories} action={route('households.products.store', household.id)} method="post" submitLabel="Kreiraj" />
             </div>
         </AppLayout>
     );

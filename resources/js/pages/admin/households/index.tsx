@@ -26,14 +26,14 @@ export default function AdminHouseholdsIndex({ households }: { households: House
             <Head title="Domaćinstva" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Domaćinstva</h1>
+                <h1 className="font-serif text-xl font-semibold">Domaćinstva</h1>
 
                 <div className="space-y-2">
                     {households.map((household) => (
                         <div key={household.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4">
                             <div>
                                 <p className="font-medium">{household.name}</p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-muted-foreground text-xs">
                                     {household.user.name} · {statusLabels[household.status]}
                                 </p>
                             </div>

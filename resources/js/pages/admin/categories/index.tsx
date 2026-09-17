@@ -31,14 +31,14 @@ export default function AdminCategoriesIndex({ categories }: { categories: Categ
             <Head title="Kategorije" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Kategorije</h1>
+                <h1 className="font-serif text-xl font-semibold">Kategorije</h1>
 
                 <form onSubmit={submit} className="flex max-w-md items-end gap-2">
                     <div className="flex-1">
                         <Input placeholder="Nova kategorija" value={data.name} onChange={(e) => setData('name', e.target.value)} />
                     </div>
                     <select
-                        className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+                        className="border-input bg-background rounded-md border px-3 py-2 text-sm"
                         value={data.parent_id}
                         onChange={(e) => setData('parent_id', e.target.value)}
                     >
@@ -57,7 +57,7 @@ export default function AdminCategoriesIndex({ categories }: { categories: Categ
                         <div key={category.id} className="flex items-center justify-between rounded-xl border p-4">
                             <div>
                                 <p className="font-medium">{category.name}</p>
-                                {category.parent && <p className="text-xs text-muted-foreground">Podkategorija: {category.parent.name}</p>}
+                                {category.parent && <p className="text-muted-foreground text-xs">Podkategorija: {category.parent.name}</p>}
                             </div>
                             <Button variant="destructive" size="sm" onClick={() => destroy(category)}>
                                 Obriši

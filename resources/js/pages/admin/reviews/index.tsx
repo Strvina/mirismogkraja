@@ -23,7 +23,7 @@ export default function AdminReviewsIndex({ reviews }: { reviews: ReviewWithRela
             <Head title="Ocene" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Moderacija ocena</h1>
+                <h1 className="font-serif text-xl font-semibold">Moderacija ocena</h1>
 
                 <div className="space-y-2">
                     {reviews.map((review) => (
@@ -31,14 +31,14 @@ export default function AdminReviewsIndex({ reviews }: { reviews: ReviewWithRela
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="font-medium">{review.user.name}</span>
-                                    <span className="text-xs text-muted-foreground">→ {review.household.name}</span>
-                                    <span className="flex items-center gap-0.5 text-gold">
+                                    <span className="text-muted-foreground text-xs">→ {review.household.name}</span>
+                                    <span className="text-gold flex items-center gap-0.5">
                                         {Array.from({ length: review.rating }).map((_, i) => (
-                                            <Star key={i} className="size-3.5 fill-gold" />
+                                            <Star key={i} className="fill-gold size-3.5" />
                                         ))}
                                     </span>
                                 </div>
-                                {review.comment && <p className="mt-1 text-sm text-muted-foreground">{review.comment}</p>}
+                                {review.comment && <p className="text-muted-foreground mt-1 text-sm">{review.comment}</p>}
                             </div>
                             <Button variant="destructive" size="sm" onClick={() => destroy(review)}>
                                 Obriši

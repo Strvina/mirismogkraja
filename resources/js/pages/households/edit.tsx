@@ -14,13 +14,8 @@ export default function HouseholdsEdit({ household }: { household: Household }) 
             <Head title={`Izmena — ${household.name}`} />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="text-xl font-semibold">Izmena domaćinstva</h1>
-                <HouseholdForm
-                    household={household}
-                    action={route('households.update', household.id)}
-                    method="put"
-                    submitLabel="Sačuvaj izmene"
-                />
+                <h1 className="font-serif text-xl font-semibold">Izmena domaćinstva</h1>
+                <HouseholdForm household={household} action={route('households.update', household.id)} method="put" submitLabel="Sačuvaj izmene" />
             </div>
         </AppLayout>
     );
