@@ -7,9 +7,28 @@ use App\Models\Product;
 use App\Services\CartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CartController extends Controller
 {
+    /**
+     * Show the authenticated user's cart, grouped by household.
+     */
+    public function index(Request $request): Response
+    {
+        $items = $request->user()->cartItems()->with(['product.household', 'product.images'])->get();
+
+        $groups = $items->groupBy(fn (CartItem $item) => $item->product->household_id)
+            ->map(fn ($items) => [
+                'household' => $items->first()->product->household,
+                'items' => $items->values(),
+            ])
+            ->values();
+
+        return Inertia::render('cart/index', ['groups' => $groups]);
+    }
+
     public function store(Request $request, CartService $cart): RedirectResponse
     {
         $data = $request->validate([
