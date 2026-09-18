@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Order } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -14,11 +14,11 @@ const statusLabels: Record<Order['status'], string> = {
 
 export default function MyOrders({ orders }: { orders: Order[] }) {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Moje porudžbine" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Moje porudžbine</h1>
+            <div className="flex flex-col gap-4">
+                <h1 className="font-serif text-4xl sm:text-5xl">Moje porudžbine</h1>
 
                 {orders.length === 0 ? (
                     <p className="text-muted-foreground text-sm">Još uvek nemaš porudžbina.</p>
@@ -38,6 +38,6 @@ export default function MyOrders({ orders }: { orders: Order[] }) {
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

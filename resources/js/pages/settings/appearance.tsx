@@ -4,27 +4,27 @@ import AppearanceTabs from '@/components/appearance-tabs';
 import HeadingSmall from '@/components/heading-small';
 import { type BreadcrumbItem } from '@/types';
 
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Appearance settings',
+        title: 'Izgled',
         href: '/settings/appearance',
     },
 ];
 
 export default function Appearance() {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Appearance settings" />
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
+            <Head title="Izgled" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Appearance settings" description="Update your account's appearance settings" />
+                    <HeadingSmall title="Izgled" description="Izaberite svetlu ili tamnu temu" />
                     <AppearanceTabs />
                 </div>
             </SettingsLayout>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

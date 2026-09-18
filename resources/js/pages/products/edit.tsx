@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Category, type Producer, type Product } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -70,10 +70,10 @@ export default function ProductsEdit({ producer, product, categories }: { produc
     ];
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title={`Izmena — ${product.name}`} />
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Izmena proizvoda</h1>
+            <div className="flex flex-col gap-4">
+                <h1 className="font-serif text-4xl sm:text-5xl">Izmena proizvoda</h1>
                 <ProductForm
                     product={product}
                     categories={categories}
@@ -83,6 +83,6 @@ export default function ProductsEdit({ producer, product, categories }: { produc
                 />
                 <ImagesManager producer={producer} product={product} />
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

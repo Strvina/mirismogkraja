@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -17,12 +17,12 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title={`Proizvodi — ${producer.name}`} />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
+            <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="font-serif text-xl font-semibold">Proizvodi — {producer.name}</h1>
+                    <h1 className="font-serif text-4xl sm:text-5xl">Proizvodi — {producer.name}</h1>
                     <Button asChild>
                         <Link href={route('producers.products.create', producer.id)}>Novi proizvod</Link>
                     </Button>
@@ -54,6 +54,6 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

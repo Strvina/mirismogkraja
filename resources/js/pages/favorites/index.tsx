@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -6,12 +6,14 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moji omiljeni', href: '/omiljen
 
 export default function FavoritesIndex({ producers, products }: { producers: Producer[]; products: Product[] }) {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Moji omiljeni" />
 
-            <div className="flex flex-1 flex-col gap-8 p-4">
+            <h1 className="font-serif text-4xl sm:text-5xl">Moji omiljeni</h1>
+
+            <div className="mt-8 flex flex-col gap-8">
                 <div>
-                    <h1 className="font-serif text-xl font-semibold">Omiljeni proizvođači</h1>
+                    <h2 className="font-serif text-2xl">Omiljeni proizvođači</h2>
                     {producers.length === 0 ? (
                         <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvođača.</p>
                     ) : (
@@ -31,7 +33,7 @@ export default function FavoritesIndex({ producers, products }: { producers: Pro
                 </div>
 
                 <div>
-                    <h1 className="font-serif text-xl font-semibold">Omiljeni proizvodi</h1>
+                    <h2 className="font-serif text-2xl">Omiljeni proizvodi</h2>
                     {products.length === 0 ? (
                         <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvoda.</p>
                     ) : (
@@ -50,6 +52,6 @@ export default function FavoritesIndex({ producers, products }: { producers: Pro
                     )}
                 </div>
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

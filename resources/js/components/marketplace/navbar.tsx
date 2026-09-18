@@ -5,15 +5,16 @@ import { Heart, ShoppingCart } from 'lucide-react';
 import Brand from './brand';
 
 /**
- * Standard (opaque, non-hero) navbar shared by every marketplace page
- * (task 7.1/7.2) - the landing page keeps its own transparent-over-hero
- * header, which doesn't fit pages without a full-bleed photo.
+ * The site's header: shared by every page except the landing page, which
+ * keeps its own transparent-over-hero variant, and the admin panel, which
+ * has its own shell. Sticky, so navigation and the cart stay reachable no
+ * matter how far down the page someone has scrolled.
  */
 export default function Navbar() {
     const { auth } = usePage<SharedData>().props;
 
     return (
-        <header className="border-border bg-background border-b">
+        <header className="border-border bg-background/95 sticky top-0 z-50 border-b backdrop-blur supports-[backdrop-filter]:bg-background/80">
             <div className="mx-auto flex h-auto min-h-20 max-w-[1380px] flex-wrap items-center justify-between gap-y-2 px-5 py-3 sm:px-8 lg:px-12">
                 <Brand />
                 <nav className="flex items-center gap-6 text-sm font-medium sm:gap-8" aria-label="Glavna navigacija">

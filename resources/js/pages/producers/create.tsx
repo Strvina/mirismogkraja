@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import ProducerForm from './producer-form';
@@ -10,13 +10,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function ProducersCreate() {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Novi proizvođač" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Novi proizvođač</h1>
+            <div className="flex flex-col gap-4">
+                <h1 className="font-serif text-4xl sm:text-5xl">Novi proizvođač</h1>
                 <ProducerForm action={route('producers.store')} method="post" submitLabel="Kreiraj" />
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

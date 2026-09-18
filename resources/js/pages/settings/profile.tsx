@@ -9,12 +9,12 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Profile settings',
+        title: 'Moj nalog',
         href: '/settings/profile',
     },
 ];
@@ -75,21 +75,21 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
+            <Head title="Moj nalog" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Profile information" description="Update your name and email address" />
+                    <HeadingSmall title="Lični podaci" description="Izmenite svoje ime, email i kontakt podatke" />
 
                     <div className="grid gap-2">
-                        <Label htmlFor="avatar">Avatar</Label>
+                        <Label htmlFor="avatar">Profilna slika</Label>
 
                         <div className="flex items-center gap-4">
                             {avatarPreview && (
                                 <img
                                     src={avatarPreview}
-                                    alt="Avatar preview"
+                                    alt="Pregled profilne slike"
                                     className="size-16 rounded-full object-cover"
                                 />
                             )}
@@ -108,7 +108,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                            <Label htmlFor="name">Ime i prezime</Label>
 
                             <Input
                                 id="name"
@@ -117,14 +117,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
                                 autoComplete="name"
-                                placeholder="Full name"
+                                placeholder="Ime i prezime"
                             />
 
                             <InputError className="mt-2" message={errors.name} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email address</Label>
+                            <Label htmlFor="email">Email adresa</Label>
 
                             <Input
                                 id="email"
@@ -134,14 +134,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
                                 autoComplete="username"
-                                placeholder="Email address"
+                                placeholder="Email adresa"
                             />
 
                             <InputError className="mt-2" message={errors.email} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="phone">Phone</Label>
+                            <Label htmlFor="phone">Telefon</Label>
 
                             <Input
                                 id="phone"
@@ -156,7 +156,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="address">Address</Label>
+                            <Label htmlFor="address">Adresa</Label>
 
                             <Input
                                 id="address"
@@ -164,14 +164,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 value={data.address}
                                 onChange={(e) => setData('address', e.target.value)}
                                 autoComplete="street-address"
-                                placeholder="Street and number"
+                                placeholder="Ulica i broj"
                             />
 
                             <InputError className="mt-2" message={errors.address} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="city">City</Label>
+                            <Label htmlFor="city">Grad</Label>
 
                             <Input
                                 id="city"
@@ -179,7 +179,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 value={data.city}
                                 onChange={(e) => setData('city', e.target.value)}
                                 autoComplete="address-level2"
-                                placeholder="City"
+                                placeholder="Grad"
                             />
 
                             <InputError className="mt-2" message={errors.city} />
@@ -188,27 +188,27 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
                             <div>
                                 <p className="mt-2 text-sm text-neutral-800">
-                                    Your email address is unverified.
+                                    Vaša email adresa nije potvrđena.
                                     <Link
                                         href={route('verification.send')}
                                         method="post"
                                         as="button"
                                         className="rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
                                     >
-                                        Click here to re-send the verification email.
+                                        Kliknite ovde da ponovo pošaljemo email za potvrdu.
                                     </Link>
                                 </p>
 
                                 {status === 'verification-link-sent' && (
                                     <div className="mt-2 text-sm font-medium text-green-600">
-                                        A new verification link has been sent to your email address.
+                                        Nov link za potvrdu je poslat na vašu email adresu.
                                     </div>
                                 )}
                             </div>
                         )}
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save</Button>
+                            <Button disabled={processing}>Sačuvaj</Button>
 
                             <Transition
                                 show={recentlySuccessful}
@@ -217,7 +217,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-sm text-neutral-600">Sačuvano</p>
                             </Transition>
                         </div>
                     </form>
@@ -225,6 +225,6 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                 <DeleteUser />
             </SettingsLayout>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }
