@@ -25,32 +25,42 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null,
     );
 
+    const {
+        data: avatarData,
+        setData: setAvatarData,
+        patch: patchAvatar,
+        errors: avatarErrors,
+        processing: avatarProcessing,
+    } = useForm<{ avatar: File | null }>({ avatar: null });
+
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
         name: string;
         email: string;
         phone: string;
         address: string;
         city: string;
-        avatar: File | null;
     }>({
         name: auth.user.name,
         email: auth.user.email,
         phone: auth.user.phone ?? '',
         address: auth.user.address ?? '',
         city: auth.user.city ?? '',
-        avatar: null,
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'), { forceFormData: true });
+        patch(route('profile.update'));
     };
 
     const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
-        setData('avatar', file);
+        setAvatarData('avatar', file);
         setAvatarPreview(file ? URL.createObjectURL(file) : auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null);
+
+        if (file) {
+            patchAvatar(route('profile.avatar.update'), { forceFormData: true, preserveScroll: true });
+        }
     };
 
     return (
@@ -61,24 +71,31 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                 <div className="space-y-6">
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
-                    <form onSubmit={submit} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="avatar">Avatar</Label>
+                    <div className="grid gap-2">
+                        <Label htmlFor="avatar">Avatar</Label>
 
-                            <div className="flex items-center gap-4">
-                                {avatarPreview && (
-                                    <img
-                                        src={avatarPreview}
-                                        alt="Avatar preview"
-                                        className="size-16 rounded-full object-cover"
-                                    />
-                                )}
-                                <Input id="avatar" type="file" accept="image/*" className="w-full max-w-xs" onChange={onAvatarChange} />
-                            </div>
-
-                            <InputError className="mt-2" message={errors.avatar} />
+                        <div className="flex items-center gap-4">
+                            {avatarPreview && (
+                                <img
+                                    src={avatarPreview}
+                                    alt="Avatar preview"
+                                    className="size-16 rounded-full object-cover"
+                                />
+                            )}
+                            <Input
+                                id="avatar"
+                                type="file"
+                                accept="image/*"
+                                className="w-full max-w-xs"
+                                disabled={avatarProcessing}
+                                onChange={onAvatarChange}
+                            />
                         </div>
 
+                        <InputError className="mt-2" message={avatarErrors.avatar} />
+                    </div>
+
+                    <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Name</Label>
 

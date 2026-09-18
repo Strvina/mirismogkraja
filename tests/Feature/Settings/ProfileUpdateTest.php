@@ -79,9 +79,7 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->patch('/settings/profile', [
-                'name' => $user->name,
-                'email' => $user->email,
+            ->patch('/settings/profile/avatar', [
                 'avatar' => UploadedFile::fake()->create('avatar.jpg', 10, 'image/jpeg'),
             ]);
 
@@ -94,6 +92,25 @@ class ProfileUpdateTest extends TestCase
         $this->assertNotSame('avatars/old.jpg', $user->avatar_path);
         Storage::disk('public')->assertExists($user->avatar_path);
         Storage::disk('public')->assertMissing('avatars/old.jpg');
+    }
+
+    public function test_avatar_can_be_uploaded_alone_without_touching_name_or_email()
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/settings/profile/avatar', [
+                'avatar' => UploadedFile::fake()->create('avatar.jpg', 10, 'image/jpeg'),
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/settings/profile');
+
+        Storage::disk('public')->assertExists($user->refresh()->avatar_path);
     }
 
     public function test_email_verification_status_is_unchanged_when_the_email_address_is_unchanged()
