@@ -7,7 +7,7 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 1. Seederi
 - [ ] 2. Bug: avatar upload (backend ispravan + testovi prolaze, ali u browseru i dalje ne radi — vratiti se na ovo)
 - [ ] 3. Stranica "Moj nalog"
-- [ ] 4. Tok posle prijave
+- [x] 4. Tok posle prijave (ostaje samo: podstranice vizuelno da prate početnu — ide uz 3/11/12/13/18)
 - [x] 5. Sekcija "Domaćinstva sa pričom"
 - [x] 6. Sekcija "Ukusi koji se prate"
 - [x] 7. Sekcija "Šta tražite"
