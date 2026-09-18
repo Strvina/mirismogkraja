@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Instagram, Leaf, MapPin, Menu, Sprout } from 'lucide-react';
+import { ArrowRight, Heart, Instagram, Leaf, MapPin, Menu, ShoppingCart, Sprout } from 'lucide-react';
 
 import heroImage from '../assets/hero-ajvar.jpg';
 import cheeseImage from '../assets/producer-cheese.jpg';
@@ -90,19 +90,27 @@ export default function Welcome({
                             <a href="#top" className="transition-opacity hover:opacity-70">
                                 Početna
                             </a>
-                            <a href="#proizvodjaci" className="transition-opacity hover:opacity-70">
+                            <Link href={route('marketplace.producers.index')} className="transition-opacity hover:opacity-70">
                                 Proizvođači
-                            </a>
-                            <a href="#proizvodi" className="transition-opacity hover:opacity-70">
+                            </Link>
+                            <Link href={route('marketplace.products.index')} className="transition-opacity hover:opacity-70">
                                 Proizvodi
-                            </a>
+                            </Link>
                             <a href="#o-nama" className="transition-opacity hover:opacity-70">
                                 O nama
                             </a>
                             {auth.user ? (
-                                <Link href={route('dashboard')} className="transition-opacity hover:opacity-70">
-                                    Moj nalog
-                                </Link>
+                                <>
+                                    <Link href={route('favorites.index')} aria-label="Omiljeni" className="transition-opacity hover:opacity-70">
+                                        <Heart className="size-5" />
+                                    </Link>
+                                    <Link href={route('cart.index')} aria-label="Korpa" className="transition-opacity hover:opacity-70">
+                                        <ShoppingCart className="size-5" />
+                                    </Link>
+                                    <Link href={route('profile.edit')} className="transition-opacity hover:opacity-70">
+                                        Moj nalog
+                                    </Link>
+                                </>
                             ) : (
                                 <Link href={route('login')} className="transition-opacity hover:opacity-70">
                                     Prijava
@@ -369,8 +377,8 @@ export default function Welcome({
                             <div>
                                 <p className="mb-4 text-xs font-semibold tracking-[0.14em] text-primary uppercase">Istražite</p>
                                 <nav className="grid gap-3 text-sm">
-                                    <a href="#proizvodjaci">Proizvođači</a>
-                                    <a href="#proizvodi">Proizvodi</a>
+                                    <Link href={route('marketplace.producers.index')}>Proizvođači</Link>
+                                    <Link href={route('marketplace.products.index')}>Proizvodi</Link>
                                     <a href="#o-nama">O nama</a>
                                 </nav>
                             </div>
