@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\Category;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
@@ -14,57 +14,57 @@ use Inertia\Response;
 
 class ProductController extends Controller
 {
-    public function index(Household $household): Response
+    public function index(Producer $producer): Response
     {
-        $this->authorize('update', $household);
+        $this->authorize('update', $producer);
 
         return Inertia::render('products/index', [
-            'household' => $household,
-            'products' => $household->products()->with('category')->latest()->get(),
+            'producer' => $producer,
+            'products' => $producer->products()->with('category')->latest()->get(),
         ]);
     }
 
-    public function create(Household $household): Response
+    public function create(Producer $producer): Response
     {
-        $this->authorize('create', [Product::class, $household]);
+        $this->authorize('create', [Product::class, $producer]);
 
         return Inertia::render('products/create', [
-            'household' => $household,
+            'producer' => $producer,
             'categories' => Category::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
-    public function store(StoreProductRequest $request, Household $household, ProductService $products): RedirectResponse
+    public function store(StoreProductRequest $request, Producer $producer, ProductService $products): RedirectResponse
     {
-        $products->create($household, $request->validated());
+        $products->create($producer, $request->validated());
 
-        return to_route('households.products.index', $household);
+        return to_route('producers.products.index', $producer);
     }
 
-    public function edit(Household $household, Product $product): Response
+    public function edit(Producer $producer, Product $product): Response
     {
         $this->authorize('update', $product);
 
         return Inertia::render('products/edit', [
-            'household' => $household,
+            'producer' => $producer,
             'product' => $product->load('images'),
             'categories' => Category::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
-    public function update(UpdateProductRequest $request, Household $household, Product $product, ProductService $products): RedirectResponse
+    public function update(UpdateProductRequest $request, Producer $producer, Product $product, ProductService $products): RedirectResponse
     {
         $products->update($product, $request->validated());
 
-        return to_route('households.products.index', $household);
+        return to_route('producers.products.index', $producer);
     }
 
-    public function destroy(Household $household, Product $product): RedirectResponse
+    public function destroy(Producer $producer, Product $product): RedirectResponse
     {
         $this->authorize('delete', $product);
 
         $product->delete();
 
-        return to_route('households.products.index', $household);
+        return to_route('producers.products.index', $producer);
     }
 }

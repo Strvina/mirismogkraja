@@ -1,17 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Category, type Household, type Product } from '@/types';
+import { type BreadcrumbItem, type Category, type Producer, type Product } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 import ProductForm from './product-form';
 
-function ImagesManager({ household, product }: { household: Household; product: Product }) {
+function ImagesManager({ producer, product }: { producer: Producer; product: Product }) {
     const { data, setData, post, processing, reset } = useForm<{ images: File[] }>({ images: [] });
 
     const upload: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('households.products.images.store', [household.id, product.id]), {
+        post(route('producers.products.images.store', [producer.id, product.id]), {
             forceFormData: true,
             onSuccess: () => reset(),
         });
@@ -36,7 +36,7 @@ function ImagesManager({ household, product }: { household: Household; product: 
                                 <button
                                     type="button"
                                     className="bg-background/90 absolute top-1 left-1 rounded px-1.5 py-0.5 text-[0.65rem]"
-                                    onClick={() => router.patch(route('households.products.images.primary', [household.id, product.id, image.id]))}
+                                    onClick={() => router.patch(route('producers.products.images.primary', [producer.id, product.id, image.id]))}
                                 >
                                     Postavi kao glavnu
                                 </button>
@@ -44,7 +44,7 @@ function ImagesManager({ household, product }: { household: Household; product: 
                             <button
                                 type="button"
                                 className="bg-destructive text-destructive-foreground absolute top-1 right-1 rounded px-1.5 py-0.5 text-[0.65rem]"
-                                onClick={() => router.delete(route('households.products.images.destroy', [household.id, product.id, image.id]))}
+                                onClick={() => router.delete(route('producers.products.images.destroy', [producer.id, product.id, image.id]))}
                             >
                                 Ukloni
                             </button>
@@ -61,12 +61,12 @@ function ImagesManager({ household, product }: { household: Household; product: 
     );
 }
 
-export default function ProductsEdit({ household, product, categories }: { household: Household; product: Product; categories: Category[] }) {
+export default function ProductsEdit({ producer, product, categories }: { producer: Producer; product: Product; categories: Category[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Moja domaćinstva', href: '/moja-domacinstva' },
-        { title: household.name, href: `/moja-domacinstva/${household.id}/izmena` },
-        { title: 'Proizvodi', href: route('households.products.index', household.id) },
-        { title: product.name, href: route('households.products.edit', [household.id, product.id]) },
+        { title: 'Moji proizvođači', href: '/moji-proizvodjaci' },
+        { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
+        { title: 'Proizvodi', href: route('producers.products.index', producer.id) },
+        { title: product.name, href: route('producers.products.edit', [producer.id, product.id]) },
     ];
 
     return (
@@ -77,11 +77,11 @@ export default function ProductsEdit({ household, product, categories }: { house
                 <ProductForm
                     product={product}
                     categories={categories}
-                    action={route('households.products.update', [household.id, product.id])}
+                    action={route('producers.products.update', [producer.id, product.id])}
                     method="put"
                     submitLabel="Sačuvaj izmene"
                 />
-                <ImagesManager household={household} product={product} />
+                <ImagesManager producer={producer} product={product} />
             </div>
         </AppLayout>
     );

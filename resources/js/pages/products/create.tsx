@@ -1,14 +1,14 @@
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Category, type Household } from '@/types';
+import { type BreadcrumbItem, type Category, type Producer } from '@/types';
 import { Head } from '@inertiajs/react';
 import ProductForm from './product-form';
 
-export default function ProductsCreate({ household, categories }: { household: Household; categories: Category[] }) {
+export default function ProductsCreate({ producer, categories }: { producer: Producer; categories: Category[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Moja domaćinstva', href: '/moja-domacinstva' },
-        { title: household.name, href: `/moja-domacinstva/${household.id}/izmena` },
-        { title: 'Proizvodi', href: route('households.products.index', household.id) },
-        { title: 'Novi proizvod', href: route('households.products.create', household.id) },
+        { title: 'Moji proizvođači', href: '/moji-proizvodjaci' },
+        { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
+        { title: 'Proizvodi', href: route('producers.products.index', producer.id) },
+        { title: 'Novi proizvod', href: route('producers.products.create', producer.id) },
     ];
 
     return (
@@ -16,7 +16,7 @@ export default function ProductsCreate({ household, categories }: { household: H
             <Head title="Novi proizvod" />
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <h1 className="font-serif text-xl font-semibold">Novi proizvod</h1>
-                <ProductForm categories={categories} action={route('households.products.store', household.id)} method="post" submitLabel="Kreiraj" />
+                <ProductForm categories={categories} action={route('producers.products.store', producer.id)} method="post" submitLabel="Kreiraj" />
             </div>
         </AppLayout>
     );

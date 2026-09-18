@@ -13,7 +13,7 @@ class ReviewController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/reviews/index', [
-            'reviews' => Review::with(['user:id,name', 'household:id,name'])->orderByDesc('created_at')->get(),
+            'reviews' => Review::with(['user:id,name', 'producer:id,name'])->orderByDesc('created_at')->get(),
         ]);
     }
 

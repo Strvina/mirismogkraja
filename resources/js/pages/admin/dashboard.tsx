@@ -6,7 +6,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: 'Admin', href: '/admin' }];
 
 type Stats = {
     users: number;
-    households: number;
+    producers: number;
     products: number;
     orders: number;
     revenue: number;
@@ -15,7 +15,7 @@ type Stats = {
 export default function AdminDashboard({ stats }: { stats: Stats }) {
     const tiles: { label: string; value: string }[] = [
         { label: 'Korisnici', value: String(stats.users) },
-        { label: 'Domaćinstva', value: String(stats.households) },
+        { label: 'Proizvođači', value: String(stats.producers) },
         { label: 'Proizvodi', value: String(stats.products) },
         { label: 'Porudžbine', value: String(stats.orders) },
         { label: 'Prihod (potvrđene porudžbine)', value: `${stats.revenue.toFixed(2)} RSD` },

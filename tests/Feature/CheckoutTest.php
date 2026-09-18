@@ -3,8 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\CartItem;
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,13 +14,13 @@ class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_checkout_creates_one_order_with_items_tagged_by_household()
+    public function test_checkout_creates_one_order_with_items_tagged_by_producer()
     {
         $user = User::factory()->create();
-        $householdA = Household::factory()->create();
-        $householdB = Household::factory()->create();
-        $productA = Product::factory()->for($householdA)->create(['price' => 100]);
-        $productB = Product::factory()->for($householdB)->create(['price' => 200]);
+        $producerA = Producer::factory()->create();
+        $producerB = Producer::factory()->create();
+        $productA = Product::factory()->for($producerA)->create(['price' => 100]);
+        $productB = Product::factory()->for($producerB)->create(['price' => 200]);
         CartItem::factory()->for($user)->create(['product_id' => $productA->id, 'quantity' => 2]);
         CartItem::factory()->for($user)->create(['product_id' => $productB->id, 'quantity' => 1]);
 
@@ -31,7 +31,7 @@ class CheckoutTest extends TestCase
         $this->assertSame($user->id, $order->user_id);
         $this->assertSame('400.00', (string) $order->total_price);
         $this->assertCount(2, $order->items);
-        $this->assertSame([$householdA->id, $householdB->id], $order->items->pluck('household_id')->sort()->values()->toArray());
+        $this->assertSame([$producerA->id, $producerB->id], $order->items->pluck('household_id')->sort()->values()->toArray());
     }
 
     public function test_checkout_snapshots_product_name_and_price()
@@ -76,11 +76,11 @@ class CheckoutTest extends TestCase
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
         $stranger = User::factory()->create();
-        $household = Household::factory()->for($seller)->create();
+        $producer = Producer::factory()->for($seller)->create();
         $order = Order::factory()->for($buyer)->create();
         $order->items()->create([
-            'product_id' => Product::factory()->for($household)->create()->id,
-            'household_id' => $household->id,
+            'product_id' => Product::factory()->for($producer)->create()->id,
+            'household_id' => $producer->id,
             'product_name' => 'x',
             'unit_price' => 1,
             'quantity' => 1,

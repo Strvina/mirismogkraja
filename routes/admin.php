@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\HouseholdController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ProducerController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
@@ -16,8 +16,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/korisnici/{user}/role', [UserController::class, 'updateRoles'])->name('users.roles');
     Route::patch('/korisnici/{user}/blokiraj', [UserController::class, 'toggleBlock'])->name('users.block');
 
-    Route::get('/domacinstva', [HouseholdController::class, 'index'])->name('households.index');
-    Route::patch('/domacinstva/{household}/status', [HouseholdController::class, 'updateStatus'])->name('households.status');
+    Route::get('/proizvodjaci', [ProducerController::class, 'index'])->name('producers.index');
+    Route::patch('/proizvodjaci/{producer}/status', [ProducerController::class, 'updateStatus'])->name('producers.status');
 
     Route::get('/proizvodi', [ProductController::class, 'index'])->name('products.index');
     Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');

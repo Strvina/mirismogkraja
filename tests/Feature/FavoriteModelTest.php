@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Favorite;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\QueryException;
@@ -14,18 +14,18 @@ class FavoriteModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_favorite_a_household()
+    public function test_user_can_favorite_a_producer()
     {
         $user = User::factory()->create();
-        $household = Household::factory()->create();
+        $producer = Producer::factory()->create();
 
         $favorite = Favorite::create([
             'user_id' => $user->id,
-            'favoritable_id' => $household->id,
+            'favoritable_id' => $producer->id,
             'favoritable_type' => 'household',
         ]);
 
-        $this->assertTrue($favorite->favoritable->is($household));
+        $this->assertTrue($favorite->favoritable->is($producer));
     }
 
     public function test_user_can_favorite_a_product()
@@ -45,10 +45,10 @@ class FavoriteModelTest extends TestCase
     public function test_cannot_favorite_the_same_item_twice()
     {
         $user = User::factory()->create();
-        $household = Household::factory()->create();
-        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $household->id, 'favoritable_type' => 'household']);
+        $producer = Producer::factory()->create();
+        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $producer->id, 'favoritable_type' => 'household']);
 
         $this->expectException(QueryException::class);
-        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $household->id, 'favoritable_type' => 'household']);
+        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $producer->id, 'favoritable_type' => 'household']);
     }
 }

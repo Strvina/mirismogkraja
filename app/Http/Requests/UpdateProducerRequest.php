@@ -5,14 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateHouseholdRequest extends FormRequest
+class UpdateProducerRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('household'));
+        return $this->user()->can('update', $this->route('producer'));
     }
 
     /**

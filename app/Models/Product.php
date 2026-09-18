@@ -32,9 +32,9 @@ class Product extends Model
         ];
     }
 
-    public function household(): BelongsTo
+    public function producer(): BelongsTo
     {
-        return $this->belongsTo(Household::class);
+        return $this->belongsTo(Producer::class, 'household_id');
     }
 
     public function category(): BelongsTo

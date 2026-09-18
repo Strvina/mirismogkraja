@@ -1,27 +1,27 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { type Household } from '@/types';
+import { type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 
-export default function HouseholdsIndex({
-    households,
+export default function ProducersIndex({
+    producers,
     cities,
     filters,
 }: {
-    households: Household[];
+    producers: Producer[];
     cities: string[];
     filters: { city: string | null };
 }) {
     const filterByCity = (city: string) => {
-        router.get('/domacinstva', city ? { city } : {}, { preserveState: true });
+        router.get('/proizvodjaci', city ? { city } : {}, { preserveState: true });
     };
 
     return (
         <MarketplaceLayout>
-            <Head title="Domaćinstva | Vrelina juga" />
+            <Head title="Proizvođači | Vrelina juga" />
 
             <div className="flex items-end justify-between gap-6">
-                <h1 className="font-serif text-4xl sm:text-5xl">Domaćinstva</h1>
+                <h1 className="font-serif text-4xl sm:text-5xl">Proizvođači</h1>
 
                 {cities.length > 0 && (
                     <select
@@ -39,26 +39,26 @@ export default function HouseholdsIndex({
                 )}
             </div>
 
-            {households.length === 0 ? (
+            {producers.length === 0 ? (
                 <p className="text-muted-foreground mt-10 text-sm">Nema domaćinstava za prikaz.</p>
             ) : (
                 <div className="mt-10 grid gap-8 md:grid-cols-3">
-                    {households.map((household) => (
-                        <Link key={household.id} href={route('marketplace.households.show', household.slug)} className="group">
+                    {producers.map((producer) => (
+                        <Link key={producer.id} href={route('marketplace.producers.show', producer.slug)} className="group">
                             <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md">
-                                {household.cover_image_path && (
+                                {producer.cover_image_path && (
                                     <img
-                                        src={`/storage/${household.cover_image_path}`}
-                                        alt={household.name}
+                                        src={`/storage/${producer.cover_image_path}`}
+                                        alt={producer.name}
                                         className="image-warm size-full object-cover transition duration-700 group-hover:scale-[1.025]"
                                     />
                                 )}
                             </div>
-                            <h2 className="mt-4 font-serif text-2xl">{household.name}</h2>
-                            {household.city && (
+                            <h2 className="mt-4 font-serif text-2xl">{producer.name}</h2>
+                            {producer.city && (
                                 <p className="text-primary mt-1 flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] uppercase">
                                     <MapPin className="size-3.5" />
-                                    {household.city}
+                                    {producer.city}
                                 </p>
                             )}
                         </Link>

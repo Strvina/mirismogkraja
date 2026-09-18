@@ -1,20 +1,20 @@
 import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { type Household, type Product, type Review, type SharedData } from '@/types';
+import { type Producer, type Product, type Review, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin, Star } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
-export default function HouseholdShow({
-    household,
+export default function ProducerShow({
+    producer,
     products,
     reviews,
     averageRating,
     canReview,
     isFavorited,
 }: {
-    household: Household;
+    producer: Producer;
     products: Product[];
     reviews: (Review & { user: { name: string } })[];
     averageRating: number;
@@ -27,30 +27,30 @@ export default function HouseholdShow({
 
     const submitReview: FormEventHandler = (e) => {
         e.preventDefault();
-        router.post(route('reviews.store', household.id), { rating, comment }, { onSuccess: () => setComment('') });
+        router.post(route('reviews.store', producer.id), { rating, comment }, { onSuccess: () => setComment('') });
     };
 
     return (
         <MarketplaceLayout>
-            <Head title={household.name} />
+            <Head title={producer.name} />
 
-            {household.cover_image_path && (
+            {producer.cover_image_path && (
                 <img
-                    src={`/storage/${household.cover_image_path}`}
-                    alt={household.name}
+                    src={`/storage/${producer.cover_image_path}`}
+                    alt={producer.name}
                     className="image-warm mt-6 aspect-[16/6] w-full rounded-md object-cover"
                 />
             )}
 
             <div className="mt-6 flex items-center gap-4">
-                {household.logo_path && <img src={`/storage/${household.logo_path}`} alt="" className="size-16 rounded-full border object-cover" />}
+                {producer.logo_path && <img src={`/storage/${producer.logo_path}`} alt="" className="size-16 rounded-full border object-cover" />}
                 <div className="flex-1">
-                    <h1 className="font-serif text-4xl">{household.name}</h1>
+                    <h1 className="font-serif text-4xl">{producer.name}</h1>
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-3 text-sm">
-                        {household.city && (
+                        {producer.city && (
                             <span className="flex items-center gap-1.5">
                                 <MapPin className="size-4" />
-                                {household.city}
+                                {producer.city}
                             </span>
                         )}
                         {reviews.length > 0 && (
@@ -61,15 +61,15 @@ export default function HouseholdShow({
                         )}
                     </div>
                 </div>
-                {auth.user && <FavoriteButton type="household" id={household.id} isFavorited={isFavorited} />}
+                {auth.user && <FavoriteButton type="household" id={producer.id} isFavorited={isFavorited} />}
             </div>
 
-            {household.description && <p className="text-muted-foreground mt-6 max-w-2xl leading-7">{household.description}</p>}
+            {producer.description && <p className="text-muted-foreground mt-6 max-w-2xl leading-7">{producer.description}</p>}
 
             <section className="mt-12">
                 <h2 className="font-serif text-2xl">Proizvodi</h2>
                 {products.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Ovo domaćinstvo još nema objavljene proizvode.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">Ovaj proizvođač još nema objavljene proizvode.</p>
                 ) : (
                     <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
                         {products.map((product) => (
@@ -95,7 +95,7 @@ export default function HouseholdShow({
                 <h2 className="font-serif text-2xl">Ocene</h2>
 
                 {reviews.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Ovo domaćinstvo još nema ocena.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">Ovaj proizvođač još nema ocena.</p>
                 ) : (
                     <div className="mt-4 space-y-4">
                         {reviews.map((review) => (
@@ -139,7 +139,7 @@ export default function HouseholdShow({
 
                 {!canReview && auth.user && (
                     <p className="text-muted-foreground mt-4 text-xs">
-                        Ocenu možeš ostaviti nakon što ti porudžbina od ovog domaćinstva bude isporučena.
+                        Ocenu možeš ostaviti nakon što ti porudžbina od ovog proizvođača bude isporučena.
                     </p>
                 )}
             </section>

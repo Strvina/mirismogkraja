@@ -11,7 +11,7 @@ import productsImage from '../assets/products-table.jpg';
 import storyImage from '../assets/story-hands.jpg';
 
 // Static placeholder content - replaced with real data from the database
-// once households/products/categories exist (Faze 2-3).
+// once producers/products/categories exist (Faze 2-3).
 const categories = [
     { name: 'Ajvar i zimnica', image: heroImage, position: 'object-[70%_65%]' },
     { name: 'Suhomesnato', image: productsImage, position: 'object-[72%_55%]' },
@@ -69,14 +69,14 @@ function Brand() {
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
-    const becomeSellerHref = auth.user ? route('households.create') : route('register');
+    const becomeSellerHref = auth.user ? route('producers.create') : route('register');
 
     return (
         <>
             <Head title="Vrelina juga | Domaći proizvođači sa juga Srbije">
                 <meta
                     name="description"
-                    content="Upoznajte domaćinstva, ljude i proizvode koji čuvaju tradiciju juga Srbije."
+                    content="Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije."
                 />
             </Head>
 
@@ -108,7 +108,7 @@ export default function Welcome() {
                             )}
                         </nav>
                         <Button asChild variant="outlineLight" className="hidden sm:inline-flex">
-                            <Link href={becomeSellerHref}>Predstavi svoje domaćinstvo</Link>
+                            <Link href={becomeSellerHref}>Predstavi svog proizvođača</Link>
                         </Button>
                         <Button variant="outlineLight" size="icon" className="sm:hidden" aria-label="Otvori meni">
                             <Menu />
@@ -134,7 +134,7 @@ export default function Welcome() {
                                 Vrelina juga.
                             </h1>
                             <p className="mt-7 max-w-xl text-base leading-7 text-primary-foreground/85 sm:text-lg">
-                                Upoznajte domaćinstva, ljude i proizvode koji čuvaju tradiciju.
+                                Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju.
                             </p>
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                                 <Button asChild variant="cream" size="xl">
@@ -143,7 +143,7 @@ export default function Welcome() {
                                     </a>
                                 </Button>
                                 <Button asChild variant="outlineLight" size="xl">
-                                    <Link href={becomeSellerHref}>Predstavi svoje domaćinstvo</Link>
+                                    <Link href={becomeSellerHref}>Predstavi svog proizvođača</Link>
                                 </Button>
                             </div>
                         </div>
@@ -198,7 +198,7 @@ export default function Welcome() {
                     <div className="mx-auto max-w-[1380px] px-5 sm:px-8 lg:px-12">
                         <div className="mb-12 max-w-2xl">
                             <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-primary uppercase">Ljudi i mesta</p>
-                            <h2 className="font-serif text-4xl sm:text-5xl">Domaćinstva sa pričom.</h2>
+                            <h2 className="font-serif text-4xl sm:text-5xl">Proizvođači sa pričom.</h2>
                             <p className="mt-4 max-w-lg leading-7 text-muted-foreground">
                                 Ne samo imena na etiketi, već porodice, krajevi i recepti koji traju.
                             </p>
@@ -234,7 +234,7 @@ export default function Welcome() {
                                         </p>
                                         <p className="mt-4 min-h-12 text-sm leading-6 text-muted-foreground">{producer.description}</p>
                                         <a href="#predstavi" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold">
-                                            Pogledaj domaćinstvo{' '}
+                                            Pogledaj proizvođača{' '}
                                             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                                         </a>
                                     </div>
@@ -312,7 +312,7 @@ export default function Welcome() {
                                             {product.place}
                                         </p>
                                         <h3 className="mt-1 font-serif text-xl sm:text-2xl">{product.name}</h3>
-                                        <p className="mt-2 text-xs text-primary-foreground/55">Iz domaćinstva, u malim serijama</p>
+                                        <p className="mt-2 text-xs text-primary-foreground/55">Od proizvođača, u malim serijama</p>
                                     </div>
                                 </article>
                             ))}
@@ -328,13 +328,13 @@ export default function Welcome() {
                     <div className="absolute inset-y-0 right-[8%] w-px bg-primary-foreground/10" />
                     <div className="relative mx-auto max-w-3xl">
                         <Sprout className="mx-auto mb-6 size-8 text-gold" />
-                        <h2 className="font-serif text-4xl sm:text-6xl">Imate svoje domaćinstvo?</h2>
+                        <h2 className="font-serif text-4xl sm:text-6xl">Jeste li proizvođač?</h2>
                         <p className="mx-auto mt-5 max-w-xl leading-7 text-primary-foreground/78">
                             Predstavite svoje proizvode i priču ljudima koji traže domaće.
                         </p>
                         <Button asChild variant="cream" size="xl" className="mt-8">
                             <Link href={becomeSellerHref}>
-                                Predstavi svoje domaćinstvo <ArrowRight />
+                                Predstavi svog proizvođača <ArrowRight />
                             </Link>
                         </Button>
                     </div>
@@ -346,7 +346,7 @@ export default function Welcome() {
                             <div>
                                 <Brand />
                                 <p className="mt-5 max-w-xs text-sm leading-6 text-muted-foreground">
-                                    Mesto gde upoznajete ljude, domaćinstva i ukuse juga Srbije.
+                                    Mesto gde upoznajete ljude, proizvođače i ukuse juga Srbije.
                                 </p>
                             </div>
                             <div>

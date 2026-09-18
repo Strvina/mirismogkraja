@@ -64,9 +64,9 @@ class User extends Authenticatable
         return $this->blocked_at !== null;
     }
 
-    public function households(): HasMany
+    public function producers(): HasMany
     {
-        return $this->hasMany(Household::class);
+        return $this->hasMany(Producer::class);
     }
 
     public function cartItems(): HasMany

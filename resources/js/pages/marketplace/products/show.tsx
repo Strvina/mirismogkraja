@@ -1,12 +1,12 @@
 import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { type Household, type Product, type SharedData } from '@/types';
+import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 import { useState } from 'react';
 
-type FullProduct = Product & { household: Household };
+type FullProduct = Product & { producer: Producer };
 
 export default function ProductShow({ product, similar, isFavorited }: { product: FullProduct; similar: Product[]; isFavorited: boolean }) {
     const { auth } = usePage<SharedData>().props;
@@ -54,18 +54,18 @@ export default function ProductShow({ product, similar, isFavorited }: { product
                     </div>
 
                     <Link
-                        href={route('marketplace.households.show', product.household.slug)}
+                        href={route('marketplace.producers.show', product.producer.slug)}
                         className="hover:bg-muted mt-8 flex items-center gap-3 rounded-md border p-4"
                     >
-                        {product.household.logo_path && (
-                            <img src={`/storage/${product.household.logo_path}`} alt="" className="size-10 rounded-full object-cover" />
+                        {product.producer.logo_path && (
+                            <img src={`/storage/${product.producer.logo_path}`} alt="" className="size-10 rounded-full object-cover" />
                         )}
                         <div>
-                            <p className="font-serif">{product.household.name}</p>
-                            {product.household.city && (
+                            <p className="font-serif">{product.producer.name}</p>
+                            {product.producer.city && (
                                 <p className="text-muted-foreground flex items-center gap-1 text-xs">
                                     <MapPin className="size-3" />
-                                    {product.household.city}
+                                    {product.producer.city}
                                 </p>
                             )}
                         </div>

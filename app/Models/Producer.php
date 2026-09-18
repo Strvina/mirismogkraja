@@ -2,16 +2,23 @@
 
 namespace App\Models;
 
-use Database\Factories\HouseholdFactory;
+use Database\Factories\ProducerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Household extends Model
+class Producer extends Model
 {
-    /** @use HasFactory<HouseholdFactory> */
+    /** @use HasFactory<ProducerFactory> */
     use HasFactory;
+
+    /**
+     * The underlying table predates this class's Household -> Producer
+     * rename (task 9.3) and was intentionally left as-is to avoid a
+     * disruptive schema migration - so it must be pinned explicitly.
+     */
+    protected $table = 'households';
 
     protected $fillable = [
         'user_id',
@@ -42,16 +49,16 @@ class Household extends Model
 
     public function products(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Product::class, 'household_id');
     }
 
     public function orderItems(): HasMany
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->hasMany(OrderItem::class, 'household_id');
     }
 
     public function reviews(): HasMany
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(Review::class, 'household_id');
     }
 }

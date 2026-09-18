@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Category;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -23,7 +23,7 @@ class ProductFactory extends Factory
         $name = fake()->words(2, true);
 
         return [
-            'household_id' => Household::factory(),
+            'household_id' => Producer::factory(),
             'category_id' => Category::factory(),
             'name' => $name,
             'slug' => Str::slug($name).'-'.fake()->unique()->randomNumber(5),

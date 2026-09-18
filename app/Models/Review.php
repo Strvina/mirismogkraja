@@ -24,8 +24,8 @@ class Review extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function household(): BelongsTo
+    public function producer(): BelongsTo
     {
-        return $this->belongsTo(Household::class);
+        return $this->belongsTo(Producer::class, 'household_id');
     }
 }

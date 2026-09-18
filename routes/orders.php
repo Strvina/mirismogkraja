@@ -9,7 +9,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/naplata', [CheckoutController::class, 'store'])->name('checkout.store');
 
     Route::get('/moje-porudzbine', [OrderController::class, 'myOrders'])->name('orders.mine');
-    Route::get('/porudzbine-mog-domacinstva', [OrderController::class, 'householdOrders'])->name('orders.household');
+    Route::get('/porudzbine-mog-proizvodjaca', [OrderController::class, 'producerOrders'])->name('orders.producer');
     Route::get('/porudzbine/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::patch('/porudzbine/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 });

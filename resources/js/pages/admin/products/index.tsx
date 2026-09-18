@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Household, type Product } from '@/types';
+import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -8,9 +8,9 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Proizvodi', href: '/admin/proizvodi' },
 ];
 
-type ProductWithHousehold = Product & { household: Household };
+type ProductWithProducer = Product & { producer: Producer };
 
-export default function AdminProductsIndex({ products }: { products: ProductWithHousehold[] }) {
+export default function AdminProductsIndex({ products }: { products: ProductWithProducer[] }) {
     const destroy = (product: Product) => {
         if (confirm(`Obrisati proizvod "${product.name}"?`)) {
             router.delete(route('admin.products.destroy', product.id), { preserveScroll: true });
@@ -30,7 +30,7 @@ export default function AdminProductsIndex({ products }: { products: ProductWith
                             <div>
                                 <p className="font-medium">{product.name}</p>
                                 <p className="text-muted-foreground text-xs">
-                                    {product.household.name} · {product.price} RSD · {product.status}
+                                    {product.producer.name} · {product.price} RSD · {product.status}
                                 </p>
                             </div>
                             <Button variant="destructive" size="sm" onClick={() => destroy(product)}>

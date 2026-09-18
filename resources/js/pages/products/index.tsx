@@ -1,30 +1,30 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Household, type Product } from '@/types';
+import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
-export default function ProductsIndex({ household, products }: { household: Household; products: Product[] }) {
+export default function ProductsIndex({ producer, products }: { producer: Producer; products: Product[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Moja domaćinstva', href: '/moja-domacinstva' },
-        { title: household.name, href: `/moja-domacinstva/${household.id}/izmena` },
-        { title: 'Proizvodi', href: `/moja-domacinstva/${household.id}/proizvodi` },
+        { title: 'Moji proizvođači', href: '/moji-proizvodjaci' },
+        { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
+        { title: 'Proizvodi', href: `/moji-proizvodjaci/${producer.id}/proizvodi` },
     ];
 
     const destroy = (product: Product) => {
         if (confirm(`Obrisati proizvod "${product.name}"?`)) {
-            router.delete(route('households.products.destroy', [household.id, product.id]));
+            router.delete(route('producers.products.destroy', [producer.id, product.id]));
         }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Proizvodi — ${household.name}`} />
+            <Head title={`Proizvodi — ${producer.name}`} />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="font-serif text-xl font-semibold">Proizvodi — {household.name}</h1>
+                    <h1 className="font-serif text-xl font-semibold">Proizvodi — {producer.name}</h1>
                     <Button asChild>
-                        <Link href={route('households.products.create', household.id)}>Novi proizvod</Link>
+                        <Link href={route('producers.products.create', producer.id)}>Novi proizvod</Link>
                     </Button>
                 </div>
 
@@ -43,7 +43,7 @@ export default function ProductsIndex({ household, products }: { household: Hous
                                 </p>
                                 <div className="mt-4 flex gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link href={route('households.products.edit', [household.id, product.id])}>Izmeni</Link>
+                                        <Link href={route('producers.products.edit', [producer.id, product.id])}>Izmeni</Link>
                                     </Button>
                                     <Button variant="destructive" size="sm" onClick={() => destroy(product)}>
                                         Obriši

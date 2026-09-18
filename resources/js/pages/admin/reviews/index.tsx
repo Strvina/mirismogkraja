@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Household, type Review, type User } from '@/types';
+import { type BreadcrumbItem, type Producer, type Review, type User } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Star } from 'lucide-react';
 
@@ -9,7 +9,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Ocene', href: '/admin/ocene' },
 ];
 
-type ReviewWithRelations = Review & { user: User; household: Household };
+type ReviewWithRelations = Review & { user: User; producer: Producer };
 
 export default function AdminReviewsIndex({ reviews }: { reviews: ReviewWithRelations[] }) {
     const destroy = (review: Review) => {
@@ -31,7 +31,7 @@ export default function AdminReviewsIndex({ reviews }: { reviews: ReviewWithRela
                             <div>
                                 <div className="flex items-center gap-2">
                                     <span className="font-medium">{review.user.name}</span>
-                                    <span className="text-muted-foreground text-xs">→ {review.household.name}</span>
+                                    <span className="text-muted-foreground text-xs">→ {review.producer.name}</span>
                                     <span className="text-gold flex items-center gap-0.5">
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <Star key={i} className="fill-gold size-3.5" />

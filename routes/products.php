@@ -4,7 +4,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductImageController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->prefix('moja-domacinstva/{household}/proizvodi')->name('households.products.')->group(function () {
+Route::middleware('auth')->prefix('moji-proizvodjaci/{producer}/proizvodi')->name('producers.products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');
     Route::get('/novi', [ProductController::class, 'create'])->name('create');
     Route::post('/', [ProductController::class, 'store'])->name('store');

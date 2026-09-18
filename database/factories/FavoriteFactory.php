@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Favorite;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +21,7 @@ class FavoriteFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'favoritable_id' => Household::factory(),
+            'favoritable_id' => Producer::factory(),
             'favoritable_type' => 'household',
         ];
     }

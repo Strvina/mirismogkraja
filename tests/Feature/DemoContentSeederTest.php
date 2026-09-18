@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
@@ -18,7 +18,7 @@ class DemoContentSeederTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Guards task 1: after seeding, every screen (households, catalog,
+     * Guards task 1: after seeding, every screen (producers, catalog,
      * orders in each status, reviews, an abandoned cart) has real data.
      */
     public function test_seeder_populates_a_realistic_demo_dataset(): void
@@ -29,8 +29,8 @@ class DemoContentSeederTest extends TestCase
 
         $this->assertTrue(User::where('email', 'admin@gmail.com')->first()?->hasRole('admin'));
 
-        $this->assertSame(6, Household::count());
-        $this->assertTrue(Household::where('status', 'active')->count() === 6);
+        $this->assertSame(6, Producer::count());
+        $this->assertTrue(Producer::where('status', 'active')->count() === 6);
 
         $this->assertGreaterThan(0, Product::where('status', 'active')->count());
         $this->assertGreaterThan(0, Product::where('status', 'out_of_stock')->count());

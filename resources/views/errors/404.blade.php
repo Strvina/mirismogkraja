@@ -15,7 +15,7 @@
             <p class="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Greška 404</p>
             <h1 class="mt-3 font-serif text-4xl sm:text-5xl">Ova stranica ne postoji.</h1>
             <p class="mt-4 max-w-md text-muted-foreground">
-                Domaćinstvo, proizvod ili stranica koju tražiš je uklonjena ili nikad nije postojala.
+                Proizvođač, proizvod ili stranica koju tražiš je uklonjena ili nikad nije postojala.
             </p>
             <a
                 href="/"

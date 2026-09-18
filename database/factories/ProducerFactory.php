@@ -2,15 +2,15 @@
 
 namespace Database\Factories;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
 /**
- * @extends Factory<Household>
+ * @extends Factory<Producer>
  */
-class HouseholdFactory extends Factory
+class ProducerFactory extends Factory
 {
     /**
      * Define the model's default state.

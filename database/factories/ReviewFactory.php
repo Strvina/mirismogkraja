@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,7 +21,7 @@ class ReviewFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'household_id' => Household::factory(),
+            'household_id' => Producer::factory(),
             'rating' => fake()->numberBetween(1, 5),
             'comment' => fake()->sentence(),
         ];
