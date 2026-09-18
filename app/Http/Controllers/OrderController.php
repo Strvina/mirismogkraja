@@ -23,19 +23,19 @@ class OrderController extends Controller
 
     /**
      * "Porudžbine mog domaćinstva": orders containing at least one item
-     * fulfilled by a household the authenticated user owns. Only that
+     * fulfilled by a producer the authenticated user owns. Only that
      * seller's own items within each order are included.
      */
-    public function householdOrders(Request $request): Response
+    public function producerOrders(Request $request): Response
     {
-        $householdIds = $request->user()->households()->pluck('id');
+        $producerIds = $request->user()->producers()->pluck('id');
 
-        $orders = Order::whereHas('items', fn ($query) => $query->whereIn('household_id', $householdIds))
-            ->with(['user', 'items' => fn ($query) => $query->whereIn('household_id', $householdIds)])
+        $orders = Order::whereHas('items', fn ($query) => $query->whereIn('household_id', $producerIds))
+            ->with(['user', 'items' => fn ($query) => $query->whereIn('household_id', $producerIds)])
             ->latest()
             ->get();
 
-        return Inertia::render('orders/household-orders', ['orders' => $orders]);
+        return Inertia::render('orders/producer-orders', ['orders' => $orders]);
     }
 
     public function show(Order $order): Response

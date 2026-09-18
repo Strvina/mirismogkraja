@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -13,23 +13,23 @@ class ProductModelTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_product_belongs_to_a_household_and_category()
+    public function test_product_belongs_to_a_producer_and_category()
     {
-        $household = Household::factory()->create();
+        $producer = Producer::factory()->create();
         $category = Category::factory()->create();
-        $product = Product::factory()->for($household)->for($category)->create();
+        $product = Product::factory()->for($producer)->for($category)->create();
 
-        $this->assertTrue($product->household->is($household));
+        $this->assertTrue($product->producer->is($producer));
         $this->assertTrue($product->category->is($category));
     }
 
-    public function test_household_and_category_can_have_many_products()
+    public function test_producer_and_category_can_have_many_products()
     {
-        $household = Household::factory()->create();
+        $producer = Producer::factory()->create();
         $category = Category::factory()->create();
-        Product::factory()->for($household)->for($category)->count(2)->create();
+        Product::factory()->for($producer)->for($category)->count(2)->create();
 
-        $this->assertCount(2, $household->products);
+        $this->assertCount(2, $producer->products);
         $this->assertCount(2, $category->products);
     }
 

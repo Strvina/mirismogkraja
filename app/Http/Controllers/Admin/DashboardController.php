@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Inertia\Inertia;
@@ -17,7 +17,7 @@ class DashboardController extends Controller
         return Inertia::render('admin/dashboard', [
             'stats' => [
                 'users' => User::count(),
-                'households' => Household::count(),
+                'producers' => Producer::count(),
                 'products' => Product::count(),
                 'orders' => Order::count(),
                 'revenue' => (float) Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])->sum('total_price'),

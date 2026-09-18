@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public function store(Request $request, Household $household): RedirectResponse
+    public function store(Request $request, Producer $producer): RedirectResponse
     {
-        $this->authorize('create', [Review::class, $household]);
+        $this->authorize('create', [Review::class, $producer]);
 
         $data = $request->validate([
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $household->reviews()->create([
+        $producer->reviews()->create([
             'user_id' => $request->user()->id,
             ...$data,
         ]);

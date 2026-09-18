@@ -13,13 +13,13 @@ export default function Footer() {
                     <div>
                         <Brand />
                         <p className="text-muted-foreground mt-5 max-w-xs text-sm leading-6">
-                            Mesto gde upoznajete ljude, domaćinstva i ukuse juga Srbije.
+                            Mesto gde upoznajete ljude, proizvođače i ukuse juga Srbije.
                         </p>
                     </div>
                     <div>
                         <p className="text-primary mb-4 text-xs font-semibold tracking-[0.14em] uppercase">Istražite</p>
                         <nav className="grid gap-3 text-sm">
-                            <a href="/domacinstva">Proizvođači</a>
+                            <a href="/proizvodjaci">Proizvođači</a>
                             <a href="/proizvodi">Proizvodi</a>
                             <a href="/#o-nama">O nama</a>
                         </nav>

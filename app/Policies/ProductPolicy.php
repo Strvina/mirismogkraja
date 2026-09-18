@@ -2,15 +2,15 @@
 
 namespace App\Policies;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 
 class ProductPolicy
 {
     /**
-     * Any authenticated user can view their own household's product list
-     * (ownership of the household itself is checked in the controller).
+     * Any authenticated user can view their own producer's product list
+     * (ownership of the producer itself is checked in the controller).
      */
     public function viewAny(User $user): bool
     {
@@ -19,21 +19,21 @@ class ProductPolicy
 
     public function view(User $user, Product $product): bool
     {
-        return $user->id === $product->household->user_id;
+        return $user->id === $product->producer->user_id;
     }
 
-    public function create(User $user, Household $household): bool
+    public function create(User $user, Producer $producer): bool
     {
-        return $user->id === $household->user_id;
+        return $user->id === $producer->user_id;
     }
 
     public function update(User $user, Product $product): bool
     {
-        return $user->id === $product->household->user_id;
+        return $user->id === $product->producer->user_id;
     }
 
     public function delete(User $user, Product $product): bool
     {
-        return $user->id === $product->household->user_id;
+        return $user->id === $product->producer->user_id;
     }
 }

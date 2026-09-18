@@ -13,7 +13,7 @@ class ProductController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/products/index', [
-            'products' => Product::with('household:id,name')->orderByDesc('created_at')->get(),
+            'products' => Product::with('producer:id,name')->orderByDesc('created_at')->get(),
         ]);
     }
 

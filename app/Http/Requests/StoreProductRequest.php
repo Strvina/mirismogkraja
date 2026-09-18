@@ -10,7 +10,7 @@ class StoreProductRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->can('create', [Product::class, $this->route('household')]);
+        return $this->user()->can('create', [Product::class, $this->route('producer')]);
     }
 
     /**

@@ -13,15 +13,15 @@ use Inertia\Response;
 class CartController extends Controller
 {
     /**
-     * Show the authenticated user's cart, grouped by household.
+     * Show the authenticated user's cart, grouped by producer.
      */
     public function index(Request $request): Response
     {
-        $items = $request->user()->cartItems()->with(['product.household', 'product.images'])->get();
+        $items = $request->user()->cartItems()->with(['product.producer', 'product.images'])->get();
 
         $groups = $items->groupBy(fn (CartItem $item) => $item->product->household_id)
             ->map(fn ($items) => [
-                'household' => $items->first()->product->household,
+                'producer' => $items->first()->product->producer,
                 'items' => $items->values(),
             ])
             ->values();

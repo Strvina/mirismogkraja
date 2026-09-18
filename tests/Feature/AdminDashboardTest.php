@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
@@ -22,16 +22,16 @@ class AdminDashboardTest extends TestCase
 
         User::factory()->count(2)->create();
         $seller = User::factory()->create();
-        $household = Household::factory()->for($seller)->create();
-        Household::factory()->for($seller)->count(2)->create();
-        Product::factory()->for($household)->count(4)->create();
+        $producer = Producer::factory()->for($seller)->create();
+        Producer::factory()->for($seller)->count(2)->create();
+        Product::factory()->for($producer)->count(4)->create();
         Order::factory()->create(['status' => 'delivered', 'total_price' => 100]);
         Order::factory()->create(['status' => 'cancelled', 'total_price' => 500]);
         Order::factory()->create(['status' => 'pending', 'total_price' => 200]);
 
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
 
-        $response->assertInertia(fn ($page) => $page->where('stats.households', 3)
+        $response->assertInertia(fn ($page) => $page->where('stats.producers', 3)
             ->where('stats.products', 4)
             ->where('stats.orders', 3)
             ->where('stats.revenue', 100));

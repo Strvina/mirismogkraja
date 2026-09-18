@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Support\Str;
 
@@ -11,9 +11,9 @@ class ProductService
     /**
      * @param  array<string, mixed>  $attributes
      */
-    public function create(Household $household, array $attributes): Product
+    public function create(Producer $producer, array $attributes): Product
     {
-        return $household->products()->create([
+        return $producer->products()->create([
             ...$attributes,
             'slug' => $this->uniqueSlug($attributes['name']),
         ]);

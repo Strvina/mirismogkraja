@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,28 +24,28 @@ class OrderListsTest extends TestCase
         $response->assertInertia(fn ($page) => $page->has('orders', 1));
     }
 
-    public function test_household_orders_only_shows_orders_touching_own_households()
+    public function test_producer_orders_only_shows_orders_touching_own_producers()
     {
         $seller = User::factory()->create();
         $otherSeller = User::factory()->create();
-        $household = Household::factory()->for($seller)->create();
-        $otherHousehold = Household::factory()->for($otherSeller)->create();
+        $producer = Producer::factory()->for($seller)->create();
+        $otherProducer = Producer::factory()->for($otherSeller)->create();
 
         $orderA = Order::factory()->create();
         $orderA->items()->create([
-            'product_id' => Product::factory()->for($household)->create()->id,
-            'household_id' => $household->id,
+            'product_id' => Product::factory()->for($producer)->create()->id,
+            'household_id' => $producer->id,
             'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1,
         ]);
 
         $orderB = Order::factory()->create();
         $orderB->items()->create([
-            'product_id' => Product::factory()->for($otherHousehold)->create()->id,
-            'household_id' => $otherHousehold->id,
+            'product_id' => Product::factory()->for($otherProducer)->create()->id,
+            'household_id' => $otherProducer->id,
             'product_name' => 'y', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1,
         ]);
 
-        $response = $this->actingAs($seller)->get(route('orders.household'));
+        $response = $this->actingAs($seller)->get(route('orders.producer'));
 
         $response->assertInertia(fn ($page) => $page->has('orders', 1)
             ->where('orders.0.id', $orderA->id));

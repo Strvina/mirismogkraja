@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Household;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -26,7 +26,7 @@ class OrderItemFactory extends Factory
         return [
             'order_id' => Order::factory(),
             'product_id' => Product::factory(),
-            'household_id' => Household::factory(),
+            'household_id' => Producer::factory(),
             'product_name' => fake()->words(2, true),
             'unit_price' => $unitPrice,
             'quantity' => $quantity,

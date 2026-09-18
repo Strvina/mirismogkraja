@@ -11,20 +11,20 @@ use Inertia\Response;
 class FavoriteController extends Controller
 {
     /**
-     * "Moji omiljeni": the authenticated user's favorited households and products.
+     * "Moji omiljeni": the authenticated user's favorited producers and products.
      */
     public function index(Request $request): Response
     {
         $favorites = $request->user()->favorites()->with('favoritable')->latest()->get();
 
         return Inertia::render('favorites/index', [
-            'households' => $favorites->where('favoritable_type', 'household')->pluck('favoritable')->filter()->values(),
+            'producers' => $favorites->where('favoritable_type', 'household')->pluck('favoritable')->filter()->values(),
             'products' => $favorites->where('favoritable_type', 'product')->pluck('favoritable')->filter()->values(),
         ]);
     }
 
     /**
-     * Toggle a favorite on/off for the given household or product.
+     * Toggle a favorite on/off for the given producer or product.
      */
     public function toggle(Request $request): RedirectResponse
     {

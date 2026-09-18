@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,7 +14,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ProductController extends Controller
 {
     /**
-     * List active products (belonging to active households), with optional
+     * List active products (belonging to active producers), with optional
      * category/city/price filters and sorting.
      */
     public function index(Request $request): Response
@@ -23,11 +23,11 @@ class ProductController extends Controller
 
         $products = Product::query()
             ->where('status', 'active')
-            ->whereHas('household', fn ($query) => $query->where('status', 'active'))
-            ->with(['images', 'household'])
+            ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
+            ->with(['images', 'producer'])
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
-                'household',
+                'producer',
                 fn ($q) => $q->where('city', $city)
             ))
             ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->float('min_price')))
@@ -37,9 +37,9 @@ class ProductController extends Controller
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
             ->get();
 
-        // Query cities directly off Household instead of loading every
-        // matching Product just to read household.city off each one.
-        $cities = Household::where('status', 'active')
+        // Query cities directly off Producer instead of loading every
+        // matching Product just to read producer.city off each one.
+        $cities = Producer::where('status', 'active')
             ->whereNotNull('city')
             ->whereHas('products', fn ($query) => $query->where('status', 'active'))
             ->distinct()
@@ -56,13 +56,13 @@ class ProductController extends Controller
 
     /**
      * Show a product's public page. Only 'active' products belonging to an
-     * 'active' household are publicly visible.
+     * 'active' producer are publicly visible.
      */
     public function show(Product $product): Response
     {
-        $product->load(['household', 'category', 'images']);
+        $product->load(['producer', 'category', 'images']);
 
-        if ($product->status !== 'active' || $product->household->status !== 'active') {
+        if ($product->status !== 'active' || $product->producer->status !== 'active') {
             throw new NotFoundHttpException;
         }
 

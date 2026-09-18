@@ -4,8 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\CartItem;
 use App\Models\Category;
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 /**
  * Task 8.4: a single place that proves every mutable model with an owner
- * (Household, Product, Order, Review, plus CartItem) rejects a user acting
+ * (Producer, Product, Order, Review, plus CartItem) rejects a user acting
  * on someone else's record - i.e. no IDOR via guessable/enumerable IDs.
  * Each of these is also covered in its own feature test from the task that
  * introduced it; this file exists to make the security posture reviewable
@@ -24,25 +24,25 @@ class SecurityAuthorizationAuditTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_user_cannot_modify_someone_elses_household()
+    public function test_a_user_cannot_modify_someone_elses_producer()
     {
         $attacker = User::factory()->create();
-        $household = Household::factory()->create();
+        $producer = Producer::factory()->create();
 
-        $this->actingAs($attacker)->put(route('households.update', $household), ['name' => 'x'])->assertForbidden();
-        $this->actingAs($attacker)->delete(route('households.destroy', $household))->assertForbidden();
+        $this->actingAs($attacker)->put(route('producers.update', $producer), ['name' => 'x'])->assertForbidden();
+        $this->actingAs($attacker)->delete(route('producers.destroy', $producer))->assertForbidden();
     }
 
-    public function test_a_user_cannot_modify_a_product_in_someone_elses_household()
+    public function test_a_user_cannot_modify_a_product_in_someone_elses_producer()
     {
         $attacker = User::factory()->create();
         $product = Product::factory()->create();
 
         $this->actingAs($attacker)
-            ->put(route('households.products.update', [$product->household, $product]), ['name' => 'x'])
+            ->put(route('producers.products.update', [$product->producer, $product]), ['name' => 'x'])
             ->assertForbidden();
         $this->actingAs($attacker)
-            ->delete(route('households.products.destroy', [$product->household, $product]))
+            ->delete(route('producers.products.destroy', [$product->producer, $product]))
             ->assertForbidden();
     }
 
@@ -79,7 +79,7 @@ class SecurityAuthorizationAuditTest extends TestCase
 
         $this->actingAs($user)->get(route('admin.dashboard'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.users.index'))->assertForbidden();
-        $this->actingAs($user)->get(route('admin.households.index'))->assertForbidden();
+        $this->actingAs($user)->get(route('admin.producers.index'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.products.index'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.orders.index'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.reviews.index'))->assertForbidden();

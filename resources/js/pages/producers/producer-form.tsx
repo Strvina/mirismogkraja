@@ -2,11 +2,11 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type Household } from '@/types';
+import { type Producer } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
-type HouseholdFormData = {
+type ProducerFormData = {
     name: string;
     description: string;
     address: string;
@@ -40,28 +40,28 @@ function ImageField({
     );
 }
 
-export default function HouseholdForm({
-    household,
+export default function ProducerForm({
+    producer,
     action,
     method,
     submitLabel,
 }: {
-    household?: Household;
+    producer?: Producer;
     action: string;
     method: 'post' | 'put';
     submitLabel: string;
 }) {
-    const { data, setData, post, put, processing, errors } = useForm<HouseholdFormData>({
-        name: household?.name ?? '',
-        description: household?.description ?? '',
-        address: household?.address ?? '',
-        city: household?.city ?? '',
+    const { data, setData, post, put, processing, errors } = useForm<ProducerFormData>({
+        name: producer?.name ?? '',
+        description: producer?.description ?? '',
+        address: producer?.address ?? '',
+        city: producer?.city ?? '',
         cover_image: null,
         logo: null,
     });
 
-    const [coverPreview, setCoverPreview] = useState<string | null>(household?.cover_image_path ? `/storage/${household.cover_image_path}` : null);
-    const [logoPreview, setLogoPreview] = useState<string | null>(household?.logo_path ? `/storage/${household.logo_path}` : null);
+    const [coverPreview, setCoverPreview] = useState<string | null>(producer?.cover_image_path ? `/storage/${producer.cover_image_path}` : null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(producer?.logo_path ? `/storage/${producer.logo_path}` : null);
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -95,7 +95,7 @@ export default function HouseholdForm({
             />
 
             <div className="grid gap-2">
-                <Label htmlFor="name">Naziv domaćinstva</Label>
+                <Label htmlFor="name">Naziv proizvođača</Label>
                 <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                 <InputError message={errors.name} />
             </div>

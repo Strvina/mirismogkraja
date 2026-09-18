@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
@@ -17,7 +17,7 @@ class DemoContentSeeder extends Seeder
 {
     /**
      * Realistic demo data (task 1): an admin account, a handful of seller
-     * households each specialised in a couple of categories with priced
+     * producers each specialised in a couple of categories with priced
      * products and images, plain buyer accounts, orders spread across every
      * status, reviews with a realistic rating spread, and a cart left
      * mid-checkout - so every screen (dashboard stats, order lists, reviews,
@@ -26,10 +26,10 @@ class DemoContentSeeder extends Seeder
     public function run(): void
     {
         $this->seedAdminUser();
-        $households = $this->seedHouseholdsWithProducts();
+        $producers = $this->seedProducersWithProducts();
         $buyers = $this->seedBuyers();
-        $this->seedOrdersAndReviews($households, $buyers);
-        $this->seedAbandonedCart($households, $buyers);
+        $this->seedOrdersAndReviews($producers, $buyers);
+        $this->seedAbandonedCart($producers, $buyers);
     }
 
     private function seedAdminUser(): void
@@ -51,12 +51,12 @@ class DemoContentSeeder extends Seeder
     }
 
     /**
-     * Each entry is a household specialised in a couple of real categories,
+     * Each entry is a producer specialised in a couple of real categories,
      * so the catalog reads as plausible instead of random name/category pairs.
      *
-     * @return list<Household>
+     * @return list<Producer>
      */
-    private function seedHouseholdsWithProducts(): array
+    private function seedProducersWithProducts(): array
     {
         $data = [
             ['name' => 'Domaćinstvo Nićić', 'city' => 'Leskovac', 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
@@ -67,24 +67,24 @@ class DemoContentSeeder extends Seeder
             ['name' => 'Salaš Kraljević', 'city' => 'Novi Sad', 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
         ];
 
-        $households = [];
+        $producers = [];
 
         foreach ($data as $entry) {
             $user = User::factory()->create();
             $user->assignRole('buyer', 'seller');
 
-            $household = Household::factory()->for($user)->active()->create([
+            $producer = Producer::factory()->for($user)->active()->create([
                 'name' => $entry['name'],
                 'city' => $entry['city'],
-                'logo_path' => 'households/'.fake()->uuid().'.jpg',
-                'cover_image_path' => 'households/'.fake()->uuid().'.jpg',
+                'logo_path' => 'producers/'.fake()->uuid().'.jpg',
+                'cover_image_path' => 'producers/'.fake()->uuid().'.jpg',
             ]);
 
             $categories = Category::whereIn('name', $entry['categories'])->get();
 
             foreach ($categories as $category) {
                 Product::factory(2)
-                    ->for($household)
+                    ->for($producer)
                     ->for($category)
                     ->create()
                     ->each(fn (Product $product) => $product->images()->createMany([
@@ -93,15 +93,15 @@ class DemoContentSeeder extends Seeder
                     ]));
             }
 
-            // A couple of edge-case statuses per household, so admin/filter
+            // A couple of edge-case statuses per producer, so admin/filter
             // screens have out-of-stock and draft products to show as well.
-            $household->products()->inRandomOrder()->first()?->update(['status' => 'out_of_stock', 'stock_quantity' => 0]);
-            Product::factory()->for($household)->for($categories->first())->create(['status' => 'draft']);
+            $producer->products()->inRandomOrder()->first()?->update(['status' => 'out_of_stock', 'stock_quantity' => 0]);
+            Product::factory()->for($producer)->for($categories->first())->create(['status' => 'draft']);
 
-            $households[] = $household;
+            $producers[] = $producer;
         }
 
-        return $households;
+        return $producers;
     }
 
     /**
@@ -120,10 +120,10 @@ class DemoContentSeeder extends Seeder
     }
 
     /**
-     * @param  list<Household>  $households
+     * @param  list<Producer>  $producers
      * @param  list<User>  $buyers
      */
-    private function seedOrdersAndReviews(array $households, array $buyers): void
+    private function seedOrdersAndReviews(array $producers, array $buyers): void
     {
         $cart = new CartService;
         $checkout = new CheckoutService;
@@ -135,11 +135,11 @@ class DemoContentSeeder extends Seeder
             3 => ['Dobro, ali sam očekivao malo veće pakovanje za tu cenu.'],
         ];
 
-        // Buyer #1 & #2: delivered orders from two different households -> both leave reviews.
+        // Buyer #1 & #2: delivered orders from two different producers -> both leave reviews.
         foreach ([0 => $buyers[0], 1 => $buyers[1]] as $index => $buyer) {
-            $household = $households[$index];
-            $cart->add($buyer, $household->products()->where('status', 'active')->first(), fake()->numberBetween(1, 3));
-            $order = $checkout->checkout($buyer, fake()->streetAddress().', '.$household->city);
+            $producer = $producers[$index];
+            $cart->add($buyer, $producer->products()->where('status', 'active')->first(), fake()->numberBetween(1, 3));
+            $order = $checkout->checkout($buyer, fake()->streetAddress().', '.$producer->city);
             $orderStatus->transitionTo($order, 'confirmed');
             $orderStatus->transitionTo($order, 'shipped');
             $orderStatus->transitionTo($order, 'delivered');
@@ -147,46 +147,46 @@ class DemoContentSeeder extends Seeder
             $rating = fake()->randomElement([5, 5, 4]);
             Review::create([
                 'user_id' => $buyer->id,
-                'household_id' => $household->id,
+                'household_id' => $producer->id,
                 'rating' => $rating,
                 'comment' => fake()->randomElement($comments[$rating]),
             ]);
         }
 
         // Buyer #3: order confirmed but not yet shipped.
-        $product = $households[2]->products()->where('status', 'active')->first();
+        $product = $producers[2]->products()->where('status', 'active')->first();
         $cart->add($buyers[2], $product, 1);
-        $order = $checkout->checkout($buyers[2], fake()->streetAddress().', '.$households[2]->city);
+        $order = $checkout->checkout($buyers[2], fake()->streetAddress().', '.$producers[2]->city);
         $orderStatus->transitionTo($order, 'confirmed');
 
         // Buyer #4: order just placed, still pending.
-        $cart->add($buyers[3], $households[3]->products()->where('status', 'active')->first(), 2);
-        $checkout->checkout($buyers[3], fake()->streetAddress().', '.$households[3]->city);
+        $cart->add($buyers[3], $producers[3]->products()->where('status', 'active')->first(), 2);
+        $checkout->checkout($buyers[3], fake()->streetAddress().', '.$producers[3]->city);
 
         // Buyer #5: order shipped, on its way.
-        $cart->add($buyers[4], $households[4]->products()->where('status', 'active')->first(), 1);
-        $order = $checkout->checkout($buyers[4], fake()->streetAddress().', '.$households[4]->city);
+        $cart->add($buyers[4], $producers[4]->products()->where('status', 'active')->first(), 1);
+        $order = $checkout->checkout($buyers[4], fake()->streetAddress().', '.$producers[4]->city);
         $orderStatus->transitionTo($order, 'confirmed');
         $orderStatus->transitionTo($order, 'shipped');
 
         // Buyer #6: order cancelled after being placed.
-        $cart->add($buyers[5], $households[5]->products()->where('status', 'active')->first(), 1);
-        $order = $checkout->checkout($buyers[5], fake()->streetAddress().', '.$households[5]->city);
+        $cart->add($buyers[5], $producers[5]->products()->where('status', 'active')->first(), 1);
+        $order = $checkout->checkout($buyers[5], fake()->streetAddress().', '.$producers[5]->city);
         $orderStatus->transitionTo($order, 'cancelled');
 
-        // A few extra reviews on households without an order-linked one yet,
+        // A few extra reviews on producers without an order-linked one yet,
         // for a fuller/realistic rating spread (mostly good, occasionally middling).
-        foreach ([$households[2], $households[3], $households[4], $households[5]] as $household) {
+        foreach ([$producers[2], $producers[3], $producers[4], $producers[5]] as $producer) {
             $reviewer = fake()->randomElement($buyers);
 
-            if (Review::where('user_id', $reviewer->id)->where('household_id', $household->id)->exists()) {
+            if (Review::where('user_id', $reviewer->id)->where('household_id', $producer->id)->exists()) {
                 continue;
             }
 
             $rating = fake()->randomElement([5, 5, 4, 4, 3]);
             Review::create([
                 'user_id' => $reviewer->id,
-                'household_id' => $household->id,
+                'household_id' => $producer->id,
                 'rating' => $rating,
                 'comment' => fake()->randomElement($comments[$rating]),
             ]);
@@ -194,15 +194,15 @@ class DemoContentSeeder extends Seeder
     }
 
     /**
-     * @param  list<Household>  $households
+     * @param  list<Producer>  $producers
      * @param  list<User>  $buyers
      */
-    private function seedAbandonedCart(array $households, array $buyers): void
+    private function seedAbandonedCart(array $producers, array $buyers): void
     {
         $cart = new CartService;
         $lastBuyer = end($buyers);
 
-        $cart->add($lastBuyer, $households[0]->products()->where('status', 'active')->skip(1)->first(), 3);
-        $cart->add($lastBuyer, $households[1]->products()->where('status', 'active')->skip(1)->first(), 1);
+        $cart->add($lastBuyer, $producers[0]->products()->where('status', 'active')->skip(1)->first(), 3);
+        $cart->add($lastBuyer, $producers[1]->products()->where('status', 'active')->skip(1)->first(), 1);
     }
 }

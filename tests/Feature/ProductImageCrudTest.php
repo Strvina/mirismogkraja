@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,9 +18,9 @@ class ProductImageCrudTest extends TestCase
     {
         Storage::fake('public');
         $user = User::factory()->create();
-        $product = Product::factory()->for($household = Household::factory()->for($user)->create())->create();
+        $product = Product::factory()->for($producer = Producer::factory()->for($user)->create())->create();
 
-        $this->actingAs($user)->post(route('households.products.images.store', [$household, $product]), [
+        $this->actingAs($user)->post(route('producers.products.images.store', [$producer, $product]), [
             'images' => [
                 UploadedFile::fake()->create('a.jpg', 10, 'image/jpeg'),
                 UploadedFile::fake()->create('b.jpg', 10, 'image/jpeg'),
@@ -37,7 +37,7 @@ class ProductImageCrudTest extends TestCase
         $user = User::factory()->create();
         $product = Product::factory()->create();
 
-        $this->actingAs($user)->post(route('households.products.images.store', [$product->household, $product]), [
+        $this->actingAs($user)->post(route('producers.products.images.store', [$product->producer, $product]), [
             'images' => [UploadedFile::fake()->create('a.jpg', 10, 'image/jpeg')],
         ])->assertForbidden();
     }
@@ -46,11 +46,11 @@ class ProductImageCrudTest extends TestCase
     {
         Storage::fake('public');
         $user = User::factory()->create();
-        $product = Product::factory()->for(Household::factory()->for($user))->create();
+        $product = Product::factory()->for(Producer::factory()->for($user))->create();
         $image = $product->images()->create(['path' => 'products/x.jpg', 'order' => 0]);
         Storage::disk('public')->put('products/x.jpg', 'fake');
 
-        $this->actingAs($user)->delete(route('households.products.images.destroy', [$product->household, $product, $image]));
+        $this->actingAs($user)->delete(route('producers.products.images.destroy', [$product->producer, $product, $image]));
 
         $this->assertDatabaseMissing('product_images', ['id' => $image->id]);
         Storage::disk('public')->assertMissing('products/x.jpg');
@@ -59,11 +59,11 @@ class ProductImageCrudTest extends TestCase
     public function test_owner_can_set_a_different_image_as_primary()
     {
         $user = User::factory()->create();
-        $product = Product::factory()->for(Household::factory()->for($user))->create();
+        $product = Product::factory()->for(Producer::factory()->for($user))->create();
         $main = $product->images()->create(['path' => 'a.jpg', 'order' => 0]);
         $other = $product->images()->create(['path' => 'b.jpg', 'order' => 1]);
 
-        $this->actingAs($user)->patch(route('households.products.images.primary', [$product->household, $product, $other]));
+        $this->actingAs($user)->patch(route('producers.products.images.primary', [$product->producer, $product, $other]));
 
         $this->assertSame(0, $other->fresh()->order);
         $this->assertSame(1, $main->fresh()->order);

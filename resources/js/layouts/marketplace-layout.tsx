@@ -3,7 +3,7 @@ import Navbar from '@/components/marketplace/navbar';
 import { type ReactNode } from 'react';
 
 /**
- * Shared shell for every public marketplace page (household/product list and
+ * Shared shell for every public marketplace page (producer/product list and
  * show pages) - consistent navbar + footer instead of each page rolling its
  * own "← Vrelina juga" back-link (task 7.1/7.2).
  */

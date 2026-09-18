@@ -60,7 +60,7 @@ export interface CartItem {
     product: Product;
 }
 
-export interface Household {
+export interface Producer {
     id: number;
     user_id: number;
     name: string;

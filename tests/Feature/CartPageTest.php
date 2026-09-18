@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CartItem;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,15 +18,15 @@ class CartPageTest extends TestCase
         $this->get(route('cart.index'))->assertRedirect('/login');
     }
 
-    public function test_cart_items_are_grouped_by_household()
+    public function test_cart_items_are_grouped_by_producer()
     {
         $user = User::factory()->create();
-        $householdA = Household::factory()->create();
-        $householdB = Household::factory()->create();
+        $producerA = Producer::factory()->create();
+        $producerB = Producer::factory()->create();
 
-        CartItem::factory()->for($user)->create(['product_id' => Product::factory()->for($householdA)->create()->id]);
-        CartItem::factory()->for($user)->create(['product_id' => Product::factory()->for($householdA)->create()->id]);
-        CartItem::factory()->for($user)->create(['product_id' => Product::factory()->for($householdB)->create()->id]);
+        CartItem::factory()->for($user)->create(['product_id' => Product::factory()->for($producerA)->create()->id]);
+        CartItem::factory()->for($user)->create(['product_id' => Product::factory()->for($producerA)->create()->id]);
+        CartItem::factory()->for($user)->create(['product_id' => Product::factory()->for($producerB)->create()->id]);
 
         $response = $this->actingAs($user)->get(route('cart.index'));
 

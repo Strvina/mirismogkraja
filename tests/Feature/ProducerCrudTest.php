@@ -1,0 +1,146 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Producer;
+use App\Models\User;
+use Database\Seeders\RolesSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class ProducerCrudTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(RolesSeeder::class);
+    }
+
+    public function test_guests_are_redirected_to_login()
+    {
+        $producer = Producer::factory()->create();
+
+        $this->get(route('producers.index'))->assertRedirect('/login');
+        $this->get(route('producers.create'))->assertRedirect('/login');
+        $this->get(route('producers.edit', $producer))->assertRedirect('/login');
+    }
+
+    public function test_authenticated_user_can_create_a_producer()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('producers.store'), [
+            'name' => 'Domaćinstvo Nićić',
+            'description' => 'Ajvar i zimnica.',
+            'address' => 'Bulevar oslobođenja 1',
+            'city' => 'Leskovac',
+        ]);
+
+        $response->assertRedirect(route('producers.index'));
+
+        $producer = Producer::sole();
+        $this->assertSame($user->id, $producer->user_id);
+        $this->assertSame('domacinstvo-nicic', $producer->slug);
+        $this->assertSame('pending', $producer->status);
+    }
+
+    public function test_creating_two_producers_with_the_same_name_gets_unique_slugs()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('producers.store'), ['name' => 'Zapis']);
+        $this->actingAs($user)->post(route('producers.store'), ['name' => 'Zapis']);
+
+        $this->assertSame(['zapis', 'zapis-1'], Producer::orderBy('id')->pluck('slug')->toArray());
+    }
+
+    public function test_index_only_lists_the_authenticated_users_own_producers()
+    {
+        $user = User::factory()->create();
+        $other = User::factory()->create();
+
+        Producer::factory()->for($user)->create(['name' => 'Moje']);
+        Producer::factory()->for($other)->create(['name' => 'Tuđe']);
+
+        $response = $this->actingAs($user)->get(route('producers.index'));
+
+        $response->assertInertia(fn ($page) => $page->has('producers', 1)
+            ->where('producers.0.name', 'Moje'));
+    }
+
+    public function test_user_cannot_edit_another_users_producer()
+    {
+        $user = User::factory()->create();
+        $producer = Producer::factory()->for(User::factory())->create();
+
+        $this->actingAs($user)->get(route('producers.edit', $producer))->assertForbidden();
+        $this->actingAs($user)->put(route('producers.update', $producer), ['name' => 'Hack'])->assertForbidden();
+        $this->actingAs($user)->delete(route('producers.destroy', $producer))->assertForbidden();
+    }
+
+    public function test_owner_can_update_their_producer()
+    {
+        $user = User::factory()->create();
+        $producer = Producer::factory()->for($user)->create(['name' => 'Staro ime']);
+
+        $this->actingAs($user)->put(route('producers.update', $producer), [
+            'name' => 'Novo ime',
+            'city' => 'Vranje',
+        ])->assertRedirect(route('producers.index'));
+
+        $producer->refresh();
+        $this->assertSame('Novo ime', $producer->name);
+        $this->assertSame('novo-ime', $producer->slug);
+        $this->assertSame('Vranje', $producer->city);
+    }
+
+    public function test_cover_image_and_logo_can_be_uploaded_on_create()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('producers.store'), [
+            'name' => 'Domaćinstvo Nićić',
+            'cover_image' => UploadedFile::fake()->create('cover.jpg', 10, 'image/jpeg'),
+            'logo' => UploadedFile::fake()->create('logo.jpg', 10, 'image/jpeg'),
+        ]);
+
+        $producer = Producer::sole();
+        Storage::disk('public')->assertExists($producer->cover_image_path);
+        Storage::disk('public')->assertExists($producer->logo_path);
+    }
+
+    public function test_uploading_a_new_cover_image_removes_the_old_one()
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $producer = Producer::factory()->for($user)->create(['cover_image_path' => 'producers/covers/old.jpg']);
+        Storage::disk('public')->put('producers/covers/old.jpg', 'fake');
+
+        $this->actingAs($user)->put(route('producers.update', $producer), [
+            'name' => $producer->name,
+            'cover_image' => UploadedFile::fake()->create('new.jpg', 10, 'image/jpeg'),
+        ]);
+
+        $producer->refresh();
+        $this->assertNotSame('producers/covers/old.jpg', $producer->cover_image_path);
+        Storage::disk('public')->assertExists($producer->cover_image_path);
+        Storage::disk('public')->assertMissing('producers/covers/old.jpg');
+    }
+
+    public function test_owner_can_delete_their_producer()
+    {
+        $user = User::factory()->create();
+        $producer = Producer::factory()->for($user)->create();
+
+        $this->actingAs($user)->delete(route('producers.destroy', $producer))
+            ->assertRedirect(route('producers.index'));
+
+        $this->assertDatabaseMissing('households', ['id' => $producer->id]);
+    }
+}

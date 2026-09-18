@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type Order, type User } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Porudžbine mog domaćinstva', href: '/porudzbine-mog-domacinstva' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Porudžbine mog proizvođača', href: '/porudzbine-mog-proizvodjaca' }];
 
 const statusLabels: Record<Order['status'], string> = {
     pending: 'Na čekanju',
@@ -14,16 +14,16 @@ const statusLabels: Record<Order['status'], string> = {
 
 type OrderWithBuyer = Order & { user: User };
 
-export default function HouseholdOrders({ orders }: { orders: OrderWithBuyer[] }) {
+export default function ProducerOrders({ orders }: { orders: OrderWithBuyer[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Porudžbine mog domaćinstva" />
+            <Head title="Porudžbine mog proizvođača" />
 
             <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Porudžbine mog domaćinstva</h1>
+                <h1 className="font-serif text-xl font-semibold">Porudžbine mog proizvođača</h1>
 
                 {orders.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">Nema porudžbina za tvoja domaćinstva.</p>
+                    <p className="text-muted-foreground text-sm">Nema porudžbina za tvoje proizvođače.</p>
                 ) : (
                     <div className="space-y-3">
                         {orders.map((order) => (

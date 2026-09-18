@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\ProductImage;
 use Illuminate\Http\RedirectResponse;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductImageController extends Controller
 {
-    public function store(Request $request, Household $household, Product $product): RedirectResponse
+    public function store(Request $request, Producer $producer, Product $product): RedirectResponse
     {
         $this->authorize('update', $product);
 
@@ -33,7 +33,7 @@ class ProductImageController extends Controller
         return back();
     }
 
-    public function destroy(Household $household, Product $product, ProductImage $image): RedirectResponse
+    public function destroy(Producer $producer, Product $product, ProductImage $image): RedirectResponse
     {
         $this->authorize('update', $product);
 
@@ -43,7 +43,7 @@ class ProductImageController extends Controller
         return back();
     }
 
-    public function makePrimary(Household $household, Product $product, ProductImage $image): RedirectResponse
+    public function makePrimary(Producer $producer, Product $product, ProductImage $image): RedirectResponse
     {
         $this->authorize('update', $product);
 

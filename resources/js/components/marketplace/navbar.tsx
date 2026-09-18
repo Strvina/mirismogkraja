@@ -17,8 +17,8 @@ export default function Navbar() {
             <div className="mx-auto flex h-auto min-h-20 max-w-[1380px] flex-wrap items-center justify-between gap-y-2 px-5 py-3 sm:px-8 lg:px-12">
                 <Brand />
                 <nav className="flex items-center gap-6 text-sm font-medium sm:gap-8" aria-label="Glavna navigacija">
-                    <Link href="/domacinstva" className="transition-opacity hover:opacity-70">
-                        Domaćinstva
+                    <Link href="/proizvodjaci" className="transition-opacity hover:opacity-70">
+                        Proizvođači
                     </Link>
                     <Link href="/proizvodi" className="transition-opacity hover:opacity-70">
                         Proizvodi

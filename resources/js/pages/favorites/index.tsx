@@ -1,10 +1,10 @@
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Household, type Product } from '@/types';
+import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moji omiljeni', href: '/omiljeni' }];
 
-export default function FavoritesIndex({ households, products }: { households: Household[]; products: Product[] }) {
+export default function FavoritesIndex({ producers, products }: { producers: Producer[]; products: Product[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Moji omiljeni" />
@@ -12,18 +12,18 @@ export default function FavoritesIndex({ households, products }: { households: H
             <div className="flex flex-1 flex-col gap-8 p-4">
                 <div>
                     <h1 className="font-serif text-xl font-semibold">Omiljeni proizvođači</h1>
-                    {households.length === 0 ? (
+                    {producers.length === 0 ? (
                         <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvođača.</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
-                            {households.map((household) => (
+                            {producers.map((producer) => (
                                 <Link
-                                    key={household.id}
-                                    href={route('marketplace.households.show', household.slug)}
+                                    key={producer.id}
+                                    href={route('marketplace.producers.show', producer.slug)}
                                     className="hover:bg-muted rounded-xl border p-4"
                                 >
-                                    <p className="font-serif text-lg">{household.name}</p>
-                                    {household.city && <p className="text-muted-foreground text-sm">{household.city}</p>}
+                                    <p className="font-serif text-lg">{producer.name}</p>
+                                    {producer.city && <p className="text-muted-foreground text-sm">{producer.city}</p>}
                                 </Link>
                             ))}
                         </div>

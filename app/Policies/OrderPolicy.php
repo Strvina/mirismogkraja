@@ -17,7 +17,7 @@ class OrderPolicy
             return true;
         }
 
-        return $order->items->contains(fn ($item) => $item->household->user_id === $user->id);
+        return $order->items->contains(fn ($item) => $item->producer->user_id === $user->id);
     }
 
     /**
@@ -25,6 +25,6 @@ class OrderPolicy
      */
     public function updateStatus(User $user, Order $order): bool
     {
-        return $order->items->contains(fn ($item) => $item->household->user_id === $user->id);
+        return $order->items->contains(fn ($item) => $item->producer->user_id === $user->id);
     }
 }

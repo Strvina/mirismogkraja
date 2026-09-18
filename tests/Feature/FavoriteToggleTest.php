@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Favorite;
-use App\Models\Household;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,26 +15,26 @@ class FavoriteToggleTest extends TestCase
 
     public function test_guest_cannot_toggle_favorites()
     {
-        $household = Household::factory()->create();
+        $producer = Producer::factory()->create();
 
-        $this->post(route('favorites.toggle'), ['favoritable_type' => 'household', 'favoritable_id' => $household->id])
+        $this->post(route('favorites.toggle'), ['favoritable_type' => 'household', 'favoritable_id' => $producer->id])
             ->assertRedirect('/login');
     }
 
-    public function test_toggling_adds_then_removes_a_household_favorite()
+    public function test_toggling_adds_then_removes_a_producer_favorite()
     {
         $user = User::factory()->create();
-        $household = Household::factory()->create();
+        $producer = Producer::factory()->create();
 
         $this->actingAs($user)->post(route('favorites.toggle'), [
             'favoritable_type' => 'household',
-            'favoritable_id' => $household->id,
+            'favoritable_id' => $producer->id,
         ]);
         $this->assertSame(1, Favorite::count());
 
         $this->actingAs($user)->post(route('favorites.toggle'), [
             'favoritable_type' => 'household',
-            'favoritable_id' => $household->id,
+            'favoritable_id' => $producer->id,
         ]);
         $this->assertSame(0, Favorite::count());
     }

@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type CartItem, type Household } from '@/types';
+import { type BreadcrumbItem, type CartItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
-type Group = { household: Household; items: CartItem[] };
+type Group = { producer: Producer; items: CartItem[] };
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Korpa', href: '/korpa' }];
 
@@ -31,8 +31,8 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                 ) : (
                     <>
                         {groups.map((group) => (
-                            <div key={group.household.id} className="rounded-xl border p-4">
-                                <h2 className="font-serif text-lg">{group.household.name}</h2>
+                            <div key={group.producer.id} className="rounded-xl border p-4">
+                                <h2 className="font-serif text-lg">{group.producer.name}</h2>
                                 <div className="mt-4 space-y-3">
                                     {group.items.map((item) => (
                                         <div key={item.id} className="flex items-center justify-between gap-4">

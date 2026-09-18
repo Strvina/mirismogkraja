@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Household;
 use App\Models\Order;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,11 +15,11 @@ class OrderStatusTest extends TestCase
 
     private function orderFor(User $buyer, User $seller): Order
     {
-        $household = Household::factory()->for($seller)->create();
+        $producer = Producer::factory()->for($seller)->create();
         $order = Order::factory()->for($buyer)->create(['status' => 'pending']);
         $order->items()->create([
-            'product_id' => Product::factory()->for($household)->create()->id,
-            'household_id' => $household->id,
+            'product_id' => Product::factory()->for($producer)->create()->id,
+            'household_id' => $producer->id,
             'product_name' => 'x',
             'unit_price' => 1,
             'quantity' => 1,
