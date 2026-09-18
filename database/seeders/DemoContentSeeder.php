@@ -59,18 +59,18 @@ class DemoContentSeeder extends Seeder
     private function seedProducersWithProducts(): array
     {
         $data = [
-            ['name' => 'Domaćinstvo Nićić', 'city' => 'Leskovac', 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
-            ['name' => 'Mlekara Zapis', 'city' => 'Zlatibor', 'categories' => ['Mlečni proizvodi', 'Jaja']],
-            ['name' => 'Pčelinjak Medovina', 'city' => 'Niš', 'categories' => ['Med i pčelinji proizvodi', 'Ostalo']],
-            ['name' => 'Voćarstvo Južni Sad', 'city' => 'Aleksinac', 'categories' => ['Voće', 'Rakija i vino']],
-            ['name' => 'Bašta Ivanovića', 'city' => 'Vranje', 'categories' => ['Povrće', 'Žitarice']],
-            ['name' => 'Salaš Kraljević', 'city' => 'Novi Sad', 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
+            ['name' => 'Domaćinstvo Nićić', 'owner' => 'Dragan Nićić', 'email' => 'nicic@example.com', 'city' => 'Leskovac', 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
+            ['name' => 'Mlekara Zapis', 'owner' => 'Vesna Zapis', 'email' => 'zapis@example.com', 'city' => 'Zlatibor', 'categories' => ['Mlečni proizvodi', 'Jaja']],
+            ['name' => 'Pčelinjak Medovina', 'owner' => 'Slobodan Ilić', 'email' => 'medovina@example.com', 'city' => 'Niš', 'categories' => ['Med i pčelinji proizvodi', 'Ostalo']],
+            ['name' => 'Voćarstvo Južni Sad', 'owner' => 'Zoran Stanković', 'email' => 'juznisad@example.com', 'city' => 'Aleksinac', 'categories' => ['Voće', 'Rakija i vino']],
+            ['name' => 'Bašta Ivanovića', 'owner' => 'Snežana Ivanović', 'email' => 'basta@example.com', 'city' => 'Vranje', 'categories' => ['Povrće', 'Žitarice']],
+            ['name' => 'Salaš Kraljević', 'owner' => 'Đorđe Kraljević', 'email' => 'salas@example.com', 'city' => 'Novi Sad', 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
         ];
 
         $producers = [];
 
         foreach ($data as $entry) {
-            $user = User::factory()->create();
+            $user = User::factory()->create(['name' => $entry['owner'], 'email' => $entry['email']]);
             $user->assignRole('buyer', 'seller');
 
             $producer = Producer::factory()->for($user)->active()->create([
@@ -109,14 +109,23 @@ class DemoContentSeeder extends Seeder
      */
     private function seedBuyers(): array
     {
-        $names = ['Marko Marković', 'Jovana Jovanović', 'Stefan Stefanović', 'Ana Anić', 'Nikola Nikolić', 'Milica Milić'];
+        // Predictable addresses (password: "password") so the demo accounts
+        // are easy to log into while testing.
+        $buyers = [
+            'Marko Marković' => 'marko@example.com',
+            'Jovana Jovanović' => 'jovana@example.com',
+            'Stefan Stefanović' => 'stefan@example.com',
+            'Ana Anić' => 'ana@example.com',
+            'Nikola Nikolić' => 'nikola@example.com',
+            'Milica Milić' => 'milica@example.com',
+        ];
 
-        return collect($names)->map(function (string $name) {
-            $buyer = User::factory()->create(['name' => $name]);
+        return collect($buyers)->map(function (string $email, string $name) {
+            $buyer = User::factory()->create(['name' => $name, 'email' => $email]);
             $buyer->assignRole('buyer');
 
             return $buyer;
-        })->all();
+        })->values()->all();
     }
 
     /**
