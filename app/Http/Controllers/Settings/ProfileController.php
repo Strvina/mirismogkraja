@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Settings\AvatarUpdateRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Models\User;
 use App\Services\ProfileUpdateService;
@@ -34,7 +35,22 @@ class ProfileController extends Controller
         /** @var User $user */
         $user = $request->user();
 
-        $profiles->update($user, $request->safe()->except('avatar'), $request->file('avatar'));
+        $profiles->update($user, $request->validated());
+
+        return to_route('profile.edit');
+    }
+
+    /**
+     * Update the user's avatar only, independent of the rest of the profile
+     * form (task 2 fix - avoids requiring name/email when only the picture
+     * changes).
+     */
+    public function updateAvatar(AvatarUpdateRequest $request, ProfileUpdateService $profiles): RedirectResponse
+    {
+        /** @var User $user */
+        $user = $request->user();
+
+        $profiles->updateAvatar($user, $request->file('avatar'));
 
         return to_route('profile.edit');
     }

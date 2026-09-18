@@ -9,12 +9,11 @@ use Illuminate\Support\Facades\Storage;
 class ProfileUpdateService
 {
     /**
-     * Update the user's profile with the given validated attributes and,
-     * optionally, a new avatar.
+     * Update the user's profile with the given validated attributes.
      *
      * @param  array<string, mixed>  $attributes
      */
-    public function update(User $user, array $attributes, ?UploadedFile $avatar): void
+    public function update(User $user, array $attributes): void
     {
         $user->fill($attributes);
 
@@ -22,22 +21,22 @@ class ProfileUpdateService
             $user->email_verified_at = null;
         }
 
-        if ($avatar) {
-            $this->replaceAvatar($user, $avatar);
-        }
-
         $user->save();
     }
 
     /**
      * Store the new avatar and remove the user's previous one, if any.
+     *
+     * Kept as its own endpoint/request (task 2 fix) so that changing only
+     * the avatar never drags in validation for unrelated profile fields.
      */
-    private function replaceAvatar(User $user, UploadedFile $avatar): void
+    public function updateAvatar(User $user, UploadedFile $avatar): void
     {
         if ($user->avatar_path) {
             Storage::disk('public')->delete($user->avatar_path);
         }
 
         $user->avatar_path = $avatar->store('avatars', 'public');
+        $user->save();
     }
 }
