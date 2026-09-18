@@ -1,6 +1,6 @@
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
 import DeleteUser from '@/components/delete-user';
@@ -25,13 +25,8 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null,
     );
 
-    const {
-        data: avatarData,
-        setData: setAvatarData,
-        patch: patchAvatar,
-        errors: avatarErrors,
-        processing: avatarProcessing,
-    } = useForm<{ avatar: File | null }>({ avatar: null });
+    const [avatarProcessing, setAvatarProcessing] = useState(false);
+    const [avatarError, setAvatarError] = useState<string | null>(null);
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<{
         name: string;
@@ -55,12 +50,28 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
     const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
-        setAvatarData('avatar', file);
-        setAvatarPreview(file ? URL.createObjectURL(file) : auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null);
 
-        if (file) {
-            patchAvatar(route('profile.avatar.update'), { forceFormData: true, preserveScroll: true });
+        if (!file) {
+            return;
         }
+
+        setAvatarPreview(URL.createObjectURL(file));
+        setAvatarError(null);
+        setAvatarProcessing(true);
+
+        // Pass the file directly instead of staging it in useForm's state -
+        // that state update is async, so patch()ing right after setData()
+        // in the same handler would submit the previous (empty) value.
+        router.patch(
+            route('profile.avatar.update'),
+            { avatar: file },
+            {
+                forceFormData: true,
+                preserveScroll: true,
+                onError: (errors) => setAvatarError(errors.avatar ?? null),
+                onFinish: () => setAvatarProcessing(false),
+            },
+        );
     };
 
     return (
@@ -92,7 +103,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                             />
                         </div>
 
-                        <InputError className="mt-2" message={avatarErrors.avatar} />
+                        <InputError className="mt-2" message={avatarError ?? undefined} />
                     </div>
 
                     <form onSubmit={submit} className="space-y-6">
