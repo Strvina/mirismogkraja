@@ -34,7 +34,7 @@ export default function Navbar() {
                                 <ShoppingCart className="size-5" />
                             </Link>
                             <Button asChild variant="outline" size="sm">
-                                <Link href="/dashboard">Moj nalog</Link>
+                                <Link href={route('profile.edit')}>Moj nalog</Link>
                             </Button>
                         </>
                     ) : (
