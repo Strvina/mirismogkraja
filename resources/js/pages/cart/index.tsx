@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type CartItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -20,11 +20,11 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
     const total = groups.flatMap((g) => g.items).reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Korpa" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                <h1 className="font-serif text-xl font-semibold">Korpa</h1>
+            <div className="flex flex-col gap-6">
+                <h1 className="font-serif text-4xl sm:text-5xl">Korpa</h1>
 
                 {groups.length === 0 ? (
                     <p className="text-muted-foreground text-sm">Korpa je prazna.</p>
@@ -69,6 +69,6 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                     </>
                 )}
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

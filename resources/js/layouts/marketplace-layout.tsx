@@ -1,17 +1,41 @@
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
+import { type BreadcrumbItem } from '@/types';
+import { Link } from '@inertiajs/react';
+import { ChevronRight } from 'lucide-react';
 import { type ReactNode } from 'react';
 
 /**
- * Shared shell for every public marketplace page (producer/product list and
- * show pages) - consistent navbar + footer instead of each page rolling its
- * own "← Vrelina juga" back-link (task 7.1/7.2).
+ * Shared shell for every page outside the landing page and the admin panel:
+ * the same sticky header and footer everywhere, so navigating between the
+ * catalog, the cart and a seller's own pages never swaps out the chrome.
  */
-export default function MarketplaceLayout({ children }: { children: ReactNode }) {
+export default function MarketplaceLayout({ children, breadcrumbs }: { children: ReactNode; breadcrumbs?: BreadcrumbItem[] }) {
     return (
-        <div className="bg-background paper-grain min-h-screen">
+        <div className="bg-background paper-grain flex min-h-screen flex-col">
             <Navbar />
-            <main className="mx-auto max-w-[1380px] px-5 py-12 sm:px-8 lg:px-12">{children}</main>
+
+            <main className="mx-auto w-full max-w-[1380px] flex-1 px-5 py-12 sm:px-8 lg:px-12">
+                {breadcrumbs && breadcrumbs.length > 0 && (
+                    <nav aria-label="Putanja" className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
+                        {breadcrumbs.map((crumb, index) => (
+                            <span key={crumb.href} className="flex items-center gap-1.5">
+                                {index > 0 && <ChevronRight className="size-3.5 opacity-50" />}
+                                {index === breadcrumbs.length - 1 ? (
+                                    <span className="text-foreground font-medium">{crumb.title}</span>
+                                ) : (
+                                    <Link href={crumb.href} className="transition-colors hover:text-foreground">
+                                        {crumb.title}
+                                    </Link>
+                                )}
+                            </span>
+                        ))}
+                    </nav>
+                )}
+
+                {children}
+            </main>
+
             <Footer />
         </div>
     );

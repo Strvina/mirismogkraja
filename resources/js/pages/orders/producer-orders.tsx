@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Order, type User } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -16,11 +16,11 @@ type OrderWithBuyer = Order & { user: User };
 
 export default function ProducerOrders({ orders }: { orders: OrderWithBuyer[] }) {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Porudžbine mog proizvođača" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Porudžbine mog proizvođača</h1>
+            <div className="flex flex-col gap-4">
+                <h1 className="font-serif text-4xl sm:text-5xl">Porudžbine mog proizvođača</h1>
 
                 {orders.length === 0 ? (
                     <p className="text-muted-foreground text-sm">Nema porudžbina za tvoje proizvođače.</p>
@@ -45,6 +45,6 @@ export default function ProducerOrders({ orders }: { orders: OrderWithBuyer[] })
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

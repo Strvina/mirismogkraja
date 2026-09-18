@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type CartItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -22,11 +22,11 @@ export default function CheckoutCreate({ cartItems }: { cartItems: CartItem[] })
     const total = cartItems.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Naplata" />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                <h1 className="font-serif text-xl font-semibold">Naplata</h1>
+            <div className="flex flex-col gap-6">
+                <h1 className="font-serif text-4xl sm:text-5xl">Naplata</h1>
 
                 <div className="max-w-xl space-y-2">
                     {cartItems.map((item) => (
@@ -57,6 +57,6 @@ export default function CheckoutCreate({ cartItems }: { cartItems: CartItem[] })
                     <Button disabled={processing || cartItems.length === 0}>Potvrdi porudžbinu</Button>
                 </form>
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

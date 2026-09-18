@@ -1,4 +1,4 @@
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head } from '@inertiajs/react';
 import ProducerForm from './producer-form';
@@ -10,13 +10,13 @@ export default function ProducersEdit({ producer }: { producer: Producer }) {
     ];
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title={`Izmena — ${producer.name}`} />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Izmena proizvođača</h1>
+            <div className="flex flex-col gap-4">
+                <h1 className="font-serif text-4xl sm:text-5xl">Izmena proizvođača</h1>
                 <ProducerForm producer={producer} action={route('producers.update', producer.id)} method="put" submitLabel="Sačuvaj izmene" />
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

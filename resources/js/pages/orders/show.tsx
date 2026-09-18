@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Order } from '@/types';
 import { Head, router } from '@inertiajs/react';
 
@@ -27,11 +27,11 @@ export default function OrderShow({ order, canUpdateStatus }: { order: Order; ca
     const nextStatuses = NEXT_STATUS[order.status] ?? [];
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title={`Porudžbina #${order.id}`} />
 
-            <div className="flex flex-1 flex-col gap-6 p-4">
-                <h1 className="font-serif text-xl font-semibold">Porudžbina #{order.id}</h1>
+            <div className="flex flex-col gap-6">
+                <h1 className="font-serif text-4xl sm:text-5xl">Porudžbina #{order.id}</h1>
                 <p className="text-muted-foreground text-sm">
                     Status: {statusLabels[order.status]} · Adresa: {order.shipping_address}
                 </p>
@@ -61,6 +61,6 @@ export default function OrderShow({ order, canUpdateStatus }: { order: Order; ca
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }
