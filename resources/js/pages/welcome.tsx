@@ -10,47 +10,41 @@ import honeyImage from '../assets/producer-honey.jpg';
 import productsImage from '../assets/products-table.jpg';
 import storyImage from '../assets/story-hands.jpg';
 
-// Static placeholder content - replaced with real data from the database
-// once producers/products/categories exist (Faze 2-3).
-const categories = [
-    { name: 'Ajvar i zimnica', image: heroImage, position: 'object-[70%_65%]' },
-    { name: 'Suhomesnato', image: productsImage, position: 'object-[72%_55%]' },
-    { name: 'Mlečni proizvodi', image: cheeseImage, position: 'object-[65%_55%]' },
-    { name: 'Med', image: honeyImage, position: 'object-[38%_52%]' },
-    { name: 'Slatko i džemovi', image: productsImage, position: 'object-[55%_45%]' },
-    { name: 'Domaća pića', image: productsImage, position: 'object-[88%_48%]' },
+// Real content comes from the database (tasks 5-7); only the imagery is
+// still placeholder, cycled over whatever rows come back.
+const categoryImages = [
+    { image: heroImage, position: 'object-[70%_65%]' },
+    { image: productsImage, position: 'object-[72%_55%]' },
+    { image: cheeseImage, position: 'object-[65%_55%]' },
+    { image: honeyImage, position: 'object-[38%_52%]' },
+    { image: productsImage, position: 'object-[55%_45%]' },
+    { image: productsImage, position: 'object-[88%_48%]' },
 ];
 
-const producers = [
-    {
-        name: 'Domaćinstvo Nićić',
-        location: 'Leskovac, Srbija',
-        description: 'Tri generacije, jedna receptura i paprika iz sopstvene bašte.',
-        tags: ['Ajvar', 'Zimnica'],
-        image: familyImage,
-    },
-    {
-        name: 'Mlekara Zapis',
-        location: 'Zlatibor, Srbija',
-        description: 'Planinski sirevi koji sazrevaju polako, baš kao nekada.',
-        tags: ['Sir', 'Kajmak'],
-        image: cheeseImage,
-    },
-    {
-        name: 'Pčelarstvo Jovanović',
-        location: 'Tara, Srbija',
-        description: 'Med sa livada daleko od puteva, prikupljen s pažnjom.',
-        tags: ['Med', 'Propolis'],
-        image: honeyImage,
-    },
-];
+const producerImages = [familyImage, cheeseImage, honeyImage];
 
-const products = [
-    { name: 'Domaći ajvar', place: 'Leskovac', position: 'object-[20%_58%]' },
-    { name: 'Zlatni med', place: 'Tara', position: 'object-[42%_28%]' },
-    { name: 'Šljiva slatko', place: 'Šumadija', position: 'object-[60%_35%]' },
-    { name: 'Čvarci', place: 'Srem', position: 'object-[72%_58%]' },
-];
+const productPositions = ['object-[20%_58%]', 'object-[42%_28%]', 'object-[60%_35%]', 'object-[72%_58%]'];
+
+interface HomeProducer {
+    id: number;
+    name: string;
+    slug: string;
+    city: string | null;
+    description: string | null;
+    tags: string[];
+}
+
+interface HomeProduct {
+    id: number;
+    name: string;
+    slug: string;
+    city: string | null;
+}
+
+interface HomeCategory {
+    id: number;
+    name: string;
+}
 
 function Brand() {
     return (
@@ -67,7 +61,15 @@ function Brand() {
     );
 }
 
-export default function Welcome() {
+export default function Welcome({
+    producers,
+    products,
+    categories,
+}: {
+    producers: HomeProducer[];
+    products: HomeProduct[];
+    categories: HomeCategory[];
+}) {
     const { auth } = usePage<SharedData>().props;
     const becomeSellerHref = auth.user ? route('producers.create') : route('register');
 
@@ -138,9 +140,9 @@ export default function Welcome() {
                             </p>
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                                 <Button asChild variant="cream" size="xl">
-                                    <a href="#kategorije">
+                                    <Link href={route('marketplace.producers.index')}>
                                         Pronađi domaće <ArrowRight />
-                                    </a>
+                                    </Link>
                                 </Button>
                                 <Button asChild variant="outlineLight" size="xl">
                                     <Link href={becomeSellerHref}>Predstavi svog proizvođača</Link>
@@ -160,27 +162,27 @@ export default function Welcome() {
                             <p className="mb-3 text-xs font-semibold tracking-[0.16em] text-primary uppercase">Istražite ukuse</p>
                             <h2 className="font-serif text-4xl sm:text-5xl">Šta tražite?</h2>
                         </div>
-                        <a
-                            href="#proizvodi"
+                        <Link
+                            href={route('marketplace.products.index')}
                             className="hidden items-center gap-2 border-b border-foreground/30 pb-1 text-sm font-semibold md:flex"
                         >
                             Pogledaj sve <ArrowRight className="size-4" />
-                        </a>
+                        </Link>
                     </div>
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
                         {categories.map((category, index) => (
-                            <a
-                                key={category.name}
-                                href="#proizvodi"
+                            <Link
+                                key={category.id}
+                                href={route('marketplace.products.index', { category_id: category.id })}
                                 className="group relative aspect-[4/5] overflow-hidden rounded-md bg-muted"
                             >
                                 <img
-                                    src={category.image}
+                                    src={categoryImages[index % categoryImages.length].image}
                                     alt=""
                                     width={600}
                                     height={750}
                                     loading="lazy"
-                                    className={`image-warm size-full object-cover transition duration-700 group-hover:scale-105 ${category.position}`}
+                                    className={`image-warm size-full object-cover transition duration-700 group-hover:scale-105 ${categoryImages[index % categoryImages.length].position}`}
                                 />
                                 <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent_68%)]" />
                                 <span className="absolute top-3 right-3 grid size-7 place-items-center rounded-full border border-primary-foreground/35 text-[0.65rem] text-primary-foreground">
@@ -189,7 +191,7 @@ export default function Welcome() {
                                 <h3 className="absolute inset-x-4 bottom-4 font-serif text-lg leading-tight text-primary-foreground">
                                     {category.name}
                                 </h3>
-                            </a>
+                            </Link>
                         ))}
                     </div>
                 </section>
@@ -204,18 +206,20 @@ export default function Welcome() {
                             </p>
                         </div>
                         <div className="grid gap-8 md:grid-cols-3">
-                            {producers.map((producer) => (
-                                <article key={producer.name} className="group">
-                                    <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
-                                        <img
-                                            src={producer.image}
-                                            alt={producer.name}
-                                            width={1200}
-                                            height={912}
-                                            loading="lazy"
-                                            className="image-warm size-full object-cover transition duration-700 group-hover:scale-[1.025]"
-                                        />
-                                    </div>
+                            {producers.map((producer, index) => (
+                                <article key={producer.id} className="group">
+                                    <Link href={route('marketplace.producers.show', producer.slug)}>
+                                        <div className="aspect-[4/3] overflow-hidden rounded-md bg-muted">
+                                            <img
+                                                src={producerImages[index % producerImages.length]}
+                                                alt={producer.name}
+                                                width={1200}
+                                                height={912}
+                                                loading="lazy"
+                                                className="image-warm size-full object-cover transition duration-700 group-hover:scale-[1.025]"
+                                            />
+                                        </div>
+                                    </Link>
                                     <div className="border-b border-border px-1 py-6">
                                         <div className="mb-3 flex flex-wrap gap-2">
                                             {producer.tags.map((tag) => (
@@ -227,16 +231,23 @@ export default function Welcome() {
                                                 </span>
                                             ))}
                                         </div>
-                                        <h3 className="font-serif text-2xl">{producer.name}</h3>
-                                        <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-primary uppercase">
-                                            <MapPin className="size-3.5" />
-                                            {producer.location}
-                                        </p>
+                                        <h3 className="font-serif text-2xl">
+                                            <Link href={route('marketplace.producers.show', producer.slug)}>{producer.name}</Link>
+                                        </h3>
+                                        {producer.city && (
+                                            <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] text-primary uppercase">
+                                                <MapPin className="size-3.5" />
+                                                {producer.city}
+                                            </p>
+                                        )}
                                         <p className="mt-4 min-h-12 text-sm leading-6 text-muted-foreground">{producer.description}</p>
-                                        <a href="#predstavi" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold">
+                                        <Link
+                                            href={route('marketplace.producers.show', producer.slug)}
+                                            className="mt-5 inline-flex items-center gap-2 text-sm font-semibold"
+                                        >
                                             Pogledaj proizvođača{' '}
                                             <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-                                        </a>
+                                        </Link>
                                     </div>
                                 </article>
                             ))}
@@ -295,8 +306,12 @@ export default function Welcome() {
                             </p>
                         </div>
                         <div className="grid grid-cols-2 gap-x-3 gap-y-8 lg:grid-cols-4 lg:gap-6">
-                            {products.map((product) => (
-                                <article key={product.name} className="group">
+                            {products.map((product, index) => (
+                                <Link
+                                    key={product.id}
+                                    href={route('marketplace.products.show', product.slug)}
+                                    className="group"
+                                >
                                     <div className="aspect-[4/5] overflow-hidden rounded-md bg-muted">
                                         <img
                                             src={productsImage}
@@ -304,17 +319,19 @@ export default function Welcome() {
                                             width={750}
                                             height={945}
                                             loading="lazy"
-                                            className={`image-warm size-full scale-[1.55] object-cover transition duration-700 group-hover:scale-[1.6] ${product.position}`}
+                                            className={`image-warm size-full scale-[1.55] object-cover transition duration-700 group-hover:scale-[1.6] ${productPositions[index % productPositions.length]}`}
                                         />
                                     </div>
                                     <div className="pt-4">
-                                        <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-gold uppercase">
-                                            {product.place}
-                                        </p>
+                                        {product.city && (
+                                            <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-gold uppercase">
+                                                {product.city}
+                                            </p>
+                                        )}
                                         <h3 className="mt-1 font-serif text-xl sm:text-2xl">{product.name}</h3>
                                         <p className="mt-2 text-xs text-primary-foreground/55">Od proizvođača, u malim serijama</p>
                                     </div>
-                                </article>
+                                </Link>
                             ))}
                         </div>
                     </div>
