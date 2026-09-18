@@ -1,5 +1,5 @@
 import InputError from '@/components/input-error';
-import AppLayout from '@/layouts/app-layout';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { type BreadcrumbItem } from '@/types';
 import { Transition } from '@headlessui/react';
@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Password settings',
+        title: 'Lozinka',
         href: '/settings/password',
     },
 ];
@@ -49,16 +49,16 @@ export default function Password() {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Profile settings" />
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
+            <Head title="Lozinka" />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Update password" description="Ensure your account is using a long, random password to stay secure" />
+                    <HeadingSmall title="Izmena lozinke" description="Koristite dugu, nasumičnu lozinku da bi nalog ostao bezbedan" />
 
                     <form onSubmit={updatePassword} className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="current_password">Current password</Label>
+                            <Label htmlFor="current_password">Trenutna lozinka</Label>
 
                             <Input
                                 id="current_password"
@@ -68,14 +68,14 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="current-password"
-                                placeholder="Current password"
+                                placeholder="Trenutna lozinka"
                             />
 
                             <InputError message={errors.current_password} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="password">New password</Label>
+                            <Label htmlFor="password">Nova lozinka</Label>
 
                             <Input
                                 id="password"
@@ -85,14 +85,14 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="new-password"
-                                placeholder="New password"
+                                placeholder="Nova lozinka"
                             />
 
                             <InputError message={errors.password} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">Confirm password</Label>
+                            <Label htmlFor="password_confirmation">Potvrda nove lozinke</Label>
 
                             <Input
                                 id="password_confirmation"
@@ -101,14 +101,14 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="new-password"
-                                placeholder="Confirm password"
+                                placeholder="Potvrda nove lozinke"
                             />
 
                             <InputError message={errors.password_confirmation} />
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Save password</Button>
+                            <Button disabled={processing}>Sačuvaj lozinku</Button>
 
                             <Transition
                                 show={recentlySuccessful}
@@ -117,12 +117,12 @@ export default function Password() {
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Saved</p>
+                                <p className="text-sm text-neutral-600">Sačuvano</p>
                             </Transition>
                         </div>
                     </form>
                 </div>
             </SettingsLayout>
-        </AppLayout>
+        </MarketplaceLayout>
     );
 }

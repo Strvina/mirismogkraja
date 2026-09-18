@@ -1,62 +1,46 @@
-import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        url: '/settings/profile',
-        icon: null,
-    },
-    {
-        title: 'Password',
-        url: '/settings/password',
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        url: '/settings/appearance',
-        icon: null,
-    },
+    { title: 'Profil', url: '/settings/profile', icon: null },
+    { title: 'Lozinka', url: '/settings/password', icon: null },
+    { title: 'Izgled', url: '/settings/appearance', icon: null },
 ];
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
-    const currentPath = window.location.pathname;
+    const { url } = usePage();
 
     return (
-        <div className="px-4 py-6">
-            <Heading title="Settings" description="Manage your profile and account settings" />
+        <>
+            <h1 className="font-serif text-4xl sm:text-5xl">Moj nalog</h1>
+            <p className="text-muted-foreground mt-3 max-w-lg leading-7">
+                Podesite svoje podatke, lozinku i izgled naloga.
+            </p>
 
-            <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav className="flex flex-col space-y-1 space-x-0">
+            <div className="mt-10 flex flex-col gap-10 lg:flex-row lg:gap-16">
+                <aside className="lg:w-56">
+                    <nav className="flex gap-2 overflow-x-auto lg:flex-col lg:gap-1" aria-label="Podešavanja naloga">
                         {sidebarNavItems.map((item) => (
-                            <Button
+                            <Link
                                 key={item.url}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': currentPath === item.url,
-                                })}
+                                href={item.url}
+                                prefetch
+                                className={cn(
+                                    'rounded-md px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors',
+                                    url.startsWith(item.url)
+                                        ? 'bg-olive-soft text-olive'
+                                        : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                                )}
                             >
-                                <Link href={item.url} prefetch>
-                                    {item.title}
-                                </Link>
-                            </Button>
+                                {item.title}
+                            </Link>
                         ))}
                     </nav>
                 </aside>
 
-                <Separator className="my-6 md:hidden" />
-
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">{children}</section>
-                </div>
+                <section className="max-w-xl flex-1 space-y-12">{children}</section>
             </div>
-        </div>
+        </>
     );
 }
