@@ -1,7 +1,8 @@
 import { Button } from '@/components/ui/button';
+import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { ArrowRight, Heart, Instagram, Leaf, MapPin, Menu, ShoppingCart, Sprout } from 'lucide-react';
+import { ArrowRight, Leaf, MapPin, Sprout } from 'lucide-react';
 
 import heroImage from '../assets/hero-ajvar.jpg';
 import cheeseImage from '../assets/producer-cheese.jpg';
@@ -46,21 +47,6 @@ interface HomeCategory {
     name: string;
 }
 
-function Brand() {
-    return (
-        <a href="#top" className="group inline-flex items-center gap-3" aria-label="Vrelina juga — početna">
-            <span className="grid size-9 place-items-center rounded-full border border-primary/30 bg-primary text-primary-foreground">
-                <Sprout className="size-4" />
-            </span>
-            <span className="font-serif text-[1.08rem] leading-[1.05] font-semibold text-foreground">
-                Vrelina
-                <br />
-                <span className="text-primary">juga</span>
-            </span>
-        </a>
-    );
-}
-
 export default function Welcome({
     producers,
     products,
@@ -82,51 +68,8 @@ export default function Welcome({
                 />
             </Head>
 
-            <main id="top" className="overflow-hidden bg-background paper-grain">
-                <header className="absolute inset-x-0 top-0 z-20 border-b border-primary-foreground/15 text-primary-foreground">
-                    <div className="mx-auto flex h-20 max-w-[1380px] items-center justify-between px-5 sm:px-8 lg:px-12">
-                        <Brand />
-                        <nav className="hidden items-center gap-8 text-sm font-medium lg:flex" aria-label="Glavna navigacija">
-                            <a href="#top" className="transition-opacity hover:opacity-70">
-                                Početna
-                            </a>
-                            <Link href={route('marketplace.producers.index')} className="transition-opacity hover:opacity-70">
-                                Proizvođači
-                            </Link>
-                            <Link href={route('marketplace.products.index')} className="transition-opacity hover:opacity-70">
-                                Proizvodi
-                            </Link>
-                            <a href="#o-nama" className="transition-opacity hover:opacity-70">
-                                O nama
-                            </a>
-                            {auth.user ? (
-                                <>
-                                    <Link href={route('favorites.index')} aria-label="Omiljeni" className="transition-opacity hover:opacity-70">
-                                        <Heart className="size-5" />
-                                    </Link>
-                                    <Link href={route('cart.index')} aria-label="Korpa" className="transition-opacity hover:opacity-70">
-                                        <ShoppingCart className="size-5" />
-                                    </Link>
-                                    <Link href={route('profile.edit')} className="transition-opacity hover:opacity-70">
-                                        Moj nalog
-                                    </Link>
-                                </>
-                            ) : (
-                                <Link href={route('login')} className="transition-opacity hover:opacity-70">
-                                    Prijava
-                                </Link>
-                            )}
-                        </nav>
-                        <Button asChild variant="outlineLight" className="hidden sm:inline-flex">
-                            <Link href={becomeSellerHref}>Predstavi svog proizvođača</Link>
-                        </Button>
-                        <Button variant="outlineLight" size="icon" className="sm:hidden" aria-label="Otvori meni">
-                            <Menu />
-                        </Button>
-                    </div>
-                </header>
-
-                <section className="relative flex min-h-[720px] items-end overflow-hidden sm:min-h-[790px] lg:min-h-[min(900px,94vh)]">
+            <MarketplaceLayout fullBleed>
+                <section className="relative flex min-h-[620px] items-end overflow-hidden sm:min-h-[700px] lg:min-h-[min(820px,86vh)]">
                     <img
                         src={heroImage}
                         alt="Priprema domaćeg ajvara u tradicionalnoj kuhinji"
@@ -135,7 +78,7 @@ export default function Welcome({
                         className="image-warm absolute inset-0 size-full object-cover object-[64%_center]"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_92%,transparent)_0%,color-mix(in_oklab,var(--charcoal)_68%,transparent)_42%,color-mix(in_oklab,var(--charcoal)_10%,transparent)_78%),linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_60%,transparent),transparent_52%)]" />
-                    <div className="relative mx-auto w-full max-w-[1380px] px-5 pt-32 pb-16 text-primary-foreground sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
+                    <div className="relative mx-auto w-full max-w-[1380px] px-5 pt-20 pb-16 text-primary-foreground sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
                         <div className="reveal-up max-w-3xl">
                             <p className="mb-5 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] text-primary-foreground/80 uppercase">
                                 <span className="h-px w-9 bg-gold" /> Iz srca juga Srbije
@@ -365,45 +308,7 @@ export default function Welcome({
                     </div>
                 </section>
 
-                <footer className="bg-background">
-                    <div className="mx-auto max-w-[1380px] px-5 py-14 sm:px-8 lg:px-12">
-                        <div className="grid gap-10 border-b border-border pb-12 md:grid-cols-[1.4fr_1fr_1fr]">
-                            <div>
-                                <Brand />
-                                <p className="mt-5 max-w-xs text-sm leading-6 text-muted-foreground">
-                                    Mesto gde upoznajete ljude, proizvođače i ukuse juga Srbije.
-                                </p>
-                            </div>
-                            <div>
-                                <p className="mb-4 text-xs font-semibold tracking-[0.14em] text-primary uppercase">Istražite</p>
-                                <nav className="grid gap-3 text-sm">
-                                    <Link href={route('marketplace.producers.index')}>Proizvođači</Link>
-                                    <Link href={route('marketplace.products.index')}>Proizvodi</Link>
-                                    <a href="#o-nama">O nama</a>
-                                </nav>
-                            </div>
-                            <div>
-                                <p className="mb-4 text-xs font-semibold tracking-[0.14em] text-primary uppercase">Budimo u kontaktu</p>
-                                <a className="text-sm" href="mailto:zdravo@vrelinajuga.rs">
-                                    zdravo@vrelinajuga.rs
-                                </a>
-                                <div className="mt-5 flex items-center gap-4">
-                                    <a href="#top" aria-label="Instagram">
-                                        <Instagram className="size-5" />
-                                    </a>
-                                    <a href="#top" aria-label="Facebook" className="font-serif text-lg font-bold">
-                                        f
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-2 pt-6 text-xs text-muted-foreground sm:flex-row sm:justify-between">
-                            <p>© 2026 Vrelina juga</p>
-                            <p>Pažljivo birano. Od srca predstavljeno.</p>
-                        </div>
-                    </div>
-                </footer>
-            </main>
+            </MarketplaceLayout>
         </>
     );
 }
