@@ -39,6 +39,9 @@ class Producer extends Model
         return [
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
+            // withAvg() aggregates come back as strings on MySQL but numbers
+            // on SQLite; pin the type so the frontend always gets a number.
+            'reviews_avg_rating' => 'float',
         ];
     }
 
