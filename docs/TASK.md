@@ -14,9 +14,9 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [ ] 8. "Pronađi domaće" + profil proizvođača
 - [ ] 9. Korpa — indikator i animacija
 - [ ] 10. Paginacija
-- [ ] 11. Redizajn grida proizvoda
-- [ ] 12. Filtriranje proizvoda
-- [ ] 13. Redizajn kartice proizvođača + preimenovanje termina
+- [x] 11. Redizajn grida proizvoda
+- [x] 12. Filtriranje proizvoda
+- [~] 13. Redizajn kartice proizvođača + preimenovanje termina (ostaje: način dostave + slika uz komentar — traže migraciju)
 - [ ] 14. Admin panel — redizajn i sidebar
 - [ ] 15. Permisije
 - [ ] 16. Notifikacioni sistem
