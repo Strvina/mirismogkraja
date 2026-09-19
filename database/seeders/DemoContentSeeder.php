@@ -59,12 +59,13 @@ class DemoContentSeeder extends Seeder
     private function seedProducersWithProducts(): array
     {
         $data = [
-            ['name' => 'Domaćinstvo Nićić', 'owner' => 'Dragan Nićić', 'email' => 'nicic@example.com', 'city' => 'Leskovac', 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
-            ['name' => 'Mlekara Zapis', 'owner' => 'Vesna Zapis', 'email' => 'zapis@example.com', 'city' => 'Zlatibor', 'categories' => ['Mlečni proizvodi', 'Jaja']],
-            ['name' => 'Pčelinjak Medovina', 'owner' => 'Slobodan Ilić', 'email' => 'medovina@example.com', 'city' => 'Niš', 'categories' => ['Med i pčelinji proizvodi', 'Ostalo']],
-            ['name' => 'Voćarstvo Južni Sad', 'owner' => 'Zoran Stanković', 'email' => 'juznisad@example.com', 'city' => 'Aleksinac', 'categories' => ['Voće', 'Rakija i vino']],
-            ['name' => 'Bašta Ivanovića', 'owner' => 'Snežana Ivanović', 'email' => 'basta@example.com', 'city' => 'Vranje', 'categories' => ['Povrće', 'Žitarice']],
-            ['name' => 'Salaš Kraljević', 'owner' => 'Đorđe Kraljević', 'email' => 'salas@example.com', 'city' => 'Novi Sad', 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
+            ['name' => 'Domaćinstvo Nićić', 'owner' => 'Dragan Nićić', 'email' => 'nicic@example.com', 'city' => 'Leskovac', 'delivery' => ['licna_dostava', 'preuzimanje'], 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
+            ['name' => 'Mlekara Zapis', 'owner' => 'Vesna Zapis', 'email' => 'zapis@example.com', 'city' => 'Zlatibor', 'delivery' => ['kurirska_sluzba'], 'categories' => ['Mlečni proizvodi', 'Jaja']],
+            ['name' => 'Pčelinjak Medovina', 'owner' => 'Slobodan Ilić', 'email' => 'medovina@example.com', 'city' => 'Niš', 'delivery' => ['kurirska_sluzba', 'preuzimanje'], 'categories' => ['Med i pčelinji proizvodi', 'Ostalo']],
+            // One producer with wording of their own, to exercise custom methods.
+            ['name' => 'Voćarstvo Južni Sad', 'owner' => 'Zoran Stanković', 'email' => 'juznisad@example.com', 'city' => 'Aleksinac', 'delivery' => ['preuzimanje', 'Dostava autobusom na liniji Niš–Beograd'], 'categories' => ['Voće', 'Rakija i vino']],
+            ['name' => 'Bašta Ivanovića', 'owner' => 'Snežana Ivanović', 'email' => 'basta@example.com', 'city' => 'Vranje', 'delivery' => ['licna_dostava'], 'categories' => ['Povrće', 'Žitarice']],
+            ['name' => 'Salaš Kraljević', 'owner' => 'Đorđe Kraljević', 'email' => 'salas@example.com', 'city' => 'Novi Sad', 'delivery' => ['licna_dostava', 'kurirska_sluzba', 'preuzimanje'], 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
         ];
 
         $producers = [];
@@ -76,6 +77,7 @@ class DemoContentSeeder extends Seeder
             $producer = Producer::factory()->for($user)->active()->create([
                 'name' => $entry['name'],
                 'city' => $entry['city'],
+                'delivery_methods' => $entry['delivery'],
                 'logo_path' => 'producers/'.fake()->uuid().'.jpg',
                 'cover_image_path' => 'producers/'.fake()->uuid().'.jpg',
             ]);
@@ -159,6 +161,9 @@ class DemoContentSeeder extends Seeder
                 'household_id' => $producer->id,
                 'rating' => $rating,
                 'comment' => fake()->randomElement($comments[$rating]),
+                // The first reviewer attaches a photo of what arrived, so the
+                // "slika uz utisak" path has demo data too.
+                'image_path' => $index === 0 ? 'reviews/'.fake()->uuid().'.jpg' : null,
             ]);
         }
 

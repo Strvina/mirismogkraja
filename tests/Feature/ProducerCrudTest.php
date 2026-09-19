@@ -99,6 +99,32 @@ class ProducerCrudTest extends TestCase
         $this->assertSame('Vranje', $producer->city);
     }
 
+    public function test_delivery_methods_can_be_saved_including_a_custom_one()
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('producers.store'), [
+            'name' => 'Salaš Kraljević',
+            'delivery_methods' => ['licna_dostava', 'Dostava autobusom'],
+        ])->assertRedirect(route('producers.index'));
+
+        $this->assertSame(['licna_dostava', 'Dostava autobusom'], $user->producers()->sole()->delivery_methods);
+    }
+
+    public function test_clearing_every_delivery_method_removes_them()
+    {
+        $user = User::factory()->create();
+        $producer = Producer::factory()->for($user)->create([
+            'name' => 'Ime',
+            'delivery_methods' => ['licna_dostava'],
+        ]);
+
+        $this->actingAs($user)->put(route('producers.update', $producer), ['name' => 'Ime'])
+            ->assertRedirect(route('producers.index'));
+
+        $this->assertSame([], $producer->refresh()->delivery_methods);
+    }
+
     public function test_cover_image_and_logo_can_be_uploaded_on_create()
     {
         Storage::fake('public');

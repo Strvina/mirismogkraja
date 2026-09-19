@@ -17,6 +17,7 @@ class Review extends Model
         'household_id',
         'rating',
         'comment',
+        'image_path',
     ];
 
     public function user(): BelongsTo

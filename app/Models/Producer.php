@@ -20,6 +20,18 @@ class Producer extends Model
      */
     protected $table = 'households';
 
+    /**
+     * How a producer can get goods to a buyer, keyed by what's stored in
+     * `delivery_methods` (task 13).
+     *
+     * @var array<string, string>
+     */
+    public const DELIVERY_METHODS = [
+        'licna_dostava' => 'Lična dostava',
+        'kurirska_sluzba' => 'Kurirska služba',
+        'preuzimanje' => 'Lično preuzimanje',
+    ];
+
     protected $fillable = [
         'user_id',
         'name',
@@ -27,6 +39,7 @@ class Producer extends Model
         'description',
         'address',
         'city',
+        'delivery_methods',
         'lat',
         'lng',
         'cover_image_path',
@@ -37,6 +50,7 @@ class Producer extends Model
     protected function casts(): array
     {
         return [
+            'delivery_methods' => 'array',
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
             // withAvg() aggregates come back as strings on MySQL but numbers
