@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Models\Review;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -51,5 +53,67 @@ class PublicProductListTest extends TestCase
         $response = $this->get(route('marketplace.products.index', ['sort' => 'price_asc']));
 
         $response->assertInertia(fn ($page) => $page->where('products.0.name', 'Jeftinije'));
+    }
+
+    public function test_can_filter_by_producer()
+    {
+        $mine = Producer::factory()->active()->create();
+        $other = Producer::factory()->active()->create();
+
+        Product::factory()->for($mine)->create(['status' => 'active', 'name' => 'Moj proizvod']);
+        Product::factory()->for($other)->create(['status' => 'active', 'name' => 'Tuđi proizvod']);
+
+        $this->get(route('marketplace.products.index', ['producer_id' => $mine->id]))
+            ->assertInertia(fn ($page) => $page->has('products', 1)->where('products.0.name', 'Moj proizvod'));
+    }
+
+    public function test_can_filter_to_items_in_stock()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory()->for($producer)->create(['status' => 'active', 'stock_quantity' => 5, 'name' => 'Na stanju']);
+        Product::factory()->for($producer)->create(['status' => 'active', 'stock_quantity' => 0, 'name' => 'Rasprodato']);
+
+        $this->get(route('marketplace.products.index', ['in_stock' => 1]))
+            ->assertInertia(fn ($page) => $page->has('products', 1)->where('products.0.name', 'Na stanju'));
+    }
+
+    public function test_can_filter_by_minimum_producer_rating()
+    {
+        $wellRated = Producer::factory()->active()->create();
+        $poorlyRated = Producer::factory()->active()->create();
+
+        Review::factory()->for($wellRated)->create(['rating' => 5]);
+        Review::factory()->for($poorlyRated)->create(['rating' => 2]);
+
+        Product::factory()->for($wellRated)->create(['status' => 'active', 'name' => 'Od dobrog proizvođača']);
+        Product::factory()->for($poorlyRated)->create(['status' => 'active', 'name' => 'Od lošeg proizvođača']);
+
+        $this->get(route('marketplace.products.index', ['min_rating' => 4]))
+            ->assertInertia(fn ($page) => $page->has('products', 1)
+                ->where('products.0.name', 'Od dobrog proizvođača'));
+    }
+
+    public function test_price_range_filters_are_inclusive()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory()->for($producer)->create(['status' => 'active', 'price' => 100, 'name' => 'Jeftino']);
+        Product::factory()->for($producer)->create(['status' => 'active', 'price' => 500, 'name' => 'Srednje']);
+        Product::factory()->for($producer)->create(['status' => 'active', 'price' => 900, 'name' => 'Skupo']);
+
+        $this->get(route('marketplace.products.index', ['min_price' => 100, 'max_price' => 500]))
+            ->assertInertia(fn ($page) => $page->has('products', 2));
+    }
+
+    public function test_favorited_products_are_flagged_for_the_signed_in_user()
+    {
+        $producer = Producer::factory()->active()->create();
+        $product = Product::factory()->for($producer)->create(['status' => 'active']);
+
+        $user = User::factory()->create();
+        $user->favorites()->create(['favoritable_type' => 'household', 'favoritable_id' => 999]);
+        $user->favorites()->create(['favoritable_type' => 'product', 'favoritable_id' => $product->id]);
+
+        $this->actingAs($user)->get(route('marketplace.products.index'))
+            ->assertInertia(fn ($page) => $page->where('products.0.is_favorited', true));
     }
 }

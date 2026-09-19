@@ -1,4 +1,5 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatPrice } from '@/lib/format';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -45,7 +46,7 @@ export default function FavoritesIndex({ producers, products }: { producers: Pro
                                     className="hover:bg-muted rounded-xl border p-4"
                                 >
                                     <p className="font-medium">{product.name}</p>
-                                    <p className="text-muted-foreground text-sm">{product.price} RSD</p>
+                                    <p className="text-muted-foreground text-sm">{formatPrice(product.price)}</p>
                                 </Link>
                             ))}
                         </div>
