@@ -1,10 +1,11 @@
 import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
+import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type Producer, type Product, type Review, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin, Star, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function ProducerShow({
@@ -25,10 +26,21 @@ export default function ProducerShow({
     const { auth } = usePage<SharedData>().props;
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
+    const [image, setImage] = useState<File | null>(null);
 
     const submitReview: FormEventHandler = (e) => {
         e.preventDefault();
-        router.post(route('reviews.store', producer.id), { rating, comment }, { onSuccess: () => setComment('') });
+        router.post(
+            route('reviews.store', producer.id),
+            { rating, comment, image },
+            {
+                forceFormData: true,
+                onSuccess: () => {
+                    setComment('');
+                    setImage(null);
+                },
+            },
+        );
     };
 
     return (
@@ -66,6 +78,20 @@ export default function ProducerShow({
             </div>
 
             {producer.description && <p className="text-muted-foreground mt-6 max-w-2xl leading-7">{producer.description}</p>}
+
+            {producer.delivery_methods && producer.delivery_methods.length > 0 && (
+                <div className="mt-6 flex flex-wrap items-center gap-2">
+                    <span className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                        <Truck className="size-4" />
+                        Način dostave:
+                    </span>
+                    {producer.delivery_methods.map((method) => (
+                        <span key={method} className="bg-olive-soft text-olive rounded-full px-3 py-1 text-xs font-medium">
+                            {deliveryMethodLabel(method)}
+                        </span>
+                    ))}
+                </div>
+            )}
 
             <section className="mt-12">
                 <h2 className="font-serif text-2xl">Proizvodi</h2>
@@ -110,6 +136,14 @@ export default function ProducerShow({
                                     </span>
                                 </div>
                                 {review.comment && <p className="text-muted-foreground mt-1 text-sm">{review.comment}</p>}
+                                {review.image_path && (
+                                    <img
+                                        src={`/storage/${review.image_path}`}
+                                        alt="Slika uz utisak kupca"
+                                        loading="lazy"
+                                        className="mt-3 max-h-48 rounded-md object-cover"
+                                    />
+                                )}
                             </div>
                         ))}
                     </div>
@@ -134,6 +168,18 @@ export default function ProducerShow({
                             placeholder="Podeli svoj utisak..."
                             className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                         />
+                        <div className="grid gap-1.5">
+                            <label htmlFor="review-image" className="text-muted-foreground text-xs">
+                                Slika proizvoda koji si dobio/la (opciono)
+                            </label>
+                            <input
+                                id="review-image"
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+                                className="border-input bg-background w-full max-w-xs rounded-md border px-3 py-2 text-sm"
+                            />
+                        </div>
                         <Button>Ostavi ocenu</Button>
                     </form>
                 )}

@@ -1,6 +1,7 @@
+import { DELIVERY_METHOD_LABELS } from '@/lib/delivery';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
-import { MapPin, Star } from 'lucide-react';
+import { MapPin, Star, Truck } from 'lucide-react';
 
 export interface ProducerCardProducer extends Producer {
     reviews_avg_rating: number | null;
@@ -10,6 +11,7 @@ export interface ProducerCardProducer extends Producer {
         id: number;
         rating: number;
         comment: string | null;
+        image_path: string | null;
         user: { id: number; name: string; avatar_path: string | null };
     }[];
 }
@@ -89,6 +91,13 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                     <p className="text-muted-foreground mt-3 line-clamp-2 text-sm leading-6">{producer.description}</p>
                 )}
 
+                {producer.delivery_methods && producer.delivery_methods.length > 0 && (
+                    <p className="text-muted-foreground mt-3 flex items-start gap-1.5 text-xs">
+                        <Truck className="mt-0.5 size-3.5 shrink-0" />
+                        <span>{producer.delivery_methods.map((method) => DELIVERY_METHOD_LABELS[method] ?? method).join(' · ')}</span>
+                    </p>
+                )}
+
                 {producer.reviews.length > 0 && (
                     <div className="border-border/70 mt-4 space-y-3 border-t pt-4">
                         {producer.reviews.map((review) => (
@@ -103,6 +112,14 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                                     </p>
                                     {review.comment && (
                                         <p className="text-muted-foreground line-clamp-2 text-xs leading-5">{review.comment}</p>
+                                    )}
+                                    {review.image_path && (
+                                        <img
+                                            src={`/storage/${review.image_path}`}
+                                            alt=""
+                                            loading="lazy"
+                                            className="mt-1.5 size-12 rounded object-cover"
+                                        />
                                     )}
                                 </div>
                             </div>

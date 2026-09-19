@@ -36,6 +36,7 @@ export interface Review {
     household_id: number;
     rating: number;
     comment: string | null;
+    image_path: string | null;
 }
 
 export interface OrderItem {
@@ -68,6 +69,7 @@ export interface Producer {
     description: string | null;
     address: string | null;
     city: string | null;
+    delivery_methods: string[] | null;
     cover_image_path: string | null;
     logo_path: string | null;
     status: 'pending' | 'active' | 'blocked';
