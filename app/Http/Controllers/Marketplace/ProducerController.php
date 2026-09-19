@@ -13,15 +13,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class ProducerController extends Controller
 {
     /**
-     * List active producers, optionally filtered by city. There's no
-     * category filter yet - categories classify Products (docs/database.md),
-     * not Producers, and Product doesn't exist until Faza 3.
+     * List active producers, optionally filtered by city, with everything
+     * their card shows (task 13): rating, review count and the latest few
+     * reviews with their authors.
      */
     public function index(Request $request): Response
     {
         $producers = Producer::query()
             ->where('status', 'active')
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->where('city', $city))
+            ->withAvg('reviews', 'rating')
+            ->withCount(['reviews', 'products' => fn ($query) => $query->where('status', 'active')])
+            ->with(['reviews' => fn ($query) => $query->latest()->limit(2)->with('user:id,name,avatar_path')])
             ->orderBy('name')
             ->get();
 

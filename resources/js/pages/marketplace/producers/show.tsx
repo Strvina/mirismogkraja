@@ -1,5 +1,6 @@
 import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/lib/format';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type Producer, type Product, type Review, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -84,7 +85,7 @@ export default function ProducerShow({
                                     )}
                                 </div>
                                 <p className="mt-2 text-sm font-medium">{product.name}</p>
-                                <p className="text-muted-foreground text-sm">{product.price} RSD</p>
+                                <p className="text-muted-foreground text-sm">{formatPrice(product.price)}</p>
                             </Link>
                         ))}
                     </div>

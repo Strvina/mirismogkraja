@@ -1,35 +1,40 @@
+import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { type Producer } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
+import { Head, router } from '@inertiajs/react';
 
 export default function ProducersIndex({
     producers,
     cities,
     filters,
 }: {
-    producers: Producer[];
+    producers: ProducerCardProducer[];
     cities: string[];
     filters: { city: string | null };
 }) {
     const filterByCity = (city: string) => {
-        router.get('/proizvodjaci', city ? { city } : {}, { preserveState: true });
+        router.get('/proizvodjaci', city ? { city } : {}, { preserveState: true, preserveScroll: true });
     };
 
     return (
         <MarketplaceLayout>
             <Head title="Proizvođači | Vrelina juga" />
 
-            <div className="flex items-end justify-between gap-6">
-                <h1 className="font-serif text-4xl sm:text-5xl">Proizvođači</h1>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+                <div>
+                    <h1 className="font-serif text-4xl sm:text-5xl">Proizvođači</h1>
+                    <p className="text-muted-foreground mt-3 max-w-lg leading-7">
+                        Ljudi iza proizvoda — njihova mesta, priče i ocene kupaca.
+                    </p>
+                </div>
 
                 {cities.length > 0 && (
                     <select
-                        className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+                        aria-label="Filtriraj po mestu"
+                        className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-10 rounded-md border px-3 text-sm shadow-xs transition focus-visible:ring-[3px] focus-visible:outline-none"
                         value={filters.city ?? ''}
                         onChange={(e) => filterByCity(e.target.value)}
                     >
-                        <option value="">Svi gradovi</option>
+                        <option value="">Cela Srbija</option>
                         {cities.map((city) => (
                             <option key={city} value={city}>
                                 {city}
@@ -40,28 +45,11 @@ export default function ProducersIndex({
             </div>
 
             {producers.length === 0 ? (
-                <p className="text-muted-foreground mt-10 text-sm">Nema domaćinstava za prikaz.</p>
+                <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvođača za prikaz.</p>
             ) : (
-                <div className="mt-10 grid gap-8 md:grid-cols-3">
+                <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                     {producers.map((producer) => (
-                        <Link key={producer.id} href={route('marketplace.producers.show', producer.slug)} className="group">
-                            <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md">
-                                {producer.cover_image_path && (
-                                    <img
-                                        src={`/storage/${producer.cover_image_path}`}
-                                        alt={producer.name}
-                                        className="image-warm size-full object-cover transition duration-700 group-hover:scale-[1.025]"
-                                    />
-                                )}
-                            </div>
-                            <h2 className="mt-4 font-serif text-2xl">{producer.name}</h2>
-                            {producer.city && (
-                                <p className="text-primary mt-1 flex items-center gap-1.5 text-xs font-semibold tracking-[0.08em] uppercase">
-                                    <MapPin className="size-3.5" />
-                                    {producer.city}
-                                </p>
-                            )}
-                        </Link>
+                        <ProducerCard key={producer.id} producer={producer} />
                     ))}
                 </div>
             )}

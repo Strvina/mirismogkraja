@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\Producer;
+use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,6 +22,24 @@ class PublicProducerListTest extends TestCase
 
         $response->assertInertia(fn ($page) => $page->has('producers', 1)
             ->where('producers.0.name', 'Aktivno'));
+    }
+
+    public function test_each_card_carries_its_rating_counts_and_latest_reviews()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory()->for($producer)->create(['status' => 'active']);
+        Product::factory()->for($producer)->create(['status' => 'draft']);
+
+        Review::factory()->for($producer)->create(['rating' => 5, 'comment' => 'Odlično']);
+        Review::factory()->for($producer)->create(['rating' => 3, 'comment' => 'Solidno']);
+
+        $this->get(route('marketplace.producers.index'))->assertInertia(
+            fn ($page) => $page->where('producers.0.reviews_avg_rating', 4)
+                ->where('producers.0.reviews_count', 2)
+                ->where('producers.0.products_count', 1)
+                ->has('producers.0.reviews', 2)
+                ->has('producers.0.reviews.0.user.name')
+        );
     }
 
     public function test_list_can_be_filtered_by_city()
