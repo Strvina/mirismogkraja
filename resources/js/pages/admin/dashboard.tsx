@@ -1,8 +1,5 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import AdminLayout from '@/layouts/admin-layout';
 import { Head } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Admin', href: '/admin' }];
 
 type Stats = {
     users: number;
@@ -22,10 +19,9 @@ export default function AdminDashboard({ stats }: { stats: Stats }) {
     ];
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminLayout title="Evidencija">
             <Head title="Admin" />
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Admin panel</h1>
+            <div className="flex flex-col gap-4">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     {tiles.map((tile) => (
                         <div key={tile.label} className="rounded-xl border p-4">
@@ -36,6 +32,6 @@ export default function AdminDashboard({ stats }: { stats: Stats }) {
                     ))}
                 </div>
             </div>
-        </AppLayout>
+        </AdminLayout>
     );
 }

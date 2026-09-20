@@ -1,13 +1,8 @@
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Producer, type Review, type User } from '@/types';
+import AdminLayout from '@/layouts/admin-layout';
+import { type Producer, type Review, type User } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Star } from 'lucide-react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: '/admin' },
-    { title: 'Ocene', href: '/admin/ocene' },
-];
 
 type ReviewWithRelations = Review & { user: User; producer: Producer };
 
@@ -19,11 +14,10 @@ export default function AdminReviewsIndex({ reviews }: { reviews: ReviewWithRela
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminLayout title="Ocene">
             <Head title="Ocene" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Moderacija ocena</h1>
+            <div className="flex flex-col gap-4">
 
                 <div className="space-y-2">
                     {reviews.map((review) => (
@@ -47,6 +41,6 @@ export default function AdminReviewsIndex({ reviews }: { reviews: ReviewWithRela
                     ))}
                 </div>
             </div>
-        </AppLayout>
+        </AdminLayout>
     );
 }
