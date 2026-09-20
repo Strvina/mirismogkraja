@@ -11,9 +11,9 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 5. Sekcija "Domaćinstva sa pričom"
 - [x] 6. Sekcija "Ukusi koji se prate"
 - [x] 7. Sekcija "Šta tražite"
-- [ ] 8. "Pronađi domaće" + profil proizvođača
-- [ ] 9. Korpa — indikator i animacija
-- [ ] 10. Paginacija
+- [x] 8. "Pronađi domaće" + profil proizvođača
+- [x] 9. Korpa — indikator i animacija
+- [x] 10. Paginacija
 - [x] 11. Redizajn grida proizvoda
 - [x] 12. Filtriranje proizvoda
 - [x] 13. Redizajn kartice proizvođača + preimenovanje termina
