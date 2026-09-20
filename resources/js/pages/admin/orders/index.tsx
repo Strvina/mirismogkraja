@@ -1,22 +1,16 @@
 import { INQUIRY_STATUS_LABELS } from '@/lib/inquiry';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Order, type User } from '@/types';
+import AdminLayout from '@/layouts/admin-layout';
+import { type Order, type User } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: '/admin' },
-    { title: 'Upiti', href: '/admin/porudzbine' },
-];
 
 type OrderWithBuyer = Order & { user: User };
 
 export default function AdminOrdersIndex({ orders }: { orders: OrderWithBuyer[] }) {
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminLayout title="Upiti">
             <Head title="Upiti" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Sve porudžbine</h1>
+            <div className="flex flex-col gap-4">
 
                 <div className="space-y-2">
                     {orders.map((order) => (
@@ -33,6 +27,6 @@ export default function AdminOrdersIndex({ orders }: { orders: OrderWithBuyer[] 
                     ))}
                 </div>
             </div>
-        </AppLayout>
+        </AdminLayout>
     );
 }

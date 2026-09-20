@@ -1,12 +1,7 @@
 import { Button } from '@/components/ui/button';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type User } from '@/types';
+import AdminLayout from '@/layouts/admin-layout';
+import { type User } from '@/types';
 import { Head, router } from '@inertiajs/react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: '/admin' },
-    { title: 'Korisnici', href: '/admin/korisnici' },
-];
 
 const ALL_ROLES = ['buyer', 'seller', 'admin'];
 
@@ -22,11 +17,10 @@ export default function AdminUsersIndex({ users }: { users: User[] }) {
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminLayout title="Korisnici">
             <Head title="Korisnici" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Korisnici</h1>
+            <div className="flex flex-col gap-4">
 
                 <div className="space-y-2">
                     {users.map((user) => {
@@ -58,6 +52,6 @@ export default function AdminUsersIndex({ users }: { users: User[] }) {
                     })}
                 </div>
             </div>
-        </AppLayout>
+        </AdminLayout>
     );
 }

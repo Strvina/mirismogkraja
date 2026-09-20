@@ -11,10 +11,22 @@ use Inertia\Response;
 
 class ProducerController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $producers = Producer::query()
+            ->with('user:id,name,email')
+            ->withCount('products')
+            ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
+            // Applications waiting on a decision come first.
+            ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
+            ->latest()
+            ->paginate(25)
+            ->withQueryString();
+
         return Inertia::render('admin/producers/index', [
-            'producers' => Producer::with('user:id,name')->orderByDesc('created_at')->get(),
+            'producers' => $producers,
+            'pendingCount' => Producer::where('status', 'pending')->count(),
+            'filters' => $request->only('status'),
         ]);
     }
 
@@ -25,6 +37,25 @@ class ProducerController extends Controller
     public function updateStatus(Request $request, Producer $producer): RedirectResponse
     {
         $data = $request->validate(['status' => ['required', 'in:pending,active,blocked']]);
+
+        $producer->update($data);
+
+        return back();
+    }
+
+    /**
+     * Admins can correct a producer's details before or after approving them
+     * (task 14, point 2), which the owner-only ProducerPolicy wouldn't allow.
+     */
+    public function update(Request $request, Producer $producer): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
+            'description' => ['nullable', 'string'],
+        ]);
 
         $producer->update($data);
 

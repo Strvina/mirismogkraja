@@ -1,14 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type Category } from '@/types';
+import AdminLayout from '@/layouts/admin-layout';
+import { type Category } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Admin', href: '/admin' },
-    { title: 'Kategorije', href: '/admin/kategorije' },
-];
 
 type CategoryWithParent = Category & { parent?: Category | null };
 
@@ -27,11 +22,10 @@ export default function AdminCategoriesIndex({ categories }: { categories: Categ
     };
 
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+        <AdminLayout title="Kategorije">
             <Head title="Kategorije" />
 
-            <div className="flex flex-1 flex-col gap-4 p-4">
-                <h1 className="font-serif text-xl font-semibold">Kategorije</h1>
+            <div className="flex flex-col gap-4">
 
                 <form onSubmit={submit} className="flex max-w-md items-end gap-2">
                     <div className="flex-1">
@@ -66,6 +60,6 @@ export default function AdminCategoriesIndex({ categories }: { categories: Categ
                     ))}
                 </div>
             </div>
-        </AppLayout>
+        </AdminLayout>
     );
 }

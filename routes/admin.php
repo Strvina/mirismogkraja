@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InquiryReportController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProducerController;
 use App\Http\Controllers\Admin\ProductController;
@@ -18,9 +20,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/proizvodjaci', [ProducerController::class, 'index'])->name('producers.index');
     Route::patch('/proizvodjaci/{producer}/status', [ProducerController::class, 'updateStatus'])->name('producers.status');
+    Route::put('/proizvodjaci/{producer}', [ProducerController::class, 'update'])->name('producers.update');
 
     Route::get('/proizvodi', [ProductController::class, 'index'])->name('products.index');
+    Route::put('/proizvodi/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+    Route::post('/proizvodi/masovno', [ProductController::class, 'bulk'])->name('products.bulk');
+
+    Route::get('/upiti', [InquiryReportController::class, 'index'])->name('inquiries.index');
+    Route::get('/logovi', [ActivityLogController::class, 'index'])->name('logs.index');
 
     Route::get('/kategorije', [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/kategorije', [CategoryController::class, 'store'])->name('categories.store');
