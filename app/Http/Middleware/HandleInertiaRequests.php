@@ -45,6 +45,9 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Drives the header's cart badge (task 9), so it has to be shared
+            // rather than passed by individual pages.
+            'cartCount' => fn () => (int) ($request->user()?->cartItems()->sum('quantity') ?? 0),
         ]);
     }
 }

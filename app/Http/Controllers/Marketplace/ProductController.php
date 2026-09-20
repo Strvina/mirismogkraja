@@ -14,6 +14,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ProductController extends Controller
 {
+    /** @var list<int> */
+    private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
+
     /**
      * List active products (belonging to active producers), with optional
      * category/producer/city/price/availability/rating filters and sorting.
@@ -52,7 +55,8 @@ class ProductController extends Controller
             ->when($sort === 'price_asc', fn ($query) => $query->orderBy('price'))
             ->when($sort === 'price_desc', fn ($query) => $query->orderByDesc('price'))
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
-            ->get();
+            ->paginate($this->perPage($request))
+            ->withQueryString();
 
         // Query cities directly off Producer instead of loading every
         // matching Product just to read producer.city off each one.
@@ -63,11 +67,13 @@ class ProductController extends Controller
             ->where('favoritable_type', 'product')
             ->pluck('favoritable_id') ?? collect();
 
+        $products->through(fn (Product $product) => [
+            ...$product->toArray(),
+            'is_favorited' => $favoritedIds->contains($product->id),
+        ]);
+
         return Inertia::render('marketplace/products/index', [
-            'products' => $products->map(fn (Product $product) => [
-                ...$product->toArray(),
-                'is_favorited' => $favoritedIds->contains($product->id),
-            ]),
+            'products' => $products,
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name']),
             'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city'),
@@ -78,7 +84,20 @@ class ProductController extends Controller
             'filters' => $request->only([
                 'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'min_rating', 'sort',
             ]),
+            'perPage' => $this->perPage($request),
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
+    }
+
+    /**
+     * Page size, defaulting to 20 (task 10) and limited to the offered
+     * options so a crafted query can't ask for the whole catalog at once.
+     */
+    private function perPage(Request $request): int
+    {
+        $requested = $request->integer('per_page');
+
+        return in_array($requested, self::PER_PAGE_OPTIONS, true) ? $requested : 20;
     }
 
     /**

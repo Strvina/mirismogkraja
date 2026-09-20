@@ -98,6 +98,7 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
+    cartCount: number;
     [key: string]: unknown;
 }
 

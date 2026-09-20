@@ -25,8 +25,8 @@ class PublicProductListTest extends TestCase
 
         $response = $this->get(route('marketplace.products.index'));
 
-        $response->assertInertia(fn ($page) => $page->has('products', 1)
-            ->where('products.0.name', 'Vidljivo'));
+        $response->assertInertia(fn ($page) => $page->has('products.data', 1)
+            ->where('products.data.0.name', 'Vidljivo'));
     }
 
     public function test_can_filter_by_category()
@@ -40,8 +40,8 @@ class PublicProductListTest extends TestCase
 
         $response = $this->get(route('marketplace.products.index', ['category_id' => $categoryA->id]));
 
-        $response->assertInertia(fn ($page) => $page->has('products', 1)
-            ->where('products.0.name', 'A proizvod'));
+        $response->assertInertia(fn ($page) => $page->has('products.data', 1)
+            ->where('products.data.0.name', 'A proizvod'));
     }
 
     public function test_can_sort_by_price_ascending()
@@ -52,7 +52,7 @@ class PublicProductListTest extends TestCase
 
         $response = $this->get(route('marketplace.products.index', ['sort' => 'price_asc']));
 
-        $response->assertInertia(fn ($page) => $page->where('products.0.name', 'Jeftinije'));
+        $response->assertInertia(fn ($page) => $page->where('products.data.0.name', 'Jeftinije'));
     }
 
     public function test_can_filter_by_producer()
@@ -64,7 +64,7 @@ class PublicProductListTest extends TestCase
         Product::factory()->for($other)->create(['status' => 'active', 'name' => 'Tuđi proizvod']);
 
         $this->get(route('marketplace.products.index', ['producer_id' => $mine->id]))
-            ->assertInertia(fn ($page) => $page->has('products', 1)->where('products.0.name', 'Moj proizvod'));
+            ->assertInertia(fn ($page) => $page->has('products.data', 1)->where('products.data.0.name', 'Moj proizvod'));
     }
 
     public function test_can_filter_to_items_in_stock()
@@ -74,7 +74,7 @@ class PublicProductListTest extends TestCase
         Product::factory()->for($producer)->create(['status' => 'active', 'stock_quantity' => 0, 'name' => 'Rasprodato']);
 
         $this->get(route('marketplace.products.index', ['in_stock' => 1]))
-            ->assertInertia(fn ($page) => $page->has('products', 1)->where('products.0.name', 'Na stanju'));
+            ->assertInertia(fn ($page) => $page->has('products.data', 1)->where('products.data.0.name', 'Na stanju'));
     }
 
     public function test_can_filter_by_minimum_producer_rating()
@@ -89,8 +89,8 @@ class PublicProductListTest extends TestCase
         Product::factory()->for($poorlyRated)->create(['status' => 'active', 'name' => 'Od lošeg proizvođača']);
 
         $this->get(route('marketplace.products.index', ['min_rating' => 4]))
-            ->assertInertia(fn ($page) => $page->has('products', 1)
-                ->where('products.0.name', 'Od dobrog proizvođača'));
+            ->assertInertia(fn ($page) => $page->has('products.data', 1)
+                ->where('products.data.0.name', 'Od dobrog proizvođača'));
     }
 
     public function test_price_range_filters_are_inclusive()
@@ -101,7 +101,47 @@ class PublicProductListTest extends TestCase
         Product::factory()->for($producer)->create(['status' => 'active', 'price' => 900, 'name' => 'Skupo']);
 
         $this->get(route('marketplace.products.index', ['min_price' => 100, 'max_price' => 500]))
-            ->assertInertia(fn ($page) => $page->has('products', 2));
+            ->assertInertia(fn ($page) => $page->has('products.data', 2));
+    }
+
+    public function test_it_shows_twenty_products_per_page_by_default()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory(25)->for($producer)->create(['status' => 'active']);
+
+        $this->get(route('marketplace.products.index'))
+            ->assertInertia(fn ($page) => $page->has('products.data', 20)
+                ->where('products.total', 25)
+                ->where('products.last_page', 2)
+                ->where('perPage', 20));
+
+        $this->get(route('marketplace.products.index', ['page' => 2]))
+            ->assertInertia(fn ($page) => $page->has('products.data', 5));
+    }
+
+    public function test_page_size_can_be_changed_but_only_to_an_offered_option()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory(15)->for($producer)->create(['status' => 'active']);
+
+        $this->get(route('marketplace.products.index', ['per_page' => 10]))
+            ->assertInertia(fn ($page) => $page->has('products.data', 10)->where('perPage', 10));
+
+        // Anything not on the list falls back to the default page size.
+        $this->get(route('marketplace.products.index', ['per_page' => 9999]))
+            ->assertInertia(fn ($page) => $page->where('perPage', 20));
+    }
+
+    public function test_pagination_links_keep_the_active_filters()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory(25)->for($producer)->create(['status' => 'active']);
+
+        $this->get(route('marketplace.products.index', ['sort' => 'price_asc']))
+            ->assertInertia(fn ($page) => $page->where(
+                'products.next_page_url',
+                fn (string $url) => str_contains($url, 'sort=price_asc')
+            ));
     }
 
     public function test_favorited_products_are_flagged_for_the_signed_in_user()
@@ -114,6 +154,6 @@ class PublicProductListTest extends TestCase
         $user->favorites()->create(['favoritable_type' => 'product', 'favoritable_id' => $product->id]);
 
         $this->actingAs($user)->get(route('marketplace.products.index'))
-            ->assertInertia(fn ($page) => $page->where('products.0.is_favorited', true));
+            ->assertInertia(fn ($page) => $page->where('products.data.0.is_favorited', true));
     }
 }
