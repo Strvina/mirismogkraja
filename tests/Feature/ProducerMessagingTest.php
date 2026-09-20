@@ -101,7 +101,7 @@ class ProducerMessagingTest extends TestCase
         $this->actingAs($buyer)->get('/')->assertInertia(fn ($page) => $page->where('unreadMessages', 1));
     }
 
-    public function test_the_buyer_inbox_lists_one_entry_per_producer(): void
+    public function test_the_inbox_lists_one_entry_per_thread(): void
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
@@ -117,5 +117,38 @@ class ProducerMessagingTest extends TestCase
 
         $this->actingAs($buyer)->get(route('messages.index'))
             ->assertInertia(fn ($page) => $page->has('threads', 1)->where('threads.0.last_message', 'Druga'));
+    }
+
+    public function test_the_inbox_shows_threads_from_both_sides(): void
+    {
+        $user = User::factory()->create();
+        $ownProducer = Producer::factory()->for($user)->active()->create(['name' => 'Moj proizvođač']);
+        $otherProducer = Producer::factory()->active()->create(['name' => 'Tuđi proizvođač']);
+        $customer = User::factory()->create(['name' => 'Kupac Kupčević']);
+
+        // Someone wrote to the producer this user owns...
+        ProducerMessage::create([
+            'household_id' => $ownProducer->id,
+            'buyer_id' => $customer->id,
+            'sender_id' => $customer->id,
+            'body' => 'Pitanje za moj proizvod',
+        ]);
+
+        // ...and the same user wrote to a different producer as a buyer.
+        ProducerMessage::create([
+            'household_id' => $otherProducer->id,
+            'buyer_id' => $user->id,
+            'sender_id' => $user->id,
+            'body' => 'Moje pitanje njima',
+        ]);
+
+        $this->actingAs($user)->get(route('messages.index'))->assertInertia(
+            fn ($page) => $page->has('threads', 2)
+                ->where('threads.0.title', 'Tuđi proizvođač')
+                ->where('threads.0.as_producer', false)
+                ->where('threads.1.title', 'Kupac Kupčević')
+                ->where('threads.1.as_producer', true)
+                ->where('threads.1.subtitle', 'Moj proizvođač')
+        );
     }
 }

@@ -13,24 +13,46 @@ use Inertia\Response;
 class ProducerMessageController extends Controller
 {
     /**
-     * A buyer's own threads, one per producer they've written to (task 8).
+     * Every thread the user is part of, from either side: ones they started
+     * as a buyer, and ones buyers started with producers they own. They're
+     * listed together because a user can be both, and splitting them across
+     * two pages means a seller clicking the header's message badge lands on
+     * an inbox that doesn't contain the message they were notified about.
      */
     public function index(Request $request): Response
     {
+        $user = $request->user();
+        $ownedProducerIds = $user->producers()->pluck('id');
+
         $threads = ProducerMessage::query()
-            ->where('buyer_id', $request->user()->id)
-            ->with('producer:id,name,slug,logo_path')
+            ->where(fn ($query) => $query
+                ->where('buyer_id', $user->id)
+                ->orWhereIn('household_id', $ownedProducerIds))
+            ->with(['producer:id,name,slug,logo_path', 'buyer:id,name,avatar_path'])
             // id breaks the tie: two messages can share a created_at second.
             ->latest()
             ->latest('id')
             ->get()
-            ->groupBy('household_id')
-            ->map(fn ($messages) => [
-                'producer' => $messages->first()->producer,
-                'last_message' => $messages->first()->body,
-                'last_at' => $messages->first()->created_at,
-                'unread' => $messages->where('sender_id', '!=', $request->user()->id)->whereNull('read_at')->count(),
-            ])
+            ->groupBy(fn (ProducerMessage $message) => $message->household_id.'-'.$message->buyer_id)
+            ->map(function ($messages) use ($user, $ownedProducerIds) {
+                $latest = $messages->first();
+                $asProducer = $ownedProducerIds->contains($latest->household_id);
+
+                return [
+                    'key' => $latest->household_id.'-'.$latest->buyer_id,
+                    'as_producer' => $asProducer,
+                    'title' => $asProducer ? $latest->buyer->name : $latest->producer->name,
+                    'subtitle' => $asProducer ? $latest->producer->name : null,
+                    'avatar_path' => $asProducer ? $latest->buyer->avatar_path : $latest->producer->logo_path,
+                    'href' => $asProducer
+                        ? route('messages.thread', [$latest->household_id, $latest->buyer_id])
+                        : route('messages.show', $latest->producer->slug),
+                    'last_message' => $latest->body,
+                    'last_at' => $latest->created_at,
+                    'unread' => $messages->where('sender_id', '!=', $user->id)->whereNull('read_at')->count(),
+                ];
+            })
+            ->sortByDesc('last_at')
             ->values();
 
         return Inertia::render('messages/index', ['threads' => $threads]);

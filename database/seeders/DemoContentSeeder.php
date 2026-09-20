@@ -13,19 +13,28 @@ use App\Services\CheckoutService;
 use App\Services\OrderStatusService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class DemoContentSeeder extends Seeder
 {
     /**
+     * Demo rows all point at this one real file on the public disk, so seeded
+     * images actually render instead of 404-ing as invented paths would.
+     * Replaced per-producer once they upload their own.
+     */
+    private const DEMO_IMAGE = 'demo/placeholder.jpg';
+
+    /**
      * Realistic demo data (task 1): an admin account, a handful of seller
      * producers each specialised in a couple of categories with priced
-     * products and images, plain buyer accounts, orders spread across every
-     * status, reviews with a realistic rating spread, and a cart left
-     * mid-checkout - so every screen (dashboard stats, order lists, reviews,
-     * cart, filters) has real content to demo instead of being empty.
+     * products and images, plain buyer accounts, inquiries spread across
+     * every status, reviews with a realistic rating spread, a cart left
+     * mid-checkout and a couple of message threads - so every screen has
+     * real content to demo instead of being empty.
      */
     public function run(): void
     {
+        $this->copyDemoImage();
         $this->seedAdminUser();
         $producers = $this->seedProducersWithProducts();
         $buyers = $this->seedBuyers();
@@ -65,6 +74,18 @@ class DemoContentSeeder extends Seeder
             'sender_id' => $buyers[1]->id,
             'body' => 'Pozdrav, da li šaljete kurirskom službom za Beograd?',
         ]);
+    }
+
+    private function copyDemoImage(): void
+    {
+        if (Storage::disk('public')->exists(self::DEMO_IMAGE)) {
+            return;
+        }
+
+        Storage::disk('public')->put(
+            self::DEMO_IMAGE,
+            file_get_contents(resource_path('js/assets/products-table.jpg'))
+        );
     }
 
     private function seedAdminUser(): void
@@ -117,8 +138,8 @@ class DemoContentSeeder extends Seeder
                 'contact_email' => $entry['email'],
                 'story' => 'Sve počinje u sezoni, kada '.mb_strtolower($entry['name']).' počinje pripremu. '
                     .'Radimo u malim serijama, po receptu koji se ne menja, i pakujemo tek kada je gotovo kako treba.',
-                'logo_path' => 'producers/'.fake()->uuid().'.jpg',
-                'cover_image_path' => 'producers/'.fake()->uuid().'.jpg',
+                'logo_path' => self::DEMO_IMAGE,
+                'cover_image_path' => self::DEMO_IMAGE,
             ]);
 
             $categories = Category::whereIn('name', $entry['categories'])->get();
@@ -129,15 +150,15 @@ class DemoContentSeeder extends Seeder
                     ->for($category)
                     ->create()
                     ->each(fn (Product $product) => $product->images()->createMany([
-                        ['path' => 'products/'.fake()->uuid().'.jpg', 'order' => 0],
-                        ['path' => 'products/'.fake()->uuid().'.jpg', 'order' => 1],
+                        ['path' => self::DEMO_IMAGE, 'order' => 0],
+                        ['path' => self::DEMO_IMAGE, 'order' => 1],
                     ]));
             }
 
             $producer->images()->createMany(
                 collect(['Naše dvorište u jutarnjim satima', 'Priprema, korak po korak', 'Spremno za pakovanje'])
                     ->map(fn (string $caption, int $order) => [
-                        'path' => 'producers/gallery/'.fake()->uuid().'.jpg',
+                        'path' => self::DEMO_IMAGE,
                         'caption' => $caption,
                         'order' => $order,
                     ])
@@ -195,14 +216,13 @@ class DemoContentSeeder extends Seeder
             3 => ['Dobro, ali sam očekivao malo veće pakovanje za tu cenu.'],
         ];
 
-        // Buyer #1 & #2: delivered orders from two different producers -> both leave reviews.
+        // Buyer #1 & #2: fulfilled inquiries from two producers -> both leave reviews.
         foreach ([0 => $buyers[0], 1 => $buyers[1]] as $index => $buyer) {
             $producer = $producers[$index];
             $cart->add($buyer, $producer->products()->where('status', 'active')->first(), fake()->numberBetween(1, 3));
             $order = $checkout->checkout($buyer, fake()->streetAddress().', '.$producer->city);
-            $orderStatus->transitionTo($order, 'confirmed');
-            $orderStatus->transitionTo($order, 'shipped');
-            $orderStatus->transitionTo($order, 'delivered');
+            $orderStatus->transitionTo($order, 'contacted');
+            $orderStatus->transitionTo($order, 'fulfilled');
 
             $rating = fake()->randomElement([5, 5, 4]);
             Review::create([
@@ -212,27 +232,27 @@ class DemoContentSeeder extends Seeder
                 'comment' => fake()->randomElement($comments[$rating]),
                 // The first reviewer attaches a photo of what arrived, so the
                 // "slika uz utisak" path has demo data too.
-                'image_path' => $index === 0 ? 'reviews/'.fake()->uuid().'.jpg' : null,
+                'image_path' => $index === 0 ? self::DEMO_IMAGE : null,
             ]);
         }
 
-        // Buyer #3: order confirmed but not yet shipped.
+        // Buyer #3: producer has made contact, nothing settled yet.
         $product = $producers[2]->products()->where('status', 'active')->first();
         $cart->add($buyers[2], $product, 1);
         $order = $checkout->checkout($buyers[2], fake()->streetAddress().', '.$producers[2]->city);
-        $orderStatus->transitionTo($order, 'confirmed');
+        $orderStatus->transitionTo($order, 'contacted');
 
-        // Buyer #4: order just placed, still pending.
+        // Buyer #4: inquiry just sent, still waiting.
         $cart->add($buyers[3], $producers[3]->products()->where('status', 'active')->first(), 2);
         $checkout->checkout($buyers[3], fake()->streetAddress().', '.$producers[3]->city);
 
-        // Buyer #5: order shipped, on its way.
+        // Buyer #5: another inquiry the producer reported as fulfilled.
         $cart->add($buyers[4], $producers[4]->products()->where('status', 'active')->first(), 1);
         $order = $checkout->checkout($buyers[4], fake()->streetAddress().', '.$producers[4]->city);
-        $orderStatus->transitionTo($order, 'confirmed');
-        $orderStatus->transitionTo($order, 'shipped');
+        $orderStatus->transitionTo($order, 'contacted');
+        $orderStatus->transitionTo($order, 'fulfilled');
 
-        // Buyer #6: order cancelled after being placed.
+        // Buyer #6: inquiry that came to nothing.
         $cart->add($buyers[5], $producers[5]->products()->where('status', 'active')->first(), 1);
         $order = $checkout->checkout($buyers[5], fake()->streetAddress().', '.$producers[5]->city);
         $orderStatus->transitionTo($order, 'cancelled');

@@ -16,7 +16,7 @@ class ReviewAuthorizationTest extends TestCase
 
     private function deliveredOrderFor(User $buyer, Producer $producer): Order
     {
-        $order = Order::factory()->for($buyer)->create(['status' => 'delivered']);
+        $order = Order::factory()->for($buyer)->create(['status' => 'fulfilled']);
         $order->items()->create([
             'product_id' => Product::factory()->for($producer)->create()->id,
             'household_id' => $producer->id,

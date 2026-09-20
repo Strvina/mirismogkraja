@@ -37,8 +37,8 @@ class DemoContentSeederTest extends TestCase
         $this->assertGreaterThan(0, Product::where('status', 'draft')->count());
         $this->assertGreaterThan(0, Product::whereHas('images')->count());
 
-        foreach (['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'] as $status) {
-            $this->assertGreaterThan(0, Order::where('status', $status)->count(), "expected at least one {$status} order");
+        foreach (['pending', 'contacted', 'fulfilled', 'cancelled'] as $status) {
+            $this->assertGreaterThan(0, Order::where('status', $status)->count(), "expected at least one {$status} inquiry");
         }
 
         $this->assertGreaterThan(0, Review::count());

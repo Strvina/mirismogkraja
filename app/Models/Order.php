@@ -18,6 +18,7 @@ class Order extends Model
         'status',
         'total_price',
         'shipping_address',
+        'note',
     ];
 
     protected function casts(): array

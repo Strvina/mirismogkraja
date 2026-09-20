@@ -41,6 +41,7 @@ export interface Review {
 
 export interface OrderItem {
     id: number;
+    household_id: number;
     product_name: string;
     unit_price: string;
     quantity: number;
@@ -49,9 +50,10 @@ export interface OrderItem {
 
 export interface Order {
     id: number;
-    status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+    status: 'pending' | 'contacted' | 'fulfilled' | 'cancelled';
     total_price: string;
     shipping_address: string;
+    note: string | null;
     items: OrderItem[];
 }
 

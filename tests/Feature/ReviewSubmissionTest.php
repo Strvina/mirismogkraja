@@ -20,7 +20,7 @@ class ReviewSubmissionTest extends TestCase
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
-        $order = Order::factory()->for($buyer)->create(['status' => 'delivered']);
+        $order = Order::factory()->for($buyer)->create(['status' => 'fulfilled']);
         $order->items()->create([
             'product_id' => Product::factory()->for($producer)->create()->id,
             'household_id' => $producer->id,
@@ -41,7 +41,7 @@ class ReviewSubmissionTest extends TestCase
 
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
-        $order = Order::factory()->for($buyer)->create(['status' => 'delivered']);
+        $order = Order::factory()->for($buyer)->create(['status' => 'fulfilled']);
         $order->items()->create([
             'product_id' => Product::factory()->for($producer)->create()->id,
             'household_id' => $producer->id,
