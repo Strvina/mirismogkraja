@@ -20,8 +20,8 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [ ] 14. Admin panel — redizajn i sidebar
 - [ ] 15. Permisije
 - [ ] 16. Notifikacioni sistem
-- [ ] 17. Upiti za kupovinu (bez plaćanja na platformi)
-- [ ] 18. Redizajn korpe
+- [x] 17. Upiti za kupovinu (bez plaćanja na platformi)
+- [x] 18. Redizajn korpe
 - [ ] 19. Provera linkova/dugmadi
 - [ ] 20. Monetizacija
 - [ ] 21. Dodatne preporuke
