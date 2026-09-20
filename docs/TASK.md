@@ -17,7 +17,7 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 11. Redizajn grida proizvoda
 - [x] 12. Filtriranje proizvoda
 - [x] 13. Redizajn kartice proizvođača + preimenovanje termina
-- [ ] 14. Admin panel — redizajn i sidebar
+- [x] 14. Admin panel — redizajn i sidebar
 - [ ] 15. Permisije
 - [ ] 16. Notifikacioni sistem
 - [x] 17. Upiti za kupovinu (bez plaćanja na platformi)
