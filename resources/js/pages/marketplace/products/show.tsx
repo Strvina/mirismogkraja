@@ -1,5 +1,6 @@
 import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/lib/format';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -34,14 +35,14 @@ export default function ProductShow({ product, similar, isFavorited }: { product
 
                 <div>
                     <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">{product.category?.name}</p>
-                    <h1 className="mt-2 font-serif text-4xl">{product.name}</h1>
-                    <p className="mt-3 text-2xl font-semibold">
-                        {product.price} RSD <span className="text-muted-foreground text-sm">/ {product.unit}</span>
+                    <h1 className="mt-2 font-serif text-3xl break-words sm:text-4xl">{product.name}</h1>
+                    <p className="mt-3 font-serif text-2xl">
+                        {formatPrice(product.price)} <span className="text-muted-foreground font-sans text-sm">/ {product.unit}</span>
                     </p>
 
-                    {product.description && <p className="text-muted-foreground mt-6 leading-7">{product.description}</p>}
+                    {product.description && <p className="text-muted-foreground mt-6 leading-7 break-words">{product.description}</p>}
 
-                    <div className="mt-6 flex items-center gap-3">
+                    <div className="mt-6 flex flex-wrap items-center gap-3">
                         <input
                             type="number"
                             min={1}
@@ -58,10 +59,10 @@ export default function ProductShow({ product, similar, isFavorited }: { product
                         className="hover:bg-muted mt-8 flex items-center gap-3 rounded-md border p-4"
                     >
                         {product.producer.logo_path && (
-                            <img src={`/storage/${product.producer.logo_path}`} alt="" className="size-10 rounded-full object-cover" />
+                            <img src={`/storage/${product.producer.logo_path}`} alt="" className="size-10 shrink-0 rounded-full object-cover" />
                         )}
-                        <div>
-                            <p className="font-serif">{product.producer.name}</p>
+                        <div className="min-w-0">
+                            <p className="font-serif break-words">{product.producer.name}</p>
                             {product.producer.city && (
                                 <p className="text-muted-foreground flex items-center gap-1 text-xs">
                                     <MapPin className="size-3" />
