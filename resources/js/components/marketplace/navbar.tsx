@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import Brand from './brand';
+import CartLink from './cart-link';
 
 /**
  * The site's header: shared by every page except the landing page, which
@@ -31,9 +32,7 @@ export default function Navbar() {
                             <Link href="/omiljeni" aria-label="Omiljeni" className="text-foreground/80 hover:text-foreground">
                                 <Heart className="size-5" />
                             </Link>
-                            <Link href="/korpa" aria-label="Korpa" className="text-foreground/80 hover:text-foreground">
-                                <ShoppingCart className="size-5" />
-                            </Link>
+                            <CartLink className="text-foreground/80 hover:text-foreground" />
                             <Button asChild variant="outline" size="sm">
                                 <Link href={route('profile.edit')}>Moj nalog</Link>
                             </Button>
