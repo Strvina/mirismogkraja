@@ -24,7 +24,7 @@ function ImagesManager({ producer, product }: { producer: Producer; product: Pro
             <h2 className="font-semibold">Slike proizvoda</h2>
 
             {images.length > 0 && (
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {images.map((image) => (
                         <div key={image.id} className="relative">
                             <img src={`/storage/${image.path}`} alt="" className="aspect-square w-full rounded-md object-cover" />

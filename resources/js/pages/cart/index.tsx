@@ -73,7 +73,7 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                                                     )}
                                                 </div>
 
-                                                <div className="min-w-40 flex-1">
+                                                <div className="min-w-32 flex-1">
                                                     <Link
                                                         href={route('marketplace.products.show', item.product.slug)}
                                                         className="font-medium"
@@ -106,7 +106,7 @@ export default function CartIndex({ groups }: { groups: Group[] }) {
                                                     </Button>
                                                 </div>
 
-                                                <p className="w-28 text-right font-serif text-lg">{formatPrice(lineTotal(item))}</p>
+                                                <p className="ml-auto font-serif text-lg sm:ml-0 sm:w-28 sm:text-right">{formatPrice(lineTotal(item))}</p>
 
                                                 <Button
                                                     variant="ghost"
