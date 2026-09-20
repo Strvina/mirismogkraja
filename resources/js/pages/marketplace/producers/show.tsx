@@ -56,30 +56,38 @@ export default function ProducerShow({
                 <img
                     src={`/storage/${producer.cover_image_path}`}
                     alt={producer.name}
-                    className="image-warm mt-6 aspect-[16/6] w-full rounded-md object-cover"
+                    className="image-warm mt-6 aspect-[16/9] w-full rounded-md object-cover sm:aspect-[16/6]"
                 />
             )}
 
-            <div className="mt-6 flex items-center gap-4">
-                {producer.logo_path && <img src={`/storage/${producer.logo_path}`} alt="" className="size-16 rounded-full border object-cover" />}
-                <div className="flex-1">
-                    <h1 className="font-serif text-4xl">{producer.name}</h1>
-                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-3 text-sm">
+            <div className="mt-6 flex flex-wrap items-start gap-4">
+                {producer.logo_path && (
+                    <img
+                        src={`/storage/${producer.logo_path}`}
+                        alt=""
+                        className="size-14 shrink-0 rounded-full border object-cover sm:size-16"
+                    />
+                )}
+
+                <div className="min-w-0 flex-1">
+                    <h1 className="font-serif text-3xl break-words sm:text-4xl">{producer.name}</h1>
+                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                         {producer.city && (
                             <span className="flex items-center gap-1.5">
-                                <MapPin className="size-4" />
+                                <MapPin className="size-4 shrink-0" />
                                 {producer.city}
                             </span>
                         )}
                         {reviews.length > 0 && (
                             <span className="flex items-center gap-1">
-                                <Star className="fill-gold text-gold size-4" />
+                                <Star className="fill-gold text-gold size-4 shrink-0" />
                                 {averageRating} ({reviews.length})
                             </span>
                         )}
                     </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
+
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
                     {canMessage && (
                         <Button asChild variant="outline" size="sm">
                             <Link href={route('messages.show', producer.slug)}>
@@ -93,12 +101,12 @@ export default function ProducerShow({
             </div>
 
             {(producer.phone || producer.contact_email || producer.address) && (
-                <div className="border-border/70 mt-6 flex flex-wrap gap-x-8 gap-y-3 rounded-lg border p-5 text-sm">
+                <div className="border-border/70 mt-6 grid gap-4 rounded-lg border p-5 text-sm sm:grid-cols-3">
                     {producer.phone && (
-                        <div>
+                        <div className="min-w-0">
                             <p className="text-muted-foreground text-xs">Telefon</p>
                             {phoneShown ? (
-                                <a href={`tel:${producer.phone}`} className="font-medium">
+                                <a href={`tel:${producer.phone}`} className="font-medium break-words">
                                     {producer.phone}
                                 </a>
                             ) : (
@@ -109,17 +117,17 @@ export default function ProducerShow({
                         </div>
                     )}
                     {producer.contact_email && (
-                        <div>
+                        <div className="min-w-0">
                             <p className="text-muted-foreground text-xs">Email</p>
-                            <a href={`mailto:${producer.contact_email}`} className="font-medium">
+                            <a href={`mailto:${producer.contact_email}`} className="font-medium break-all">
                                 {producer.contact_email}
                             </a>
                         </div>
                     )}
                     {producer.address && (
-                        <div>
+                        <div className="min-w-0">
                             <p className="text-muted-foreground text-xs">Adresa</p>
-                            <p className="font-medium">{producer.address}</p>
+                            <p className="font-medium break-words">{producer.address}</p>
                         </div>
                     )}
                 </div>
@@ -144,7 +152,7 @@ export default function ProducerShow({
             {producer.story && (
                 <section className="mt-12 max-w-2xl">
                     <h2 className="font-serif text-2xl">Kako nastaje</h2>
-                    <p className="text-muted-foreground mt-3 leading-7 whitespace-pre-line">{producer.story}</p>
+                    <p className="text-muted-foreground mt-3 leading-7 break-words whitespace-pre-line">{producer.story}</p>
                 </section>
             )}
 
@@ -188,7 +196,7 @@ export default function ProducerShow({
                                         />
                                     )}
                                 </div>
-                                <p className="mt-2 text-sm font-medium">{product.name}</p>
+                                <p className="mt-2 text-sm font-medium break-words">{product.name}</p>
                                 <p className="text-muted-foreground text-sm">{formatPrice(product.price)}</p>
                             </Link>
                         ))}
@@ -205,21 +213,21 @@ export default function ProducerShow({
                     <div className="mt-4 space-y-4">
                         {reviews.map((review) => (
                             <div key={review.id} className="border-border border-b pb-4">
-                                <div className="flex items-center gap-2">
-                                    <span className="font-medium">{review.user.name}</span>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="font-medium break-words">{review.user.name}</span>
                                     <span className="text-gold flex items-center gap-0.5">
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <Star key={i} className="fill-gold size-3.5" />
                                         ))}
                                     </span>
                                 </div>
-                                {review.comment && <p className="text-muted-foreground mt-1 text-sm">{review.comment}</p>}
+                                {review.comment && <p className="text-muted-foreground mt-1 text-sm break-words">{review.comment}</p>}
                                 {review.image_path && (
                                     <img
                                         src={`/storage/${review.image_path}`}
                                         alt="Slika uz utisak kupca"
                                         loading="lazy"
-                                        className="mt-3 max-h-48 rounded-md object-cover"
+                                        className="mt-3 max-h-48 w-full max-w-xs rounded-md object-cover"
                                     />
                                 )}
                             </div>
