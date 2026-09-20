@@ -5,28 +5,33 @@ import { formatPrice } from '@/lib/format';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type Producer, type Product, type Review, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MapPin, Star, Truck } from 'lucide-react';
+import { MapPin, MessageCircle, Star, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function ProducerShow({
     producer,
+    gallery,
     products,
     reviews,
     averageRating,
     canReview,
+    canMessage,
     isFavorited,
 }: {
     producer: Producer;
+    gallery: { id: number; path: string; caption: string | null }[];
     products: Product[];
-    reviews: (Review & { user: { name: string } })[];
+    reviews: (Review & { user: { name: string; avatar_path: string | null } })[];
     averageRating: number;
     canReview: boolean;
+    canMessage: boolean;
     isFavorited: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
     const [image, setImage] = useState<File | null>(null);
+    const [phoneShown, setPhoneShown] = useState(false);
 
     const submitReview: FormEventHandler = (e) => {
         e.preventDefault();
@@ -74,8 +79,51 @@ export default function ProducerShow({
                         )}
                     </div>
                 </div>
-                {auth.user && <FavoriteButton type="household" id={producer.id} isFavorited={isFavorited} />}
+                <div className="flex flex-wrap items-center gap-2">
+                    {canMessage && (
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={route('messages.show', producer.slug)}>
+                                <MessageCircle className="size-4" />
+                                Pošalji poruku
+                            </Link>
+                        </Button>
+                    )}
+                    {auth.user && <FavoriteButton type="household" id={producer.id} isFavorited={isFavorited} />}
+                </div>
             </div>
+
+            {(producer.phone || producer.contact_email || producer.address) && (
+                <div className="border-border/70 mt-6 flex flex-wrap gap-x-8 gap-y-3 rounded-lg border p-5 text-sm">
+                    {producer.phone && (
+                        <div>
+                            <p className="text-muted-foreground text-xs">Telefon</p>
+                            {phoneShown ? (
+                                <a href={`tel:${producer.phone}`} className="font-medium">
+                                    {producer.phone}
+                                </a>
+                            ) : (
+                                <button type="button" onClick={() => setPhoneShown(true)} className="text-primary font-medium underline">
+                                    Prikaži broj
+                                </button>
+                            )}
+                        </div>
+                    )}
+                    {producer.contact_email && (
+                        <div>
+                            <p className="text-muted-foreground text-xs">Email</p>
+                            <a href={`mailto:${producer.contact_email}`} className="font-medium">
+                                {producer.contact_email}
+                            </a>
+                        </div>
+                    )}
+                    {producer.address && (
+                        <div>
+                            <p className="text-muted-foreground text-xs">Adresa</p>
+                            <p className="font-medium">{producer.address}</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {producer.description && <p className="text-muted-foreground mt-6 max-w-2xl leading-7">{producer.description}</p>}
 
@@ -91,6 +139,36 @@ export default function ProducerShow({
                         </span>
                     ))}
                 </div>
+            )}
+
+            {producer.story && (
+                <section className="mt-12 max-w-2xl">
+                    <h2 className="font-serif text-2xl">Kako nastaje</h2>
+                    <p className="text-muted-foreground mt-3 leading-7 whitespace-pre-line">{producer.story}</p>
+                </section>
+            )}
+
+            {gallery.length > 0 && (
+                <section className="mt-12">
+                    <h2 className="font-serif text-2xl">Galerija</h2>
+                    <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                        {gallery.map((image) => (
+                            <figure key={image.id} className="group">
+                                <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md">
+                                    <img
+                                        src={`/storage/${image.path}`}
+                                        alt={image.caption ?? ''}
+                                        loading="lazy"
+                                        className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                    />
+                                </div>
+                                {image.caption && (
+                                    <figcaption className="text-muted-foreground mt-2 text-xs leading-5">{image.caption}</figcaption>
+                                )}
+                            </figure>
+                        ))}
+                    </div>
+                </section>
             )}
 
             <section className="mt-12">

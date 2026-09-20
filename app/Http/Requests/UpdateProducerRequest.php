@@ -34,8 +34,11 @@ class UpdateProducerRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'story' => ['nullable', 'string'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:255'],
+            'contact_email' => ['nullable', 'email', 'max:255'],
             'delivery_methods' => ['nullable', 'array'],
             // Either one of Producer::DELIVERY_METHODS' keys or a producer's own wording.
             'delivery_methods.*' => ['string', 'max:60'],
