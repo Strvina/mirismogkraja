@@ -43,7 +43,9 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                // Roles come along so the header can offer the admin panel
+                // link without every page having to pass them.
+                'user' => $request->user()?->loadMissing('roles:id,name'),
             ],
             // Drives the header's cart badge (task 9), so it has to be shared
             // rather than passed by individual pages.
