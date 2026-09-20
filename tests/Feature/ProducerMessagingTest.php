@@ -81,6 +81,26 @@ class ProducerMessagingTest extends TestCase
         $this->actingAs($owner)->get(route('messages.show', $producer->slug))->assertForbidden();
     }
 
+    public function test_the_unread_badge_counts_messages_waiting_for_each_side(): void
+    {
+        $buyer = User::factory()->create();
+        $owner = User::factory()->create();
+        $producer = Producer::factory()->for($owner)->active()->create();
+
+        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje']);
+
+        // The sender sees nothing; the producer's owner sees one waiting.
+        $this->actingAs($buyer)->get('/')->assertInertia(fn ($page) => $page->where('unreadMessages', 0));
+        $this->actingAs($owner)->get('/')->assertInertia(fn ($page) => $page->where('unreadMessages', 1));
+
+        // Reading the thread clears it, and the reply flips it to the buyer.
+        $this->actingAs($owner)->get(route('messages.thread', [$producer->id, $buyer->id]));
+        $this->actingAs($owner)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Odgovor']);
+
+        $this->actingAs($owner)->get('/')->assertInertia(fn ($page) => $page->where('unreadMessages', 0));
+        $this->actingAs($buyer)->get('/')->assertInertia(fn ($page) => $page->where('unreadMessages', 1));
+    }
+
     public function test_the_buyer_inbox_lists_one_entry_per_producer(): void
     {
         $buyer = User::factory()->create();

@@ -20,7 +20,8 @@ class DashboardController extends Controller
                 'producers' => Producer::count(),
                 'products' => Product::count(),
                 'orders' => Order::count(),
-                'revenue' => (float) Order::whereIn('status', ['confirmed', 'shipped', 'delivered'])->sum('total_price'),
+                // Self-reported by producers and unverified by the platform (task 17).
+                'reportedValue' => (float) Order::whereIn('status', ['contacted', 'fulfilled'])->sum('total_price'),
             ],
         ]);
     }

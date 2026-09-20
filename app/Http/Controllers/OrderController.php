@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\OrderStatusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -53,7 +54,7 @@ class OrderController extends Controller
         $this->authorize('updateStatus', $order);
 
         $data = $request->validate([
-            'status' => ['required', 'in:pending,confirmed,shipped,delivered,cancelled'],
+            'status' => ['required', Rule::in(OrderStatusService::STATUSES)],
         ]);
 
         $orders->transitionTo($order, $data['status']);

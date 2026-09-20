@@ -9,7 +9,7 @@ use App\Models\User;
 class ReviewPolicy
 {
     /**
-     * Only a buyer with at least one delivered order containing an item from
+     * Only a buyer with at least one fulfilled inquiry containing an item from
      * this producer can review it - a "verified purchase" rule, since the
      * plan flagged this as a decision to make rather than assume. One review
      * per user per producer is enforced by the table's unique constraint.
@@ -21,7 +21,7 @@ class ReviewPolicy
         }
 
         return $user->orders()
-            ->where('status', 'delivered')
+            ->where('status', 'fulfilled')
             ->whereHas('items', fn ($query) => $query->where('household_id', $producer->id))
             ->exists();
     }

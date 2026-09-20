@@ -102,6 +102,7 @@ export interface SharedData {
     quote: { message: string; author: string };
     auth: Auth;
     cartCount: number;
+    unreadMessages: number;
     [key: string]: unknown;
 }
 

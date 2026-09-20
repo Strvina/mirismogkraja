@@ -8,9 +8,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ChevronDown, Heart, LogOut, MessageCircle } from 'lucide-react';
+import { ChevronDown, Heart, LogOut } from 'lucide-react';
 import Brand from './brand';
 import CartLink from './cart-link';
+import MessagesLink from './messages-link';
 
 /**
  * The site's header: shared by every page except the landing page, which
@@ -37,9 +38,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                     {auth.user ? (
                         <>
-                            <Link href={route('messages.index')} aria-label="Poruke" className="text-foreground/80 hover:text-foreground">
-                                <MessageCircle className="size-5" />
-                            </Link>
+                            <MessagesLink className="text-foreground/80 hover:text-foreground" />
                             <Link href="/omiljeni" aria-label="Omiljeni" className="text-foreground/80 hover:text-foreground">
                                 <Heart className="size-5" />
                             </Link>
