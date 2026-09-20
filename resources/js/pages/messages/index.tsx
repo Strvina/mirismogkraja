@@ -2,10 +2,15 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moje poruke', href: '/poruke' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Poruke', href: '/poruke' }];
 
 interface Thread {
-    producer: { id: number; name: string; slug: string; logo_path: string | null };
+    key: string;
+    as_producer: boolean;
+    title: string;
+    subtitle: string | null;
+    avatar_path: string | null;
+    href: string;
     last_message: string;
     last_at: string;
     unread: number;
@@ -14,32 +19,35 @@ interface Thread {
 export default function MessagesIndex({ threads }: { threads: Thread[] }) {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Moje poruke" />
+            <Head title="Poruke" />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">Moje poruke</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">Poruke</h1>
 
             {threads.length === 0 ? (
                 <p className="text-muted-foreground mt-6 text-sm">
-                    Još niste pisali nijednom proizvođaču. Poruku možete poslati sa profila proizvođača.
+                    Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.
                 </p>
             ) : (
                 <div className="border-border/70 mt-8 max-w-2xl divide-y rounded-lg border">
                     {threads.map((thread) => (
-                        <Link
-                            key={thread.producer.id}
-                            href={route('messages.show', thread.producer.slug)}
-                            className="hover:bg-muted/60 flex items-center gap-4 p-4 transition-colors"
-                        >
-                            {thread.producer.logo_path ? (
-                                <img src={`/storage/${thread.producer.logo_path}`} alt="" className="size-10 rounded-full object-cover" />
+                        <Link key={thread.key} href={thread.href} className="hover:bg-muted/60 flex items-center gap-4 p-4 transition-colors">
+                            {thread.avatar_path ? (
+                                <img src={`/storage/${thread.avatar_path}`} alt="" className="size-10 shrink-0 rounded-full object-cover" />
                             ) : (
-                                <span className="bg-olive-soft text-olive grid size-10 place-items-center rounded-full text-sm font-semibold">
-                                    {thread.producer.name.charAt(0)}
+                                <span className="bg-olive-soft text-olive grid size-10 shrink-0 place-items-center rounded-full text-sm font-semibold">
+                                    {thread.title.charAt(0)}
                                 </span>
                             )}
 
                             <div className="min-w-0 flex-1">
-                                <p className="font-medium">{thread.producer.name}</p>
+                                <p className="flex flex-wrap items-center gap-2 font-medium">
+                                    {thread.title}
+                                    {thread.as_producer && (
+                                        <span className="bg-olive-soft text-olive rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
+                                            kupac · {thread.subtitle}
+                                        </span>
+                                    )}
+                                </p>
                                 <p className="text-muted-foreground truncate text-sm">{thread.last_message}</p>
                             </div>
 

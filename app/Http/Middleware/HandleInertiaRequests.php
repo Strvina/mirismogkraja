@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\ProducerMessage;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -43,11 +44,37 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                // Roles come along so the header can offer the admin panel
+                // link without every page having to pass them.
+                'user' => $request->user()?->loadMissing('roles:id,name'),
             ],
             // Drives the header's cart badge (task 9), so it has to be shared
             // rather than passed by individual pages.
             'cartCount' => fn () => (int) ($request->user()?->cartItems()->sum('quantity') ?? 0),
+            'unreadMessages' => fn () => $this->unreadMessageCount($request),
         ]);
+    }
+
+    /**
+     * Messages waiting for this user, from either side of a thread: ones
+     * addressed to them as a buyer, and ones sent to a producer they own.
+     */
+    private function unreadMessageCount(Request $request): int
+    {
+        $user = $request->user();
+
+        if (! $user) {
+            return 0;
+        }
+
+        $ownedProducerIds = $user->producers()->pluck('id');
+
+        return ProducerMessage::query()
+            ->where('sender_id', '!=', $user->id)
+            ->whereNull('read_at')
+            ->where(fn ($query) => $query
+                ->where('buyer_id', $user->id)
+                ->orWhereIn('household_id', $ownedProducerIds))
+            ->count();
     }
 }

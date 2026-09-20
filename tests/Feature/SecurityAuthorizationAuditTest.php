@@ -52,7 +52,7 @@ class SecurityAuthorizationAuditTest extends TestCase
         $order = Order::factory()->create();
 
         $this->actingAs($stranger)->get(route('orders.show', $order))->assertForbidden();
-        $this->actingAs($stranger)->patch(route('orders.status', $order), ['status' => 'confirmed'])->assertForbidden();
+        $this->actingAs($stranger)->patch(route('orders.status', $order), ['status' => 'contacted'])->assertForbidden();
     }
 
     public function test_a_user_cannot_delete_someone_elses_review()

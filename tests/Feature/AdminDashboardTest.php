@@ -14,7 +14,7 @@ class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_shows_correct_counts_and_revenue()
+    public function test_dashboard_shows_correct_counts_and_reported_value()
     {
         $this->seed(RolesSeeder::class);
         $admin = User::factory()->create();
@@ -25,7 +25,7 @@ class AdminDashboardTest extends TestCase
         $producer = Producer::factory()->for($seller)->create();
         Producer::factory()->for($seller)->count(2)->create();
         Product::factory()->for($producer)->count(4)->create();
-        Order::factory()->create(['status' => 'delivered', 'total_price' => 100]);
+        Order::factory()->create(['status' => 'fulfilled', 'total_price' => 100]);
         Order::factory()->create(['status' => 'cancelled', 'total_price' => 500]);
         Order::factory()->create(['status' => 'pending', 'total_price' => 200]);
 
@@ -34,6 +34,6 @@ class AdminDashboardTest extends TestCase
         $response->assertInertia(fn ($page) => $page->where('stats.producers', 3)
             ->where('stats.products', 4)
             ->where('stats.orders', 3)
-            ->where('stats.revenue', 100));
+            ->where('stats.reportedValue', 100));
     }
 }
