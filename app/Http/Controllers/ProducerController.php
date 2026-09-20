@@ -57,7 +57,10 @@ class ProducerController extends Controller
     {
         $this->authorize('update', $producer);
 
-        return Inertia::render('producers/edit', ['producer' => $producer]);
+        return Inertia::render('producers/edit', [
+            'producer' => $producer,
+            'gallery' => $producer->images()->get(['id', 'path', 'caption']),
+        ]);
     }
 
     /**

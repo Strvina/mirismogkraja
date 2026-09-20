@@ -10,8 +10,11 @@ import { FormEventHandler, useState } from 'react';
 type ProducerFormData = {
     name: string;
     description: string;
+    story: string;
     address: string;
     city: string;
+    phone: string;
+    contact_email: string;
     delivery_methods: string[];
     cover_image: File | null;
     logo: File | null;
@@ -63,8 +66,11 @@ export default function ProducerForm({
     const { data, setData, post, put, processing, errors } = useForm<ProducerFormData>({
         name: producer?.name ?? '',
         description: producer?.description ?? '',
+        story: producer?.story ?? '',
         address: producer?.address ?? '',
         city: producer?.city ?? '',
+        phone: producer?.phone ?? '',
+        contact_email: producer?.contact_email ?? '',
         delivery_methods: producer?.delivery_methods ?? [],
         cover_image: null,
         logo: null,
@@ -141,6 +147,35 @@ export default function ProducerForm({
                     onChange={(e) => setData('description', e.target.value)}
                 />
                 <InputError message={errors.description} />
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="story">Priča o nastanku proizvoda</Label>
+                <p className="text-muted-foreground -mt-1 text-xs">Kako nastaje ono što prodajete — tok proizvodnje, tradicija, sezona.</p>
+                <textarea
+                    id="story"
+                    className="border-input bg-background min-h-32 rounded-md border px-3 py-2 text-sm"
+                    value={data.story}
+                    onChange={(e) => setData('story', e.target.value)}
+                />
+                <InputError message={errors.story} />
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="phone">Telefon za kontakt</Label>
+                <Input id="phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder="+381 6x xxx xxxx" />
+                <InputError message={errors.phone} />
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="contact_email">Email za kontakt</Label>
+                <Input
+                    id="contact_email"
+                    type="email"
+                    value={data.contact_email}
+                    onChange={(e) => setData('contact_email', e.target.value)}
+                />
+                <InputError message={errors.contact_email} />
             </div>
 
             <div className="grid gap-2">

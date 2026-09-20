@@ -67,8 +67,11 @@ export interface Producer {
     name: string;
     slug: string;
     description: string | null;
+    story: string | null;
     address: string | null;
     city: string | null;
+    phone: string | null;
+    contact_email: string | null;
     delivery_methods: string[] | null;
     cover_image_path: string | null;
     logo_path: string | null;

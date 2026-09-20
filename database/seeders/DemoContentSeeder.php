@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Category;
 use App\Models\Producer;
+use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
@@ -30,6 +31,40 @@ class DemoContentSeeder extends Seeder
         $buyers = $this->seedBuyers();
         $this->seedOrdersAndReviews($producers, $buyers);
         $this->seedAbandonedCart($producers, $buyers);
+        $this->seedMessageThreads($producers, $buyers);
+    }
+
+    /**
+     * A couple of buyer/producer conversations (task 8), one of them with an
+     * unanswered question so the producer's inbox has something unread.
+     *
+     * @param  list<Producer>  $producers
+     * @param  list<User>  $buyers
+     */
+    private function seedMessageThreads(array $producers, array $buyers): void
+    {
+        ProducerMessage::create([
+            'household_id' => $producers[0]->id,
+            'buyer_id' => $buyers[0]->id,
+            'sender_id' => $buyers[0]->id,
+            'body' => 'Dobar dan, da li imate ajvar u tegli od 720ml i kolika je cena za pet tegli?',
+            'read_at' => now()->subDay(),
+        ]);
+
+        ProducerMessage::create([
+            'household_id' => $producers[0]->id,
+            'buyer_id' => $buyers[0]->id,
+            'sender_id' => $producers[0]->user_id,
+            'body' => 'Dobar dan, imamo. Za pet tegli može dogovor oko cene, javite mi kada vam odgovara preuzimanje.',
+            'read_at' => now()->subHours(20),
+        ]);
+
+        ProducerMessage::create([
+            'household_id' => $producers[1]->id,
+            'buyer_id' => $buyers[1]->id,
+            'sender_id' => $buyers[1]->id,
+            'body' => 'Pozdrav, da li šaljete kurirskom službom za Beograd?',
+        ]);
     }
 
     private function seedAdminUser(): void
@@ -78,6 +113,10 @@ class DemoContentSeeder extends Seeder
                 'name' => $entry['name'],
                 'city' => $entry['city'],
                 'delivery_methods' => $entry['delivery'],
+                'phone' => '+381 6'.fake()->numberBetween(1, 9).' '.fake()->numerify('### ####'),
+                'contact_email' => $entry['email'],
+                'story' => 'Sve počinje u sezoni, kada '.mb_strtolower($entry['name']).' počinje pripremu. '
+                    .'Radimo u malim serijama, po receptu koji se ne menja, i pakujemo tek kada je gotovo kako treba.',
                 'logo_path' => 'producers/'.fake()->uuid().'.jpg',
                 'cover_image_path' => 'producers/'.fake()->uuid().'.jpg',
             ]);
@@ -94,6 +133,16 @@ class DemoContentSeeder extends Seeder
                         ['path' => 'products/'.fake()->uuid().'.jpg', 'order' => 1],
                     ]));
             }
+
+            $producer->images()->createMany(
+                collect(['Naše dvorište u jutarnjim satima', 'Priprema, korak po korak', 'Spremno za pakovanje'])
+                    ->map(fn (string $caption, int $order) => [
+                        'path' => 'producers/gallery/'.fake()->uuid().'.jpg',
+                        'caption' => $caption,
+                        'order' => $order,
+                    ])
+                    ->all()
+            );
 
             // A couple of edge-case statuses per producer, so admin/filter
             // screens have out-of-stock and draft products to show as well.

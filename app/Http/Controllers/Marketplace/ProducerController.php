@@ -52,13 +52,19 @@ class ProducerController extends Controller
             throw new NotFoundHttpException;
         }
 
+        $user = request()->user();
+
         return Inertia::render('marketplace/producers/show', [
             'producer' => $producer,
+            'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'products' => $producer->products()->where('status', 'active')->with('images')->get(),
-            'reviews' => $producer->reviews()->with('user:id,name')->latest()->get(),
+            'reviews' => $producer->reviews()->with('user:id,name,avatar_path')->latest()->get(),
             'averageRating' => round($producer->reviews()->avg('rating') ?? 0, 1),
-            'canReview' => request()->user()?->can('create', [Review::class, $producer]) ?? false,
-            'isFavorited' => request()->user()?->favorites()
+            'canReview' => $user?->can('create', [Review::class, $producer]) ?? false,
+            // The owner has no one to message on their own page; everyone
+            // else signed in can open a thread with this producer.
+            'canMessage' => $user !== null && $producer->user_id !== $user->id,
+            'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'household')
                 ->where('favoritable_id', $producer->id)
                 ->exists() ?? false,

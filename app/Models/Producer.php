@@ -37,9 +37,12 @@ class Producer extends Model
         'name',
         'slug',
         'description',
+        'story',
         'address',
         'city',
         'delivery_methods',
+        'phone',
+        'contact_email',
         'lat',
         'lng',
         'cover_image_path',
@@ -77,5 +80,15 @@ class Producer extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class, 'household_id');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProducerImage::class, 'household_id')->orderBy('order');
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(ProducerMessage::class, 'household_id');
     }
 }
