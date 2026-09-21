@@ -15,7 +15,7 @@ class FavoriteToggleTest extends TestCase
 
     public function test_guest_cannot_toggle_favorites()
     {
-        $producer = Producer::factory()->create();
+        $producer = Producer::factory()->active()->create();
 
         $this->post(route('favorites.toggle'), ['favoritable_type' => 'household', 'favoritable_id' => $producer->id])
             ->assertRedirect('/login');
@@ -24,7 +24,7 @@ class FavoriteToggleTest extends TestCase
     public function test_toggling_adds_then_removes_a_producer_favorite()
     {
         $user = User::factory()->create();
-        $producer = Producer::factory()->create();
+        $producer = Producer::factory()->active()->create();
 
         $this->actingAs($user)->post(route('favorites.toggle'), [
             'favoritable_type' => 'household',
@@ -42,7 +42,7 @@ class FavoriteToggleTest extends TestCase
     public function test_can_toggle_a_product_favorite()
     {
         $user = User::factory()->create();
-        $product = Product::factory()->create();
+        $product = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);
 
         $this->actingAs($user)->post(route('favorites.toggle'), [
             'favoritable_type' => 'product',

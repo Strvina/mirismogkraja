@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Favorite;
+use App\Models\Producer;
+use App\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,6 +35,12 @@ class FavoriteController extends Controller
             'favoritable_id' => ['required', 'integer'],
         ]);
 
+        $favoritable = $data['favoritable_type'] === 'household'
+            ? Producer::query()->where('status', 'active')->findOrFail($data['favoritable_id'])
+            : Product::query()->where('status', 'active')
+                ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
+                ->findOrFail($data['favoritable_id']);
+
         $favorite = $request->user()->favorites()
             ->where('favoritable_type', $data['favoritable_type'])
             ->where('favoritable_id', $data['favoritable_id'])
@@ -41,11 +49,7 @@ class FavoriteController extends Controller
         if ($favorite) {
             $favorite->delete();
         } else {
-            Favorite::create([
-                'user_id' => $request->user()->id,
-                'favoritable_type' => $data['favoritable_type'],
-                'favoritable_id' => $data['favoritable_id'],
-            ]);
+            $request->user()->favorites()->create(['favoritable_type' => $data['favoritable_type'], 'favoritable_id' => $favoritable->id]);
         }
 
         return back();

@@ -221,8 +221,9 @@ class DemoContentSeeder extends Seeder
             $producer = $producers[$index];
             $cart->add($buyer, $producer->products()->where('status', 'active')->first(), fake()->numberBetween(1, 3));
             $order = $checkout->checkout($buyer, fake()->streetAddress().', '.$producer->city);
-            $orderStatus->transitionTo($order, 'contacted');
-            $orderStatus->transitionTo($order, 'fulfilled');
+            $item = $order->items()->sole();
+            $orderStatus->transitionTo($item, 'contacted');
+            $orderStatus->transitionTo($item, 'fulfilled');
 
             $rating = fake()->randomElement([5, 5, 4]);
             Review::create([
@@ -240,7 +241,7 @@ class DemoContentSeeder extends Seeder
         $product = $producers[2]->products()->where('status', 'active')->first();
         $cart->add($buyers[2], $product, 1);
         $order = $checkout->checkout($buyers[2], fake()->streetAddress().', '.$producers[2]->city);
-        $orderStatus->transitionTo($order, 'contacted');
+        $orderStatus->transitionTo($order->items()->sole(), 'contacted');
 
         // Buyer #4: inquiry just sent, still waiting.
         $cart->add($buyers[3], $producers[3]->products()->where('status', 'active')->first(), 2);
@@ -249,13 +250,14 @@ class DemoContentSeeder extends Seeder
         // Buyer #5: another inquiry the producer reported as fulfilled.
         $cart->add($buyers[4], $producers[4]->products()->where('status', 'active')->first(), 1);
         $order = $checkout->checkout($buyers[4], fake()->streetAddress().', '.$producers[4]->city);
-        $orderStatus->transitionTo($order, 'contacted');
-        $orderStatus->transitionTo($order, 'fulfilled');
+        $item = $order->items()->sole();
+        $orderStatus->transitionTo($item, 'contacted');
+        $orderStatus->transitionTo($item, 'fulfilled');
 
         // Buyer #6: inquiry that came to nothing.
         $cart->add($buyers[5], $producers[5]->products()->where('status', 'active')->first(), 1);
         $order = $checkout->checkout($buyers[5], fake()->streetAddress().', '.$producers[5]->city);
-        $orderStatus->transitionTo($order, 'cancelled');
+        $orderStatus->transitionTo($order->items()->sole(), 'cancelled');
 
         // A few extra reviews on producers without an order-linked one yet,
         // for a fuller/realistic rating spread (mostly good, occasionally middling).

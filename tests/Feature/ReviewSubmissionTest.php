@@ -24,7 +24,7 @@ class ReviewSubmissionTest extends TestCase
         $order->items()->create([
             'product_id' => Product::factory()->for($producer)->create()->id,
             'household_id' => $producer->id,
-            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1,
+            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1, 'status' => 'fulfilled',
         ]);
 
         $this->actingAs($buyer)->post(route('reviews.store', $producer), [
@@ -45,7 +45,7 @@ class ReviewSubmissionTest extends TestCase
         $order->items()->create([
             'product_id' => Product::factory()->for($producer)->create()->id,
             'household_id' => $producer->id,
-            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1,
+            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1, 'status' => 'fulfilled',
         ]);
 
         $this->actingAs($buyer)->post(route('reviews.store', $producer), [

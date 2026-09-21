@@ -17,8 +17,8 @@ class CheckoutTest extends TestCase
     public function test_checkout_creates_one_order_with_items_tagged_by_producer()
     {
         $user = User::factory()->create();
-        $producerA = Producer::factory()->create();
-        $producerB = Producer::factory()->create();
+        $producerA = Producer::factory()->active()->create();
+        $producerB = Producer::factory()->active()->create();
         $productA = Product::factory()->for($producerA)->create(['price' => 100]);
         $productB = Product::factory()->for($producerB)->create(['price' => 200]);
         CartItem::factory()->for($user)->create(['product_id' => $productA->id, 'quantity' => 2]);
@@ -37,7 +37,7 @@ class CheckoutTest extends TestCase
     public function test_checkout_snapshots_product_name_and_price()
     {
         $user = User::factory()->create();
-        $product = Product::factory()->create(['name' => 'Domaći ajvar', 'price' => 450]);
+        $product = Product::factory()->for(Producer::factory()->active())->create(['name' => 'Domaći ajvar', 'price' => 450]);
         CartItem::factory()->for($user)->create(['product_id' => $product->id, 'quantity' => 1]);
 
         $this->actingAs($user)->post(route('checkout.store'), ['shipping_address' => 'Adresa']);
@@ -54,7 +54,7 @@ class CheckoutTest extends TestCase
     public function test_checkout_empties_the_cart()
     {
         $user = User::factory()->create();
-        CartItem::factory()->for($user)->create();
+        CartItem::factory()->for($user)->for(Product::factory()->for(Producer::factory()->active()), 'product')->create();
 
         $this->actingAs($user)->post(route('checkout.store'), ['shipping_address' => 'Adresa']);
 

@@ -37,6 +37,7 @@ class CartController extends Controller
         ]);
 
         $product = Product::findOrFail($data['product_id']);
+        abort_unless($product->status === 'active' && $product->producer()->where('status', 'active')->exists(), 404);
         $cart->add($request->user(), $product, $data['quantity']);
 
         return back();

@@ -78,8 +78,10 @@ class ProductController extends Controller
             'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name']),
             'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city'),
             'priceBounds' => [
-                'min' => (float) Product::where('status', 'active')->min('price'),
-                'max' => (float) Product::where('status', 'active')->max('price'),
+                'min' => (float) Product::where('status', 'active')
+                    ->whereHas('producer', fn ($query) => $query->where('status', 'active'))->min('price'),
+                'max' => (float) Product::where('status', 'active')
+                    ->whereHas('producer', fn ($query) => $query->where('status', 'active'))->max('price'),
             ],
             'filters' => $request->only([
                 'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'min_rating', 'sort',
@@ -115,6 +117,7 @@ class ProductController extends Controller
         $similar = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('status', 'active')
+            ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
             ->with('images')
             ->limit(4)
             ->get();

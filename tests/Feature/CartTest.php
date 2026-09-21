@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\CartItem;
+use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,7 +15,7 @@ class CartTest extends TestCase
 
     public function test_guest_cannot_add_to_cart()
     {
-        $product = Product::factory()->create();
+        $product = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);
 
         $this->post(route('cart.store'), ['product_id' => $product->id, 'quantity' => 1])
             ->assertRedirect('/login');
@@ -23,7 +24,7 @@ class CartTest extends TestCase
     public function test_adding_a_product_creates_a_cart_item()
     {
         $user = User::factory()->create();
-        $product = Product::factory()->create();
+        $product = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);
 
         $this->actingAs($user)->post(route('cart.store'), ['product_id' => $product->id, 'quantity' => 2]);
 
@@ -33,7 +34,7 @@ class CartTest extends TestCase
     public function test_adding_the_same_product_twice_increases_quantity_instead_of_duplicating()
     {
         $user = User::factory()->create();
-        $product = Product::factory()->create();
+        $product = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);
 
         $this->actingAs($user)->post(route('cart.store'), ['product_id' => $product->id, 'quantity' => 2]);
         $this->actingAs($user)->post(route('cart.store'), ['product_id' => $product->id, 'quantity' => 3]);

@@ -71,11 +71,12 @@ class ProducerService
 
     private function replaceImage(Producer $producer, string $column, UploadedFile $file, string $directory): void
     {
-        if ($producer->{$column}) {
-            Storage::disk('public')->delete($producer->{$column});
-        }
-
+        $oldPath = $producer->{$column};
         $producer->{$column} = $file->store($directory, 'public');
+
+        if ($oldPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
     }
 
     private function uniqueSlug(string $name, ?Producer $ignore = null): string

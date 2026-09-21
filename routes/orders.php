@@ -11,5 +11,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/moje-porudzbine', [OrderController::class, 'myOrders'])->name('orders.mine');
     Route::get('/porudzbine-mog-proizvodjaca', [OrderController::class, 'producerOrders'])->name('orders.producer');
     Route::get('/porudzbine/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::patch('/porudzbine/{order}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
+    Route::patch('/porudzbine/{order}/stavke/{item}/status', [OrderController::class, 'updateStatus'])->name('orders.status');
 });

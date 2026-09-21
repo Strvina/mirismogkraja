@@ -46,6 +46,7 @@ export interface OrderItem {
     unit_price: string;
     quantity: number;
     subtotal: string;
+    status: 'pending' | 'contacted' | 'fulfilled' | 'cancelled';
 }
 
 export interface Order {

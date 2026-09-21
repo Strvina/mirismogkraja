@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Order;
+use App\Models\OrderItem;
 use Illuminate\Validation\ValidationException;
 
 class OrderStatusService
@@ -25,16 +25,23 @@ class OrderStatusService
     /** @var list<string> */
     public const STATUSES = ['pending', 'contacted', 'fulfilled', 'cancelled'];
 
-    public function transitionTo(Order $order, string $status): Order
+    public function transitionTo(OrderItem $item, string $status): OrderItem
     {
-        if (! in_array($status, self::TRANSITIONS[$order->status] ?? [], true)) {
+        if (! in_array($status, self::TRANSITIONS[$item->status] ?? [], true)) {
             throw ValidationException::withMessages([
-                'status' => "Ne može se preći sa '{$order->status}' na '{$status}'.",
+                'status' => "Ne može se preći sa '{$item->status}' na '{$status}'.",
             ]);
         }
 
-        $order->update(['status' => $status]);
+        $item->update(['status' => $status]);
 
-        return $order;
+        // Retain a useful aggregate for existing admin reports and older
+        // records; mixed-producer inquiries intentionally keep their last
+        // aggregate state while each item remains the source of truth.
+        if ($item->order->items()->distinct()->pluck('status')->count() === 1) {
+            $item->order->update(['status' => $status]);
+        }
+
+        return $item;
     }
 }

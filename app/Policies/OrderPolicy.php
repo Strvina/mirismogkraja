@@ -19,12 +19,4 @@ class OrderPolicy
 
         return $order->items->contains(fn ($item) => $item->producer->user_id === $user->id);
     }
-
-    /**
-     * Only a fulfilling seller can change the order's status - the buyer cannot.
-     */
-    public function updateStatus(User $user, Order $order): bool
-    {
-        return $order->items->contains(fn ($item) => $item->producer->user_id === $user->id);
-    }
 }
