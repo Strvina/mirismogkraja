@@ -20,7 +20,7 @@ class ReviewAuthorizationTest extends TestCase
         $order->items()->create([
             'product_id' => Product::factory()->for($producer)->create()->id,
             'household_id' => $producer->id,
-            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1,
+            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1, 'status' => 'fulfilled',
         ]);
 
         return $order;

@@ -43,6 +43,7 @@ class ProductController extends Controller
 
     public function edit(Producer $producer, Product $product): Response
     {
+        abort_unless($product->household_id === $producer->id, 404);
         $this->authorize('update', $product);
 
         return Inertia::render('products/edit', [
@@ -54,6 +55,7 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Producer $producer, Product $product, ProductService $products): RedirectResponse
     {
+        abort_unless($product->household_id === $producer->id, 404);
         $products->update($product, $request->validated());
 
         return to_route('producers.products.index', $producer);
@@ -61,6 +63,7 @@ class ProductController extends Controller
 
     public function destroy(Producer $producer, Product $product): RedirectResponse
     {
+        abort_unless($product->household_id === $producer->id, 404);
         $this->authorize('delete', $product);
 
         $product->delete();

@@ -24,6 +24,7 @@ class OrderStatusTest extends TestCase
             'unit_price' => 1,
             'quantity' => 1,
             'subtotal' => 1,
+            'status' => 'pending',
         ]);
 
         return $order;
@@ -35,9 +36,10 @@ class OrderStatusTest extends TestCase
         $seller = User::factory()->create();
         $order = $this->orderFor($buyer, $seller);
 
-        $this->actingAs($seller)->patch(route('orders.status', $order), ['status' => 'contacted']);
+        $item = $order->items()->sole();
+        $this->actingAs($seller)->patch(route('orders.status', [$order, $item]), ['status' => 'contacted']);
 
-        $this->assertSame('contacted', $order->fresh()->status);
+        $this->assertSame('contacted', $item->fresh()->status);
     }
 
     public function test_buyer_cannot_change_the_inquiry_status()
@@ -46,7 +48,7 @@ class OrderStatusTest extends TestCase
         $seller = User::factory()->create();
         $order = $this->orderFor($buyer, $seller);
 
-        $this->actingAs($buyer)->patch(route('orders.status', $order), ['status' => 'contacted'])->assertForbidden();
+        $this->actingAs($buyer)->patch(route('orders.status', [$order, $order->items()->sole()]), ['status' => 'contacted'])->assertForbidden();
     }
 
     public function test_invalid_transition_is_rejected()
@@ -55,10 +57,10 @@ class OrderStatusTest extends TestCase
         $seller = User::factory()->create();
         $order = $this->orderFor($buyer, $seller);
 
-        $this->actingAs($seller)->patch(route('orders.status', $order), ['status' => 'fulfilled'])
+        $this->actingAs($seller)->patch(route('orders.status', [$order, $order->items()->sole()]), ['status' => 'fulfilled'])
             ->assertSessionHasErrors('status');
 
-        $this->assertSame('pending', $order->fresh()->status);
+        $this->assertSame('pending', $order->items()->sole()->status);
     }
 
     public function test_cannot_change_the_status_of_a_settled_inquiry()
@@ -66,9 +68,10 @@ class OrderStatusTest extends TestCase
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
         $order = $this->orderFor($buyer, $seller);
-        $order->update(['status' => 'fulfilled']);
+        $item = $order->items()->sole();
+        $item->update(['status' => 'fulfilled']);
 
-        $this->actingAs($seller)->patch(route('orders.status', $order), ['status' => 'cancelled'])
+        $this->actingAs($seller)->patch(route('orders.status', [$order, $item]), ['status' => 'cancelled'])
             ->assertSessionHasErrors('status');
     }
 }

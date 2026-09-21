@@ -21,8 +21,9 @@ class ReviewPolicy
         }
 
         return $user->orders()
-            ->where('status', 'fulfilled')
-            ->whereHas('items', fn ($query) => $query->where('household_id', $producer->id))
+            ->whereHas('items', fn ($query) => $query
+                ->where('household_id', $producer->id)
+                ->where('status', 'fulfilled'))
             ->exists();
     }
 

@@ -6,14 +6,12 @@ import { type BreadcrumbItem, type Order } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Info, Printer } from 'lucide-react';
 
-export default function OrderShow({ order, canUpdateStatus }: { order: Order; canUpdateStatus: boolean }) {
+export default function OrderShow({ order, updatableItemIds }: { order: Order; updatableItemIds: number[] }) {
     const breadcrumbs: BreadcrumbItem[] = [{ title: `Upit #${order.id}`, href: `/porudzbine/${order.id}` }];
 
-    const setStatus = (status: Order['status']) => {
-        router.patch(route('orders.status', order.id), { status }, { preserveScroll: true });
+    const setStatus = (itemId: number, status: Order['status']) => {
+        router.patch(route('orders.status', [order.id, itemId]), { status }, { preserveScroll: true });
     };
-
-    const nextStatuses = NEXT_INQUIRY_STATUSES[order.status] ?? [];
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
@@ -34,25 +32,7 @@ export default function OrderShow({ order, canUpdateStatus }: { order: Order; ca
             </div>
 
             <div className="mt-8 max-w-2xl">
-                <div className="flex flex-wrap items-center gap-3">
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${INQUIRY_STATUS_CLASSES[order.status]}`}>
-                        {INQUIRY_STATUS_LABELS[order.status]}
-                    </span>
-                    <span className="text-muted-foreground text-sm">{order.shipping_address}</span>
-                </div>
-
-                {canUpdateStatus && nextStatuses.length > 0 && (
-                    <div className="mt-6">
-                        <p className="text-muted-foreground text-xs">Status prijavljujete vi, za svoju evidenciju:</p>
-                        <div className="mt-2 flex flex-wrap gap-2">
-                            {nextStatuses.map((status) => (
-                                <Button key={status} variant="outline" size="sm" onClick={() => setStatus(status)}>
-                                    Označi kao „{INQUIRY_STATUS_LABELS[status]}"
-                                </Button>
-                            ))}
-                        </div>
-                    </div>
-                )}
+                <span className="text-muted-foreground text-sm">{order.shipping_address}</span>
 
                 {order.note && (
                     <div className="border-border/70 mt-6 rounded-lg border p-4">
@@ -63,17 +43,34 @@ export default function OrderShow({ order, canUpdateStatus }: { order: Order; ca
 
                 <div className="border-border/70 mt-8 rounded-lg border">
                     <div className="divide-border/70 divide-y">
-                        {order.items.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between gap-4 px-5 py-4 text-sm">
+                        {order.items.map((item) => {
+                            const nextStatuses = NEXT_INQUIRY_STATUSES[item.status] ?? [];
+                            const canUpdate = updatableItemIds.includes(item.id);
+
+                            return (
+                            <div key={item.id} className="flex flex-wrap items-center justify-between gap-4 px-5 py-4 text-sm">
                                 <div>
                                     <p className="font-medium">{item.product_name}</p>
                                     <p className="text-muted-foreground text-xs">
                                         {formatPrice(item.unit_price)} × {item.quantity}
                                     </p>
+                                    <span className={`mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${INQUIRY_STATUS_CLASSES[item.status]}`}>
+                                        {INQUIRY_STATUS_LABELS[item.status]}
+                                    </span>
+                                    {canUpdate && nextStatuses.length > 0 && (
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {nextStatuses.map((status) => (
+                                                <Button key={status} variant="outline" size="sm" onClick={() => setStatus(item.id, status)}>
+                                                    Označi kao „{INQUIRY_STATUS_LABELS[status]}"
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                                 <span className="font-serif text-lg">{formatPrice(item.subtotal)}</span>
                             </div>
-                        ))}
+                            );
+                        })}
                     </div>
 
                     <div className="border-border/70 flex items-baseline justify-between border-t px-5 py-4">

@@ -30,8 +30,16 @@ class ProductFactory extends Factory
             'description' => fake()->paragraph(),
             'price' => fake()->randomFloat(2, 100, 5000),
             'unit' => fake()->randomElement(['kg', 'g', 'l', 'ml', 'kom', 'paket']),
-            'stock_quantity' => fake()->numberBetween(0, 100),
+            // Enough stock that the happy path always works: a factory that
+            // randomly rolls 0 makes every checkout test flaky now that
+            // checkout verifies availability. Use outOfStock() for that case.
+            'stock_quantity' => fake()->numberBetween(10, 100),
             'status' => 'active',
         ];
+    }
+
+    public function outOfStock(): static
+    {
+        return $this->state(fn () => ['stock_quantity' => 0, 'status' => 'out_of_stock']);
     }
 }

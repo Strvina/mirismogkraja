@@ -46,13 +46,13 @@ class PurchaseInquiryTest extends TestCase
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
 
-        (new CartService)->add($buyer, Product::factory()->for($producer)->create(['price' => 250]), 4);
+        (new CartService)->add($buyer, Product::factory()->for($producer)->create(['price' => 250, 'stock_quantity' => 4]), 4);
 
         $this->actingAs($buyer)->post(route('checkout.store'), ['shipping_address' => 'Neka adresa'])
             ->assertRedirect();
 
         $order = $buyer->orders()->sole();
-        $this->assertSame('pending', $order->status);
+        $this->assertSame('pending', $order->items()->sole()->status);
         $this->assertSame('1000.00', $order->total_price);
         $this->assertSame(0, $buyer->cartItems()->count());
     }
@@ -68,13 +68,14 @@ class PurchaseInquiryTest extends TestCase
 
         $order = $buyer->orders()->sole();
 
-        $this->actingAs($owner)->patch(route('orders.status', $order), ['status' => 'contacted'])->assertRedirect();
-        $this->actingAs($owner)->patch(route('orders.status', $order), ['status' => 'fulfilled'])->assertRedirect();
+        $item = $order->items()->sole();
+        $this->actingAs($owner)->patch(route('orders.status', [$order, $item]), ['status' => 'contacted'])->assertRedirect();
+        $this->actingAs($owner)->patch(route('orders.status', [$order, $item]), ['status' => 'fulfilled'])->assertRedirect();
 
-        $this->assertSame('fulfilled', $order->refresh()->status);
+        $this->assertSame('fulfilled', $item->refresh()->status);
 
         // Settled inquiries are terminal.
-        $this->actingAs($owner)->patch(route('orders.status', $order), ['status' => 'cancelled'])
+        $this->actingAs($owner)->patch(route('orders.status', [$order, $item]), ['status' => 'cancelled'])
             ->assertSessionHasErrors('status');
     }
 }

@@ -23,13 +23,22 @@ class CheckoutService
      */
     public function checkout(User $user, string $shippingAddress, ?string $note = null): Order
     {
-        $cartItems = $user->cartItems()->with('product.producer')->get();
+        return DB::transaction(function () use ($user, $shippingAddress, $note) {
+            $cartItems = $user->cartItems()->lockForUpdate()->with('product.producer')->get();
 
-        if ($cartItems->isEmpty()) {
-            throw ValidationException::withMessages(['cart' => 'Korpa je prazna.']);
-        }
+            if ($cartItems->isEmpty()) {
+                throw ValidationException::withMessages(['cart' => 'Korpa je prazna.']);
+            }
 
-        return DB::transaction(function () use ($user, $shippingAddress, $note, $cartItems) {
+            foreach ($cartItems as $item) {
+                if ($item->product->status !== 'active' || $item->product->producer->status !== 'active') {
+                    throw ValidationException::withMessages(['cart' => "Proizvod '{$item->product->name}' više nije dostupan."]);
+                }
+
+                if ($item->quantity > $item->product->stock_quantity) {
+                    throw ValidationException::withMessages(['cart' => "Nema dovoljno proizvoda: {$item->product->name}."]);
+                }
+            }
             $order = $user->orders()->create([
                 'status' => 'pending',
                 'total_price' => $cartItems->sum(fn ($item) => $item->product->price * $item->quantity),
@@ -45,6 +54,7 @@ class CheckoutService
                     'unit_price' => $item->product->price,
                     'quantity' => $item->quantity,
                     'subtotal' => $item->product->price * $item->quantity,
+                    'status' => 'pending',
                 ]);
             }
 

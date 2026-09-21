@@ -14,6 +14,7 @@ class ProductImageController extends Controller
 {
     public function store(Request $request, Producer $producer, Product $product): RedirectResponse
     {
+        abort_unless($product->household_id === $producer->id, 404);
         $this->authorize('update', $product);
 
         $request->validate([
@@ -35,6 +36,7 @@ class ProductImageController extends Controller
 
     public function destroy(Producer $producer, Product $product, ProductImage $image): RedirectResponse
     {
+        abort_unless($product->household_id === $producer->id && $image->product_id === $product->id, 404);
         $this->authorize('update', $product);
 
         Storage::disk('public')->delete($image->path);
@@ -45,6 +47,7 @@ class ProductImageController extends Controller
 
     public function makePrimary(Producer $producer, Product $product, ProductImage $image): RedirectResponse
     {
+        abort_unless($product->household_id === $producer->id && $image->product_id === $product->id, 404);
         $this->authorize('update', $product);
 
         DB::transaction(function () use ($product, $image) {

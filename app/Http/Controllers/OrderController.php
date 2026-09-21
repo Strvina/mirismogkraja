@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Services\OrderStatusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,19 +46,23 @@ class OrderController extends Controller
 
         return Inertia::render('orders/show', [
             'order' => $order->load('items'),
-            'canUpdateStatus' => request()->user()->can('updateStatus', $order),
+            'updatableItemIds' => $order->items
+                ->filter(fn (OrderItem $item) => request()->user()->can('updateStatus', $item))
+                ->pluck('id')
+                ->values(),
         ]);
     }
 
-    public function updateStatus(Request $request, Order $order, OrderStatusService $orders): RedirectResponse
+    public function updateStatus(Request $request, Order $order, OrderItem $item, OrderStatusService $orders): RedirectResponse
     {
-        $this->authorize('updateStatus', $order);
+        abort_unless($item->order_id === $order->id, 404);
+        $this->authorize('updateStatus', $item);
 
         $data = $request->validate([
             'status' => ['required', Rule::in(OrderStatusService::STATUSES)],
         ]);
 
-        $orders->transitionTo($order, $data['status']);
+        $orders->transitionTo($item, $data['status']);
 
         return back();
     }
