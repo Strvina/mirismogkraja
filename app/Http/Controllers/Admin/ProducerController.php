@@ -14,7 +14,9 @@ class ProducerController extends Controller
     public function index(Request $request): Response
     {
         $producers = Producer::query()
-            ->with('user:id,name,email')
+            // The owner may have archived their account, and the listing still
+            // has to say whose producer this was.
+            ->with(['user' => fn ($query) => $query->withTrashed()->select('id', 'name', 'email')])
             ->withCount('products')
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             // Applications waiting on a decision come first.

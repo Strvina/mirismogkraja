@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use App\Models\Category;
-use App\Models\Order;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
@@ -39,9 +38,9 @@ class AppServiceProvider extends ServiceProvider
             'product' => Product::class,
         ]);
 
-        // Audited models (task 14). Deliberately not every model: cart items
+        // Audited models (task 14). Deliberately not every model: messages
         // and message reads would bury the entries that matter.
-        foreach ([Producer::class, Product::class, Category::class, Order::class, Review::class] as $model) {
+        foreach ([Producer::class, Product::class, Category::class, Review::class] as $model) {
             $model::observe(ActivityLogObserver::class);
         }
     }

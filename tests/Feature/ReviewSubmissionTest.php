@@ -2,9 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Order;
 use App\Models\Producer;
-use App\Models\Product;
+use App\Models\ProducerMessage;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,16 +15,18 @@ class ReviewSubmissionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_buyer_with_delivered_order_can_submit_a_review()
+    /** The producer has to have written back before a review is allowed. */
+    private function answeredConversation(User $buyer, Producer $producer): void
+    {
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
+    }
+
+    public function test_buyer_the_producer_answered_can_submit_a_review()
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
-        $order = Order::factory()->for($buyer)->create(['status' => 'fulfilled']);
-        $order->items()->create([
-            'product_id' => Product::factory()->for($producer)->create()->id,
-            'household_id' => $producer->id,
-            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1, 'status' => 'fulfilled',
-        ]);
+        $this->answeredConversation($buyer, $producer);
 
         $this->actingAs($buyer)->post(route('reviews.store', $producer), [
             'rating' => 5,
@@ -41,12 +42,7 @@ class ReviewSubmissionTest extends TestCase
 
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
-        $order = Order::factory()->for($buyer)->create(['status' => 'fulfilled']);
-        $order->items()->create([
-            'product_id' => Product::factory()->for($producer)->create()->id,
-            'household_id' => $producer->id,
-            'product_name' => 'x', 'unit_price' => 1, 'quantity' => 1, 'subtotal' => 1, 'status' => 'fulfilled',
-        ]);
+        $this->answeredConversation($buyer, $producer);
 
         $this->actingAs($buyer)->post(route('reviews.store', $producer), [
             'rating' => 5,
@@ -62,7 +58,7 @@ class ReviewSubmissionTest extends TestCase
         Storage::disk('public')->assertMissing($review->image_path);
     }
 
-    public function test_buyer_without_a_delivered_order_cannot_submit_a_review()
+    public function test_buyer_the_producer_never_answered_cannot_submit_a_review()
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
@@ -80,7 +76,7 @@ class ReviewSubmissionTest extends TestCase
         $response = $this->get(route('marketplace.producers.show', $producer));
 
         $response->assertInertia(fn ($page) => $page->where('averageRating', 3)
-            ->has('reviews', 2));
+            ->has('reviews.data', 2));
     }
 
     public function test_author_can_delete_their_review()

@@ -37,6 +37,16 @@ class Product extends Model
         return $this->belongsTo(Producer::class, 'household_id');
     }
 
+    /**
+     * A product is only public when its producer is too. The producer can be
+     * missing entirely here: archiving an account soft-deletes its producers,
+     * and the relation then resolves to null rather than to a blocked record.
+     */
+    public function isPubliclyVisible(): bool
+    {
+        return $this->status === 'active' && $this->producer?->status === 'active';
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -45,15 +55,5 @@ class Product extends Model
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('order');
-    }
-
-    public function cartItems(): HasMany
-    {
-        return $this->hasMany(CartItem::class);
-    }
-
-    public function orderItems(): HasMany
-    {
-        return $this->hasMany(OrderItem::class);
     }
 }

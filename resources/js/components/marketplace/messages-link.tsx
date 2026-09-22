@@ -18,7 +18,7 @@ export default function MessagesLink({ className = '' }: { className?: string })
     useEffect(() => {
         const poll = setInterval(() => {
             if (document.visibilityState === 'visible') {
-                router.reload({ only: ['unreadMessages', 'cartCount'] });
+                router.reload({ only: ['unreadMessages'] });
             }
         }, POLL_MS);
 

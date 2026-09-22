@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
@@ -21,7 +22,7 @@ export default function ProducerShow({
     producer: Producer;
     gallery: { id: number; path: string; caption: string | null }[];
     products: Product[];
-    reviews: (Review & { user: { name: string; avatar_path: string | null } })[];
+    reviews: Paginated<Review & { user: { name: string; avatar_path: string | null } }>;
     averageRating: number;
     canReview: boolean;
     canMessage: boolean;
@@ -78,10 +79,10 @@ export default function ProducerShow({
                                 {producer.city}
                             </span>
                         )}
-                        {reviews.length > 0 && (
+                        {reviews.total > 0 && (
                             <span className="flex items-center gap-1">
                                 <Star className="fill-gold text-gold size-4 shrink-0" />
-                                {averageRating} ({reviews.length})
+                                {averageRating} ({reviews.total})
                             </span>
                         )}
                     </div>
@@ -207,11 +208,11 @@ export default function ProducerShow({
             <section className="mt-12 max-w-2xl">
                 <h2 className="font-serif text-2xl">Ocene</h2>
 
-                {reviews.length === 0 ? (
+                {reviews.total === 0 ? (
                     <p className="text-muted-foreground mt-2 text-sm">Ovaj proizvođač još nema ocena.</p>
                 ) : (
                     <div className="mt-4 space-y-4">
-                        {reviews.map((review) => (
+                        {reviews.data.map((review) => (
                             <div key={review.id} className="border-border border-b pb-4">
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span className="font-medium break-words">{review.user.name}</span>
@@ -232,6 +233,7 @@ export default function ProducerShow({
                                 )}
                             </div>
                         ))}
+                        <Pagination meta={reviews} />
                     </div>
                 )}
 

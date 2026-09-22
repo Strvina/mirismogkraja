@@ -159,7 +159,7 @@ class ProducerCrudTest extends TestCase
         Storage::disk('public')->assertMissing('producers/covers/old.jpg');
     }
 
-    public function test_owner_can_delete_their_producer()
+    public function test_owner_can_archive_their_producer_without_losing_historical_data()
     {
         $user = User::factory()->create();
         $producer = Producer::factory()->for($user)->create();
@@ -167,6 +167,7 @@ class ProducerCrudTest extends TestCase
         $this->actingAs($user)->delete(route('producers.destroy', $producer))
             ->assertRedirect(route('producers.index'));
 
-        $this->assertDatabaseMissing('households', ['id' => $producer->id]);
+        $this->assertSoftDeleted('households', ['id' => $producer->id]);
+        $this->assertNotNull(Producer::withTrashed()->find($producer->id));
     }
 }

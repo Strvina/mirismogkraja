@@ -11,6 +11,10 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -64,11 +68,34 @@ class ProfileController extends Controller
             'password' => ['required', 'current_password'],
         ]);
 
+        /** @var User $user */
         $user = $request->user();
 
-        Auth::logout();
+        // Removing the last administrator would lock everyone out of the
+        // admin panel with no way back in through the interface.
+        if ($user->hasRole('admin') && User::role('admin')->count() === 1) {
+            throw ValidationException::withMessages([
+                'password' => 'Vaš nalog je jedini administrator, pa ne može biti obrisan.',
+            ]);
+        }
 
-        $user->delete();
+        // Messages and audit entries have to stay readable, so the account is
+        // archived rather than cascaded away. The e-mail address is released
+        // at the same time: it is unique across the table, and a soft-deleted
+        // row would otherwise keep the address hostage forever.
+        DB::transaction(function () use ($user): void {
+            $user->producers->each->delete();
+
+            $user->forceFill([
+                'email' => "obrisan-{$user->id}@obrisan.local",
+                'password' => Hash::make(Str::random(64)),
+                'remember_token' => null,
+            ])->save();
+
+            $user->delete();
+        });
+
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

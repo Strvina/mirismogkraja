@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Order;
 use App\Models\Producer;
+use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
@@ -14,7 +14,7 @@ class AdminDashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_dashboard_shows_correct_counts_and_reported_value()
+    public function test_dashboard_counts_producers_products_and_conversations()
     {
         $this->seed(RolesSeeder::class);
         $admin = User::factory()->create();
@@ -25,15 +25,20 @@ class AdminDashboardTest extends TestCase
         $producer = Producer::factory()->for($seller)->create();
         Producer::factory()->for($seller)->count(2)->create();
         Product::factory()->for($producer)->count(4)->create();
-        Order::factory()->create(['status' => 'fulfilled', 'total_price' => 100]);
-        Order::factory()->create(['status' => 'cancelled', 'total_price' => 500]);
-        Order::factory()->create(['status' => 'pending', 'total_price' => 200]);
+        $otherBuyer = User::factory()->create();
+
+        // Two messages in one thread, plus a second thread: three messages,
+        // two conversations. A count that simply totals the rows would read
+        // three here and go unnoticed.
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $admin->id, 'sender_id' => $admin->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $admin->id, 'sender_id' => $seller->id, 'body' => 'Odgovor']);
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $otherBuyer->id, 'sender_id' => $otherBuyer->id, 'body' => 'Drugo pitanje']);
 
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
 
         $response->assertInertia(fn ($page) => $page->where('stats.producers', 3)
             ->where('stats.products', 4)
-            ->where('stats.orders', 3)
-            ->where('stats.reportedValue', 100));
+            ->where('stats.conversations', 2)
+            ->where('stats.messages', 3));
     }
 }

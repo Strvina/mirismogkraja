@@ -6,6 +6,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -13,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use HasFactory, HasRoles, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -69,14 +70,9 @@ class User extends Authenticatable
         return $this->hasMany(Producer::class);
     }
 
-    public function cartItems(): HasMany
+    public function messages(): HasMany
     {
-        return $this->hasMany(CartItem::class);
-    }
-
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(ProducerMessage::class, 'buyer_id');
     }
 
     public function reviews(): HasMany

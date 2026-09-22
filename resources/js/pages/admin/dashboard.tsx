@@ -5,8 +5,8 @@ type Stats = {
     users: number;
     producers: number;
     products: number;
-    orders: number;
-    reportedValue: number;
+    conversations: number;
+    messages: number;
 };
 
 export default function AdminDashboard({ stats }: { stats: Stats }) {
@@ -14,8 +14,8 @@ export default function AdminDashboard({ stats }: { stats: Stats }) {
         { label: 'Korisnici', value: String(stats.users) },
         { label: 'Proizvođači', value: String(stats.producers) },
         { label: 'Proizvodi', value: String(stats.products) },
-        { label: 'Upiti', value: String(stats.orders) },
-        { label: 'Prijavljena vrednost upita', value: `${stats.reportedValue.toFixed(2)} RSD`, note: 'Samoprijavljeno, neprovereno' },
+        { label: 'Razgovori', value: String(stats.conversations) },
+        { label: 'Poruke', value: String(stats.messages) },
     ];
 
     return (

@@ -6,18 +6,17 @@ import { Heart, Package, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import AccountMenu from './account-menu';
 import Brand from './brand';
-import CartLink from './cart-link';
 import MenuIcon from './menu-icon';
 import MessagesLink from './messages-link';
 
 /**
  * The site's header: shared by every page except the admin panel, which has
- * its own shell. Sticky, so navigation and the cart stay reachable no matter
+ * its own shell. Sticky, so navigation and the inbox stay reachable no matter
  * how far down the page someone has scrolled.
  *
  * Below md the inline links and icon row would wrap onto several rows, so
- * they collapse into the account menu instead; the cart keeps its own button
- * there since it's the one thing people reach for mid-browse.
+ * they collapse into the account menu instead; messages keep their own button
+ * there since a waiting reply is the one thing people check mid-browse.
  */
 export default function Navbar() {
     const { auth } = usePage<SharedData>().props;
@@ -50,8 +49,6 @@ export default function Navbar() {
                                     <Heart className="size-5" />
                                 </Link>
                             </div>
-
-                            <CartLink className="text-foreground/80 hover:text-foreground" />
 
                             <AccountMenu user={auth.user} />
                         </>

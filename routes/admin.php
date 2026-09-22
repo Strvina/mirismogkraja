@@ -3,8 +3,6 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\InquiryReportController;
-use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProducerController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -27,15 +25,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/proizvodi/masovno', [ProductController::class, 'bulk'])->name('products.bulk');
 
-    Route::get('/upiti', [InquiryReportController::class, 'index'])->name('inquiries.index');
     Route::get('/logovi', [ActivityLogController::class, 'index'])->name('logs.index');
 
     Route::get('/kategorije', [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/kategorije', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('/kategorije/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/kategorije/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
-    Route::get('/porudzbine', [OrderController::class, 'index'])->name('orders.index');
 
     Route::get('/ocene', [ReviewController::class, 'index'])->name('reviews.index');
     Route::delete('/ocene/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');

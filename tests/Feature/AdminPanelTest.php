@@ -109,7 +109,7 @@ class AdminPanelTest extends TestCase
     {
         $user = User::factory()->create();
 
-        foreach (['admin.logs.index', 'admin.inquiries.index', 'admin.products.index'] as $name) {
+        foreach (['admin.logs.index', 'admin.reviews.index', 'admin.products.index'] as $name) {
             $this->actingAs($user)->get(route($name))->assertForbidden();
         }
     }

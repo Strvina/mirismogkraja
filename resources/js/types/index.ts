@@ -39,31 +39,6 @@ export interface Review {
     image_path: string | null;
 }
 
-export interface OrderItem {
-    id: number;
-    household_id: number;
-    product_name: string;
-    unit_price: string;
-    quantity: number;
-    subtotal: string;
-    status: 'pending' | 'contacted' | 'fulfilled' | 'cancelled';
-}
-
-export interface Order {
-    id: number;
-    status: 'pending' | 'contacted' | 'fulfilled' | 'cancelled';
-    total_price: string;
-    shipping_address: string;
-    note: string | null;
-    items: OrderItem[];
-}
-
-export interface CartItem {
-    id: number;
-    quantity: number;
-    product: Product;
-}
-
 export interface Producer {
     id: number;
     user_id: number;
@@ -104,7 +79,6 @@ export interface SharedData {
     name: string;
     quote: { message: string; author: string };
     auth: Auth;
-    cartCount: number;
     unreadMessages: number;
     [key: string]: unknown;
 }

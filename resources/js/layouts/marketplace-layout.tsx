@@ -8,7 +8,7 @@ import { type ReactNode } from 'react';
 /**
  * Shared shell for every page outside the landing page and the admin panel:
  * the same sticky header and footer everywhere, so navigating between the
- * catalog, the cart and a seller's own pages never swaps out the chrome.
+ * catalog, the inbox and a seller's own pages never swaps out the chrome.
  */
 export default function MarketplaceLayout({
     children,

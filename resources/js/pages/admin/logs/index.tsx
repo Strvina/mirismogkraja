@@ -16,12 +16,16 @@ interface LogEntry {
 const actionLabels: Record<string, string> = {
     created: 'Kreirano',
     updated: 'Izmenjeno',
+    archived: 'Arhivirano',
+    restored: 'Vraćeno',
     deleted: 'Obrisano',
 };
 
 const actionClasses: Record<string, string> = {
     created: 'bg-olive-soft text-olive',
     updated: 'bg-gold/15 text-foreground',
+    archived: 'bg-muted text-muted-foreground',
+    restored: 'bg-olive-soft text-olive',
     deleted: 'bg-destructive/10 text-destructive',
 };
 

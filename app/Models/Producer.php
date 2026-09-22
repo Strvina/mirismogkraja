@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Producer extends Model
 {
     /** @use HasFactory<ProducerFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * The underlying table predates this class's Household -> Producer
@@ -70,11 +71,6 @@ class Producer extends Model
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'household_id');
-    }
-
-    public function orderItems(): HasMany
-    {
-        return $this->hasMany(OrderItem::class, 'household_id');
     }
 
     public function reviews(): HasMany

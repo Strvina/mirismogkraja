@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,9 @@ interface Message {
     created_at: string;
     mine: boolean;
     sender: { id: number; name: string; avatar_path: string | null };
+    // Set only on a message sent from a product page, so the reader can see
+    // which listing the question was about.
+    product: { id: number; name: string; slug: string } | null;
 }
 
 export default function MessageThread({
@@ -21,7 +25,7 @@ export default function MessageThread({
 }: {
     producer: { id: number; name: string; slug: string; logo_path: string | null };
     buyer: { id: number; name: string; avatar_path: string | null };
-    messages: Message[];
+    messages: Paginated<Message>;
     isOwner: boolean;
 }) {
     const [body, setBody] = useState('');
@@ -62,12 +66,14 @@ export default function MessageThread({
             )}
 
             <div className="mt-8 max-w-2xl space-y-4">
-                {messages.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">
-                        Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.
-                    </p>
+                {/* The newest page comes first, so paging forward walks back
+                    through the history: the links belong above the thread. */}
+                <Pagination meta={messages} />
+
+                {messages.total === 0 ? (
+                    <p className="text-muted-foreground text-sm">Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.</p>
                 ) : (
-                    messages.map((message) => (
+                    messages.data.map((message) => (
                         <div key={message.id} className={cn('flex', message.mine ? 'justify-end' : 'justify-start')}>
                             <div
                                 className={cn(
@@ -75,6 +81,17 @@ export default function MessageThread({
                                     message.mine ? 'bg-primary text-primary-foreground' : 'bg-muted',
                                 )}
                             >
+                                {message.product && (
+                                    <Link
+                                        href={route('marketplace.products.show', message.product.slug)}
+                                        className={cn(
+                                            'mb-2 flex rounded-md px-2 py-1 text-xs underline underline-offset-2',
+                                            message.mine ? 'bg-primary-foreground/15' : 'bg-background',
+                                        )}
+                                    >
+                                        Upit za: {message.product.name}
+                                    </Link>
+                                )}
                                 <p className="whitespace-pre-line">{message.body}</p>
                                 <p className={cn('mt-1.5 text-[0.65rem]', message.mine ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
                                     {message.sender.name} · {new Date(message.created_at).toLocaleString('sr-RS')}
