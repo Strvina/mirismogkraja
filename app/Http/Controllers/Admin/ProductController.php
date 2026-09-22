@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -20,7 +21,10 @@ class ProductController extends Controller
     public function index(Request $request): Response
     {
         $products = Product::query()
-            ->with(['producer:id,name', 'category:id,name'])
+            // Archiving an account soft-deletes its producers but leaves the
+            // products behind; without withTrashed() those rows would render
+            // with no producer at all in the admin table.
+            ->with(['producer' => fn ($query) => $query->withTrashed()->select('id', 'name'), 'category:id,name'])
             ->when($request->string('search')->toString(), fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
             ->when($request->integer('producer_id'), fn ($query, $id) => $query->where('household_id', $id))
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
@@ -37,7 +41,7 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(Request $request, Product $product, ProductService $products): RedirectResponse
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -47,7 +51,9 @@ class ProductController extends Controller
             'status' => ['required', Rule::in(self::STATUSES)],
         ]);
 
-        $product->update($data);
+        // Keep public slugs consistent regardless of whether an owner or an
+        // administrator changes the product name.
+        $products->update($product, $data);
 
         return back();
     }

@@ -1,4 +1,5 @@
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { Head, router } from '@inertiajs/react';
 
@@ -7,7 +8,7 @@ export default function ProducersIndex({
     cities,
     filters,
 }: {
-    producers: ProducerCardProducer[];
+    producers: Paginated<ProducerCardProducer>;
     cities: string[];
     filters: { city: string | null };
 }) {
@@ -44,14 +45,17 @@ export default function ProducersIndex({
                 )}
             </div>
 
-            {producers.length === 0 ? (
+            {producers.data.length === 0 ? (
                 <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvođača za prikaz.</p>
             ) : (
-                <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {producers.map((producer) => (
-                        <ProducerCard key={producer.id} producer={producer} />
-                    ))}
-                </div>
+                <>
+                    <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                        {producers.data.map((producer) => (
+                            <ProducerCard key={producer.id} producer={producer} />
+                        ))}
+                    </div>
+                    <Pagination meta={producers} />
+                </>
             )}
         </MarketplaceLayout>
     );

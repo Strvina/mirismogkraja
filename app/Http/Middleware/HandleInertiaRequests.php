@@ -48,9 +48,6 @@ class HandleInertiaRequests extends Middleware
                 // link without every page having to pass them.
                 'user' => $request->user()?->loadMissing('roles:id,name'),
             ],
-            // Drives the header's cart badge (task 9), so it has to be shared
-            // rather than passed by individual pages.
-            'cartCount' => fn () => (int) ($request->user()?->cartItems()->sum('quantity') ?? 0),
             'unreadMessages' => fn () => $this->unreadMessageCount($request),
         ]);
     }

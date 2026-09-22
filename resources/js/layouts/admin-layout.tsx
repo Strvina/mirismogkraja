@@ -4,10 +4,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
 import {
-    ClipboardList,
     FolderTree,
     LayoutDashboard,
-    ListOrdered,
     LogOut,
     Package,
     ScrollText,
@@ -22,8 +20,6 @@ const sections = [
     { href: '/admin', label: 'Evidencija', icon: LayoutDashboard, exact: true },
     { href: '/admin/proizvodjaci', label: 'Proizvođači', icon: Sprout },
     { href: '/admin/proizvodi', label: 'Proizvodi', icon: Package },
-    { href: '/admin/upiti', label: 'Upiti i prodaja', icon: ClipboardList },
-    { href: '/admin/porudzbine', label: 'Svi upiti', icon: ListOrdered },
     { href: '/admin/kategorije', label: 'Kategorije', icon: FolderTree },
     { href: '/admin/korisnici', label: 'Korisnici', icon: Users },
     { href: '/admin/ocene', label: 'Ocene', icon: Star },

@@ -3,27 +3,36 @@
 namespace App\Policies;
 
 use App\Models\Producer;
+use App\Models\ProducerMessage;
 use App\Models\Review;
 use App\Models\User;
 
 class ReviewPolicy
 {
     /**
-     * Only a buyer with at least one fulfilled inquiry containing an item from
-     * this producer can review it - a "verified purchase" rule, since the
-     * plan flagged this as a decision to make rather than assume. One review
-     * per user per producer is enforced by the table's unique constraint.
+     * The platform never sees the purchase itself - buyer and producer agree
+     * on it directly - so the closest thing to a verified customer is someone
+     * the producer has actually written back to. Requiring that reply, rather
+     * than just an outgoing message, stops anyone from posting "hello" and
+     * then rating a producer they have never dealt with. One review per user
+     * per producer is enforced by the table's unique constraint.
      */
     public function create(User $user, Producer $producer): bool
     {
+        // A producer must not be able to manufacture a "verified" purchase
+        // for their own listing and then raise their public rating.
+        if ($producer->user_id === $user->id) {
+            return false;
+        }
+
         if ($producer->reviews()->where('user_id', $user->id)->exists()) {
             return false;
         }
 
-        return $user->orders()
-            ->whereHas('items', fn ($query) => $query
-                ->where('household_id', $producer->id)
-                ->where('status', 'fulfilled'))
+        return ProducerMessage::query()
+            ->where('household_id', $producer->id)
+            ->where('buyer_id', $user->id)
+            ->where('sender_id', $producer->user_id)
             ->exists();
     }
 

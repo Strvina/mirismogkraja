@@ -2,9 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\CartItem;
 use App\Models\Category;
-use App\Models\Order;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
@@ -14,11 +12,11 @@ use Tests\TestCase;
 
 /**
  * Task 8.4: a single place that proves every mutable model with an owner
- * (Producer, Product, Order, Review, plus CartItem) rejects a user acting
- * on someone else's record - i.e. no IDOR via guessable/enumerable IDs.
- * Each of these is also covered in its own feature test from the task that
- * introduced it; this file exists to make the security posture reviewable
- * in one pass rather than scattered across a dozen files.
+ * (Producer, Product, Review, plus message threads) rejects a user acting on
+ * someone else's record - i.e. no IDOR via guessable/enumerable IDs. Each of
+ * these is also covered in its own feature test from the task that introduced
+ * it; this file exists to make the security posture reviewable in one pass
+ * rather than scattered across a dozen files.
  */
 class SecurityAuthorizationAuditTest extends TestCase
 {
@@ -46,21 +44,15 @@ class SecurityAuthorizationAuditTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_a_user_cannot_view_or_act_on_an_order_they_have_no_part_in()
+    public function test_a_user_cannot_read_a_thread_between_two_other_people()
     {
         $stranger = User::factory()->create();
-        $order = Order::factory()->create();
-        $item = $order->items()->create([
-            'product_id' => Product::factory()->create()->id,
-            'household_id' => Producer::factory()->create()->id,
-            'product_name' => 'x',
-            'unit_price' => 1,
-            'quantity' => 1,
-            'subtotal' => 1,
-        ]);
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
 
-        $this->actingAs($stranger)->get(route('orders.show', $order))->assertForbidden();
-        $this->actingAs($stranger)->patch(route('orders.status', [$order, $item]), ['status' => 'contacted'])->assertForbidden();
+        $this->actingAs($stranger)
+            ->get(route('messages.thread', [$producer, $buyer]))
+            ->assertForbidden();
     }
 
     public function test_a_user_cannot_delete_someone_elses_review()
@@ -69,15 +61,6 @@ class SecurityAuthorizationAuditTest extends TestCase
         $review = Review::factory()->create();
 
         $this->actingAs($attacker)->delete(route('reviews.destroy', $review))->assertForbidden();
-    }
-
-    public function test_a_user_cannot_touch_someone_elses_cart_item()
-    {
-        $attacker = User::factory()->create();
-        $item = CartItem::factory()->create();
-
-        $this->actingAs($attacker)->patch(route('cart.update', $item), ['quantity' => 5])->assertForbidden();
-        $this->actingAs($attacker)->delete(route('cart.destroy', $item))->assertForbidden();
     }
 
     public function test_non_admin_cannot_reach_any_admin_route()
@@ -89,7 +72,7 @@ class SecurityAuthorizationAuditTest extends TestCase
         $this->actingAs($user)->get(route('admin.users.index'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.producers.index'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.products.index'))->assertForbidden();
-        $this->actingAs($user)->get(route('admin.orders.index'))->assertForbidden();
+        $this->actingAs($user)->get(route('admin.logs.index'))->assertForbidden();
         $this->actingAs($user)->get(route('admin.reviews.index'))->assertForbidden();
         $this->actingAs($user)->delete(route('admin.categories.destroy', $category))->assertForbidden();
     }

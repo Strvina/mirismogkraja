@@ -33,7 +33,6 @@ export default function AccountMenu({ user }: { user: User }) {
     const accountLinks: MenuLink[] = [
         { href: route('messages.index'), label: 'Poruke', icon: MessageCircle, badge: unreadMessages },
         { href: route('favorites.index'), label: 'Omiljeni', icon: Heart },
-        { href: route('orders.mine'), label: 'Moji upiti', icon: Package },
         { href: route('producers.index'), label: 'Moji proizvođači', icon: Sprout },
         { href: route('profile.edit'), label: 'Moj nalog', icon: UserRound },
     ];

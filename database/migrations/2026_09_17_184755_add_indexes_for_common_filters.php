@@ -19,10 +19,6 @@ return new class extends Migration
         Schema::table('products', function (Blueprint $table) {
             $table->index('status');
         });
-
-        Schema::table('orders', function (Blueprint $table) {
-            $table->index('status');
-        });
     }
 
     /**
@@ -36,10 +32,6 @@ return new class extends Migration
         });
 
         Schema::table('products', function (Blueprint $table) {
-            $table->dropIndex(['status']);
-        });
-
-        Schema::table('orders', function (Blueprint $table) {
             $table->dropIndex(['status']);
         });
     }

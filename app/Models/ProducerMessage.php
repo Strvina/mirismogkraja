@@ -10,6 +10,7 @@ class ProducerMessage extends Model
 {
     protected $fillable = [
         'household_id',
+        'product_id',
         'buyer_id',
         'sender_id',
         'body',
@@ -26,6 +27,11 @@ class ProducerMessage extends Model
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'household_id');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 
     /** The buyer side of the thread, whoever wrote the individual message. */

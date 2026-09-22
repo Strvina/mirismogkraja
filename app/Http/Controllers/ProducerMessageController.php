@@ -4,14 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\Producer;
 use App\Models\ProducerMessage;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProducerMessageController extends Controller
 {
+    /**
+     * Start a conversation from a product page. The product is recorded on
+     * the message so the thread shows what the first question was about;
+     * everything after it - quantity, price, delivery - the two sides agree
+     * on between themselves, so no order or fulfilment state is created.
+     */
+    public function storeInquiry(Request $request, Product $product): RedirectResponse
+    {
+        $product->load('producer');
+
+        abort_unless($product->isPubliclyVisible(), 404);
+        abort_if($product->producer->user_id === $request->user()->id, 403);
+
+        $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
+
+        ProducerMessage::create([
+            'household_id' => $product->household_id,
+            'product_id' => $product->id,
+            'buyer_id' => $request->user()->id,
+            'sender_id' => $request->user()->id,
+            'body' => $data['body'],
+        ]);
+
+        return to_route('messages.show', $product->producer->slug);
+    }
+
     /**
      * Every thread the user is part of, from either side: ones they started
      * as a buyer, and ones buyers started with producers they own. They're
@@ -104,17 +132,22 @@ class ProducerMessageController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
             'buyer' => $buyer->only(['id', 'name', 'avatar_path']),
             'isOwner' => $producer->user_id === $request->user()->id,
-            'messages' => ProducerMessage::thread($producer, $buyer)
-                ->with('sender:id,name,avatar_path')
-                ->oldest()
-                ->get()
-                ->map(fn (ProducerMessage $message) => [
+            // Newest first so opening a thread lands on the latest reply;
+            // the page is flipped back to chronological order below, and
+            // "older messages" therefore means the next page.
+            'messages' => tap(ProducerMessage::thread($producer, $buyer)
+                ->with(['sender:id,name,avatar_path', 'product:id,name,slug'])
+                ->latest('id')
+                ->paginate(50)
+                ->withQueryString()
+                ->through(fn (ProducerMessage $message) => [
                     'id' => $message->id,
                     'body' => $message->body,
                     'created_at' => $message->created_at,
                     'mine' => $message->sender_id === $request->user()->id,
                     'sender' => $message->sender->only(['id', 'name', 'avatar_path']),
-                ]),
+                    'product' => $message->product?->only(['id', 'name', 'slug']),
+                ]), fn (LengthAwarePaginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
         ]);
     }
 

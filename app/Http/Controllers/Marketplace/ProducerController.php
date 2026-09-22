@@ -26,7 +26,8 @@ class ProducerController extends Controller
             ->withCount(['reviews', 'products' => fn ($query) => $query->where('status', 'active')])
             ->with(['reviews' => fn ($query) => $query->latest()->limit(2)->with('user:id,name,avatar_path')])
             ->orderBy('name')
-            ->get();
+            ->paginate(12)
+            ->withQueryString();
 
         $cities = Producer::query()
             ->where('status', 'active')
@@ -58,7 +59,7 @@ class ProducerController extends Controller
             'producer' => $producer,
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'products' => $producer->products()->where('status', 'active')->with('images')->get(),
-            'reviews' => $producer->reviews()->with('user:id,name,avatar_path')->latest()->get(),
+            'reviews' => $producer->reviews()->with('user:id,name,avatar_path')->latest()->paginate(10)->withQueryString(),
             'averageRating' => round($producer->reviews()->avg('rating') ?? 0, 1),
             'canReview' => $user?->can('create', [Review::class, $producer]) ?? false,
             // The owner has no one to message on their own page; everyone

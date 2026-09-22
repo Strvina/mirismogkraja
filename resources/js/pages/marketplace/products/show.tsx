@@ -9,19 +9,33 @@ import { useState } from 'react';
 
 type FullProduct = Product & { producer: Producer };
 
-export default function ProductShow({ product, similar, isFavorited }: { product: FullProduct; similar: Product[]; isFavorited: boolean }) {
+export default function ProductShow({
+    product,
+    similar,
+    canInquire,
+    isFavorited,
+}: {
+    product: FullProduct;
+    similar: Product[];
+    canInquire: boolean;
+    isFavorited: boolean;
+}) {
     const { auth } = usePage<SharedData>().props;
-    const [quantity, setQuantity] = useState(1);
+    const [message, setMessage] = useState('');
+    const [sending, setSending] = useState(false);
     const images = [...(product.images ?? [])].sort((a, b) => a.order - b.order);
     const mainImage = images[0];
 
-    const addToCart = () => {
-        if (!auth.user) {
-            router.visit(route('login'));
+    const sendInquiry = () => {
+        if (!message.trim()) {
             return;
         }
 
-        router.post(route('cart.store'), { product_id: product.id, quantity });
+        router.post(
+            route('inquiries.store', product.slug),
+            { body: message },
+            { onStart: () => setSending(true), onFinish: () => setSending(false) },
+        );
     };
 
     return (
@@ -42,16 +56,37 @@ export default function ProductShow({ product, similar, isFavorited }: { product
 
                     {product.description && <p className="text-muted-foreground mt-6 leading-7 break-words">{product.description}</p>}
 
-                    <div className="mt-6 flex flex-wrap items-center gap-3">
-                        <input
-                            type="number"
-                            min={1}
-                            value={quantity}
-                            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                            className="border-input bg-background w-20 rounded-md border px-3 py-2 text-sm"
-                        />
-                        <Button onClick={addToCart}>Dodaj u korpu</Button>
-                        {auth.user && <FavoriteButton type="product" id={product.id} isFavorited={isFavorited} />}
+                    <div className="mt-6 space-y-3">
+                        {canInquire && (
+                            <>
+                                <p className="text-muted-foreground text-sm">
+                                    Pitajte proizvođača za dostupnost, količinu i dostavu — dogovor ide direktno između vas.
+                                </p>
+                                <textarea
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    maxLength={2000}
+                                    placeholder="Zdravo, zainteresovan/a sam za..."
+                                    aria-label="Poruka proizvođaču"
+                                    className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
+                                />
+                            </>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-3">
+                            {canInquire ? (
+                                <Button onClick={sendInquiry} disabled={sending || !message.trim()}>
+                                    Pošalji upit
+                                </Button>
+                            ) : (
+                                !auth.user && (
+                                    <Button asChild>
+                                        <Link href={route('login')}>Prijavite se da pošaljete upit</Link>
+                                    </Button>
+                                )
+                            )}
+                            {auth.user && <FavoriteButton type="product" id={product.id} isFavorited={isFavorited} />}
+                        </div>
                     </div>
 
                     <Link

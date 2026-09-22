@@ -31,4 +31,22 @@ class AdminProductManagementTest extends TestCase
 
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
     }
+
+    public function test_admin_renaming_a_product_updates_its_public_slug()
+    {
+        $this->seed(RolesSeeder::class);
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+        $product = Product::factory()->create(['name' => 'Stari naziv', 'slug' => 'stari-naziv']);
+
+        $this->actingAs($admin)->put(route('admin.products.update', $product), [
+            'name' => 'Novi naziv',
+            'price' => 300,
+            'stock_quantity' => 5,
+            'category_id' => $product->category_id,
+            'status' => 'active',
+        ])->assertRedirect();
+
+        $this->assertSame('novi-naziv', $product->fresh()->slug);
+    }
 }

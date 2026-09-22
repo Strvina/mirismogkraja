@@ -8,7 +8,7 @@ import { Head, router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
-type AdminProduct = Product & { producer: { id: number; name: string }; category: { id: number; name: string } | null };
+type AdminProduct = Product & { producer: { id: number; name: string } | null; category: { id: number; name: string } | null };
 
 const statusLabels: Record<string, string> = {
     draft: 'Nacrt',
@@ -161,7 +161,7 @@ export default function AdminProductsIndex({
                                     <p className="font-medium break-words">{product.name}</p>
                                     <p className="text-muted-foreground text-xs">{product.category?.name}</p>
                                 </td>
-                                <td className="text-muted-foreground p-3 break-words">{product.producer.name}</td>
+                                <td className="text-muted-foreground p-3 break-words">{product.producer?.name ?? 'Arhiviran proizvođač'}</td>
                                 <td className="p-3 whitespace-nowrap">{formatPrice(product.price)}</td>
                                 <td className="p-3">
                                     <span className="bg-muted rounded-full px-2 py-1 text-xs whitespace-nowrap">

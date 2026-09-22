@@ -53,7 +53,7 @@ class ProducerMessagingTest extends TestCase
 
         // The stranger's own thread with the same producer is separate.
         $this->actingAs($stranger)->get(route('messages.show', $producer->slug))
-            ->assertInertia(fn ($page) => $page->has('messages', 0));
+            ->assertInertia(fn ($page) => $page->has('messages.data', 0));
     }
 
     public function test_opening_a_thread_marks_the_other_sides_messages_as_read(): void

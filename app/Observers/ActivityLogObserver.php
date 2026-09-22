@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 /**
  * Records create/update/delete on the models it's registered for (task 14).
  * Registered per model in AppServiceProvider rather than globally, so noisy
- * writes (cart items, message reads) stay out of the audit trail.
+ * writes (messages, message reads) stay out of the audit trail.
  */
 class ActivityLogObserver
 {
@@ -42,7 +42,16 @@ class ActivityLogObserver
 
     public function deleted(Model $model): void
     {
-        $this->record('deleted', $model);
+        // Soft-deleted records are still there and can be restored, so the
+        // trail has to say which of the two happened.
+        $archived = method_exists($model, 'isForceDeleting') && ! $model->isForceDeleting();
+
+        $this->record($archived ? 'archived' : 'deleted', $model);
+    }
+
+    public function restored(Model $model): void
+    {
+        $this->record('restored', $model);
     }
 
     /** Remove files which database cascades cannot remove. */
@@ -52,7 +61,7 @@ class ActivityLogObserver
             Storage::disk('public')->delete($model->images()->pluck('path')->all());
         }
 
-        if ($model instanceof Producer) {
+        if ($model instanceof Producer && $model->isForceDeleting()) {
             Storage::disk('public')->delete(array_filter([
                 $model->cover_image_path,
                 $model->logo_path,

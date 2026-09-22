@@ -110,7 +110,7 @@ class ProductController extends Controller
     {
         $product->load(['producer', 'category', 'images']);
 
-        if ($product->status !== 'active' || $product->producer->status !== 'active') {
+        if (! $product->isPubliclyVisible()) {
             throw new NotFoundHttpException;
         }
 
@@ -122,9 +122,14 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
+        $user = request()->user();
+
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
             'similar' => $similar,
+            // The owner has no one to ask about their own listing; anyone else
+            // signed in can open a thread from here.
+            'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
             'isFavorited' => request()->user()?->favorites()
                 ->where('favoritable_type', 'product')
                 ->where('favoritable_id', $product->id)

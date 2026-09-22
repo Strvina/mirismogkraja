@@ -11,6 +11,8 @@ Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
 
 Route::middleware('auth')->group(function () {
-    Route::post('/proizvodjac/{producer}/ocene', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::post('/proizvodjac/{producer}/ocene', [ReviewController::class, 'store'])
+        ->middleware('throttle:5,1')
+        ->name('reviews.store');
     Route::delete('/ocene/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });

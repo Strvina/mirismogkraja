@@ -12,7 +12,7 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 6. Sekcija "Ukusi koji se prate"
 - [x] 7. Sekcija "Šta tražite"
 - [x] 8. "Pronađi domaće" + profil proizvođača
-- [x] 9. Korpa — indikator i animacija
+- [~] 9. Korpa — indikator i animacija (OTKAZANO: korpa je uklonjena, vidi "Model platforme" ispod)
 - [x] 10. Paginacija
 - [x] 11. Redizajn grida proizvoda
 - [x] 12. Filtriranje proizvoda
@@ -20,12 +20,23 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 14. Admin panel — redizajn i sidebar
 - [ ] 15. Permisije
 - [ ] 16. Notifikacioni sistem
-- [x] 17. Upiti za kupovinu (bez plaćanja na platformi)
-- [x] 18. Redizajn korpe
+- [x] 17. Upiti za kupovinu (bez plaćanja na platformi) — sada direktan upit sa stranice proizvoda
+- [~] 18. Redizajn korpe (OTKAZANO: korpa je uklonjena, vidi "Model platforme" ispod)
 - [ ] 19. Provera linkova/dugmadi
 - [ ] 20. Monetizacija
 - [ ] 21. Dodatne preporuke
 - [ ] 22. Google prijava
+
+## Model platforme (odluka vlasnika, nadjačava zadatke 9, 17 i 18)
+Platforma **nije prodavnica** — ona samo spaja kupca i proizvođača, a dogovor o količini,
+ceni, plaćanju i dostavi ide direktno između njih. Zbog toga su korpa, naplata i
+porudžbine u potpunosti uklonjeni iz koda i baze (`cart_items`, `orders`, `order_items`,
+pripadajući kontroleri, servisi, rute i stranice).
+
+Umesto toga, kupac sa stranice proizvoda šalje **upit** koji otvara razgovor sa
+proizvođačem; prva poruka pamti o kom je proizvodu reč. Sve dalje ide kroz poruke.
+Ocenu proizvođača može da ostavi samo kupac kome je taj proizvođač **odgovorio** —
+to je najbliže "verifikovanoj kupovini" što platforma uopšte vidi.
 
 ## GLOBALNO PRAVILO (važi za SVAKI zadatak ispod)
 **Dizajn početne stranice je izvor istine za ceo sajt.** Svaka nova ili izmenjena stranica (moj nalog, admin panel, stranica proizvođača, stranica proizvoda, korpa, filteri, itd.) mora da koristi iste fontove, boje, spacing, komponente dugmadi/kartica i opšti "feel" kao početna stranica. Nijedna stranica ne sme da izgleda kao default Laravel starter kit template. Ako nešto vizuelno odstupa od početne stranice, to se smatra bagom.

@@ -2,7 +2,9 @@
 
 namespace Tests\Feature\Settings;
 
+use App\Models\Producer;
 use App\Models\User;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -146,7 +148,8 @@ class ProfileUpdateTest extends TestCase
             ->assertRedirect('/');
 
         $this->assertGuest();
-        $this->assertNull($user->fresh());
+        $this->assertSoftDeleted('users', ['id' => $user->id]);
+        $this->assertNull(User::find($user->id));
     }
 
     public function test_correct_password_must_be_provided_to_delete_account()
@@ -165,5 +168,47 @@ class ProfileUpdateTest extends TestCase
             ->assertRedirect('/settings/profile');
 
         $this->assertNotNull($user->fresh());
+    }
+
+    public function test_deleting_an_account_archives_its_producers_and_preserves_the_user_record(): void
+    {
+        $user = User::factory()->create();
+        $producer = Producer::factory()->for($user)->active()->create();
+
+        $this->actingAs($user)->delete('/settings/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertSoftDeleted('users', ['id' => $user->id]);
+        $this->assertSoftDeleted('households', ['id' => $producer->id]);
+        $this->assertNotNull(User::withTrashed()->find($user->id));
+    }
+
+    public function test_deleting_an_account_releases_its_email_address(): void
+    {
+        $user = User::factory()->create(['email' => 'povratnik@example.com']);
+
+        $this->actingAs($user)->delete('/settings/profile', ['password' => 'password']);
+
+        $this->assertDatabaseMissing('users', ['email' => 'povratnik@example.com']);
+
+        // The address has to be free again, or the person could never come
+        // back with the same e-mail.
+        User::factory()->create(['email' => 'povratnik@example.com']);
+        $this->assertSame(1, User::where('email', 'povratnik@example.com')->count());
+    }
+
+    public function test_the_last_administrator_cannot_delete_their_account(): void
+    {
+        $this->seed(RolesSeeder::class);
+
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)
+            ->from('/settings/profile')
+            ->delete('/settings/profile', ['password' => 'password'])
+            ->assertSessionHasErrors('password');
+
+        $this->assertNotNull($admin->fresh());
     }
 }

@@ -36,4 +36,19 @@ class PublicProductPageTest extends TestCase
 
         $this->get(route('marketplace.products.show', $product))->assertNotFound();
     }
+
+    /**
+     * Archiving an account soft-deletes its producers but leaves the products
+     * in place, so the product's own status alone cannot decide visibility.
+     */
+    public function test_product_of_an_archived_producer_returns_404()
+    {
+        $producer = Producer::factory()->active()->create();
+        $product = Product::factory()->for($producer)->create(['status' => 'active']);
+
+        $producer->delete();
+
+        $this->get(route('marketplace.products.show', $product))->assertNotFound();
+        $this->get(route('marketplace.products.index'))->assertInertia(fn ($page) => $page->has('products.data', 0));
+    }
 }

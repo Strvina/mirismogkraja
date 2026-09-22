@@ -20,8 +20,8 @@ class PublicProducerListTest extends TestCase
 
         $response = $this->get(route('marketplace.producers.index'));
 
-        $response->assertInertia(fn ($page) => $page->has('producers', 1)
-            ->where('producers.0.name', 'Aktivno'));
+        $response->assertInertia(fn ($page) => $page->has('producers.data', 1)
+            ->where('producers.data.0.name', 'Aktivno'));
     }
 
     public function test_each_card_carries_its_rating_counts_and_latest_reviews()
@@ -34,11 +34,11 @@ class PublicProducerListTest extends TestCase
         Review::factory()->for($producer)->create(['rating' => 3, 'comment' => 'Solidno']);
 
         $this->get(route('marketplace.producers.index'))->assertInertia(
-            fn ($page) => $page->where('producers.0.reviews_avg_rating', 4)
-                ->where('producers.0.reviews_count', 2)
-                ->where('producers.0.products_count', 1)
-                ->has('producers.0.reviews', 2)
-                ->has('producers.0.reviews.0.user.name')
+            fn ($page) => $page->where('producers.data.0.reviews_avg_rating', 4)
+                ->where('producers.data.0.reviews_count', 2)
+                ->where('producers.data.0.products_count', 1)
+                ->has('producers.data.0.reviews', 2)
+                ->has('producers.data.0.reviews.0.user.name')
         );
     }
 
@@ -49,7 +49,7 @@ class PublicProducerListTest extends TestCase
 
         $response = $this->get(route('marketplace.producers.index', ['city' => 'Vranje']));
 
-        $response->assertInertia(fn ($page) => $page->has('producers', 1)
-            ->where('producers.0.name', 'Vranjsko'));
+        $response->assertInertia(fn ($page) => $page->has('producers.data', 1)
+            ->where('producers.data.0.name', 'Vranjsko'));
     }
 }
