@@ -81,7 +81,7 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->patch('/settings/profile/avatar', [
+            ->post('/settings/profile/avatar', [
                 'avatar' => UploadedFile::fake()->create('avatar.jpg', 10, 'image/jpeg'),
             ]);
 
@@ -104,7 +104,7 @@ class ProfileUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->patch('/settings/profile/avatar', [
+            ->post('/settings/profile/avatar', [
                 'avatar' => UploadedFile::fake()->create('avatar.jpg', 10, 'image/jpeg'),
             ]);
 
@@ -210,5 +210,19 @@ class ProfileUpdateTest extends TestCase
             ->assertSessionHasErrors('password');
 
         $this->assertNotNull($admin->fresh());
+    }
+
+    /**
+     * The avatar endpoint has to stay a POST. PHP parses a multipart body
+     * only for POST, so a PATCH upload reaches the application with no file
+     * at all - which is why this worked in tests but not in a browser: the
+     * test client hands the file to the request directly and never goes
+     * through PHP's parser.
+     */
+    public function test_the_avatar_endpoint_does_not_accept_patch()
+    {
+        $this->actingAs(User::factory()->create())
+            ->patch('/settings/profile/avatar', [])
+            ->assertMethodNotAllowed();
     }
 }
