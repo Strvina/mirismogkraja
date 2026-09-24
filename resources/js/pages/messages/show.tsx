@@ -193,6 +193,12 @@ export default function MessageThread({
                 // The reply only changes the thread and the badge, so the
                 // redirect that follows brings back just those.
                 only: ['messages', 'unreadMessages'],
+                // The message is already in the thread, so the loading bar
+                // sweeping across the top of the page says nothing except
+                // that something is reloading - which is exactly the
+                // impression to avoid. Failures are reported on the message
+                // itself instead.
+                showProgress: false,
                 onSuccess: () => {
                     answered = true;
                     setPending((queued) => queued.filter((item) => item.key !== message.key));
@@ -238,6 +244,31 @@ export default function MessageThread({
         setPending((queued) => [...queued, sending]);
         deliver(sending);
     };
+
+    // onSuccess runs after the new props are applied, so for one render the
+    // thread can hold both the server's copy of a message and the local one
+    // it replaces. Matching them up here keeps that frame from flickering.
+    // Counting, rather than a plain "some message has this text", keeps the
+    // second of two identical messages visible until its own reply lands.
+    const awaitingDelivery = (() => {
+        const mine = messages.data.filter((message) => message.mine).map((message) => message.body);
+
+        return pending.filter((message) => {
+            if (message.failed) {
+                return true;
+            }
+
+            const index = mine.indexOf(message.body);
+
+            if (index === -1) {
+                return true;
+            }
+
+            mine.splice(index, 1);
+
+            return false;
+        });
+    })();
 
     const retry = (message: PendingMessage) => {
         setPending((queued) => queued.map((item) => (item.key === message.key ? { ...item, failed: false } : item)));
@@ -320,7 +351,7 @@ export default function MessageThread({
                         ))
                     )}
 
-                    {pending.map((message) => (
+                    {awaitingDelivery.map((message) => (
                         <div key={message.key} className="flex justify-end">
                             <div
                                 className={cn(
