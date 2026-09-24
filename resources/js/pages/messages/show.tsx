@@ -25,6 +25,12 @@ const STICK_TO_BOTTOM_PX = 80;
 /** The composer grows with the message, up to about six lines. */
 const MAX_COMPOSER_HEIGHT_PX = 160;
 
+/** A message shown before the server has confirmed it. */
+interface PendingMessage {
+    key: number;
+    body: string;
+}
+
 /**
  * The listing an inquiry was opened from, shown above the message itself:
  * a thumbnail, the name (still the link to the product page) and the asking
@@ -77,6 +83,11 @@ export default function MessageThread({
     isOwner: boolean;
 }) {
     const [body, setBody] = useState('');
+    // Messages the user has just sent, drawn before the round trip finishes.
+    // Waiting for the server to echo one back made every message feel slow,
+    // since a send is a POST followed by a redirect - two trips - before
+    // anything appears.
+    const [pending, setPending] = useState<PendingMessage[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const composerRef = useRef<HTMLTextAreaElement>(null);
 
@@ -92,7 +103,7 @@ export default function MessageThread({
     // read straight away and never lights the badge up. Inertia throttles
     // the poll by itself while the tab is in the background, and the visit
     // preserves scroll and local state, so a half-typed message survives it.
-    usePoll(3000, { only: ['messages', 'unreadMessages'] });
+    const poll = usePoll(3000, { only: ['messages', 'unreadMessages'] });
 
     // The seller's side addresses a specific buyer; the buyer's side doesn't
     // need to say who they are.
@@ -134,7 +145,7 @@ export default function MessageThread({
         if (pageChanged || following.current) {
             panel.scrollTop = panel.scrollHeight;
         }
-    }, [newestId, messages.current_page]);
+    }, [newestId, messages.current_page, pending.length]);
 
     const onPanelScroll = () => {
         const panel = scrollRef.current;
@@ -147,31 +158,48 @@ export default function MessageThread({
     const send: FormEventHandler = (event) => {
         event.preventDefault();
 
-        if (!body.trim()) {
+        const text = body.trim();
+
+        if (!text) {
             return;
         }
+
+        const sending: PendingMessage = { key: Date.now(), body: text };
 
         // Sending always brings you back to the newest message, wherever you
         // had scrolled to.
         following.current = true;
+        setPending((queued) => [...queued, sending]);
+        setBody('');
+
+        if (composerRef.current) {
+            composerRef.current.style.height = 'auto';
+            composerRef.current.focus();
+        }
+
+        // A poll landing mid-send would bring the message back from the
+        // server while its local copy is still on screen, showing it twice.
+        poll.stop();
 
         router.post(
             sendRoute,
-            { body },
+            { body: text },
             {
                 preserveScroll: true,
                 // Keep the panel mounted so its scroll position and the
                 // composer's focus survive the round trip - a POST would
                 // otherwise remount the page and take the cursor with it.
                 preserveState: true,
-                onSuccess: () => {
-                    setBody('');
-
-                    if (composerRef.current) {
-                        composerRef.current.style.height = 'auto';
-                        composerRef.current.focus();
-                    }
+                // The reply only changes the thread and the badge, so the
+                // redirect that follows brings back just those.
+                only: ['messages', 'unreadMessages'],
+                onSuccess: () => setPending((queued) => queued.filter((item) => item.key !== sending.key)),
+                onError: () => {
+                    // Hand the text back rather than losing it.
+                    setPending((queued) => queued.filter((item) => item.key !== sending.key));
+                    setBody((current) => current || text);
                 },
+                onFinish: () => poll.start(),
             },
         );
     };
@@ -249,9 +277,18 @@ export default function MessageThread({
                             </div>
                         ))
                     )}
+
+                    {pending.map((message) => (
+                        <div key={message.key} className="flex justify-end">
+                            <div className="bg-primary text-primary-foreground max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6 opacity-70">
+                                <p className="whitespace-pre-line">{message.body}</p>
+                                <p className="text-primary-foreground/70 mt-1.5 text-[0.65rem]">Šalje se…</p>
+                            </div>
+                        </div>
+                    ))}
                 </div>
 
-                <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 pt-3">
+                <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
                     <textarea
                         ref={composerRef}
                         value={body}
@@ -265,17 +302,12 @@ export default function MessageThread({
                         maxLength={2000}
                         placeholder="Napišite poruku..."
                         aria-label="Poruka"
-                        aria-describedby="composer-hint"
                         className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
                     />
                     <Button type="submit" size="icon" disabled={!body.trim()} aria-label="Pošalji poruku" className="size-11 shrink-0">
                         <SendHorizontal className="size-4" />
                     </Button>
                 </form>
-
-                <p id="composer-hint" className="text-muted-foreground px-4 py-2 text-[0.7rem]">
-                    Enter šalje poruku, Shift + Enter prelazi u novi red.
-                </p>
             </div>
         </MarketplaceLayout>
     );
