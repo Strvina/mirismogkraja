@@ -60,9 +60,9 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         setAvatarProcessing(true);
 
         // Pass the file directly instead of staging it in useForm's state -
-        // that state update is async, so patch()ing right after setData()
-        // in the same handler would submit the previous (empty) value.
-        router.patch(
+        // that state update is async, so posting right after setData() in
+        // the same handler would submit the previous (empty) value.
+        router.post(
             route('profile.avatar.update'),
             { avatar: file },
             {
