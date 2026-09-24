@@ -6,6 +6,7 @@ use App\Http\Requests\StoreProducerRequest;
 use App\Http\Requests\UpdateProducerRequest;
 use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
+use App\Services\FoundingProducerService;
 use App\Services\ProducerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,11 +36,19 @@ class ProducerController extends Controller
     /**
      * Show the form for creating a producer.
      */
-    public function create(): Response
+    public function create(FoundingProducerService $founding): Response
     {
         $this->authorize('create', Producer::class);
 
-        return Inertia::render('producers/create');
+        return Inertia::render('producers/create', [
+            // The launch offer only means something if people can see it
+            // running out (task 20.4).
+            'founding' => [
+                'claimed' => $founding->claimed(),
+                'limit' => FoundingProducerService::LIMIT,
+                'remaining' => $founding->remaining(),
+            ],
+        ]);
     }
 
     /**

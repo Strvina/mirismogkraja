@@ -7,7 +7,7 @@ import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MapPin, MessageCircle, Star, Truck } from 'lucide-react';
+import { Bell, BellRing, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function ProducerShow({
@@ -19,6 +19,9 @@ export default function ProducerShow({
     canReview,
     myPendingReview,
     canMessage,
+    canFollow,
+    isFollowing,
+    followersCount,
     isFavorited,
 }: {
     producer: Producer;
@@ -29,6 +32,9 @@ export default function ProducerShow({
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
     canMessage: boolean;
+    canFollow: boolean;
+    isFollowing: boolean;
+    followersCount: number;
     isFavorited: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
@@ -84,10 +90,33 @@ export default function ProducerShow({
                                 {averageRating} ({reviews.total})
                             </span>
                         )}
+                        {followersCount > 0 && (
+                            <span>
+                                {followersCount} {followersCount === 1 ? 'pratilac' : 'pratilaca'}
+                            </span>
+                        )}
+                        {producer.founding_number !== null && (
+                            <Link
+                                href={route('marketplace.founding')}
+                                className="text-gold border-gold/40 rounded-full border px-2 py-0.5 text-xs font-semibold"
+                            >
+                                Osnivač #{String(producer.founding_number).padStart(2, '0')}
+                            </Link>
+                        )}
                     </div>
                 </div>
 
                 <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+                    {canFollow && (
+                        <Button
+                            variant={isFollowing ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => router.post(route('producers.follow', producer.id), {}, { preserveScroll: true })}
+                        >
+                            {isFollowing ? <BellRing className="size-4" /> : <Bell className="size-4" />}
+                            {isFollowing ? 'Pratite' : 'Zaprati'}
+                        </Button>
+                    )}
                     {canMessage && (
                         <Button asChild variant="outline" size="sm">
                             <Link href={route('messages.show', producer.slug)}>

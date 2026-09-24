@@ -115,6 +115,11 @@ class ProducerController extends Controller
             // The owner has no one to message on their own page; everyone
             // else signed in can open a thread with this producer.
             'canMessage' => $user !== null && $producer->user_id !== $user->id,
+            // Following is a standing request to hear about new listings,
+            // which is a different thing from bookmarking (task 20.5).
+            'canFollow' => $user !== null && $producer->user_id !== $user->id,
+            'isFollowing' => $user !== null && $producer->followers()->whereKey($user->id)->exists(),
+            'followersCount' => $producer->followers()->count(),
             'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'household')
                 ->where('favoritable_id', $producer->id)

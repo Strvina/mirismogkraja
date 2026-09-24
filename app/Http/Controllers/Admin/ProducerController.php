@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Producer;
 use App\Notifications\SiteNotification;
+use App\Services\FoundingProducerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -37,12 +38,18 @@ class ProducerController extends Controller
      * Admin sets a producer's status directly (approve pending -> active,
      * or block/unblock) - bypasses ProducerPolicy's owner-only rules.
      */
-    public function updateStatus(Request $request, Producer $producer): RedirectResponse
+    public function updateStatus(Request $request, Producer $producer, FoundingProducerService $founding): RedirectResponse
     {
         $data = $request->validate(['status' => ['required', 'in:pending,active,blocked']]);
 
         $previous = $producer->status;
         $producer->update($data);
+
+        // The founding hundred are counted from approval, so a request that
+        // is never approved does not use up a place (task 20.4).
+        if ($producer->status === 'active') {
+            $founding->claimNumberFor($producer);
+        }
 
         // Only on an actual change, so re-saving the same status doesn't
         // notify the owner again.

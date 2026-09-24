@@ -6,6 +6,7 @@ use Database\Factories\ProducerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -56,6 +57,7 @@ class Producer extends Model
     {
         return [
             'delivery_methods' => 'array',
+            'founding_joined_at' => 'datetime',
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
             // withAvg() aggregates come back as strings on MySQL but numbers
@@ -93,6 +95,17 @@ class Producer extends Model
      * Saved by buyers. Counted as the popularity signal on the homepage -
      * it's a deliberate action by a signed-in person, unlike a page view.
      */
+    /** People who asked to hear when this producer lists something new. */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'producer_follows', 'household_id', 'user_id');
+    }
+
+    public function isFounding(): bool
+    {
+        return $this->founding_number !== null;
+    }
+
     public function favorites(): MorphMany
     {
         return $this->morphMany(Favorite::class, 'favoritable');
