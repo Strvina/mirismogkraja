@@ -27,7 +27,7 @@ class ProducerController extends Controller
                 'reviews' => fn ($query) => $query->approved(),
                 'products' => fn ($query) => $query->where('status', 'active'),
             ])
-            ->with(['reviews' => fn ($query) => $query->approved()->latest('approved_at')->limit(2)->with('user:id,name,avatar_path')])
+            ->with(['reviews' => fn ($query) => $query->approved()->latest()->limit(2)->with('user:id,name,avatar_path')])
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
@@ -62,20 +62,25 @@ class ProducerController extends Controller
             'producer' => $producer,
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'products' => $producer->products()->where('status', 'active')->with('images')->get(),
+            // Ordered and stamped by when they were written, not by when a
+            // moderator got to them: the date on a review is the day its
+            // author had the experience.
             'reviews' => $producer->reviews()->approved()
                 ->with('user:id,name,avatar_path')
-                ->latest('approved_at')
+                ->latest()
                 ->paginate(10)
                 ->withQueryString(),
             'averageRating' => round($producer->reviews()->approved()->avg('rating') ?? 0, 1),
             'canReview' => $user?->can('create', [Review::class, $producer]) ?? false,
-            // So an author isn't left wondering where their review went: the
-            // page tells them it's waiting on a moderator instead of simply
-            // not showing it.
-            'myPendingReview' => $user !== null && $producer->reviews()
+            // An author sees their own review straight away, in its usual
+            // place and in the usual card, marked as still waiting on a
+            // moderator - it just isn't part of the public list above, so
+            // nobody else gets it.
+            'myPendingReview' => $user === null ? null : $producer->reviews()
                 ->pending()
                 ->where('user_id', $user->id)
-                ->exists(),
+                ->with('user:id,name,avatar_path')
+                ->first(),
             // The owner has no one to message on their own page; everyone
             // else signed in can open a thread with this producer.
             'canMessage' => $user !== null && $producer->user_id !== $user->id,

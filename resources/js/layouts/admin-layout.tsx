@@ -26,7 +26,12 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
     const { url } = usePage();
     const [menuOpen, setMenuOpen] = useState(false);
 
-    const isActive = (section: (typeof sections)[number]) => (section.exact ? url === section.href : url.startsWith(section.href));
+    // Derived from the URL, and matched a whole segment at a time so one
+    // section's path can never light up a sibling whose path starts the same
+    // way.
+    const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+    const isActive = (section: (typeof sections)[number]) =>
+        section.exact ? path === section.href : path === section.href || path.startsWith(`${section.href}/`);
 
     const nav = (
         <nav className="space-y-1" aria-label="Admin sekcije">

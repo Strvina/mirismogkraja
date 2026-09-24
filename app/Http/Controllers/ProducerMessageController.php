@@ -6,9 +6,12 @@ use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
+use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -37,6 +40,8 @@ class ProducerMessageController extends Controller
             'body' => $data['body'],
         ]);
 
+        $this->invalidateCachedPages();
+
         return to_route('messages.show', $product->producer->slug);
     }
 
@@ -52,36 +57,29 @@ class ProducerMessageController extends Controller
         $user = $request->user();
         $ownedProducerIds = $user->producers()->pluck('id');
 
-        $threads = ProducerMessage::query()
-            ->where(fn ($query) => $query
+        $threads = $this->threadSummaries(
+            $user,
+            fn ($query) => $query->where(fn ($inner) => $inner
                 ->where('buyer_id', $user->id)
                 ->orWhereIn('household_id', $ownedProducerIds))
-            ->with(['producer:id,name,slug,logo_path', 'buyer:id,name,avatar_path'])
-            // id breaks the tie: two messages can share a created_at second.
-            ->latest()
-            ->latest('id')
-            ->get()
-            ->groupBy(fn (ProducerMessage $message) => $message->household_id.'-'.$message->buyer_id)
-            ->map(function ($messages) use ($user, $ownedProducerIds) {
-                $latest = $messages->first();
-                $asProducer = $ownedProducerIds->contains($latest->household_id);
+        )->map(function (array $thread) use ($ownedProducerIds) {
+            $message = $thread['message'];
+            $asProducer = $ownedProducerIds->contains($message->household_id);
 
-                return [
-                    'key' => $latest->household_id.'-'.$latest->buyer_id,
-                    'as_producer' => $asProducer,
-                    'title' => $asProducer ? $latest->buyer->name : $latest->producer->name,
-                    'subtitle' => $asProducer ? $latest->producer->name : null,
-                    'avatar_path' => $asProducer ? $latest->buyer->avatar_path : $latest->producer->logo_path,
-                    'href' => $asProducer
-                        ? route('messages.thread', [$latest->household_id, $latest->buyer_id])
-                        : route('messages.show', $latest->producer->slug),
-                    'last_message' => $latest->body,
-                    'last_at' => $latest->created_at,
-                    'unread' => $messages->where('sender_id', '!=', $user->id)->whereNull('read_at')->count(),
-                ];
-            })
-            ->sortByDesc('last_at')
-            ->values();
+            return [
+                'key' => $message->household_id.'-'.$message->buyer_id,
+                'as_producer' => $asProducer,
+                'title' => $asProducer ? $message->buyer->name : $message->producer->name,
+                'subtitle' => $asProducer ? $message->producer->name : null,
+                'avatar_path' => $asProducer ? $message->buyer->avatar_path : $message->producer->logo_path,
+                'href' => $asProducer
+                    ? route('messages.thread', [$message->household_id, $message->buyer_id])
+                    : route('messages.show', $message->producer->slug),
+                'last_message' => $message->body,
+                'last_at' => $message->created_at,
+                'unread' => $thread['unread'],
+            ];
+        })->values();
 
         return Inertia::render('messages/index', ['threads' => $threads]);
     }
@@ -92,23 +90,19 @@ class ProducerMessageController extends Controller
      */
     public function producerInbox(Request $request): Response
     {
-        $producerIds = $request->user()->producers()->pluck('id');
+        $user = $request->user();
+        $producerIds = $user->producers()->pluck('id');
 
-        $threads = ProducerMessage::query()
-            ->whereIn('household_id', $producerIds)
-            ->with(['producer:id,name,slug', 'buyer:id,name,avatar_path'])
-            ->latest()
-            ->latest('id')
-            ->get()
-            ->groupBy(fn (ProducerMessage $message) => $message->household_id.'-'.$message->buyer_id)
-            ->map(fn ($messages) => [
-                'producer' => $messages->first()->producer,
-                'buyer' => $messages->first()->buyer,
-                'last_message' => $messages->first()->body,
-                'last_at' => $messages->first()->created_at,
-                'unread' => $messages->where('sender_id', '!=', $request->user()->id)->whereNull('read_at')->count(),
-            ])
-            ->values();
+        $threads = $this->threadSummaries(
+            $user,
+            fn ($query) => $query->whereIn('household_id', $producerIds)
+        )->map(fn (array $thread) => [
+            'producer' => $thread['message']->producer,
+            'buyer' => $thread['message']->buyer,
+            'last_message' => $thread['message']->body,
+            'last_at' => $thread['message']->created_at,
+            'unread' => $thread['unread'],
+        ])->values();
 
         return Inertia::render('messages/producer-inbox', ['threads' => $threads]);
     }
@@ -123,10 +117,17 @@ class ProducerMessageController extends Controller
 
         $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
 
-        ProducerMessage::thread($producer, $buyer)
+        $justRead = ProducerMessage::thread($producer, $buyer)
             ->where('sender_id', '!=', $request->user()->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
+
+        // Reading a message changes what the inbox and the header badge
+        // should say, so any snapshot of them taken before this point is now
+        // wrong.
+        if ($justRead > 0) {
+            $this->invalidateCachedPages();
+        }
 
         return Inertia::render('messages/show', [
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
@@ -175,6 +176,59 @@ class ProducerMessageController extends Controller
             'body' => $data['body'],
         ]);
 
+        $this->invalidateCachedPages();
+
         return back();
+    }
+
+    /**
+     * A thread is a (producer, buyer) pair rather than a table of its own, so
+     * its summary is aggregated in one grouped query: the id of its newest
+     * message and how many of them the viewer hasn't read. Using max(id) -
+     * not max(created_at) - makes "last message" unambiguous when a reply
+     * lands in the same second as the message it answers, and it keeps the
+     * whole inbox to two queries instead of loading every message of every
+     * conversation into memory.
+     *
+     * @param  Closure(Builder<ProducerMessage>): mixed  $scope
+     * @return Collection<int, array{message: ProducerMessage, unread: int}>
+     */
+    private function threadSummaries(User $viewer, Closure $scope): Collection
+    {
+        $aggregates = ProducerMessage::query()
+            ->tap($scope)
+            ->selectRaw('max(id) as last_message_id')
+            ->selectRaw('sum(case when sender_id != ? and read_at is null then 1 else 0 end) as unread_count', [$viewer->id])
+            ->groupBy('household_id', 'buyer_id')
+            ->get();
+
+        $messages = ProducerMessage::query()
+            ->whereIn('id', $aggregates->pluck('last_message_id'))
+            ->with(['producer:id,name,slug,logo_path', 'buyer:id,name,avatar_path'])
+            ->get()
+            ->keyBy('id');
+
+        return $aggregates
+            ->map(fn ($row) => [
+                'message' => $messages[$row->last_message_id],
+                // SQLite hands sum() back as a string.
+                'unread' => (int) $row->unread_count,
+            ])
+            ->sortByDesc(fn (array $thread) => $thread['message']->id)
+            ->values();
+    }
+
+    /**
+     * Inertia keeps the props of visited pages in the browser's history
+     * state and restores them on Back, without asking the server. That is
+     * what made a conversation reappear as unread, still showing the message
+     * before the reply, once the user backed out of a thread: the inbox they
+     * returned to was the snapshot taken before they sent it. Telling Inertia
+     * to drop that cache makes Back re-request the page, so the inbox and the
+     * header's badge are always as fresh as the database.
+     */
+    private function invalidateCachedPages(): void
+    {
+        Inertia::clearHistory();
     }
 }

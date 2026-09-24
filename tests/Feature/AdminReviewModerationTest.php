@@ -58,15 +58,23 @@ class AdminReviewModerationTest extends TestCase
             'approved_at' => null,
         ]);
 
-        // Its author is told why it isn't showing...
+        // Its author sees it straight away, in the same card the public
+        // list uses, so sending it never looks like losing it...
         $this->actingAs($buyer)->get(route('marketplace.producers.show', $producer->slug))
-            ->assertInertia(fn ($page) => $page->has('reviews.data', 0)->where('myPendingReview', true));
+            ->assertInertia(fn ($page) => $page->has('reviews.data', 0)
+                ->where('myPendingReview.comment', 'Odlično!')
+                ->where('myPendingReview.rating', 5)
+                ->where('myPendingReview.user.name', $buyer->name));
 
         // ...while for everyone else it simply isn't there.
         Auth::logout();
 
         $this->get(route('marketplace.producers.show', $producer->slug))
-            ->assertInertia(fn ($page) => $page->has('reviews.data', 0)->where('averageRating', 0)->where('myPendingReview', false));
+            ->assertInertia(fn ($page) => $page->has('reviews.data', 0)->where('averageRating', 0)->where('myPendingReview', null));
+
+        // Not even for another signed-in visitor.
+        $this->actingAs(User::factory()->create())->get(route('marketplace.producers.show', $producer->slug))
+            ->assertInertia(fn ($page) => $page->has('reviews.data', 0)->where('myPendingReview', null));
     }
 
     public function test_approving_a_review_publishes_it()
@@ -99,9 +107,11 @@ class AdminReviewModerationTest extends TestCase
     }
 
     /**
-     * The public page stamps "pre 2 dana" off approved_at, so a review that
-     * was pulled down and later put back has to carry the date it went back
-     * up, not the one it originally had.
+     * approved_at records when a review went public - the admin panel shows
+     * it, and it's the audit trail for a moderation decision. A review that
+     * was pulled down and later put back went public again, so it carries
+     * the second date. (What the public page prints is created_at, the day
+     * the author wrote it; that never moves.)
      */
     public function test_re_approving_after_a_rejection_stamps_a_fresh_time()
     {
@@ -132,5 +142,41 @@ class AdminReviewModerationTest extends TestCase
 
         $this->actingAs($this->admin())->get(route('admin.reviews.index', ['status' => Review::STATUS_APPROVED]))
             ->assertInertia(fn ($page) => $page->has('reviews', 1));
+    }
+
+    /**
+     * Once it's published the review is just a review: it joins the public
+     * list and the waiting note goes away.
+     */
+    public function test_an_approved_review_stops_being_marked_as_pending_for_its_author(): void
+    {
+        $author = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+        $review = Review::factory()->pending()->for($producer, 'producer')->for($author)->create();
+
+        $this->actingAs($this->admin())->patch(route('admin.reviews.approve', $review));
+
+        $this->actingAs($author)->get(route('marketplace.producers.show', $producer->slug))
+            ->assertInertia(fn ($page) => $page->has('reviews.data', 1)->where('myPendingReview', null));
+    }
+
+    /**
+     * The date on a review is the day its author wrote it, not the day a
+     * moderator happened to get to it - so a review written a month ago and
+     * approved today must not read as "upravo sada".
+     */
+    public function test_a_published_review_keeps_the_date_it_was_written(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $writtenAt = now()->subMonth()->startOfSecond();
+        $review = Review::factory()->pending()->for($producer, 'producer')->create(['created_at' => $writtenAt]);
+
+        $this->actingAs($this->admin())->patch(route('admin.reviews.approve', $review));
+
+        $this->get(route('marketplace.producers.show', $producer->slug))->assertInertia(
+            fn ($page) => $page->where('reviews.data.0.created_at', $review->fresh()->created_at->toJSON())
+        );
+
+        $this->assertTrue($writtenAt->equalTo($review->fresh()->created_at));
     }
 }

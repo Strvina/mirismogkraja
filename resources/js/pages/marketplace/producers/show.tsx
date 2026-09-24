@@ -1,12 +1,13 @@
 import FavoriteButton from '@/components/favorite-button';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
-import { formatPrice, formatRelativeTime } from '@/lib/format';
-import { type Producer, type Product, type Review, type SharedData } from '@/types';
+import { formatPrice } from '@/lib/format';
+import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BadgeCheck, Clock, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
+import { MapPin, MessageCircle, Star, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function ProducerShow({
@@ -23,10 +24,10 @@ export default function ProducerShow({
     producer: Producer;
     gallery: { id: number; path: string; caption: string | null }[];
     products: Product[];
-    reviews: Paginated<Review & { user: { name: string; avatar_path: string | null } }>;
+    reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
     canReview: boolean;
-    myPendingReview: boolean;
+    myPendingReview: ReviewWithAuthor | null;
     canMessage: boolean;
     isFavorited: boolean;
 }) {
@@ -204,47 +205,24 @@ export default function ProducerShow({
             <section className="mt-12 max-w-2xl">
                 <h2 className="font-serif text-2xl">Utisci kupaca</h2>
 
-                {reviews.total === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Još niko nije ostavio utisak o ovom proizvođaču.</p>
-                ) : (
-                    <div className="mt-4 space-y-4">
-                        {reviews.data.map((review) => (
-                            <div key={review.id} className="border-border border-b pb-4">
-                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                    <span className="font-medium break-words">{review.user.name}</span>
-                                    <span className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
-                                        <BadgeCheck className="size-3" />
-                                        Provereni korisnik
-                                    </span>
-                                    <span className="text-gold flex items-center gap-0.5" aria-label={`Ocena ${review.rating} od 5`}>
-                                        {Array.from({ length: review.rating }).map((_, i) => (
-                                            <Star key={i} className="fill-gold size-3.5" />
-                                        ))}
-                                    </span>
-                                    <span className="text-muted-foreground text-xs">{formatRelativeTime(review.approved_at)}</span>
-                                </div>
-                                {review.comment && <p className="text-muted-foreground mt-1 text-sm break-words">{review.comment}</p>}
-                                {review.image_path && (
-                                    <img
-                                        src={`/storage/${review.image_path}`}
-                                        alt="Slika uz utisak kupca"
-                                        loading="lazy"
-                                        className="mt-3 max-h-48 w-full max-w-xs rounded-md object-cover"
-                                    />
-                                )}
-                            </div>
-                        ))}
-                        <Pagination meta={reviews} />
+                {/* The author's own review, still with a moderator, sits
+                    where it will live once published - same card, same
+                    place - so sending it never looks like losing it. */}
+                {myPendingReview && (
+                    <div className="mt-4">
+                        <ReviewCard review={myPendingReview} pending />
                     </div>
                 )}
 
-                {/* An impression that is still with a moderator is invisible
-                    above, so say so - otherwise it reads as if it was lost. */}
-                {myPendingReview && (
-                    <p className="border-border/70 bg-muted/50 text-muted-foreground mt-6 flex items-start gap-2 rounded-md border p-4 text-sm">
-                        <Clock className="mt-0.5 size-4 shrink-0" />
-                        Vaš utisak čeka odobrenje. Objavićemo ga čim ga pregledamo.
-                    </p>
+                {reviews.total === 0 ? (
+                    !myPendingReview && <p className="text-muted-foreground mt-2 text-sm">Još niko nije ostavio utisak o ovom proizvođaču.</p>
+                ) : (
+                    <div className="mt-4 space-y-4">
+                        {reviews.data.map((review) => (
+                            <ReviewCard key={review.id} review={review} />
+                        ))}
+                        <Pagination meta={reviews} />
+                    </div>
                 )}
 
                 {canReview && (

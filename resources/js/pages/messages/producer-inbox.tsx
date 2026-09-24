@@ -1,4 +1,5 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatRelativeTime } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -41,6 +42,7 @@ export default function ProducerInbox({ threads }: { threads: Thread[] }) {
                                 <p className="font-medium">{thread.buyer.name}</p>
                                 <p className="text-muted-foreground text-xs">{thread.producer.name}</p>
                                 <p className="text-muted-foreground truncate text-sm">{thread.last_message}</p>
+                                <p className="text-muted-foreground/80 mt-0.5 text-xs">{formatRelativeTime(thread.last_at)}</p>
                             </div>
 
                             {thread.unread > 0 && (

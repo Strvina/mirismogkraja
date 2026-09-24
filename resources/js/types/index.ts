@@ -38,7 +38,7 @@ export interface Review {
     comment: string | null;
     image_path: string | null;
     status: 'pending' | 'approved' | 'rejected';
-    /** When a moderator published it - what the public "pre 2 dana" counts from. */
+    /** When a moderator published it; the public date is created_at. */
     approved_at: string | null;
     created_at: string;
 }
