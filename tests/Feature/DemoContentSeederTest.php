@@ -38,7 +38,7 @@ class DemoContentSeederTest extends TestCase
         $this->assertSame(6, Producer::where('status', 'active')->count());
 
         $this->assertGreaterThan(0, Product::where('status', 'active')->count());
-        $this->assertGreaterThan(0, Product::where('status', 'out_of_stock')->count());
+        $this->assertGreaterThan(0, Product::where('status', 'active')->where('stock_quantity', 0)->count());
         $this->assertGreaterThan(0, Product::where('status', 'draft')->count());
         $this->assertGreaterThan(0, Product::whereHas('images')->count());
 

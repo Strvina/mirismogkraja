@@ -9,6 +9,7 @@ use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class AdminReviewModerationTest extends TestCase
@@ -178,5 +179,31 @@ class AdminReviewModerationTest extends TestCase
         );
 
         $this->assertTrue($writtenAt->equalTo($review->fresh()->created_at));
+    }
+
+    /**
+     * Deleting a review has to take its photo with it. The author's own
+     * route already did; the admin one dropped the row and left the file on
+     * disk, so the cleanup now hangs off the model instead of one caller.
+     */
+    public function test_deleting_a_review_removes_its_photo(): void
+    {
+        Storage::fake('public');
+
+        $author = User::factory()->create();
+        $review = Review::factory()->for($author)->create(['image_path' => 'reviews/utisak.jpg']);
+        Storage::disk('public')->put('reviews/utisak.jpg', 'x');
+
+        $this->actingAs($this->admin())->delete(route('admin.reviews.destroy', $review));
+
+        Storage::disk('public')->assertMissing('reviews/utisak.jpg');
+
+        // ...and the same from the author's own side.
+        $second = Review::factory()->for($author)->create(['image_path' => 'reviews/drugi.jpg']);
+        Storage::disk('public')->put('reviews/drugi.jpg', 'x');
+
+        $this->actingAs($author)->delete(route('reviews.destroy', $second));
+
+        Storage::disk('public')->assertMissing('reviews/drugi.jpg');
     }
 }

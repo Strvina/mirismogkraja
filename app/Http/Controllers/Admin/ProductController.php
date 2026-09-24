@@ -16,7 +16,7 @@ use Inertia\Response;
 class ProductController extends Controller
 {
     /** @var list<string> */
-    private const STATUSES = ['draft', 'active', 'out_of_stock', 'archived'];
+    private const STATUSES = ['draft', 'active', 'archived'];
 
     public function index(Request $request): Response
     {

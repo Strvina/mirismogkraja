@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Models\ActivityLog;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -57,6 +58,10 @@ class ActivityLogObserver
     /** Remove files which database cascades cannot remove. */
     public function deleting(Model $model): void
     {
+        if ($model instanceof Review) {
+            Storage::disk('public')->delete(array_filter([$model->image_path]));
+        }
+
         if ($model instanceof Product) {
             Storage::disk('public')->delete($model->images()->pluck('path')->all());
         }
@@ -67,6 +72,10 @@ class ActivityLogObserver
                 $model->logo_path,
                 ...$model->images()->pluck('path')->all(),
                 ...$model->products()->with('images')->get()->flatMap(fn (Product $product) => $product->images->pluck('path'))->all(),
+                // Reviews go with the producer through a database cascade,
+                // which fires no model events - so their photos have to be
+                // swept up from here.
+                ...$model->reviews()->whereNotNull('image_path')->pluck('image_path')->all(),
             ]));
         }
     }

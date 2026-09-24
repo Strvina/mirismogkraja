@@ -3,7 +3,6 @@
 namespace App\Http\Middleware;
 
 use App\Models\ProducerMessage;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,12 +36,9 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
-
         return array_merge(parent::share($request), [
             ...parent::share($request),
             'name' => config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 // Roles come along so the header can offer the admin panel
                 // link without every page having to pass them.
@@ -64,14 +60,19 @@ class HandleInertiaRequests extends Middleware
             return 0;
         }
 
-        $ownedProducerIds = $user->producers()->pluck('id');
-
+        // One query, not two: the producers this user owns are matched
+        // through an EXISTS subquery rather than being pulled out first. This
+        // runs on every request of every signed-in visitor.
         return ProducerMessage::query()
             ->where('sender_id', '!=', $user->id)
             ->whereNull('read_at')
             ->where(fn ($query) => $query
                 ->where('buyer_id', $user->id)
-                ->orWhereIn('household_id', $ownedProducerIds))
+                ->orWhereExists(fn ($producers) => $producers
+                    ->from('households')
+                    ->whereColumn('households.id', 'producer_messages.household_id')
+                    ->where('households.user_id', $user->id)
+                    ->whereNull('households.deleted_at')))
             ->count();
     }
 }

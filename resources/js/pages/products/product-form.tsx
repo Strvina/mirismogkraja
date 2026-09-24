@@ -23,14 +23,12 @@ type ProductFormData = {
 const STATUS_OPTIONS: { value: Product['status']; label: string }[] = [
     { value: 'draft', label: 'Nacrt — još nije javno' },
     { value: 'active', label: 'Objavljeno' },
-    { value: 'out_of_stock', label: 'Trenutno nema' },
     { value: 'archived', label: 'Sklonjeno' },
 ];
 
 const STATUS_HINTS: Record<Product['status'], string> = {
     draft: 'Vidite ga samo vi, dok ga ne objavite.',
     active: 'Svi ga vide i mogu da vam pišu o njemu.',
-    out_of_stock: 'Ostaje vidljiv, uz oznaku da trenutno nema.',
     archived: 'Sklonjen sa sajta, ali ostaje sačuvan kod vas.',
 };
 

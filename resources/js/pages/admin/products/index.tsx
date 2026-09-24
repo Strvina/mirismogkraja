@@ -13,7 +13,6 @@ type AdminProduct = Product & { producer: { id: number; name: string } | null; c
 const statusLabels: Record<string, string> = {
     draft: 'Nacrt',
     active: 'Aktivan',
-    out_of_stock: 'Nema na stanju',
     archived: 'Arhiviran',
 };
 
