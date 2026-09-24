@@ -5,6 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
 import { initializeTheme } from './hooks/use-appearance';
+import { revalidateOnHistoryNavigation } from './lib/revalidate-on-history-navigation';
 
 declare global {
     const route: typeof routeFn;
@@ -29,3 +30,7 @@ createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+// Back and Forward restore a page from history; re-request it so what it
+// shows is current.
+revalidateOnHistoryNavigation();
