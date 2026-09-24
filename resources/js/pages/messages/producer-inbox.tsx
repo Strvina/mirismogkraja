@@ -1,7 +1,7 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePoll } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Poruke proizvođača', href: '/poruke-proizvodjaca' }];
 
@@ -14,6 +14,8 @@ interface Thread {
 }
 
 export default function ProducerInbox({ threads }: { threads: Thread[] }) {
+    usePoll(10000, { only: ['threads', 'unreadMessages'] });
+
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Poruke proizvođača" />

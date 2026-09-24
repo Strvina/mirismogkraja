@@ -1,7 +1,7 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePoll } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Poruke', href: '/poruke' }];
 
@@ -18,6 +18,10 @@ interface Thread {
 }
 
 export default function MessagesIndex({ threads }: { threads: Thread[] }) {
+    // Slower than an open conversation: here it's enough that a new message
+    // shows up on its own within a few seconds.
+    usePoll(10000, { only: ['threads', 'unreadMessages'] });
+
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Poruke" />

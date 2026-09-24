@@ -1,7 +1,6 @@
 import { type SharedData } from '@/types';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage, usePoll } from '@inertiajs/react';
 import { MessageCircle } from 'lucide-react';
-import { useEffect } from 'react';
 
 /** How often the header re-checks for new messages. */
 const POLL_MS = 20_000;
@@ -10,20 +9,17 @@ const POLL_MS = 20_000;
  * Messages icon with an unread badge. The count is a shared prop, so it
  * refreshes on every navigation; the poll is what makes a message that
  * arrives while the recipient sits on one page show up without them
- * reloading it.
+ * reloading it. Inertia slows the poll down on its own while the tab is in
+ * the background, so an idle tab isn't hitting the server every 20 seconds.
+ *
+ * The messages pages poll faster and for their own data too - this badge
+ * only has to notice a message that arrives while its recipient is somewhere
+ * else on the site.
  */
 export default function MessagesLink({ className = '' }: { className?: string }) {
     const { unreadMessages } = usePage<SharedData>().props;
 
-    useEffect(() => {
-        const poll = setInterval(() => {
-            if (document.visibilityState === 'visible') {
-                router.reload({ only: ['unreadMessages'] });
-            }
-        }, POLL_MS);
-
-        return () => clearInterval(poll);
-    }, []);
+    usePoll(POLL_MS, { only: ['unreadMessages'] });
 
     return (
         <Link
