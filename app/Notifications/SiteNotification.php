@@ -80,6 +80,16 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function productPublished(string $producerName, string $productName, string $url): self
+    {
+        return new self(
+            'product.published',
+            "{$producerName} ima nešto novo",
+            "„{$productName}” je upravo objavljen.",
+            $url,
+        );
+    }
+
     public static function reviewReceived(string $producerName, string $url): self
     {
         return new self(

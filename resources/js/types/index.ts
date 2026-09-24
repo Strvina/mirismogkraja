@@ -56,6 +56,8 @@ export interface Producer {
     user_id: number;
     name: string;
     slug: string;
+    /** Permanent place in the founding hundred, or null. */
+    founding_number?: number | null;
     description: string | null;
     story: string | null;
     address: string | null;

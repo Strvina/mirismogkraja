@@ -13,4 +13,5 @@ require __DIR__.'/products.php';
 require __DIR__.'/favorites.php';
 require __DIR__.'/messages.php';
 require __DIR__.'/notifications.php';
+require __DIR__.'/follows.php';
 require __DIR__.'/admin.php';

@@ -23,8 +23,8 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 17. Upiti za kupovinu (bez plaćanja na platformi) — sada direktan upit sa stranice proizvoda
 - [~] 18. Redizajn korpe (OTKAZANO: korpa je uklonjena, vidi "Model platforme" ispod)
 - [x] 19. Provera linkova/dugmadi (uklonjeni placeholder social linkovi, footer prebačen na Inertia navigaciju)
-- [ ] 20. Monetizacija
-- [ ] 21. Dodatne preporuke
+- [~] 20. Monetizacija — urađeni delovi bez novca: 20.4 (Prvih 100) i 20.5 (praćenje + notifikacija). Ostaju 20.1/20.2/20.3/20.6/20.7/20.8/20.9 (planovi, isticanja, kampanje, statistika, admin sekcija) — traže odluke o cenama i toku naplate.
+- [~] 21. Dodatne preporuke — već urađeno: broj telefona na klik, utisak samo posle odgovora proizvođača, slug URL-ovi, rate limiting na porukama. Ostaje: „Prijavi problem“, verifikovan bedž, deljenje na mreže, mapa, sitemap, onboarding wizard.
 - [ ] 22. Google prijava
 
 ## Model platforme (odluka vlasnika, nadjačava zadatke 9, 17 i 18)
