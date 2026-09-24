@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use App\Notifications\SiteNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -47,10 +48,21 @@ class ReviewController extends Controller
      */
     public function approve(Review $review): RedirectResponse
     {
+        $wasApproved = $review->isApproved();
+
         $review->update([
             'status' => Review::STATUS_APPROVED,
             'approved_at' => $review->approved_at ?? now(),
         ]);
+
+        if (! $wasApproved) {
+            $review->loadMissing('producer');
+
+            $review->user?->notify(SiteNotification::reviewPublished(
+                $review->producer->name,
+                route('marketplace.producers.show', $review->producer->slug),
+            ));
+        }
 
         return back();
     }

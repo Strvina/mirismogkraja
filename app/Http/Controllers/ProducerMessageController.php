@@ -6,6 +6,7 @@ use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
+use App\Notifications\SiteNotification;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -32,13 +33,15 @@ class ProducerMessageController extends Controller
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
-        ProducerMessage::create([
+        $message = ProducerMessage::create([
             'household_id' => $product->household_id,
             'product_id' => $product->id,
             'buyer_id' => $request->user()->id,
             'sender_id' => $request->user()->id,
             'body' => $data['body'],
         ]);
+
+        $this->notifyTheOtherSide($message, $product->producer, $request->user());
 
         return to_route('messages.show', $product->producer->slug);
     }
@@ -164,14 +167,43 @@ class ProducerMessageController extends Controller
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
-        ProducerMessage::create([
+        $message = ProducerMessage::create([
             'household_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $request->user()->id,
             'body' => $data['body'],
         ]);
 
+        $this->notifyTheOtherSide($message, $producer, $request->user());
+
         return back();
+    }
+
+    /**
+     * Tell whoever did not write the message that it arrived. Which side that
+     * is depends on who sent it: a buyer writes to the producer's owner, the
+     * owner writes back to the buyer.
+     */
+    private function notifyTheOtherSide(ProducerMessage $message, Producer $producer, User $sender): void
+    {
+        $recipient = $sender->id === $producer->user_id
+            ? $message->buyer
+            : $producer->user;
+
+        // A producer whose account has been archived has no one to tell.
+        if (! $recipient || $recipient->id === $sender->id) {
+            return;
+        }
+
+        $url = $recipient->id === $producer->user_id
+            ? route('messages.thread', [$producer->id, $message->buyer_id])
+            : route('messages.show', $producer->slug);
+
+        $recipient->notify(SiteNotification::messageReceived(
+            $sender->id === $producer->user_id ? $producer->name : $sender->name,
+            str($message->body)->limit(80)->toString(),
+            $url,
+        ));
     }
 
     /**

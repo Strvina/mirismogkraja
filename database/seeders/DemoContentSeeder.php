@@ -8,6 +8,7 @@ use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
+use App\Notifications\SiteNotification;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -78,6 +79,35 @@ class DemoContentSeeder extends Seeder
 
         $this->seedConversations($producers, $buyers);
         $this->seedReviews($producers, $buyers);
+        $this->seedNotifications($producers, $buyers);
+    }
+
+    /**
+     * A few notifications, so the bell in the header is not empty on a fresh
+     * install. They mirror what the application itself would have sent for
+     * the data seeded above.
+     *
+     * @param  list<Producer>  $producers
+     * @param  list<User>  $buyers
+     */
+    private function seedNotifications(array $producers, array $buyers): void
+    {
+        foreach ($producers as $producer) {
+            $producer->user->notify(SiteNotification::producerApproved(
+                $producer->name,
+                route('marketplace.producers.show', $producer->slug),
+            ));
+        }
+
+        $producer = $producers[0];
+
+        if (isset($buyers[0])) {
+            $buyers[0]->notify(SiteNotification::messageReceived(
+                $producer->name,
+                'Imamo na stanju, javite se kad vam odgovara.',
+                route('messages.show', $producer->slug),
+            ));
+        }
     }
 
     private function copyDemoImage(): void

@@ -30,6 +30,14 @@ export interface Product {
     status: 'draft' | 'active' | 'archived';
 }
 
+export interface SiteNotification {
+    id: string;
+    title: string;
+    body: string | null;
+    read: boolean;
+    created_at: string;
+}
+
 export interface Review {
     id: number;
     user_id: number;
@@ -83,6 +91,9 @@ export interface SharedData {
     name: string;
     auth: Auth;
     unreadMessages: number;
+    unreadNotifications: number;
+    /** Only present after a partial reload asks for it (the bell dropdown). */
+    notifications?: SiteNotification[];
     [key: string]: unknown;
 }
 

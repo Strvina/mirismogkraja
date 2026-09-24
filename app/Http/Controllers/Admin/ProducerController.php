@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Producer;
+use App\Notifications\SiteNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -40,7 +41,22 @@ class ProducerController extends Controller
     {
         $data = $request->validate(['status' => ['required', 'in:pending,active,blocked']]);
 
+        $previous = $producer->status;
         $producer->update($data);
+
+        // Only on an actual change, so re-saving the same status doesn't
+        // notify the owner again.
+        if ($previous !== $producer->status && $producer->user) {
+            $url = route('marketplace.producers.show', $producer->slug);
+
+            if ($producer->status === 'active') {
+                $producer->user->notify(SiteNotification::producerApproved($producer->name, $url));
+            }
+
+            if ($producer->status === 'blocked') {
+                $producer->user->notify(SiteNotification::producerBlocked($producer->name, route('producers.index')));
+            }
+        }
 
         return back();
     }

@@ -5,7 +5,7 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 
 ## Progress tracker (ažuriraj posle svake sesije/faze)
 - [x] 1. Seederi
-- [ ] 2. Bug: avatar upload (backend ispravan + testovi prolaze, ali u browseru i dalje ne radi — vratiti se na ovo)
+- [x] 2. Bug: avatar upload (uzrok: ruta je bila PATCH, a PHP parsira multipart telo samo za POST)
 - [x] 3. Stranica "Moj nalog"
 - [x] 4. Tok posle prijave (ostaje samo: podstranice vizuelno da prate početnu — ide uz 3/11/12/13/18)
 - [x] 5. Sekcija "Domaćinstva sa pričom"
@@ -19,7 +19,7 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 13. Redizajn kartice proizvođača + preimenovanje termina
 - [x] 14. Admin panel — redizajn i sidebar
 - [ ] 15. Permisije
-- [ ] 16. Notifikacioni sistem
+- [x] 16. Notifikacioni sistem (database kanal, zvonce u headeru, stranica obaveštenja)
 - [x] 17. Upiti za kupovinu (bez plaćanja na platformi) — sada direktan upit sa stranice proizvoda
 - [~] 18. Redizajn korpe (OTKAZANO: korpa je uklonjena, vidi "Model platforme" ispod)
 - [ ] 19. Provera linkova/dugmadi

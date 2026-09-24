@@ -9,6 +9,7 @@ import AccountMenu from './account-menu';
 import Brand from './brand';
 import MenuIcon from './menu-icon';
 import MessagesLink from './messages-link';
+import NotificationsBell from './notifications-bell';
 import SearchForm from './search-form';
 
 /**
@@ -99,6 +100,7 @@ export default function Navbar() {
                         <>
                             <div className="mr-1 hidden items-center gap-4 md:flex">
                                 <MessagesLink className="text-foreground/70 hover:text-foreground" />
+                                <NotificationsBell className="text-foreground/70 hover:text-foreground" />
                                 <Link
                                     href={route('favorites.index')}
                                     aria-label="Sačuvano"

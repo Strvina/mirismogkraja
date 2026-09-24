@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Producer;
 use App\Models\Review;
+use App\Notifications\SiteNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -26,7 +27,7 @@ class ReviewController extends Controller
             'image' => ['nullable', 'image', 'max:4096'],
         ]);
 
-        $producer->reviews()->create([
+        $review = $producer->reviews()->create([
             'user_id' => $request->user()->id,
             'rating' => $data['rating'],
             'comment' => $data['comment'] ?? null,
@@ -34,7 +35,13 @@ class ReviewController extends Controller
             'status' => Review::STATUS_PENDING,
         ]);
 
-        return back()->with('status', 'Hvala! Vaš utisak čeka odobrenje i biće objavljen uskoro.');
+        $producer->user?->notify(SiteNotification::reviewReceived(
+            $producer->name,
+            route('marketplace.producers.show', $producer->slug),
+        ));
+
+        return back()->with('status', 'Hvala! Vaš utisak čeka odobrenje i biće objavljen uskoro.')
+            ->with('reviewId', $review->id);
     }
 
     public function destroy(Review $review): RedirectResponse

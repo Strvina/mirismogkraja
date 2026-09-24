@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\ProducerMessage;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -45,6 +46,25 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user()?->loadMissing('roles:id,name'),
             ],
             'unreadMessages' => fn () => $this->unreadMessageCount($request),
+            // A count, not the notifications themselves: the bell only needs
+            // a number on every page, and the list is fetched when it is
+            // actually opened.
+            'unreadNotifications' => fn () => (int) $request->user()?->unreadNotifications()->count(),
+            // Evaluated only when a partial reload asks for it by name, so
+            // opening the bell costs one small request and every other page
+            // load costs nothing.
+            'notifications' => Inertia::optional(fn () => $request->user()
+                ?->notifications()
+                ->latest()
+                ->limit(8)
+                ->get()
+                ->map(fn ($notification) => [
+                    'id' => $notification->id,
+                    'title' => $notification->data['title'] ?? '',
+                    'body' => $notification->data['body'] ?? null,
+                    'read' => $notification->read_at !== null,
+                    'created_at' => $notification->created_at,
+                ])),
         ]);
     }
 
