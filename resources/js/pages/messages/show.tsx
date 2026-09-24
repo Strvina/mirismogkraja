@@ -1,12 +1,12 @@
-import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, usePoll } from '@inertiajs/react';
-import { ImageOff } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { ImageOff, SendHorizontal } from 'lucide-react';
+import { FormEventHandler, KeyboardEventHandler, useLayoutEffect, useRef, useState } from 'react';
 
 interface Message {
     id: number;
@@ -18,6 +18,12 @@ interface Message {
     // which listing the question was about.
     product: { id: number; name: string; slug: string; price: string; unit: string; image: string | null } | null;
 }
+
+/** How close to the bottom still counts as "following the conversation". */
+const STICK_TO_BOTTOM_PX = 80;
+
+/** The composer grows with the message, up to about six lines. */
+const MAX_COMPOSER_HEIGHT_PX = 160;
 
 /**
  * The listing an inquiry was opened from, shown above the message itself:
@@ -53,6 +59,12 @@ function ProductPreview({ product, mine }: { product: NonNullable<Message['produ
     );
 }
 
+/**
+ * One conversation, laid out the way a chat is: a panel of a fixed height
+ * with its own scroll, and the composer pinned to its bottom edge. The page
+ * itself therefore stays the same length however long the history gets,
+ * instead of growing downwards until the input is off screen.
+ */
 export default function MessageThread({
     producer,
     buyer,
@@ -65,6 +77,13 @@ export default function MessageThread({
     isOwner: boolean;
 }) {
     const [body, setBody] = useState('');
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const composerRef = useRef<HTMLTextAreaElement>(null);
+
+    // Whether to keep the newest message in view when one arrives. Someone
+    // scrolled up re-reading the history is left where they are; only a
+    // reader already at the bottom gets carried along.
+    const following = useRef(true);
 
     // An open conversation checks for replies on its own, so neither side has
     // to refresh to see one. Only the thread and the header's badge are
@@ -89,65 +108,175 @@ export default function MessageThread({
               { title: producer.name, href: '#' },
           ];
 
-    const send: FormEventHandler = (e) => {
-        e.preventDefault();
+    const title = isOwner ? buyer.name : producer.name;
+    const avatar = isOwner ? buyer.avatar_path : producer.logo_path;
+    const newestId = messages.data[messages.data.length - 1]?.id ?? 0;
+    // The paginator walks backwards through the history, so its "next" link
+    // is the older part of the conversation.
+    const olderPage = messages.links[messages.links.length - 1]?.url ?? null;
+
+    const shownPage = useRef(messages.current_page);
+
+    // Before paint, so the thread never flashes at the wrong scroll position
+    // on first render or when the poll appends a reply. Stepping back through
+    // the history scrolls to the bottom too: the end of an older page is
+    // where the part just read begins.
+    useLayoutEffect(() => {
+        const panel = scrollRef.current;
+
+        if (!panel) {
+            return;
+        }
+
+        const pageChanged = shownPage.current !== messages.current_page;
+        shownPage.current = messages.current_page;
+
+        if (pageChanged || following.current) {
+            panel.scrollTop = panel.scrollHeight;
+        }
+    }, [newestId, messages.current_page]);
+
+    const onPanelScroll = () => {
+        const panel = scrollRef.current;
+
+        if (panel) {
+            following.current = panel.scrollHeight - panel.scrollTop - panel.clientHeight < STICK_TO_BOTTOM_PX;
+        }
+    };
+
+    const send: FormEventHandler = (event) => {
+        event.preventDefault();
 
         if (!body.trim()) {
             return;
         }
 
-        router.post(sendRoute, { body }, { preserveScroll: true, onSuccess: () => setBody('') });
+        // Sending always brings you back to the newest message, wherever you
+        // had scrolled to.
+        following.current = true;
+
+        router.post(
+            sendRoute,
+            { body },
+            {
+                preserveScroll: true,
+                // Keep the panel mounted so its scroll position and the
+                // composer's focus survive the round trip - a POST would
+                // otherwise remount the page and take the cursor with it.
+                preserveState: true,
+                onSuccess: () => {
+                    setBody('');
+
+                    if (composerRef.current) {
+                        composerRef.current.style.height = 'auto';
+                        composerRef.current.focus();
+                    }
+                },
+            },
+        );
+    };
+
+    // Enter sends, Shift+Enter starts a new line. The composing check keeps
+    // Enter from sending half a word while an input method is still
+    // assembling it.
+    const onComposerKeyDown: KeyboardEventHandler<HTMLTextAreaElement> = (event) => {
+        if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+            event.preventDefault();
+            send(event);
+        }
     };
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={isOwner ? `Poruke — ${buyer.name}` : `Poruke — ${producer.name}`} />
+            <Head title={`Poruke — ${title}`} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">{isOwner ? buyer.name : producer.name}</h1>
-            {!isOwner && (
-                <Link href={route('marketplace.producers.show', producer.slug)} className="text-primary mt-2 inline-block text-sm underline">
-                    Otvori profil proizvođača
-                </Link>
-            )}
-
-            <div className="mt-8 max-w-2xl space-y-4">
-                {/* The newest page comes first, so paging forward walks back
-                    through the history: the links belong above the thread. */}
-                <Pagination meta={messages} />
-
-                {messages.total === 0 ? (
-                    <p className="text-muted-foreground text-sm">Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.</p>
-                ) : (
-                    messages.data.map((message) => (
-                        <div key={message.id} className={cn('flex', message.mine ? 'justify-end' : 'justify-start')}>
-                            <div
-                                className={cn(
-                                    'max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6',
-                                    message.mine ? 'bg-primary text-primary-foreground' : 'bg-muted',
-                                )}
+            <div className="border-border/70 bg-background mx-auto flex h-[calc(100svh-15rem)] max-h-[44rem] min-h-[26rem] w-full max-w-2xl flex-col overflow-hidden rounded-lg border">
+                <header className="border-border/70 flex items-center gap-3 border-b px-4 py-3">
+                    {avatar ? (
+                        <img src={`/storage/${avatar}`} alt="" className="size-10 shrink-0 rounded-full object-cover" />
+                    ) : (
+                        <span className="bg-olive-soft text-olive grid size-10 shrink-0 place-items-center rounded-full font-semibold">
+                            {title.charAt(0).toUpperCase()}
+                        </span>
+                    )}
+                    <div className="min-w-0">
+                        <h1 className="truncate font-serif text-lg leading-tight">{title}</h1>
+                        {!isOwner && (
+                            <Link
+                                href={route('marketplace.producers.show', producer.slug)}
+                                className="text-muted-foreground hover:text-foreground text-xs transition-colors"
                             >
-                                {message.product && <ProductPreview product={message.product} mine={message.mine} />}
-                                <p className="whitespace-pre-line">{message.body}</p>
-                                <p className={cn('mt-1.5 text-[0.65rem]', message.mine ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
-                                    {message.sender.name} · {formatRelativeTime(message.created_at)}
-                                </p>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
+                                Otvori profil proizvođača
+                            </Link>
+                        )}
+                    </div>
+                </header>
 
-            <form onSubmit={send} className="mt-8 max-w-2xl space-y-3">
-                <textarea
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    maxLength={2000}
-                    placeholder="Napišite poruku..."
-                    aria-label="Poruka"
-                    className="border-input bg-background min-h-28 w-full rounded-md border px-3 py-2 text-sm"
-                />
-                <Button disabled={!body.trim()}>Pošalji</Button>
-            </form>
+                <div ref={scrollRef} onScroll={onPanelScroll} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+                    {/* Older messages live above, as in any chat. */}
+                    {olderPage && (
+                        <div className="flex justify-center pb-1">
+                            <Link
+                                href={olderPage}
+                                preserveScroll
+                                only={['messages']}
+                                className="border-border/70 hover:bg-muted rounded-full border px-3 py-1 text-xs transition-colors"
+                            >
+                                Starije poruke
+                            </Link>
+                        </div>
+                    )}
+
+                    {messages.total === 0 ? (
+                        <p className="text-muted-foreground py-8 text-center text-sm">
+                            Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.
+                        </p>
+                    ) : (
+                        messages.data.map((message) => (
+                            <div key={message.id} className={cn('flex', message.mine ? 'justify-end' : 'justify-start')}>
+                                <div
+                                    className={cn(
+                                        'max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6',
+                                        message.mine ? 'bg-primary text-primary-foreground' : 'bg-muted',
+                                    )}
+                                >
+                                    {message.product && <ProductPreview product={message.product} mine={message.mine} />}
+                                    <p className="whitespace-pre-line">{message.body}</p>
+                                    <p className={cn('mt-1.5 text-[0.65rem]', message.mine ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                                        {message.sender.name} · {formatRelativeTime(message.created_at)}
+                                    </p>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 pt-3">
+                    <textarea
+                        ref={composerRef}
+                        value={body}
+                        onChange={(event) => {
+                            setBody(event.target.value);
+                            event.target.style.height = 'auto';
+                            event.target.style.height = `${Math.min(event.target.scrollHeight, MAX_COMPOSER_HEIGHT_PX)}px`;
+                        }}
+                        onKeyDown={onComposerKeyDown}
+                        rows={1}
+                        maxLength={2000}
+                        placeholder="Napišite poruku..."
+                        aria-label="Poruka"
+                        aria-describedby="composer-hint"
+                        className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
+                    />
+                    <Button type="submit" size="icon" disabled={!body.trim()} aria-label="Pošalji poruku" className="size-11 shrink-0">
+                        <SendHorizontal className="size-4" />
+                    </Button>
+                </form>
+
+                <p id="composer-hint" className="text-muted-foreground px-4 py-2 text-[0.7rem]">
+                    Enter šalje poruku, Shift + Enter prelazi u novi red.
+                </p>
+            </div>
         </MarketplaceLayout>
     );
 }
