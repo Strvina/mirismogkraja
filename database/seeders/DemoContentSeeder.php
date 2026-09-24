@@ -158,7 +158,7 @@ class DemoContentSeeder extends Seeder
 
             // A couple of edge-case statuses per producer, so admin/filter
             // screens have out-of-stock and draft products to show as well.
-            $producer->products()->inRandomOrder()->first()?->update(['status' => 'out_of_stock', 'stock_quantity' => 0]);
+            $producer->products()->inRandomOrder()->first()?->update(['stock_quantity' => 0]);
             Product::factory()->for($producer)->for($categories->first())->create(['status' => 'draft']);
 
             $producers[] = $producer;

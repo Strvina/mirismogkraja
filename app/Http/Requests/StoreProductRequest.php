@@ -25,7 +25,7 @@ class StoreProductRequest extends FormRequest
             'price' => ['required', 'numeric', 'min:0'],
             'unit' => ['required', 'in:kg,g,l,ml,kom,paket'],
             'stock_quantity' => ['required', 'integer', 'min:0'],
-            'status' => ['required', 'in:draft,active,out_of_stock,archived'],
+            'status' => ['required', 'in:draft,active,archived'],
         ];
     }
 }

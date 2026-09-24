@@ -156,4 +156,26 @@ class PublicProductListTest extends TestCase
         $this->actingAs($user)->get(route('marketplace.products.index'))
             ->assertInertia(fn ($page) => $page->where('products.data.0.is_favorited', true));
     }
+
+    /**
+     * The rating filter is a public number, so it has to be built from
+     * published reviews only: one still waiting on a moderator must not lift
+     * a producer into the results, and a rejected one must not keep them out.
+     */
+    public function test_the_rating_filter_ignores_unpublished_reviews(): void
+    {
+        $wellRated = Producer::factory()->active()->create();
+        Review::factory()->for($wellRated, 'producer')->create(['rating' => 5]);
+        Review::factory()->pending()->for($wellRated, 'producer')->create(['rating' => 1]);
+        Review::factory()->rejected()->for($wellRated, 'producer')->create(['rating' => 1]);
+        $good = Product::factory()->for($wellRated)->create(['status' => 'active']);
+
+        $unrated = Producer::factory()->active()->create();
+        Review::factory()->pending()->for($unrated, 'producer')->create(['rating' => 5]);
+        Product::factory()->for($unrated)->create(['status' => 'active']);
+
+        $this->get(route('marketplace.products.index', ['min_rating' => 4]))->assertInertia(
+            fn ($page) => $page->has('products.data', 1)->where('products.data.0.id', $good->id)
+        );
+    }
 }

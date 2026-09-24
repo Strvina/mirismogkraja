@@ -48,6 +48,10 @@ class ProductController extends Controller
             ->when($request->integer('min_rating'), fn ($query, $minRating) => $query->whereIn(
                 'household_id',
                 Review::query()
+                    // Only published reviews count: a rejected one must not
+                    // drag a producer below the filter, and one still waiting
+                    // on a moderator must not move them at all.
+                    ->approved()
                     ->groupBy('household_id')
                     ->havingRaw('AVG(rating) >= ?', [$minRating])
                     ->pluck('household_id')

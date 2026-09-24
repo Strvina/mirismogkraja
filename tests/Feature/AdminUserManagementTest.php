@@ -92,6 +92,7 @@ class AdminUserManagementTest extends TestCase
         $this->actingAs($user);
         $user->update(['blocked_at' => now()]);
 
-        $this->get(route('dashboard'))->assertRedirect(route('login'));
+        // Any authenticated page will do; the middleware runs on all of them.
+        $this->get(route('messages.index'))->assertRedirect(route('login'));
     }
 }

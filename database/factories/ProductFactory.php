@@ -38,8 +38,9 @@ class ProductFactory extends Factory
         ];
     }
 
+    /** Published, but with nothing left - the catalog marks it on the card. */
     public function outOfStock(): static
     {
-        return $this->state(fn () => ['stock_quantity' => 0, 'status' => 'out_of_stock']);
+        return $this->state(fn () => ['stock_quantity' => 0, 'status' => 'active']);
     }
 }

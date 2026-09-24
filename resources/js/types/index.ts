@@ -27,7 +27,7 @@ export interface Product {
     price: string;
     unit: 'kg' | 'g' | 'l' | 'ml' | 'kom' | 'paket';
     stock_quantity: number;
-    status: 'draft' | 'active' | 'out_of_stock' | 'archived';
+    status: 'draft' | 'active' | 'archived';
 }
 
 export interface Review {
@@ -81,7 +81,6 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
-    quote: { message: string; author: string };
     auth: Auth;
     unreadMessages: number;
     [key: string]: unknown;
