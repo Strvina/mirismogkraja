@@ -1,9 +1,11 @@
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import { ImageOff } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 interface Message {
@@ -14,7 +16,41 @@ interface Message {
     sender: { id: number; name: string; avatar_path: string | null };
     // Set only on a message sent from a product page, so the reader can see
     // which listing the question was about.
-    product: { id: number; name: string; slug: string } | null;
+    product: { id: number; name: string; slug: string; price: string; unit: string; image: string | null } | null;
+}
+
+/**
+ * The listing an inquiry was opened from, shown above the message itself:
+ * a thumbnail, the name (still the link to the product page) and the asking
+ * price, so a producer reading a week-old thread recognises the product
+ * without opening it.
+ */
+function ProductPreview({ product, mine }: { product: NonNullable<Message['product']>; mine: boolean }) {
+    return (
+        <Link
+            href={route('marketplace.products.show', product.slug)}
+            className={cn(
+                'mb-2.5 flex items-center gap-3 rounded-md p-2 transition-opacity hover:opacity-85',
+                mine ? 'bg-primary-foreground/15' : 'bg-background',
+            )}
+        >
+            <span className={cn('size-12 shrink-0 overflow-hidden rounded', mine ? 'bg-primary-foreground/20' : 'bg-muted')}>
+                {product.image ? (
+                    <img src={`/storage/${product.image}`} alt="" loading="lazy" className="size-full object-cover" />
+                ) : (
+                    <span className="grid size-full place-items-center opacity-40">
+                        <ImageOff className="size-5" />
+                    </span>
+                )}
+            </span>
+            <span className="min-w-0">
+                <span className="block truncate text-sm font-medium underline underline-offset-2">{product.name}</span>
+                <span className={cn('block text-xs', mine ? 'text-primary-foreground/75' : 'text-muted-foreground')}>
+                    {formatPrice(product.price)} / {product.unit}
+                </span>
+            </span>
+        </Link>
+    );
 }
 
 export default function MessageThread({
@@ -81,20 +117,10 @@ export default function MessageThread({
                                     message.mine ? 'bg-primary text-primary-foreground' : 'bg-muted',
                                 )}
                             >
-                                {message.product && (
-                                    <Link
-                                        href={route('marketplace.products.show', message.product.slug)}
-                                        className={cn(
-                                            'mb-2 flex rounded-md px-2 py-1 text-xs underline underline-offset-2',
-                                            message.mine ? 'bg-primary-foreground/15' : 'bg-background',
-                                        )}
-                                    >
-                                        Upit za: {message.product.name}
-                                    </Link>
-                                )}
+                                {message.product && <ProductPreview product={message.product} mine={message.mine} />}
                                 <p className="whitespace-pre-line">{message.body}</p>
                                 <p className={cn('mt-1.5 text-[0.65rem]', message.mine ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
-                                    {message.sender.name} · {new Date(message.created_at).toLocaleString('sr-RS')}
+                                    {message.sender.name} · {formatRelativeTime(message.created_at)}
                                 </p>
                             </div>
                         </div>

@@ -32,6 +32,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/kategorije/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/kategorije/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
-    Route::get('/ocene', [ReviewController::class, 'index'])->name('reviews.index');
-    Route::delete('/ocene/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('/utisci', [ReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('/utisci/{review}/odobri', [ReviewController::class, 'approve'])->name('reviews.approve');
+    Route::patch('/utisci/{review}/odbij', [ReviewController::class, 'reject'])->name('reviews.reject');
+    Route::delete('/utisci/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });

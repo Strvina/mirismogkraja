@@ -30,12 +30,12 @@ function Avatar({ name, path, className = 'size-8' }: { name: string; path: stri
 
 function Rating({ value, count }: { value: number | null; count: number }) {
     if (!value) {
-        return <span className="text-muted-foreground text-xs">Još nema ocena</span>;
+        return <span className="text-muted-foreground text-xs">Još nema utisaka</span>;
     }
 
     return (
         <span className="flex items-center gap-1 text-sm">
-            <Star className="size-4 fill-gold text-gold" />
+            <Star className="fill-gold text-gold size-4" />
             <span className="font-semibold">{value.toFixed(1)}</span>
             <span className="text-muted-foreground text-xs">({count})</span>
         </span>
@@ -87,9 +87,7 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                     </span>
                 </div>
 
-                {producer.description && (
-                    <p className="text-muted-foreground mt-3 line-clamp-2 text-sm leading-6">{producer.description}</p>
-                )}
+                {producer.description && <p className="text-muted-foreground mt-3 line-clamp-2 text-sm leading-6">{producer.description}</p>}
 
                 {producer.delivery_methods && producer.delivery_methods.length > 0 && (
                     <p className="text-muted-foreground mt-3 flex items-start gap-1.5 text-xs">
@@ -110,9 +108,7 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                                             {'★'.repeat(review.rating)}
                                         </span>
                                     </p>
-                                    {review.comment && (
-                                        <p className="text-muted-foreground line-clamp-2 text-xs leading-5">{review.comment}</p>
-                                    )}
+                                    {review.comment && <p className="text-muted-foreground line-clamp-2 text-xs leading-5">{review.comment}</p>}
                                     {review.image_path && (
                                         <img
                                             src={`/storage/${review.image_path}`}

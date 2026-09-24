@@ -1,12 +1,12 @@
 import FavoriteButton from '@/components/favorite-button';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
-import { deliveryMethodLabel } from '@/lib/delivery';
-import { formatPrice } from '@/lib/format';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { deliveryMethodLabel } from '@/lib/delivery';
+import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { type Producer, type Product, type Review, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MapPin, MessageCircle, Star, Truck } from 'lucide-react';
+import { BadgeCheck, Clock, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function ProducerShow({
@@ -16,6 +16,7 @@ export default function ProducerShow({
     reviews,
     averageRating,
     canReview,
+    myPendingReview,
     canMessage,
     isFavorited,
 }: {
@@ -25,6 +26,7 @@ export default function ProducerShow({
     reviews: Paginated<Review & { user: { name: string; avatar_path: string | null } }>;
     averageRating: number;
     canReview: boolean;
+    myPendingReview: boolean;
     canMessage: boolean;
     isFavorited: boolean;
 }) {
@@ -63,11 +65,7 @@ export default function ProducerShow({
 
             <div className="mt-6 flex flex-wrap items-start gap-4">
                 {producer.logo_path && (
-                    <img
-                        src={`/storage/${producer.logo_path}`}
-                        alt=""
-                        className="size-14 shrink-0 rounded-full border object-cover sm:size-16"
-                    />
+                    <img src={`/storage/${producer.logo_path}`} alt="" className="size-14 shrink-0 rounded-full border object-cover sm:size-16" />
                 )}
 
                 <div className="min-w-0 flex-1">
@@ -171,9 +169,7 @@ export default function ProducerShow({
                                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
-                                {image.caption && (
-                                    <figcaption className="text-muted-foreground mt-2 text-xs leading-5">{image.caption}</figcaption>
-                                )}
+                                {image.caption && <figcaption className="text-muted-foreground mt-2 text-xs leading-5">{image.caption}</figcaption>}
                             </figure>
                         ))}
                     </div>
@@ -206,21 +202,26 @@ export default function ProducerShow({
             </section>
 
             <section className="mt-12 max-w-2xl">
-                <h2 className="font-serif text-2xl">Ocene</h2>
+                <h2 className="font-serif text-2xl">Utisci kupaca</h2>
 
                 {reviews.total === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Ovaj proizvođač još nema ocena.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">Još niko nije ostavio utisak o ovom proizvođaču.</p>
                 ) : (
                     <div className="mt-4 space-y-4">
                         {reviews.data.map((review) => (
                             <div key={review.id} className="border-border border-b pb-4">
-                                <div className="flex flex-wrap items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                                     <span className="font-medium break-words">{review.user.name}</span>
-                                    <span className="text-gold flex items-center gap-0.5">
+                                    <span className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
+                                        <BadgeCheck className="size-3" />
+                                        Provereni korisnik
+                                    </span>
+                                    <span className="text-gold flex items-center gap-0.5" aria-label={`Ocena ${review.rating} od 5`}>
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <Star key={i} className="fill-gold size-3.5" />
                                         ))}
                                     </span>
+                                    <span className="text-muted-foreground text-xs">{formatRelativeTime(review.approved_at)}</span>
                                 </div>
                                 {review.comment && <p className="text-muted-foreground mt-1 text-sm break-words">{review.comment}</p>}
                                 {review.image_path && (
@@ -237,28 +238,50 @@ export default function ProducerShow({
                     </div>
                 )}
 
+                {/* An impression that is still with a moderator is invisible
+                    above, so say so - otherwise it reads as if it was lost. */}
+                {myPendingReview && (
+                    <p className="border-border/70 bg-muted/50 text-muted-foreground mt-6 flex items-start gap-2 rounded-md border p-4 text-sm">
+                        <Clock className="mt-0.5 size-4 shrink-0" />
+                        Vaš utisak čeka odobrenje. Objavićemo ga čim ga pregledamo.
+                    </p>
+                )}
+
                 {canReview && (
-                    <form onSubmit={submitReview} className="mt-6 space-y-3">
-                        <select
-                            value={rating}
-                            onChange={(e) => setRating(Number(e.target.value))}
-                            className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-                        >
-                            {[5, 4, 3, 2, 1].map((n) => (
-                                <option key={n} value={n}>
-                                    {n} zvezdica
-                                </option>
-                            ))}
-                        </select>
+                    <form onSubmit={submitReview} className="border-border/70 mt-6 space-y-3 rounded-lg border p-5">
+                        <div>
+                            <h3 className="font-serif text-xl">Ostavi utisak</h3>
+                            <p className="text-muted-foreground mt-1 text-sm">
+                                Utisak može da ostavi neko sa kim se proizvođač već dopisivao. Objavljujemo ga pošto ga pregledamo.
+                            </p>
+                        </div>
+                        <div className="grid gap-1.5">
+                            <label htmlFor="review-rating" className="text-muted-foreground text-xs">
+                                Vaša ocena
+                            </label>
+                            <select
+                                id="review-rating"
+                                value={rating}
+                                onChange={(e) => setRating(Number(e.target.value))}
+                                className="border-input bg-background w-fit rounded-md border px-3 py-2 text-sm"
+                            >
+                                {[5, 4, 3, 2, 1].map((n) => (
+                                    <option key={n} value={n}>
+                                        {'★'.repeat(n)} ({n})
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                         <textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            placeholder="Podeli svoj utisak..."
+                            placeholder="Kako je prošlo? Napišite par rečenica..."
+                            aria-label="Vaš utisak"
                             className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                         />
                         <div className="grid gap-1.5">
                             <label htmlFor="review-image" className="text-muted-foreground text-xs">
-                                Slika proizvoda koji si dobio/la (opciono)
+                                Slika onoga što ste dobili (nije obavezno)
                             </label>
                             <input
                                 id="review-image"
@@ -268,13 +291,15 @@ export default function ProducerShow({
                                 className="border-input bg-background w-full max-w-xs rounded-md border px-3 py-2 text-sm"
                             />
                         </div>
-                        <Button>Ostavi ocenu</Button>
+                        <Button>Pošalji utisak</Button>
                     </form>
                 )}
 
-                {!canReview && auth.user && (
-                    <p className="text-muted-foreground mt-4 text-xs">
-                        Ocenu možeš ostaviti nakon što ti porudžbina od ovog proizvođača bude isporučena.
+                {!canReview && !myPendingReview && (
+                    <p className="text-muted-foreground mt-6 text-sm">
+                        {auth.user
+                            ? 'Utisak možete ostaviti kada vam se proizvođač javi na vašu poruku.'
+                            : 'Utiske ostavljaju prijavljeni korisnici koji su se dopisivali sa proizvođačem.'}
                     </p>
                 )}
             </section>

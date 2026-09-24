@@ -16,6 +16,24 @@ type ProductFormData = {
     status: Product['status'];
 };
 
+/**
+ * The stored values are enum-ish keys; producers see plain language for what
+ * each one actually does to their listing.
+ */
+const STATUS_OPTIONS: { value: Product['status']; label: string }[] = [
+    { value: 'draft', label: 'Nacrt — još nije javno' },
+    { value: 'active', label: 'Objavljeno' },
+    { value: 'out_of_stock', label: 'Trenutno nema' },
+    { value: 'archived', label: 'Sklonjeno' },
+];
+
+const STATUS_HINTS: Record<Product['status'], string> = {
+    draft: 'Vidite ga samo vi, dok ga ne objavite.',
+    active: 'Svi ga vide i mogu da vam pišu o njemu.',
+    out_of_stock: 'Ostaje vidljiv, uz oznaku da trenutno nema.',
+    archived: 'Sklonjen sa sajta, ali ostaje sačuvan kod vas.',
+};
+
 export default function ProductForm({
     product,
     categories,
@@ -130,19 +148,20 @@ export default function ProductForm({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="status">Status</Label>
+                    <Label htmlFor="status">Vidljivost</Label>
                     <select
                         id="status"
                         className="border-input bg-background rounded-md border px-3 py-2 text-sm"
                         value={data.status}
                         onChange={(e) => setData('status', e.target.value as Product['status'])}
                     >
-                        {['draft', 'active', 'out_of_stock', 'archived'].map((s) => (
-                            <option key={s} value={s}>
-                                {s}
+                        {STATUS_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
                             </option>
                         ))}
                     </select>
+                    <p className="text-muted-foreground text-xs">{STATUS_HINTS[data.status]}</p>
                     <InputError message={errors.status} />
                 </div>
             </div>

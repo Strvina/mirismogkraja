@@ -37,6 +37,10 @@ export interface Review {
     rating: number;
     comment: string | null;
     image_path: string | null;
+    status: 'pending' | 'approved' | 'rejected';
+    /** When a moderator published it - what the public "pre 2 dana" counts from. */
+    approved_at: string | null;
+    created_at: string;
 }
 
 export interface Producer {

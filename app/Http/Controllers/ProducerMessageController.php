@@ -136,7 +136,7 @@ class ProducerMessageController extends Controller
             // the page is flipped back to chronological order below, and
             // "older messages" therefore means the next page.
             'messages' => tap(ProducerMessage::thread($producer, $buyer)
-                ->with(['sender:id,name,avatar_path', 'product:id,name,slug'])
+                ->with(['sender:id,name,avatar_path', 'product:id,name,slug,price,unit', 'product.images'])
                 ->latest('id')
                 ->paginate(50)
                 ->withQueryString()
@@ -146,7 +146,16 @@ class ProducerMessageController extends Controller
                     'created_at' => $message->created_at,
                     'mine' => $message->sender_id === $request->user()->id,
                     'sender' => $message->sender->only(['id', 'name', 'avatar_path']),
-                    'product' => $message->product?->only(['id', 'name', 'slug']),
+                    // The thumbnail and price ride along so the thread shows
+                    // what was asked about, not just its name.
+                    'product' => $message->product === null ? null : [
+                        'id' => $message->product->id,
+                        'name' => $message->product->name,
+                        'slug' => $message->product->slug,
+                        'price' => $message->product->price,
+                        'unit' => $message->product->unit,
+                        'image' => $message->product->images->first()?->path,
+                    ],
                 ]), fn (LengthAwarePaginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
         ]);
     }

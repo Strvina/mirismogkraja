@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Producer;
 use App\Models\ProducerMessage;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -149,6 +150,27 @@ class ProducerMessagingTest extends TestCase
                 ->where('threads.1.title', 'Kupac Kupčević')
                 ->where('threads.1.as_producer', true)
                 ->where('threads.1.subtitle', 'Moj proizvođač')
+        );
+    }
+
+    /**
+     * A thread has to show which listing the question was about, with enough
+     * of it - picture and price - to recognise at a glance.
+     */
+    public function test_a_thread_carries_the_products_thumbnail_and_price(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+        $product = Product::factory()->for($producer)->create(['status' => 'active', 'name' => 'Domaći ajvar', 'price' => 900]);
+        $product->images()->create(['path' => 'products/ajvar.jpg', 'order' => 0]);
+
+        $this->actingAs($buyer)->post(route('inquiries.store', $product->slug), ['body' => 'Imate li još?']);
+
+        $this->actingAs($buyer)->get(route('messages.show', $producer->slug))->assertInertia(
+            fn ($page) => $page->where('messages.data.0.product.name', 'Domaći ajvar')
+                ->where('messages.data.0.product.slug', $product->slug)
+                ->where('messages.data.0.product.image', 'products/ajvar.jpg')
+                ->where('messages.data.0.product.price', '900.00')
         );
     }
 }
