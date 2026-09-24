@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -31,6 +32,8 @@ class DashboardController extends Controller
                     'threads'
                 )->count(),
                 'messages' => ProducerMessage::count(),
+                // The one number here that is a to-do rather than a total.
+                'pending_reviews' => Review::pending()->count(),
             ],
         ]);
     }

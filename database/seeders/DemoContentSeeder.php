@@ -245,16 +245,22 @@ class DemoContentSeeder extends Seeder
      * ReviewPolicy allows: the demo data must not promise a button the
      * application would then refuse.
      *
+     * Ratings are cycled rather than randomised so the demo set always has a
+     * spread, and the last eligible review is left waiting for a moderator so
+     * the admin panel's queue isn't empty on a fresh install.
+     *
      * @param  list<Producer>  $producers
      * @param  list<User>  $buyers
      */
     private function seedReviews(array $producers, array $buyers): void
     {
         $comments = [
-            5 => ['Ukus baš kao od kuće, stiglo brzo i pažljivo upakovano.', 'Odlična saradnja, sve preporuke!', 'Vraćam se sigurno po još.'],
-            4 => ['Kvalitetno, samo je dostava malo kasnila.', 'Vredi cene, ukus je odličan.'],
-            3 => ['Dobro, ali sam očekivao malo veće pakovanje za tu cenu.'],
+            5 => 'Ukus baš kao od kuće, stiglo brzo i pažljivo upakovano.',
+            4 => 'Kvalitetno, samo je dostava malo kasnila.',
+            3 => 'Dobro, ali sam očekivao malo veće pakovanje za tu cenu.',
         ];
+
+        $eligible = [];
 
         foreach ($buyers as $index => $buyer) {
             $producer = $producers[$index % count($producers)];
@@ -265,20 +271,27 @@ class DemoContentSeeder extends Seeder
                 ->where('sender_id', $producer->user_id)
                 ->exists();
 
-            if (! $answered) {
-                continue;
+            if ($answered) {
+                $eligible[] = [$buyer, $producer];
             }
+        }
 
-            $rating = fake()->randomElement([5, 5, 4, 4, 3]);
+        $ratings = [5, 4, 3];
+
+        foreach ($eligible as $index => [$buyer, $producer]) {
+            $rating = $ratings[$index % count($ratings)];
+            $isLast = $index === count($eligible) - 1 && count($eligible) > 1;
 
             Review::create([
                 'user_id' => $buyer->id,
                 'household_id' => $producer->id,
                 'rating' => $rating,
-                'comment' => fake()->randomElement($comments[$rating]),
+                'comment' => $comments[$rating],
                 // The first reviewer attaches a photo, so the review-image
                 // path has demo data too.
                 'image_path' => $index === 0 ? self::DEMO_IMAGE : null,
+                'status' => $isLast ? Review::STATUS_PENDING : Review::STATUS_APPROVED,
+                'approved_at' => $isLast ? null : now()->subDays(($index + 1) * 3),
             ]);
         }
     }

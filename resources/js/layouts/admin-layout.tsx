@@ -3,17 +3,7 @@ import MenuIcon from '@/components/marketplace/menu-icon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
-import {
-    FolderTree,
-    LayoutDashboard,
-    LogOut,
-    Package,
-    ScrollText,
-    Sprout,
-    Star,
-    Store,
-    Users,
-} from 'lucide-react';
+import { FolderTree, LayoutDashboard, LogOut, Package, ScrollText, Sprout, Star, Store, Users } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 const sections = [
@@ -22,7 +12,7 @@ const sections = [
     { href: '/admin/proizvodi', label: 'Proizvodi', icon: Package },
     { href: '/admin/kategorije', label: 'Kategorije', icon: FolderTree },
     { href: '/admin/korisnici', label: 'Korisnici', icon: Users },
-    { href: '/admin/ocene', label: 'Ocene', icon: Star },
+    { href: '/admin/utisci', label: 'Utisci', icon: Star },
     { href: '/admin/logovi', label: 'Logovi', icon: ScrollText },
 ];
 
@@ -36,8 +26,7 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
     const { url } = usePage();
     const [menuOpen, setMenuOpen] = useState(false);
 
-    const isActive = (section: (typeof sections)[number]) =>
-        section.exact ? url === section.href : url.startsWith(section.href);
+    const isActive = (section: (typeof sections)[number]) => (section.exact ? url === section.href : url.startsWith(section.href));
 
     const nav = (
         <nav className="space-y-1" aria-label="Admin sekcije">
@@ -49,9 +38,7 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
                     aria-current={isActive(section) ? 'page' : undefined}
                     className={cn(
                         'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-                        isActive(section)
-                            ? 'bg-olive-soft text-olive'
-                            : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                        isActive(section) ? 'bg-olive-soft text-olive' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                     )}
                 >
                     <section.icon className="size-4 shrink-0" />

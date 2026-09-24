@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Heart, Package, Sprout } from 'lucide-react';
@@ -14,40 +15,67 @@ import MessagesLink from './messages-link';
  * its own shell. Sticky, so navigation and the inbox stay reachable no matter
  * how far down the page someone has scrolled.
  *
+ * It's laid out in three parts - wordmark, where you can go, what you can do -
+ * with a hairline rule separating the last two so browsing the catalog never
+ * reads as the same kind of action as opening your own inbox. The current
+ * section is underlined rather than merely coloured, so it survives at a
+ * glance and without relying on colour alone.
+ *
  * Below md the inline links and icon row would wrap onto several rows, so
- * they collapse into the account menu instead; messages keep their own button
- * there since a waiting reply is the one thing people check mid-browse.
+ * they collapse into the account menu (or, for guests, a small menu of their
+ * own) instead; messages keep their own button there since a waiting reply is
+ * the one thing people check mid-browse.
  */
 export default function Navbar() {
     const { auth } = usePage<SharedData>().props;
+    const { url } = usePage();
     const [guestMenuOpen, setGuestMenuOpen] = useState(false);
+
+    const sections = [
+        { href: route('marketplace.producers.index'), path: '/proizvodjac', label: 'Proizvođači', icon: Sprout },
+        { href: route('marketplace.products.index'), path: '/proizvod', label: 'Proizvodi', icon: Package },
+    ];
+
+    // Both the listing (/proizvodi) and a single page (/proizvod/slug) belong
+    // to the same section, hence matching on the shared stem.
+    const isActive = (path: string) => url.startsWith(path);
 
     return (
         <header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 border-b backdrop-blur">
-            <div className="mx-auto flex h-16 max-w-[1380px] items-center justify-between gap-3 px-5 sm:h-20 sm:px-8 lg:px-12">
+            <div className="mx-auto flex h-16 max-w-[1380px] items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
                 <Brand />
 
-                <nav className="hidden items-center gap-8 text-sm font-medium md:flex" aria-label="Glavna navigacija">
-                    <Link href={route('marketplace.producers.index')} className="transition-opacity hover:opacity-70">
-                        Proizvođači
-                    </Link>
-                    <Link href={route('marketplace.products.index')} className="transition-opacity hover:opacity-70">
-                        Proizvodi
-                    </Link>
+                <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm md:flex" aria-label="Glavna navigacija">
+                    {sections.map((section) => (
+                        <Link
+                            key={section.href}
+                            href={section.href}
+                            aria-current={isActive(section.path) ? 'page' : undefined}
+                            className={cn(
+                                'relative py-1 font-medium transition-colors',
+                                isActive(section.path) ? 'text-foreground' : 'text-foreground/65 hover:text-foreground',
+                            )}
+                        >
+                            {section.label}
+                            {isActive(section.path) && <span className="bg-primary absolute -bottom-0.5 left-0 h-0.5 w-full rounded-full" />}
+                        </Link>
+                    ))}
                 </nav>
 
-                <div className="flex items-center gap-3">
+                <div className="ml-auto flex items-center gap-2 sm:gap-3">
                     {auth.user ? (
                         <>
-                            <div className="hidden items-center gap-3 md:flex">
-                                <MessagesLink className="text-foreground/80 hover:text-foreground" />
+                            <div className="mr-1 hidden items-center gap-4 md:flex">
+                                <MessagesLink className="text-foreground/70 hover:text-foreground" />
                                 <Link
                                     href={route('favorites.index')}
-                                    aria-label="Omiljeni"
-                                    className="text-foreground/80 hover:text-foreground transition-opacity hover:opacity-70"
+                                    aria-label="Sačuvano"
+                                    aria-current={isActive('/omiljeni') ? 'page' : undefined}
+                                    className="text-foreground/70 hover:text-foreground transition-colors"
                                 >
                                     <Heart className="size-5" />
                                 </Link>
+                                <span className="bg-border h-6 w-px" aria-hidden />
                             </div>
 
                             <AccountMenu user={auth.user} />
@@ -60,30 +88,34 @@ export default function Navbar() {
                                         <MenuIcon open={guestMenuOpen} />
                                     </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" sideOffset={10} className="w-52 p-1.5">
-                                    <DropdownMenuItem asChild>
-                                        <Link href={route('marketplace.producers.index')} className="cursor-pointer gap-2.5 py-2">
-                                            <Sprout className="text-muted-foreground size-4" />
-                                            Proizvođači
-                                        </Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <Link href={route('marketplace.products.index')} className="cursor-pointer gap-2.5 py-2">
-                                            <Package className="text-muted-foreground size-4" />
-                                            Proizvodi
-                                        </Link>
-                                    </DropdownMenuItem>
+                                <DropdownMenuContent align="end" sideOffset={10} className="w-56 p-1.5">
+                                    {sections.map((section) => (
+                                        <DropdownMenuItem key={section.href} asChild>
+                                            <Link href={section.href} className="cursor-pointer gap-2.5 py-2">
+                                                <section.icon className="text-muted-foreground size-4" />
+                                                {section.label}
+                                            </Link>
+                                        </DropdownMenuItem>
+                                    ))}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link href={route('register')} className="cursor-pointer py-2">
-                                            Registracija
+                                        <Link href={route('login')} className="cursor-pointer py-2">
+                                            Prijava
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem asChild>
+                                        <Link href={route('register')} className="cursor-pointer py-2 font-medium">
+                                            Otvori nalog
                                         </Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
-                            <Button asChild variant="outline" size="sm">
+                            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                                 <Link href={route('login')}>Prijava</Link>
+                            </Button>
+                            <Button asChild size="sm" className="hidden sm:inline-flex">
+                                <Link href={route('register')}>Otvori nalog</Link>
                             </Button>
                         </>
                     )}

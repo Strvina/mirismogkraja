@@ -1,5 +1,5 @@
 import AdminLayout from '@/layouts/admin-layout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 type Stats = {
     users: number;
@@ -7,6 +7,7 @@ type Stats = {
     products: number;
     conversations: number;
     messages: number;
+    pending_reviews: number;
 };
 
 export default function AdminDashboard({ stats }: { stats: Stats }) {
@@ -22,6 +23,20 @@ export default function AdminDashboard({ stats }: { stats: Stats }) {
         <AdminLayout title="Evidencija">
             <Head title="Admin" />
             <div className="flex flex-col gap-4">
+                {/* The only entry here that needs someone to act, so it sits
+                    above the totals instead of being one tile among them. */}
+                {stats.pending_reviews > 0 && (
+                    <Link
+                        href={route('admin.reviews.index', { status: 'pending' })}
+                        className="bg-olive-soft text-olive hover:bg-olive-soft/80 flex items-center justify-between gap-4 rounded-xl px-4 py-3 text-sm font-medium transition-colors"
+                    >
+                        <span>
+                            {stats.pending_reviews} {stats.pending_reviews === 1 ? 'utisak čeka' : 'utisaka čeka'} odobrenje
+                        </span>
+                        <span className="underline underline-offset-4">Pregledaj</span>
+                    </Link>
+                )}
+
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
                     {tiles.map((tile) => (
                         <div key={tile.label} className="rounded-xl border p-4">

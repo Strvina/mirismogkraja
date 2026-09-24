@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Producer extends Model
@@ -86,5 +87,14 @@ class Producer extends Model
     public function messages(): HasMany
     {
         return $this->hasMany(ProducerMessage::class, 'household_id');
+    }
+
+    /**
+     * Saved by buyers. Counted as the popularity signal on the homepage -
+     * it's a deliberate action by a signed-in person, unlike a page view.
+     */
+    public function favorites(): MorphMany
+    {
+        return $this->morphMany(Favorite::class, 'favoritable');
     }
 }

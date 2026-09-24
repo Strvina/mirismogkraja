@@ -1,4 +1,5 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatRelativeTime } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
@@ -24,9 +25,7 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
             <h1 className="font-serif text-4xl sm:text-5xl">Poruke</h1>
 
             {threads.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">
-                    Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.
-                </p>
+                <p className="text-muted-foreground mt-6 text-sm">Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.</p>
             ) : (
                 <div className="border-border/70 mt-8 max-w-2xl divide-y rounded-lg border">
                     {threads.map((thread) => (
@@ -49,6 +48,7 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
                                     )}
                                 </p>
                                 <p className="text-muted-foreground truncate text-sm">{thread.last_message}</p>
+                                <p className="text-muted-foreground/80 mt-0.5 text-xs">{formatRelativeTime(thread.last_at)}</p>
                             </div>
 
                             {thread.unread > 0 && (
