@@ -40,8 +40,6 @@ class ProducerMessageController extends Controller
             'body' => $data['body'],
         ]);
 
-        $this->invalidateCachedPages();
-
         return to_route('messages.show', $product->producer->slug);
     }
 
@@ -117,17 +115,14 @@ class ProducerMessageController extends Controller
 
         $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
 
-        $justRead = ProducerMessage::thread($producer, $buyer)
+        // Reading a thread is what clears its unread count and the header
+        // badge. The pages that show those are kept honest on the client:
+        // see resources/js/lib/revalidate-on-history-navigation.ts, since a
+        // page restored by the Back button never reaches the server at all.
+        ProducerMessage::thread($producer, $buyer)
             ->where('sender_id', '!=', $request->user()->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
-
-        // Reading a message changes what the inbox and the header badge
-        // should say, so any snapshot of them taken before this point is now
-        // wrong.
-        if ($justRead > 0) {
-            $this->invalidateCachedPages();
-        }
 
         return Inertia::render('messages/show', [
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
@@ -176,8 +171,6 @@ class ProducerMessageController extends Controller
             'body' => $data['body'],
         ]);
 
-        $this->invalidateCachedPages();
-
         return back();
     }
 
@@ -216,19 +209,5 @@ class ProducerMessageController extends Controller
             ])
             ->sortByDesc(fn (array $thread) => $thread['message']->id)
             ->values();
-    }
-
-    /**
-     * Inertia keeps the props of visited pages in the browser's history
-     * state and restores them on Back, without asking the server. That is
-     * what made a conversation reappear as unread, still showing the message
-     * before the reply, once the user backed out of a thread: the inbox they
-     * returned to was the snapshot taken before they sent it. Telling Inertia
-     * to drop that cache makes Back re-request the page, so the inbox and the
-     * header's badge are always as fresh as the database.
-     */
-    private function invalidateCachedPages(): void
-    {
-        Inertia::clearHistory();
     }
 }

@@ -209,34 +209,12 @@ class ProducerMessagingTest extends TestCase
     }
 
     /**
-     * Inertia restores a visited page's props from history on Back. Sending
-     * a message, and reading one, both make those snapshots wrong, so the
-     * response has to tell the client to drop them - otherwise the inbox the
-     * user backs out to still shows the state from before.
+     * Reading a thread has to clear the header badge and the row's unread
+     * count for good. A page the browser's Back button restores from history
+     * never reaches this code - that staleness is handled on the client, in
+     * resources/js/lib/revalidate-on-history-navigation.ts - but a request
+     * that does reach it must always answer with the current state.
      */
-    public function test_sending_and_reading_messages_invalidates_cached_pages(): void
-    {
-        $buyer = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-
-        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje'])
-            ->assertSessionHas('inertia.clear_history', true);
-
-        // Opening the thread marks the producer's reply as read.
-        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Odgovor']);
-
-        // A page render consumes the flag itself, so here it shows up on the
-        // Inertia response rather than in the session.
-        $this->actingAs($buyer)->inertiaGet(route('messages.show', $producer->slug))
-            ->assertJsonPath('clearHistory', true);
-
-        // Nothing changed the second time round, so there is nothing to
-        // invalidate either.
-        $this->actingAs($buyer)->inertiaGet(route('messages.show', $producer->slug))
-            ->assertJsonPath('clearHistory', false);
-    }
-
-    /** Reading a thread has to clear the header badge for good. */
     public function test_the_badge_stays_cleared_after_a_thread_is_read(): void
     {
         $buyer = User::factory()->create();

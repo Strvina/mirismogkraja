@@ -52,20 +52,36 @@ export default function Navbar() {
                 <Brand />
 
                 <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm md:flex" aria-label="Glavna navigacija">
-                    {sections.map((section) => (
-                        <Link
-                            key={section.href}
-                            href={section.href}
-                            aria-current={isActive(section.paths) ? 'page' : undefined}
-                            className={cn(
-                                'relative py-1 font-medium transition-colors',
-                                isActive(section.paths) ? 'text-foreground' : 'text-foreground/65 hover:text-foreground',
-                            )}
-                        >
-                            {section.label}
-                            {isActive(section.paths) && <span className="bg-primary absolute -bottom-0.5 left-0 h-0.5 w-full rounded-full" />}
-                        </Link>
-                    ))}
+                    {sections.map((section) => {
+                        const active = isActive(section.paths);
+
+                        return (
+                            <Link
+                                key={section.href}
+                                href={section.href}
+                                aria-current={active ? 'page' : undefined}
+                                className={cn(
+                                    'group relative py-1 font-medium transition-colors',
+                                    active ? 'text-foreground' : 'text-foreground/65 hover:text-foreground',
+                                )}
+                            >
+                                {section.label}
+                                {/* One underline for both states: it wipes in
+                                    from the left on hover and stays put on the
+                                    current section, so hovering the section
+                                    you're already on doesn't redraw it.
+                                    Transform-only, so it animates on the
+                                    compositor. */}
+                                <span
+                                    aria-hidden
+                                    className={cn(
+                                        'bg-primary absolute -bottom-0.5 left-0 h-0.5 w-full origin-left rounded-full transition-transform duration-300 ease-out',
+                                        active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100 group-focus-visible:scale-x-100',
+                                    )}
+                                />
+                            </Link>
+                        );
+                    })}
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2 sm:gap-3">
