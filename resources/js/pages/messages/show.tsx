@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePoll } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
 import { ImageOff, SendHorizontal } from 'lucide-react';
 import { FormEventHandler, KeyboardEventHandler, useLayoutEffect, useRef, useState } from 'react';
 
@@ -25,10 +25,16 @@ const STICK_TO_BOTTOM_PX = 80;
 /** The composer grows with the message, up to about six lines. */
 const MAX_COMPOSER_HEIGHT_PX = 160;
 
-/** A message shown before the server has confirmed it. */
+/**
+ * A message drawn before the server has confirmed it. It is deliberately
+ * indistinguishable from a delivered one: a spinner or a "sending" label
+ * would only draw attention to a wait the sender has no reason to care
+ * about. If the send fails, the text comes back to the composer instead.
+ */
 interface PendingMessage {
     key: number;
     body: string;
+    created_at: string;
 }
 
 /**
@@ -82,6 +88,7 @@ export default function MessageThread({
     messages: Paginated<Message>;
     isOwner: boolean;
 }) {
+    const { auth } = usePage<SharedData>().props;
     const [body, setBody] = useState('');
     // Messages the user has just sent, drawn before the round trip finishes.
     // Waiting for the server to echo one back made every message feel slow,
@@ -164,7 +171,7 @@ export default function MessageThread({
             return;
         }
 
-        const sending: PendingMessage = { key: Date.now(), body: text };
+        const sending: PendingMessage = { key: Date.now(), body: text, created_at: new Date().toISOString() };
 
         // Sending always brings you back to the newest message, wherever you
         // had scrolled to.
@@ -280,9 +287,11 @@ export default function MessageThread({
 
                     {pending.map((message) => (
                         <div key={message.key} className="flex justify-end">
-                            <div className="bg-primary text-primary-foreground max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6 opacity-70">
+                            <div className="bg-primary text-primary-foreground max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6">
                                 <p className="whitespace-pre-line">{message.body}</p>
-                                <p className="text-primary-foreground/70 mt-1.5 text-[0.65rem]">Šalje se…</p>
+                                <p className="text-primary-foreground/70 mt-1.5 text-[0.65rem]">
+                                    {auth.user?.name} · {formatRelativeTime(message.created_at)}
+                                </p>
                             </div>
                         </div>
                     ))}
