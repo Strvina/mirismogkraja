@@ -1,7 +1,7 @@
 import FavoriteButton from '@/components/favorite-button';
 import { Button } from '@/components/ui/button';
-import { formatPrice } from '@/lib/format';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatPrice } from '@/lib/format';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';

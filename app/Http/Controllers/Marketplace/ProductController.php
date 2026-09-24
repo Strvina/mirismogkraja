@@ -33,6 +33,10 @@ class ProductController extends Controller
             ->where('status', 'active')
             ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
             ->with(['images', 'producer'])
+            ->when($this->searchTerm($request), fn ($query, $term) => $query->where(fn ($match) => $match
+                ->where('products.name', 'like', $term)
+                ->orWhere('products.description', 'like', $term)
+                ->orWhereHas('producer', fn ($producer) => $producer->where('name', 'like', $term))))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('household_id', $producerId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
@@ -88,11 +92,33 @@ class ProductController extends Controller
                     ->whereHas('producer', fn ($query) => $query->where('status', 'active'))->max('price'),
             ],
             'filters' => $request->only([
-                'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'min_rating', 'sort',
+                'q', 'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'min_rating', 'sort',
             ]),
             'perPage' => $this->perPage($request),
             'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
+    }
+
+    /**
+     * What the visitor typed, as a LIKE pattern, or null when they typed
+     * nothing worth searching for.
+     *
+     * LIKE's own wildcards are dropped from the term rather than escaped:
+     * an escape character means different things to SQLite and MySQL unless
+     * every clause spells out ESCAPE, and nobody searching for home-made
+     * food is looking for a percent sign.
+     */
+    private function searchTerm(Request $request): ?string
+    {
+        $term = trim(str_replace(['%', '_', '\\'], '', $request->string('q')->toString()));
+
+        // Nothing but wildcards left is nothing to search for; treating it
+        // as a term would build '%%', which matches the entire catalog.
+        if ($term === '') {
+            return null;
+        }
+
+        return '%'.$term.'%';
     }
 
     /**

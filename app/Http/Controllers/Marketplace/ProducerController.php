@@ -19,8 +19,14 @@ class ProducerController extends Controller
      */
     public function index(Request $request): Response
     {
+        $term = $this->searchTerm($request);
+
         $producers = Producer::query()
             ->where('status', 'active')
+            ->when($term, fn ($query, $pattern) => $query->where(fn ($match) => $match
+                ->where('name', 'like', $pattern)
+                ->orWhere('city', 'like', $pattern)
+                ->orWhere('description', 'like', $pattern)))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->where('city', $city))
             ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
             ->withCount([
@@ -42,8 +48,33 @@ class ProducerController extends Controller
         return Inertia::render('marketplace/producers/index', [
             'producers' => $producers,
             'cities' => $cities,
-            'filters' => ['city' => $request->string('city')->toString() ?: null],
+            'filters' => [
+                'q' => $request->string('q')->toString() ?: null,
+                'city' => $request->string('city')->toString() ?: null,
+            ],
         ]);
+    }
+
+    /**
+     * What the visitor typed, as a LIKE pattern, or null when they typed
+     * nothing worth searching for.
+     *
+     * LIKE's own wildcards are dropped from the term rather than escaped:
+     * an escape character means different things to SQLite and MySQL unless
+     * every clause spells out ESCAPE, and nobody searching for home-made
+     * food is looking for a percent sign.
+     */
+    private function searchTerm(Request $request): ?string
+    {
+        $term = trim(str_replace(['%', '_', '\\'], '', $request->string('q')->toString()));
+
+        // Nothing but wildcards left is nothing to search for; treating it
+        // as a term would build '%%', which matches the entire catalog.
+        if ($term === '') {
+            return null;
+        }
+
+        return '%'.$term.'%';
     }
 
     /**

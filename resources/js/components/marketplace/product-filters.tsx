@@ -6,6 +6,7 @@ import { SlidersHorizontal, X } from 'lucide-react';
 import { useState } from 'react';
 
 export interface ProductFilterValues {
+    q?: string;
     category_id?: string;
     producer_id?: string;
     city?: string;
