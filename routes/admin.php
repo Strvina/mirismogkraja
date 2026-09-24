@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProducerChangeRequestController;
 use App\Http\Controllers\Admin\ProducerController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
@@ -24,6 +25,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/proizvodi/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/proizvodi/masovno', [ProductController::class, 'bulk'])->name('products.bulk');
+
+    Route::get('/zahtevi', [ProducerChangeRequestController::class, 'index'])->name('change-requests.index');
+    Route::patch('/zahtevi/{changeRequest}/odobri', [ProducerChangeRequestController::class, 'approve'])->name('change-requests.approve');
+    Route::patch('/zahtevi/{changeRequest}/odbij', [ProducerChangeRequestController::class, 'reject'])->name('change-requests.reject');
 
     Route::get('/logovi', [ActivityLogController::class, 'index'])->name('logs.index');
 

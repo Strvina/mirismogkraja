@@ -1,8 +1,8 @@
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { formatPrice } from '@/lib/format';
 import AdminLayout from '@/layouts/admin-layout';
+import { formatPrice } from '@/lib/format';
 import { type Category, type Product } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
@@ -70,7 +70,11 @@ export default function AdminProductsIndex({
                     onBlur={(e) => filter({ search: e.target.value || undefined })}
                 />
 
-                <select className={selectClasses} value={filters.producer_id ?? ''} onChange={(e) => filter({ producer_id: e.target.value || undefined })}>
+                <select
+                    className={selectClasses}
+                    value={filters.producer_id ?? ''}
+                    onChange={(e) => filter({ producer_id: e.target.value || undefined })}
+                >
                     <option value="">Svi proizvođači</option>
                     {producers.map((producer) => (
                         <option key={producer.id} value={producer.id}>
@@ -163,9 +167,7 @@ export default function AdminProductsIndex({
                                 <td className="text-muted-foreground p-3 break-words">{product.producer?.name ?? 'Arhiviran proizvođač'}</td>
                                 <td className="p-3 whitespace-nowrap">{formatPrice(product.price)}</td>
                                 <td className="p-3">
-                                    <span className="bg-muted rounded-full px-2 py-1 text-xs whitespace-nowrap">
-                                        {statusLabels[product.status]}
-                                    </span>
+                                    <span className="bg-muted rounded-full px-2 py-1 text-xs whitespace-nowrap">{statusLabels[product.status]}</span>
                                 </td>
                                 <td className="p-3">
                                     <Button

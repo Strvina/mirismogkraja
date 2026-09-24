@@ -21,7 +21,6 @@ export default function AdminUsersIndex({ users }: { users: User[] }) {
             <Head title="Korisnici" />
 
             <div className="flex flex-col gap-4">
-
                 <div className="space-y-2">
                     {users.map((user) => {
                         const roleNames = (user.roles ?? []).map((r) => r.name);

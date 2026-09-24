@@ -50,6 +50,26 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function changeRequestApproved(string $requestedName, string $url): self
+    {
+        return new self(
+            'change-request.approved',
+            'Izmena naziva je odobrena',
+            "Vaš proizvođač se od sada zove „{$requestedName}”.",
+            $url,
+        );
+    }
+
+    public static function changeRequestRejected(string $requestedName, string $url): self
+    {
+        return new self(
+            'change-request.rejected',
+            'Izmena naziva nije odobrena',
+            "Naziv „{$requestedName}” nije prihvaćen, pa ostaje dosadašnji. Javite nam se ako vam treba pomoć.",
+            $url,
+        );
+    }
+
     public static function messageReceived(string $senderName, string $preview, string $url): self
     {
         return new self(

@@ -21,9 +21,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(
-        auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null,
-    );
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null);
 
     const [avatarProcessing, setAvatarProcessing] = useState(false);
     const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -86,13 +84,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         <Label htmlFor="avatar">Profilna slika</Label>
 
                         <div className="flex items-center gap-4">
-                            {avatarPreview && (
-                                <img
-                                    src={avatarPreview}
-                                    alt="Pregled profilne slike"
-                                    className="size-16 rounded-full object-cover"
-                                />
-                            )}
+                            {avatarPreview && <img src={avatarPreview} alt="Pregled profilne slike" className="size-16 rounded-full object-cover" />}
                             <Input
                                 id="avatar"
                                 type="file"
@@ -200,9 +192,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 </p>
 
                                 {status === 'verification-link-sent' && (
-                                    <div className="mt-2 text-sm font-medium text-green-600">
-                                        Nov link za potvrdu je poslat na vašu email adresu.
-                                    </div>
+                                    <div className="mt-2 text-sm font-medium text-green-600">Nov link za potvrdu je poslat na vašu email adresu.</div>
                                 )}
                             </div>
                         )}

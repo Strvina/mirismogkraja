@@ -206,4 +206,41 @@ class AdminReviewModerationTest extends TestCase
 
         Storage::disk('public')->assertMissing('reviews/drugi.jpg');
     }
+
+    /**
+     * A rejection turns down a piece of text, not the person's right to have
+     * an opinion about that producer - so they may write another one. The
+     * rejected row makes way for it, since the table allows one per pair.
+     */
+    public function test_a_rejected_review_can_be_written_again(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
+
+        $this->actingAs($buyer)->post(route('reviews.store', $producer), ['rating' => 1, 'comment' => 'Neprimereno']);
+        $this->actingAs($this->admin())->patch(route('admin.reviews.reject', Review::sole()));
+
+        $this->actingAs($buyer)->post(route('reviews.store', $producer), ['rating' => 4, 'comment' => 'Drugi pokusaj'])
+            ->assertSessionHasNoErrors();
+
+        $review = Review::sole();
+        $this->assertSame('Drugi pokusaj', $review->comment);
+        $this->assertSame(Review::STATUS_PENDING, $review->status);
+    }
+
+    /** One review at a time, though: a waiting one blocks another. */
+    public function test_a_waiting_review_still_blocks_a_second_one(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
+
+        $this->actingAs($buyer)->post(route('reviews.store', $producer), ['rating' => 5, 'comment' => 'Prvi']);
+        $this->actingAs($buyer)->post(route('reviews.store', $producer), ['rating' => 1, 'comment' => 'Drugi'])->assertForbidden();
+
+        $this->assertSame('Prvi', Review::sole()->comment);
+    }
 }

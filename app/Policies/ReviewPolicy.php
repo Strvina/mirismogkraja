@@ -25,7 +25,15 @@ class ReviewPolicy
             return false;
         }
 
-        if ($producer->reviews()->where('user_id', $user->id)->exists()) {
+        // A rejected review frees the slot: the moderator turned down that
+        // text, not the person's right to have an opinion. One published or
+        // waiting review per producer still stands, which is what the table's
+        // unique constraint enforces - so the rejected row is cleared out as
+        // the new one is written.
+        if ($producer->reviews()
+            ->where('user_id', $user->id)
+            ->where('status', '!=', Review::STATUS_REJECTED)
+            ->exists()) {
             return false;
         }
 

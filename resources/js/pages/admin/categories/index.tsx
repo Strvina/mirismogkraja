@@ -26,7 +26,6 @@ export default function AdminCategoriesIndex({ categories }: { categories: Categ
             <Head title="Kategorije" />
 
             <div className="flex flex-col gap-4">
-
                 <form onSubmit={submit} className="flex max-w-md items-end gap-2">
                     <div className="flex-1">
                         <Input placeholder="Nova kategorija" value={data.name} onChange={(e) => setData('name', e.target.value)} />

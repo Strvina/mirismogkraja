@@ -47,8 +47,8 @@ export default function DeleteUser() {
                     <DialogContent>
                         <DialogTitle>Da li ste sigurni da želite da obrišete nalog?</DialogTitle>
                         <DialogDescription>
-                            Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Unesite lozinku da potvrdite
-                            da želite trajno da obrišete nalog.
+                            Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Unesite lozinku da potvrdite da želite trajno da
+                            obrišete nalog.
                         </DialogDescription>
                         <form className="space-y-6" onSubmit={deleteUser}>
                             <div className="grid gap-2">

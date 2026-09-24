@@ -18,11 +18,11 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 12. Filtriranje proizvoda
 - [x] 13. Redizajn kartice proizvođača + preimenovanje termina
 - [x] 14. Admin panel — redizajn i sidebar
-- [ ] 15. Permisije
+- [x] 15. Permisije (proizvođač sam menja svoje podatke; naziv objavljenog proizvođača ide na odobrenje)
 - [x] 16. Notifikacioni sistem (database kanal, zvonce u headeru, stranica obaveštenja)
 - [x] 17. Upiti za kupovinu (bez plaćanja na platformi) — sada direktan upit sa stranice proizvoda
 - [~] 18. Redizajn korpe (OTKAZANO: korpa je uklonjena, vidi "Model platforme" ispod)
-- [ ] 19. Provera linkova/dugmadi
+- [x] 19. Provera linkova/dugmadi (uklonjeni placeholder social linkovi, footer prebačen na Inertia navigaciju)
 - [ ] 20. Monetizacija
 - [ ] 21. Dodatne preporuke
 - [ ] 22. Google prijava

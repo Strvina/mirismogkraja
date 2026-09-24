@@ -3,12 +3,13 @@ import MenuIcon from '@/components/marketplace/menu-icon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
-import { FolderTree, LayoutDashboard, LogOut, Package, ScrollText, Sprout, Star, Store, Users } from 'lucide-react';
+import { FilePen, FolderTree, LayoutDashboard, LogOut, Package, ScrollText, Sprout, Star, Store, Users } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 const sections = [
     { href: '/admin', label: 'Evidencija', icon: LayoutDashboard, exact: true },
     { href: '/admin/proizvodjaci', label: 'Proizvođači', icon: Sprout },
+    { href: '/admin/zahtevi', label: 'Zahtevi za izmenu', icon: FilePen },
     { href: '/admin/proizvodi', label: 'Proizvodi', icon: Package },
     { href: '/admin/kategorije', label: 'Kategorije', icon: FolderTree },
     { href: '/admin/korisnici', label: 'Korisnici', icon: Users },

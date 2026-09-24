@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { type Producer } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Check, Pencil, Ban, RotateCcw } from 'lucide-react';
+import { Ban, Check, Pencil, RotateCcw } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 type AdminProducer = Producer & { user: { id: number; name: string; email: string }; products_count: number };
