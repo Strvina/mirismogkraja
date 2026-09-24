@@ -5,7 +5,7 @@ import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
-import { ImageOff, SendHorizontal } from 'lucide-react';
+import { ImageOff, SendHorizontal, TriangleAlert } from 'lucide-react';
 import { FormEventHandler, KeyboardEventHandler, useLayoutEffect, useRef, useState } from 'react';
 
 interface Message {
@@ -26,15 +26,21 @@ const STICK_TO_BOTTOM_PX = 80;
 const MAX_COMPOSER_HEIGHT_PX = 160;
 
 /**
- * A message drawn before the server has confirmed it. It is deliberately
- * indistinguishable from a delivered one: a spinner or a "sending" label
- * would only draw attention to a wait the sender has no reason to care
- * about. If the send fails, the text comes back to the composer instead.
+ * A message drawn before the server has confirmed it. While it is on its
+ * way it is deliberately indistinguishable from a delivered one: a spinner
+ * or a "sending" label would only draw attention to a wait the sender has
+ * no reason to care about.
+ *
+ * A send that never arrives is the one thing they do need to know about, so
+ * `failed` is the only state that shows. The text stays in the thread and
+ * can be sent again, rather than being dropped back into the composer on
+ * top of whatever has been typed since.
  */
 interface PendingMessage {
     key: number;
     body: string;
     created_at: string;
+    failed: boolean;
 }
 
 /**
@@ -162,35 +168,22 @@ export default function MessageThread({
         }
     };
 
-    const send: FormEventHandler = (event) => {
-        event.preventDefault();
-
-        const text = body.trim();
-
-        if (!text) {
-            return;
-        }
-
-        const sending: PendingMessage = { key: Date.now(), body: text, created_at: new Date().toISOString() };
-
+    const deliver = (message: PendingMessage) => {
         // Sending always brings you back to the newest message, wherever you
         // had scrolled to.
         following.current = true;
-        setPending((queued) => [...queued, sending]);
-        setBody('');
-
-        if (composerRef.current) {
-            composerRef.current.style.height = 'auto';
-            composerRef.current.focus();
-        }
 
         // A poll landing mid-send would bring the message back from the
         // server while its local copy is still on screen, showing it twice.
         poll.stop();
 
+        const markFailed = () => setPending((queued) => queued.map((item) => (item.key === message.key ? { ...item, failed: true } : item)));
+
+        let answered = false;
+
         router.post(
             sendRoute,
-            { body: text },
+            { body: message.body },
             {
                 preserveScroll: true,
                 // Keep the panel mounted so its scroll position and the
@@ -200,16 +193,58 @@ export default function MessageThread({
                 // The reply only changes the thread and the badge, so the
                 // redirect that follows brings back just those.
                 only: ['messages', 'unreadMessages'],
-                onSuccess: () => setPending((queued) => queued.filter((item) => item.key !== sending.key)),
-                onError: () => {
-                    // Hand the text back rather than losing it.
-                    setPending((queued) => queued.filter((item) => item.key !== sending.key));
-                    setBody((current) => current || text);
+                onSuccess: () => {
+                    answered = true;
+                    setPending((queued) => queued.filter((item) => item.key !== message.key));
                 },
-                onFinish: () => poll.start(),
+                onError: () => {
+                    answered = true;
+                    markFailed();
+                },
+                onFinish: () => {
+                    poll.start();
+
+                    // Inertia calls onError only when the server answered. A
+                    // request that never got there - no connection, server
+                    // down, request cancelled - reaches this point and
+                    // nothing else, so without this the message would sit in
+                    // the thread looking delivered forever.
+                    if (!answered) {
+                        markFailed();
+                    }
+                },
             },
         );
     };
+
+    const send: FormEventHandler = (event) => {
+        event.preventDefault();
+
+        const text = body.trim();
+
+        if (!text) {
+            return;
+        }
+
+        setBody('');
+
+        if (composerRef.current) {
+            composerRef.current.style.height = 'auto';
+            composerRef.current.focus();
+        }
+
+        const sending: PendingMessage = { key: Date.now(), body: text, created_at: new Date().toISOString(), failed: false };
+
+        setPending((queued) => [...queued, sending]);
+        deliver(sending);
+    };
+
+    const retry = (message: PendingMessage) => {
+        setPending((queued) => queued.map((item) => (item.key === message.key ? { ...item, failed: false } : item)));
+        deliver(message);
+    };
+
+    const discard = (message: PendingMessage) => setPending((queued) => queued.filter((item) => item.key !== message.key));
 
     // Enter sends, Shift+Enter starts a new line. The composing check keeps
     // Enter from sending half a word while an input method is still
@@ -287,11 +322,38 @@ export default function MessageThread({
 
                     {pending.map((message) => (
                         <div key={message.key} className="flex justify-end">
-                            <div className="bg-primary text-primary-foreground max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6">
+                            <div
+                                className={cn(
+                                    'max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6',
+                                    message.failed
+                                        ? 'border-destructive/40 text-foreground border border-dashed'
+                                        : 'bg-primary text-primary-foreground',
+                                )}
+                            >
                                 <p className="whitespace-pre-line">{message.body}</p>
-                                <p className="text-primary-foreground/70 mt-1.5 text-[0.65rem]">
-                                    {auth.user?.name} · {formatRelativeTime(message.created_at)}
-                                </p>
+
+                                {message.failed ? (
+                                    <p className="mt-1.5 flex flex-wrap items-center gap-2 text-[0.65rem]">
+                                        <span className="text-destructive flex items-center gap-1">
+                                            <TriangleAlert className="size-3" />
+                                            Nije poslato
+                                        </span>
+                                        <button type="button" onClick={() => retry(message)} className="underline underline-offset-2">
+                                            Pokušaj ponovo
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => discard(message)}
+                                            className="text-muted-foreground underline underline-offset-2"
+                                        >
+                                            Odbaci
+                                        </button>
+                                    </p>
+                                ) : (
+                                    <p className="text-primary-foreground/70 mt-1.5 text-[0.65rem]">
+                                        {auth.user?.name} · {formatRelativeTime(message.created_at)}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     ))}
