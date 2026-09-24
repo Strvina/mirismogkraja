@@ -70,7 +70,7 @@ class Review extends Model
         return $this->status === self::STATUS_APPROVED;
     }
 
-    /** When the review became public - what the relative timestamp counts from. */
+    /** When a moderator published it. The public date is created_at. */
     public function publishedAt(): ?Carbon
     {
         return $this->approved_at;

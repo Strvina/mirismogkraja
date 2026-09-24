@@ -173,4 +173,87 @@ class ProducerMessagingTest extends TestCase
                 ->where('messages.data.0.product.price', '900.00')
         );
     }
+
+    /**
+     * The whole point of the inbox row: it has to show the newest message in
+     * the thread, including one the viewer has only just sent. A reply that
+     * lands in the same second as the question it answers must not be
+     * ordered behind it.
+     */
+    public function test_the_inbox_row_shows_the_reply_that_was_just_sent(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+        $owner = $producer->user;
+
+        $this->travelTo(now()->startOfSecond());
+
+        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Imate li jaja?']);
+
+        // The owner reads the thread and answers from it, as they would.
+        $this->actingAs($owner)->get(route('messages.thread', [$producer->id, $buyer->id]));
+        $this->actingAs($owner)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Imamo, javite se.']);
+
+        // Both messages share a created_at second, so only the id can tell
+        // them apart.
+        $this->assertSame(1, ProducerMessage::distinct()->count('created_at'));
+
+        $this->actingAs($owner)->get(route('messages.index'))->assertInertia(
+            fn ($page) => $page->where('threads.0.last_message', 'Imamo, javite se.')
+                ->where('threads.0.unread', 0)
+        );
+
+        $this->actingAs($owner)->get(route('messages.inbox'))->assertInertia(
+            fn ($page) => $page->where('threads.0.last_message', 'Imamo, javite se.')
+        );
+    }
+
+    /**
+     * Inertia restores a visited page's props from history on Back. Sending
+     * a message, and reading one, both make those snapshots wrong, so the
+     * response has to tell the client to drop them - otherwise the inbox the
+     * user backs out to still shows the state from before.
+     */
+    public function test_sending_and_reading_messages_invalidates_cached_pages(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+
+        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje'])
+            ->assertSessionHas('inertia.clear_history', true);
+
+        // Opening the thread marks the producer's reply as read.
+        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Odgovor']);
+
+        // A page render consumes the flag itself, so here it shows up on the
+        // Inertia response rather than in the session.
+        $this->actingAs($buyer)->inertiaGet(route('messages.show', $producer->slug))
+            ->assertJsonPath('clearHistory', true);
+
+        // Nothing changed the second time round, so there is nothing to
+        // invalidate either.
+        $this->actingAs($buyer)->inertiaGet(route('messages.show', $producer->slug))
+            ->assertJsonPath('clearHistory', false);
+    }
+
+    /** Reading a thread has to clear the header badge for good. */
+    public function test_the_badge_stays_cleared_after_a_thread_is_read(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+
+        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje']);
+        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Odgovor']);
+
+        $this->actingAs($buyer)->get(route('messages.index'))
+            ->assertInertia(fn ($page) => $page->where('threads.0.unread', 1)->where('unreadMessages', 1));
+
+        $this->actingAs($buyer)->get(route('messages.show', $producer->slug));
+
+        // Both the row and the badge, on a freshly requested inbox.
+        $this->actingAs($buyer)->get(route('messages.index'))
+            ->assertInertia(fn ($page) => $page->where('threads.0.unread', 0)
+                ->where('threads.0.last_message', 'Odgovor')
+                ->where('unreadMessages', 0));
+    }
 }

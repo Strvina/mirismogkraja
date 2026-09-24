@@ -32,13 +32,19 @@ export default function Navbar() {
     const [guestMenuOpen, setGuestMenuOpen] = useState(false);
 
     const sections = [
-        { href: route('marketplace.producers.index'), path: '/proizvodjac', label: 'Proizvođači', icon: Sprout },
-        { href: route('marketplace.products.index'), path: '/proizvod', label: 'Proizvodi', icon: Package },
+        { href: route('marketplace.producers.index'), paths: ['/proizvodjaci', '/proizvodjac'], label: 'Proizvođači', icon: Sprout },
+        { href: route('marketplace.products.index'), paths: ['/proizvodi', '/proizvod'], label: 'Proizvodi', icon: Package },
     ];
 
-    // Both the listing (/proizvodi) and a single page (/proizvod/slug) belong
-    // to the same section, hence matching on the shared stem.
-    const isActive = (path: string) => url.startsWith(path);
+    // The active section is derived from the current URL, never remembered
+    // from what was clicked, so Back and Forward mark the right one too.
+    //
+    // Each section owns both its listing (/proizvodi) and a single entity
+    // (/proizvod/{slug}), and the match has to stop at a path segment: a
+    // plain startsWith would let /proizvodjac/mlekara match '/proizvod' as
+    // well, leaving a producer's page with both sections underlined.
+    const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+    const isActive = (paths: string[]) => paths.some((candidate) => path === candidate || path.startsWith(`${candidate}/`));
 
     return (
         <header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 border-b backdrop-blur">
@@ -50,14 +56,14 @@ export default function Navbar() {
                         <Link
                             key={section.href}
                             href={section.href}
-                            aria-current={isActive(section.path) ? 'page' : undefined}
+                            aria-current={isActive(section.paths) ? 'page' : undefined}
                             className={cn(
                                 'relative py-1 font-medium transition-colors',
-                                isActive(section.path) ? 'text-foreground' : 'text-foreground/65 hover:text-foreground',
+                                isActive(section.paths) ? 'text-foreground' : 'text-foreground/65 hover:text-foreground',
                             )}
                         >
                             {section.label}
-                            {isActive(section.path) && <span className="bg-primary absolute -bottom-0.5 left-0 h-0.5 w-full rounded-full" />}
+                            {isActive(section.paths) && <span className="bg-primary absolute -bottom-0.5 left-0 h-0.5 w-full rounded-full" />}
                         </Link>
                     ))}
                 </nav>
@@ -70,7 +76,7 @@ export default function Navbar() {
                                 <Link
                                     href={route('favorites.index')}
                                     aria-label="Sačuvano"
-                                    aria-current={isActive('/omiljeni') ? 'page' : undefined}
+                                    aria-current={isActive(['/omiljeni']) ? 'page' : undefined}
                                     className="text-foreground/70 hover:text-foreground transition-colors"
                                 >
                                     <Heart className="size-5" />
