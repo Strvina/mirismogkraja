@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import { Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moji proizvođači', href: '/moji-proizvodjaci' }];
 
@@ -11,7 +12,14 @@ const statusLabels: Record<Producer['status'], string> = {
     blocked: 'Blokirano',
 };
 
-export default function ProducersIndex({ producers }: { producers: Producer[] }) {
+interface PendingChange {
+    id: number;
+    household_id: number;
+    field: string;
+    requested_value: string;
+}
+
+export default function ProducersIndex({ producers, pendingChanges }: { producers: Producer[]; pendingChanges: PendingChange[] }) {
     const destroy = (producer: Producer) => {
         if (confirm(`Obrisati proizvođača "${producer.name}"?`)) {
             router.delete(route('producers.destroy', producer.id));
@@ -44,6 +52,18 @@ export default function ProducersIndex({ producers }: { producers: Producer[] })
                                     <span className="bg-muted rounded-full px-2 py-1 text-xs">{statusLabels[producer.status]}</span>
                                 </div>
                                 {producer.city && <p className="text-muted-foreground mt-1 text-sm">{producer.city}</p>}
+
+                                {/* A rename of a published producer waits for
+                                    an admin, so say so rather than letting the
+                                    unchanged name look like a failed save. */}
+                                {pendingChanges
+                                    .filter((change) => change.household_id === producer.id)
+                                    .map((change) => (
+                                        <p key={change.id} className="text-muted-foreground mt-3 flex items-start gap-1.5 text-xs">
+                                            <Clock className="mt-0.5 size-3.5 shrink-0" />
+                                            Novi naziv „{change.requested_value}” čeka odobrenje. Do tada ostaje dosadašnji.
+                                        </p>
+                                    ))}
                                 <div className="mt-4 flex gap-2">
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.edit', producer.id)}>Izmeni</Link>

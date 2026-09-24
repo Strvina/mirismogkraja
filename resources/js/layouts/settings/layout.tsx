@@ -14,9 +14,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
     return (
         <>
             <h1 className="font-serif text-4xl sm:text-5xl">Moj nalog</h1>
-            <p className="text-muted-foreground mt-3 max-w-lg leading-7">
-                Podesite svoje podatke, lozinku i izgled naloga.
-            </p>
+            <p className="text-muted-foreground mt-3 max-w-lg leading-7">Podesite svoje podatke, lozinku i izgled naloga.</p>
 
             <div className="mt-10 flex flex-col gap-10 lg:flex-row lg:gap-16">
                 <aside className="lg:w-56">

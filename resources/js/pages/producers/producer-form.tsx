@@ -79,10 +79,7 @@ export default function ProducerForm({
     const [customMethod, setCustomMethod] = useState('');
 
     const toggleDeliveryMethod = (key: string, checked: boolean) => {
-        setData(
-            'delivery_methods',
-            checked ? [...data.delivery_methods, key] : data.delivery_methods.filter((method) => method !== key),
-        );
+        setData('delivery_methods', checked ? [...data.delivery_methods, key] : data.delivery_methods.filter((method) => method !== key));
     };
 
     // Anything that isn't one of the predefined keys is the producer's own wording.
@@ -169,12 +166,7 @@ export default function ProducerForm({
 
             <div className="grid gap-2">
                 <Label htmlFor="contact_email">Email za kontakt</Label>
-                <Input
-                    id="contact_email"
-                    type="email"
-                    value={data.contact_email}
-                    onChange={(e) => setData('contact_email', e.target.value)}
-                />
+                <Input id="contact_email" type="email" value={data.contact_email} onChange={(e) => setData('contact_email', e.target.value)} />
                 <InputError message={errors.contact_email} />
             </div>
 

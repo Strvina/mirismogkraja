@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreProducerRequest;
 use App\Http\Requests\UpdateProducerRequest;
 use App\Models\Producer;
+use App\Models\ProducerChangeRequest;
 use App\Services\ProducerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,6 +23,12 @@ class ProducerController extends Controller
 
         return Inertia::render('producers/index', [
             'producers' => $request->user()->producers()->latest()->get(),
+            // A rename of a published producer waits for an admin, so the
+            // list says so - otherwise the name simply not changing reads as
+            // the save having failed.
+            'pendingChanges' => ProducerChangeRequest::pending()
+                ->whereIn('household_id', $request->user()->producers()->pluck('id'))
+                ->get(['id', 'household_id', 'field', 'requested_value']),
         ]);
     }
 

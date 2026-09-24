@@ -52,9 +52,7 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
 
             <section className="mt-16 max-w-xl">
                 <h2 className="font-serif text-2xl">Galerija</h2>
-                <p className="text-muted-foreground mt-2 text-sm">
-                    Slike domaćinstva i proizvodnje koje se prikazuju na vašem profilu.
-                </p>
+                <p className="text-muted-foreground mt-2 text-sm">Slike domaćinstva i proizvodnje koje se prikazuju na vašem profilu.</p>
 
                 {gallery.length > 0 && (
                     <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -65,7 +63,7 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                                     type="button"
                                     onClick={() => removeImage(image)}
                                     aria-label="Obriši sliku"
-                                    className="bg-background/90 text-destructive absolute top-2 right-2 grid size-8 place-items-center rounded-full shadow-sm transition-colors hover:bg-background"
+                                    className="bg-background/90 text-destructive hover:bg-background absolute top-2 right-2 grid size-8 place-items-center rounded-full shadow-sm transition-colors"
                                 >
                                     <Trash2 className="size-4" />
                                 </button>

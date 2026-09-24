@@ -27,6 +27,16 @@ class ReviewController extends Controller
             'image' => ['nullable', 'image', 'max:4096'],
         ]);
 
+        // One row per (user, producer) is a database constraint, so a
+        // previously rejected review of the same producer makes way for this
+        // one. Its photo goes with it, through the model's own cleanup.
+        $producer->reviews()
+            ->where('user_id', $request->user()->id)
+            ->where('status', Review::STATUS_REJECTED)
+            ->get()
+            ->each
+            ->delete();
+
         $review = $producer->reviews()->create([
             'user_id' => $request->user()->id,
             'rating' => $data['rating'],
