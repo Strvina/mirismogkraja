@@ -4,7 +4,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePoll } from '@inertiajs/react';
 import { ImageOff } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
@@ -65,6 +65,15 @@ export default function MessageThread({
     isOwner: boolean;
 }) {
     const [body, setBody] = useState('');
+
+    // An open conversation checks for replies on its own, so neither side has
+    // to refresh to see one. Only the thread and the header's badge are
+    // re-requested, and opening this page is also what marks the other
+    // side's messages as read - so a reply that arrives while it's open is
+    // read straight away and never lights the badge up. Inertia throttles
+    // the poll by itself while the tab is in the background, and the visit
+    // preserves scroll and local state, so a half-typed message survives it.
+    usePoll(3000, { only: ['messages', 'unreadMessages'] });
 
     // The seller's side addresses a specific buyer; the buyer's side doesn't
     // need to say who they are.

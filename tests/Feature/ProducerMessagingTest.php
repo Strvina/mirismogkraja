@@ -7,6 +7,7 @@ use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Inertia;
 use Tests\TestCase;
 
 class ProducerMessagingTest extends TestCase
@@ -233,5 +234,43 @@ class ProducerMessagingTest extends TestCase
             ->assertInertia(fn ($page) => $page->where('threads.0.unread', 0)
                 ->where('threads.0.last_message', 'Odgovor')
                 ->where('unreadMessages', 0));
+    }
+
+    /**
+     * An open conversation polls for replies instead of waiting for a
+     * refresh. The poll is an Inertia partial reload, so this checks the
+     * server answers one: the thread and the header's badge come back, the
+     * rest of the page doesn't, and a reply that arrived in the meantime is
+     * both included and marked as read.
+     */
+    public function test_an_open_thread_can_be_polled_for_new_messages(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+
+        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje']);
+        $this->actingAs($buyer)->get(route('messages.show', $producer->slug));
+
+        $reply = ProducerMessage::create([
+            'household_id' => $producer->id,
+            'buyer_id' => $buyer->id,
+            'sender_id' => $producer->user_id,
+            'body' => 'Odgovor koji stiže dok je razgovor otvoren',
+        ]);
+
+        $response = $this->actingAs($buyer)->withHeaders([
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => Inertia::getVersion(),
+            'X-Inertia-Partial-Component' => 'messages/show',
+            'X-Inertia-Partial-Data' => 'messages,unreadMessages',
+        ])->get(route('messages.show', $producer->slug));
+
+        $response->assertOk()
+            ->assertJsonPath('props.messages.data.1.body', 'Odgovor koji stiže dok je razgovor otvoren')
+            ->assertJsonPath('props.unreadMessages', 0)
+            ->assertJsonMissingPath('props.producer');
+
+        // Reading it through the poll counts as reading it.
+        $this->assertNotNull($reply->refresh()->read_at);
     }
 }
