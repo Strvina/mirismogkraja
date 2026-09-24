@@ -30,7 +30,7 @@ export default function ProductCard({ product, canFavorite }: { product: Product
     return (
         <Link
             href={route('marketplace.products.show', product.slug)}
-            className="group border-border/70 hover:border-border flex flex-col overflow-hidden rounded-lg border bg-background transition-shadow duration-300 hover:shadow-lg"
+            className="group border-border/70 hover:border-border bg-background flex flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg"
         >
             <div className="bg-muted relative aspect-square overflow-hidden">
                 {image ? (
@@ -59,7 +59,7 @@ export default function ProductCard({ product, canFavorite }: { product: Product
                 )}
 
                 {outOfStock && (
-                    <span className="bg-charcoal/85 absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] text-primary-foreground uppercase">
+                    <span className="bg-charcoal/85 text-primary-foreground absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase">
                         Nema na stanju
                     </span>
                 )}
@@ -76,7 +76,7 @@ export default function ProductCard({ product, canFavorite }: { product: Product
 
                 <p className="mt-auto pt-4 font-serif text-xl">
                     {formatPrice(product.price)}
-                    <span className="text-muted-foreground ml-1 text-xs font-sans">/ {product.unit}</span>
+                    <span className="text-muted-foreground ml-1 font-sans text-xs">/ {product.unit}</span>
                 </p>
             </div>
         </Link>

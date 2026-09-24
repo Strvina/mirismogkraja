@@ -178,4 +178,66 @@ class PublicProductListTest extends TestCase
             fn ($page) => $page->has('products.data', 1)->where('products.data.0.id', $good->id)
         );
     }
+
+    /** Free-text search covers the product and the producer behind it. */
+    public function test_products_can_be_searched_by_name_description_and_producer(): void
+    {
+        $nicic = Producer::factory()->active()->create(['name' => 'Domacinstvo Nicic']);
+        $other = Producer::factory()->active()->create(['name' => 'Mlekara Zapis']);
+
+        $byName = Product::factory()->for($nicic)->create(['name' => 'Domaci ajvar', 'status' => 'active']);
+        $byDescription = Product::factory()->for($other)->create([
+            'name' => 'Zimnica',
+            'description' => 'Ljuti ajvar od pecenih paprika',
+            'status' => 'active',
+        ]);
+        $byProducer = Product::factory()->for($nicic)->create(['name' => 'Med', 'description' => 'Livadski', 'status' => 'active']);
+        Product::factory()->for($other)->create(['name' => 'Sir', 'description' => 'Beli', 'status' => 'active']);
+
+        $this->get(route('marketplace.products.index', ['q' => 'ajvar']))->assertInertia(
+            fn ($page) => $page->has('products.data', 2)
+                ->where('filters.q', 'ajvar')
+        );
+
+        $this->assertNotSame($byName->id, $byProducer->id);
+        $this->assertNotNull($byDescription);
+
+        // The producer's name finds their products too.
+        $this->get(route('marketplace.products.index', ['q' => 'Nicic']))->assertInertia(
+            fn ($page) => $page->has('products.data', 2)
+        );
+    }
+
+    /**
+     * LIKE's wildcards are dropped from the term, so a visitor cannot make
+     * one match more than the letters they typed.
+     */
+    public function test_a_wildcard_in_the_term_matches_nothing_extra(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory()->for($producer)->create(['name' => 'Ajvar', 'status' => 'active']);
+
+        // Were % a wildcard, 'Aj%ar' would match 'Ajvar'; stripped it reads
+        // 'Ajar', which does not appear in the name at all.
+        $this->get(route('marketplace.products.index', ['q' => 'Aj%ar']))
+            ->assertInertia(fn ($page) => $page->has('products.data', 0));
+
+        // A term that is nothing but wildcards is simply no search at all.
+        $this->get(route('marketplace.products.index', ['q' => '%']))
+            ->assertInertia(fn ($page) => $page->has('products.data', 1));
+    }
+
+    /** Searching inside a filtered list keeps the filter. */
+    public function test_search_combines_with_the_other_filters(): void
+    {
+        $category = Category::factory()->create();
+        $producer = Producer::factory()->active()->create();
+
+        $match = Product::factory()->for($producer)->for($category)->create(['name' => 'Ajvar ljuti', 'status' => 'active']);
+        Product::factory()->for($producer)->create(['name' => 'Ajvar blagi', 'status' => 'active']);
+
+        $this->get(route('marketplace.products.index', ['q' => 'ajvar', 'category_id' => $category->id]))->assertInertia(
+            fn ($page) => $page->has('products.data', 1)->where('products.data.0.id', $match->id)
+        );
+    }
 }

@@ -1,6 +1,7 @@
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
+import SearchForm from '@/components/marketplace/search-form';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type Category, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -45,8 +46,17 @@ export default function ProductsIndex({
 
             <h1 className="font-serif text-4xl sm:text-5xl">Proizvodi</h1>
             <p className="text-muted-foreground mt-3 max-w-lg leading-7">
-                Domaći proizvodi, direktno od ljudi koji ih prave.
+                {filters.q ? (
+                    <>
+                        Rezultati za <span className="text-foreground font-medium">„{filters.q}”</span> — {products.total}{' '}
+                        {products.total === 1 ? 'proizvod' : 'proizvoda'}.
+                    </>
+                ) : (
+                    'Domaći proizvodi, direktno od ljudi koji ih prave.'
+                )}
             </p>
+
+            <SearchForm target="/proizvodi" value={filters.q} keep={{ ...filters, q: undefined }} className="mt-6 max-w-md" />
 
             <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:gap-12">
                 <ProductFilters
@@ -62,19 +72,13 @@ export default function ProductsIndex({
                 <div className="flex-1">
                     <div className="border-border/70 mb-6 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
                         <p className="text-muted-foreground text-sm">
-                            {products.total === 0
-                                ? 'Nema proizvoda'
-                                : `Prikazano ${products.from}–${products.to} od ${products.total}`}
+                            {products.total === 0 ? 'Nema proizvoda' : `Prikazano ${products.from}–${products.to} od ${products.total}`}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-3">
                             <label className="flex items-center gap-2 text-sm">
                                 <span className="text-muted-foreground">Po strani:</span>
-                                <select
-                                    className={selectClasses}
-                                    value={perPage}
-                                    onChange={(e) => update({ per_page: Number(e.target.value) })}
-                                >
+                                <select className={selectClasses} value={perPage} onChange={(e) => update({ per_page: Number(e.target.value) })}>
                                     {perPageOptions.map((option) => (
                                         <option key={option} value={option}>
                                             {option}
@@ -99,7 +103,9 @@ export default function ProductsIndex({
                     </div>
 
                     {products.data.length === 0 ? (
-                        <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvoda za odabrane filtere.</p>
+                        <p className="text-muted-foreground py-16 text-center text-sm">
+                            {filters.q ? `Ništa nije pronađeno za „${filters.q}”.` : 'Nema proizvoda za odabrane filtere.'}
+                        </p>
                     ) : (
                         <>
                             <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
