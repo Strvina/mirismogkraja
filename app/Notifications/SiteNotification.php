@@ -40,6 +40,36 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function membershipActivated(string $planName, string $endsOn, string $url): self
+    {
+        return new self(
+            'membership.activated',
+            'Članarina je aktivirana',
+            "Paket „{$planName}” važi do {$endsOn}",
+            $url,
+        );
+    }
+
+    public static function membershipEnding(string $planName, string $endsOn, string $url): self
+    {
+        return new self(
+            'membership.ending',
+            'Članarina uskoro ističe',
+            "Paket „{$planName}” važi do {$endsOn}. Uplatnicu i poziv na broj naći ćete na stranici članarine.",
+            $url,
+        );
+    }
+
+    public static function membershipExpired(string $planName, string $url): self
+    {
+        return new self(
+            'membership.expired',
+            'Članarina je istekla',
+            "Paket „{$planName}” je istekao. Vaša stranica ostaje na sajtu, ali bez dodatnih pogodnosti dok ne obnovite.",
+            $url,
+        );
+    }
+
     public static function producerVerified(string $producerName, string $url): self
     {
         return new self(

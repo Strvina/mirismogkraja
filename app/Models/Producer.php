@@ -99,6 +99,11 @@ class Producer extends Model
      * Saved by buyers. Counted as the popularity signal on the homepage -
      * it's a deliberate action by a signed-in person, unlike a page view.
      */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(ProducerSubscription::class, 'household_id');
+    }
+
     /** People who asked to hear when this producer lists something new. */
     public function followers(): BelongsToMany
     {
