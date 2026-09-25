@@ -1,9 +1,10 @@
+import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Check, Copy } from 'lucide-react';
+import { Check, ReceiptText } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Članarina', href: '/clanarina' }];
@@ -24,7 +25,7 @@ interface ProducerMembership {
     status: string;
     current_plan: { id: number; name: string; level: number } | null;
     active: { id: number; ends_at: string } | null;
-    pending: { id: number; reference: string; amount_rsd: number; created_at: string } | null;
+    pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip } | null;
 }
 
 const dinars = new Intl.NumberFormat('sr-RS');
@@ -40,35 +41,27 @@ export default function Memberships({
     plans,
     featureLabels,
     producers,
-    payment,
 }: {
     plans: Plan[];
     featureLabels: Record<string, string>;
     producers: ProducerMembership[];
-    payment: { recipient: string; account: string; purpose: string; model: string };
 }) {
     const [selected, setSelected] = useState<number | null>(producers[0]?.id ?? null);
-    const [copied, setCopied] = useState<string | null>(null);
+    // The slip opens by itself the moment a plan is chosen: that is the one
+    // thing the producer has to act on, and hiding it behind a second click
+    // is how a membership goes unpaid.
+    const [slipOpen, setSlipOpen] = useState(false);
 
     const producer = producers.find((item) => item.id === selected) ?? producers[0] ?? null;
 
     const choose = (planId: number) => {
         if (producer) {
-            router.post(route('memberships.store'), { producer_id: producer.id, plan_id: planId }, { preserveScroll: true });
+            router.post(
+                route('memberships.store'),
+                { producer_id: producer.id, plan_id: planId },
+                { preserveScroll: true, onSuccess: () => setSlipOpen(true) },
+            );
         }
-    };
-
-    const copy = (value: string) => {
-        navigator.clipboard
-            .writeText(value)
-            .then(() => {
-                setCopied(value);
-                setTimeout(() => setCopied(null), 2000);
-            })
-            .catch(() => {
-                // Refused in a private window or over http; the number is on
-                // screen either way.
-            });
     };
 
     return (
@@ -110,38 +103,20 @@ export default function Memberships({
                     )}
 
                     {producer?.pending && (
-                        <section className="border-gold/50 bg-cream-deep mt-8 rounded-lg border p-5">
-                            <h2 className="font-serif text-2xl">Uplatnica</h2>
-                            <p className="text-muted-foreground mt-1 text-sm">
-                                Članarinu aktiviramo čim vidimo uplatu. Prepišite podatke na uplatnicu — poziv na broj je najvažniji, po njemu vas
-                                prepoznajemo.
-                            </p>
+                        <section className="border-gold/50 bg-cream-deep mt-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-5">
+                            <div className="min-w-0">
+                                <h2 className="font-serif text-2xl">Čeka se uplata</h2>
+                                <p className="text-muted-foreground mt-1 text-sm">
+                                    Paket „{producer.pending.plan}” — poziv na broj{' '}
+                                    <span className="text-foreground font-medium">{producer.pending.slip.reference}</span>, iznos{' '}
+                                    {producer.pending.slip.amount} RSD.
+                                </p>
+                            </div>
 
-                            <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-                                {[
-                                    { label: 'Primalac', value: payment.recipient },
-                                    { label: 'Račun primaoca', value: payment.account },
-                                    { label: 'Svrha uplate', value: payment.purpose },
-                                    { label: 'Model', value: payment.model },
-                                    { label: 'Poziv na broj', value: producer.pending.reference },
-                                    { label: 'Iznos', value: `${dinars.format(producer.pending.amount_rsd)} RSD` },
-                                ].map((row) => (
-                                    <div key={row.label} className="min-w-0">
-                                        <dt className="text-muted-foreground text-xs">{row.label}</dt>
-                                        <dd className="flex items-center gap-2">
-                                            <span className="font-medium break-words">{row.value}</span>
-                                            <button
-                                                type="button"
-                                                onClick={() => copy(row.value)}
-                                                aria-label={`Kopiraj: ${row.label}`}
-                                                className="text-muted-foreground hover:text-foreground"
-                                            >
-                                                {copied === row.value ? <Check className="text-olive size-3.5" /> : <Copy className="size-3.5" />}
-                                            </button>
-                                        </dd>
-                                    </div>
-                                ))}
-                            </dl>
+                            <Button onClick={() => setSlipOpen(true)}>
+                                <ReceiptText className="size-4" />
+                                Otvori uplatnicu
+                            </Button>
                         </section>
                     )}
 
@@ -195,6 +170,7 @@ export default function Memberships({
                     </p>
                 </>
             )}
+            {producer?.pending && <PaymentSlipDialog slip={producer.pending.slip} open={slipOpen} onOpenChange={setSlipOpen} />}
         </MarketplaceLayout>
     );
 }

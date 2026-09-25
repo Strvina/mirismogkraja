@@ -11,6 +11,12 @@ return [
         'recipient' => env('PLATFORM_PAYMENT_RECIPIENT', 'Vrelina juga'),
         'account' => env('PLATFORM_PAYMENT_ACCOUNT', '000-0000000000000-00'),
         'purpose' => env('PLATFORM_PAYMENT_PURPOSE', 'Članarina za Vrelina juga'),
+        'address' => env('PLATFORM_PAYMENT_ADDRESS', ''),
         'model' => env('PLATFORM_PAYMENT_MODEL', '97'),
+        /*
+         * Šifra plaćanja. 221 is goods and services paid from an account,
+         * which is what a membership is.
+         */
+        'code' => env('PLATFORM_PAYMENT_CODE', '221'),
     ],
 ];
