@@ -31,7 +31,7 @@ export default function ProducersCreate({ founding }: { founding: { claimed: num
                         </Link>
                     </div>
                 )}
-                <ProducerForm action={route('producers.store')} method="post" submitLabel="Kreiraj" />
+                <ProducerForm action={route('producers.store')} method="post" submitLabel="Pošalji na odobrenje" wizard />
             </div>
         </MarketplaceLayout>
     );
