@@ -1,7 +1,7 @@
 import { DELIVERY_METHOD_LABELS } from '@/lib/delivery';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
-import { MapPin, Star, Truck } from 'lucide-react';
+import { BadgeCheck, MapPin, Star, Truck } from 'lucide-react';
 
 export interface ProducerCardProducer extends Producer {
     reviews_avg_rating: number | null;
@@ -71,8 +71,9 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                     <Rating value={producer.reviews_avg_rating} count={producer.reviews_count} />
                 </div>
 
-                <h2 className="font-serif text-2xl leading-tight">
+                <h2 className="flex flex-wrap items-center gap-1.5 font-serif text-2xl leading-tight">
                     <Link href={href}>{producer.name}</Link>
+                    {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label="Provereni proizvođač" />}
                 </h2>
 
                 <div className="text-muted-foreground mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">

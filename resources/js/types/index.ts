@@ -58,6 +58,8 @@ export interface Producer {
     slug: string;
     /** Permanent place in the founding hundred, or null. */
     founding_number?: number | null;
+    /** Set by an admin who checked who this producer is. */
+    verified_at?: string | null;
     description: string | null;
     story: string | null;
     address: string | null;

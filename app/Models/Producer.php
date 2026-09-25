@@ -51,6 +51,9 @@ class Producer extends Model
         'cover_image_path',
         'logo_path',
         'status',
+        // Set only by an admin, but it still has to be writable through
+        // update() - a non-fillable attribute is dropped in silence.
+        'verified_at',
     ];
 
     protected function casts(): array
@@ -58,6 +61,7 @@ class Producer extends Model
         return [
             'delivery_methods' => 'array',
             'founding_joined_at' => 'datetime',
+            'verified_at' => 'datetime',
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
             // withAvg() aggregates come back as strings on MySQL but numbers
@@ -99,6 +103,11 @@ class Producer extends Model
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'producer_follows', 'household_id', 'user_id');
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified_at !== null;
     }
 
     public function isFounding(): bool
