@@ -16,4 +16,5 @@ require __DIR__.'/notifications.php';
 require __DIR__.'/follows.php';
 require __DIR__.'/reports.php';
 require __DIR__.'/pages.php';
+require __DIR__.'/memberships.php';
 require __DIR__.'/admin.php';

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Bell, ChevronDown, Heart, LayoutDashboard, LogOut, MessageCircle, Package, Sprout, UserRound } from 'lucide-react';
+import { Bell, ChevronDown, Heart, LayoutDashboard, LogOut, MessageCircle, Package, Sprout, UserRound, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import MenuIcon from './menu-icon';
 
@@ -35,6 +35,7 @@ export default function AccountMenu({ user }: { user: User }) {
         { href: route('notifications.index'), label: 'Obaveštenja', icon: Bell, badge: unreadNotifications },
         { href: route('favorites.index'), label: 'Omiljeni', icon: Heart },
         { href: route('producers.index'), label: 'Moji proizvođači', icon: Sprout },
+        { href: route('memberships.index'), label: 'Članarina', icon: Wallet },
         { href: route('profile.edit'), label: 'Moj nalog', icon: UserRound },
     ];
 

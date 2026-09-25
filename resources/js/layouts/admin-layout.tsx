@@ -3,7 +3,7 @@ import MenuIcon from '@/components/marketplace/menu-icon';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
-import { FilePen, Flag, FolderTree, LayoutDashboard, LogOut, Package, ScrollText, Sprout, Star, Store, Users } from 'lucide-react';
+import { FilePen, Flag, FolderTree, LayoutDashboard, LogOut, Package, ScrollText, Sprout, Star, Store, Users, Wallet } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 const sections = [
@@ -15,6 +15,7 @@ const sections = [
     { href: '/admin/korisnici', label: 'Korisnici', icon: Users },
     { href: '/admin/utisci', label: 'Utisci', icon: Star },
     { href: '/admin/prijave', label: 'Prijave', icon: Flag },
+    { href: '/admin/clanarine', label: 'Članarine', icon: Wallet },
     { href: '/admin/logovi', label: 'Logovi', icon: ScrollText },
 ];
 

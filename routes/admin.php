@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AdminMembershipController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProducerChangeRequestController;
@@ -31,6 +32,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/zahtevi', [ProducerChangeRequestController::class, 'index'])->name('change-requests.index');
     Route::patch('/zahtevi/{changeRequest}/odobri', [ProducerChangeRequestController::class, 'approve'])->name('change-requests.approve');
     Route::patch('/zahtevi/{changeRequest}/odbij', [ProducerChangeRequestController::class, 'reject'])->name('change-requests.reject');
+
+    Route::get('/clanarine', [AdminMembershipController::class, 'index'])->name('memberships.index');
+    Route::patch('/clanarine/{subscription}/potvrdi', [AdminMembershipController::class, 'confirm'])->name('memberships.confirm');
+    Route::patch('/clanarine/{subscription}/otkazi', [AdminMembershipController::class, 'cancel'])->name('memberships.cancel');
+    Route::put('/paketi/{plan}', [AdminMembershipController::class, 'updatePlan'])->name('plans.update');
 
     Route::get('/prijave', [ReportController::class, 'index'])->name('reports.index');
     Route::patch('/prijave/{report}', [ReportController::class, 'update'])->name('reports.update');
