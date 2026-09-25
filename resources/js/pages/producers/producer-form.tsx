@@ -129,7 +129,9 @@ export default function ProducerForm({
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        // Enter inside a field would otherwise submit half-filled steps.
+        // Enter inside a field advances instead of sending a half-filled
+        // form, and a submit that arrives before the last step is on screen
+        // is not one the producer asked for.
         if (wizard && step < STEPS.length - 1) {
             if (step > 0 || canLeaveFirstStep) {
                 setStep(step + 1);
@@ -328,10 +330,17 @@ export default function ProducerForm({
                     </Button>
                 )}
 
+                {/* Distinct keys matter: without them React reuses the same
+                    <button> element and only swaps its type, so the click
+                    that moved to the last step lands on a submit button that
+                    now exists where "Dalje" was - and the browser sends the
+                    form before the third step has been filled in at all. */}
                 {isLastStep ? (
-                    <Button disabled={processing}>{submitLabel}</Button>
+                    <Button key="submit" type="submit" disabled={processing}>
+                        {submitLabel}
+                    </Button>
                 ) : (
-                    <Button type="button" onClick={() => setStep(step + 1)} disabled={step === 0 && !canLeaveFirstStep}>
+                    <Button key="next" type="button" onClick={() => setStep(step + 1)} disabled={step === 0 && !canLeaveFirstStep}>
                         Dalje
                     </Button>
                 )}
