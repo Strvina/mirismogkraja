@@ -18,6 +18,11 @@ use Illuminate\Notifications\Notification;
  * Only the database channel is used: mail would need a configured mailer and
  * a queue worker, and a notification nobody can see because delivery failed
  * is worse than one that waits in the bell.
+ *
+ * Messages are deliberately absent. The header already carries an unread
+ * badge that polls, and the inbox lists every thread; a second stream saying
+ * the same thing only buries the notifications that have nowhere else to
+ * appear.
  */
 class SiteNotification extends Notification
 {
@@ -106,16 +111,6 @@ class SiteNotification extends Notification
             'change-request.rejected',
             'Izmena naziva nije odobrena',
             "Naziv „{$requestedName}” nije prihvaćen, pa ostaje dosadašnji. Javite nam se ako vam treba pomoć.",
-            $url,
-        );
-    }
-
-    public static function messageReceived(string $senderName, string $preview, string $url): self
-    {
-        return new self(
-            'message.received',
-            "Nova poruka od {$senderName}",
-            $preview,
             $url,
         );
     }

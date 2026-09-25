@@ -37,6 +37,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/clanarine/{subscription}/potvrdi', [AdminMembershipController::class, 'confirm'])->name('memberships.confirm');
     Route::patch('/clanarine/{subscription}/otkazi', [AdminMembershipController::class, 'cancel'])->name('memberships.cancel');
     Route::put('/paketi/{plan}', [AdminMembershipController::class, 'updatePlan'])->name('plans.update');
+    Route::put('/uplatnica', [AdminMembershipController::class, 'updatePayment'])->name('payment.update');
 
     Route::get('/prijave', [ReportController::class, 'index'])->name('reports.index');
     Route::patch('/prijave/{report}', [ReportController::class, 'update'])->name('reports.update');

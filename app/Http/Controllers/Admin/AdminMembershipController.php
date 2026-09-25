@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Services\SubscriptionService;
+use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,6 +22,8 @@ use Inertia\Response;
  */
 class AdminMembershipController extends Controller
 {
+    public function __construct(private readonly Settings $settings) {}
+
     public function index(Request $request): Response
     {
         $status = $request->string('status')->toString();
@@ -42,6 +45,13 @@ class AdminMembershipController extends Controller
                 ->all(),
             // What the platform has actually been paid, by plan. Only
             // confirmed money counts.
+            // Printed on every slip, so the owner edits it here rather
+            // than in a deployment file.
+            'payment' => collect(['recipient', 'address', 'account', 'purpose', 'model', 'code'])
+                ->mapWithKeys(fn (string $key) => [
+                    $key => $this->settings->get('payment.'.$key, (string) config('platform.payment.'.$key)),
+                ])
+                ->all(),
             'revenue' => ProducerSubscription::query()
                 ->whereNotNull('confirmed_at')
                 ->selectRaw('subscription_plan_id, count(*) as count, sum(amount_rsd) as total')
@@ -68,6 +78,31 @@ class AdminMembershipController extends Controller
     public function cancel(ProducerSubscription $subscription): RedirectResponse
     {
         $subscription->update(['status' => ProducerSubscription::STATUS_CANCELLED]);
+
+        return back();
+    }
+
+    /**
+     * The bank details every slip is printed with. Stored as settings, not
+     * as .env values: they are not secret, they are not per-environment, and
+     * changing them should not be a deploy.
+     */
+    public function updatePayment(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'recipient' => ['required', 'string', 'max:120'],
+            'address' => ['nullable', 'string', 'max:160'],
+            // Written the way a bank writes it, which is what is printed and
+            // what the QR payload is built from.
+            'account' => ['required', 'string', 'regex:/^\\d{3}-\\d{1,13}-\\d{2}$/'],
+            'purpose' => ['required', 'string', 'max:120'],
+            'model' => ['required', 'string', 'max:2'],
+            'code' => ['required', 'string', 'max:3'],
+        ]);
+
+        $this->settings->put(
+            collect($data)->mapWithKeys(fn (?string $value, string $key) => ['payment.'.$key => $value])->all()
+        );
 
         return back();
     }

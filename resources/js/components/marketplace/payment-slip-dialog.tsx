@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { Check, Copy, Printer } from 'lucide-react';
+import { Check, Copy, Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export interface PaymentSlip {
@@ -26,11 +26,23 @@ export interface PaymentSlip {
  * payload is built on the server from the same values printed here, so the
  * scanned and the written slip can never disagree.
  *
- * Saving as PDF is the browser's own print dialog rather than a PDF library:
- * every system offers "Save as PDF" there, it always matches what is on
- * screen, and it costs the application nothing to carry.
+ * The PDF itself is built on the server, in the layout of the paper form,
+ * and arrives as a download. It is not the browser's print dialog: that
+ * offers printing as the first option when what a producer wants is a file,
+ * and the fonts a browser-side PDF library ships with have no č, ć, š, ž or
+ * đ - a producer called Nićić would come out mangled.
  */
-export default function PaymentSlipDialog({ slip, open, onOpenChange }: { slip: PaymentSlip; open: boolean; onOpenChange: (open: boolean) => void }) {
+export default function PaymentSlipDialog({
+    slip,
+    downloadUrl,
+    open,
+    onOpenChange,
+}: {
+    slip: PaymentSlip;
+    downloadUrl: string;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+}) {
     const [qrImage, setQrImage] = useState<string | null>(null);
     const [copied, setCopied] = useState<string | null>(null);
 
@@ -128,9 +140,13 @@ export default function PaymentSlipDialog({ slip, open, onOpenChange }: { slip: 
                     <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                         Zatvori
                     </Button>
-                    <Button size="sm" onClick={() => window.print()}>
-                        <Printer className="size-4" />
-                        Odštampaj ili sačuvaj kao PDF
+                    {/* A plain link, so the browser downloads the file the
+                        server built rather than rendering the page again. */}
+                    <Button asChild size="sm">
+                        <a href={downloadUrl} download>
+                            <Download className="size-4" />
+                            Preuzmi uplatnicu (PDF)
+                        </a>
                     </Button>
                 </div>
             </DialogContent>

@@ -79,33 +79,23 @@ class DemoContentSeeder extends Seeder
 
         $this->seedConversations($producers, $buyers);
         $this->seedReviews($producers, $buyers);
-        $this->seedNotifications($producers, $buyers);
+        $this->seedNotifications($producers);
     }
 
     /**
      * A few notifications, so the bell in the header is not empty on a fresh
      * install. They mirror what the application itself would have sent for
-     * the data seeded above.
+     * the data seeded above - messages are not among them, since those have
+     * their own badge and inbox.
      *
      * @param  list<Producer>  $producers
-     * @param  list<User>  $buyers
      */
-    private function seedNotifications(array $producers, array $buyers): void
+    private function seedNotifications(array $producers): void
     {
         foreach ($producers as $producer) {
             $producer->user->notify(SiteNotification::producerApproved(
                 $producer->name,
                 route('marketplace.producers.show', $producer->slug),
-            ));
-        }
-
-        $producer = $producers[0];
-
-        if (isset($buyers[0])) {
-            $buyers[0]->notify(SiteNotification::messageReceived(
-                $producer->name,
-                'Imamo na stanju, javite se kad vam odgovara.',
-                route('messages.show', $producer->slug),
             ));
         }
     }

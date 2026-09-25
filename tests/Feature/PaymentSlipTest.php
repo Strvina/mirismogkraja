@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Producer;
 use App\Models\SubscriptionPlan;
+use App\Models\User;
 use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
+use App\Support\Settings;
 use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -25,19 +27,20 @@ class PaymentSlipTest extends TestCase
         parent::setUp();
         $this->seed(SubscriptionPlansSeeder::class);
 
-        config()->set('platform.payment', [
-            'recipient' => 'Vrelina juga',
-            'address' => 'Niš',
-            'account' => '160-123456789012-51',
-            'purpose' => 'Članarina',
-            'model' => '97',
-            'code' => '221',
+        app(Settings::class)->put([
+            'payment.recipient' => 'Vrelina juga',
+            'payment.address' => 'Niš',
+            'payment.account' => '160-123456789012-51',
+            'payment.purpose' => 'Članarina',
+            'payment.model' => '97',
+            'payment.code' => '221',
         ]);
     }
 
     public function test_the_qr_payload_follows_the_ips_format(): void
     {
-        $producer = Producer::factory()->active()->create(['name' => 'Mlekara Zapis']);
+        $owner = User::factory()->create(['name' => 'Milica Nikolić']);
+        $producer = Producer::factory()->for($owner)->active()->create(['name' => 'Mlekara Zapis']);
         $subscription = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'premium')->sole());
 
         $payload = app(PaymentSlipService::class)->qrPayload($subscription);
@@ -48,7 +51,11 @@ class PaymentSlipTest extends TestCase
         $this->assertStringContainsString('|R:160012345678901251|', $payload);
         $this->assertStringContainsString('|I:RSD5990,00|', $payload);
         $this->assertStringContainsString('|N:Vrelina juga', $payload);
-        $this->assertStringContainsString('|P:Mlekara Zapis|', $payload);
+        // The person signs the slip, not the business they registered...
+        $this->assertStringContainsString('|P:Milica Nikolić|', $payload);
+        // ...and the business is named in the purpose instead, which is
+        // where the payee reads what the money is for.
+        $this->assertStringContainsString('|S:Članarina - Mlekara Zapis|', $payload);
         $this->assertStringContainsString('|SF:221|', $payload);
         $this->assertStringContainsString('|RO:97'.str_replace('-', '', $subscription->reference), $payload);
     }
@@ -70,7 +77,8 @@ class PaymentSlipTest extends TestCase
     /** A pipe would split a field in two and corrupt everything after it. */
     public function test_a_pipe_in_a_name_cannot_break_the_payload(): void
     {
-        $producer = Producer::factory()->active()->create(['name' => 'Ime|sa crtom']);
+        $owner = User::factory()->create(['name' => 'Ime|sa crtom']);
+        $producer = Producer::factory()->for($owner)->active()->create();
         $subscription = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole());
 
         $payload = app(PaymentSlipService::class)->qrPayload($subscription);
@@ -89,5 +97,27 @@ class PaymentSlipTest extends TestCase
                 ->where('producers.0.pending.slip.account', '160-123456789012-51')
                 ->has('producers.0.pending.slip.reference')
         );
+    }
+
+    public function test_the_slip_downloads_as_a_pdf(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $subscription = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole());
+
+        $response = $this->actingAs($producer->user)->get(route('memberships.slip', $subscription));
+
+        $response->assertOk()
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertHeader('content-disposition', 'attachment; filename="uplatnica-'.$subscription->reference.'.pdf"');
+
+        $this->assertStringStartsWith('%PDF-', $response->getContent());
+    }
+
+    public function test_a_stranger_cannot_download_someone_elses_slip(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $subscription = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole());
+
+        $this->actingAs(User::factory()->create())->get(route('memberships.slip', $subscription))->assertForbidden();
     }
 }

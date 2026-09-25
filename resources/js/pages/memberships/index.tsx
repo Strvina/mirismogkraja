@@ -25,7 +25,7 @@ interface ProducerMembership {
     status: string;
     current_plan: { id: number; name: string; level: number } | null;
     active: { id: number; ends_at: string } | null;
-    pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip } | null;
+    pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip; download_url: string } | null;
 }
 
 const dinars = new Intl.NumberFormat('sr-RS');
@@ -170,7 +170,14 @@ export default function Memberships({
                     </p>
                 </>
             )}
-            {producer?.pending && <PaymentSlipDialog slip={producer.pending.slip} open={slipOpen} onOpenChange={setSlipOpen} />}
+            {producer?.pending && (
+                <PaymentSlipDialog
+                    slip={producer.pending.slip}
+                    downloadUrl={producer.pending.download_url}
+                    open={slipOpen}
+                    onOpenChange={setSlipOpen}
+                />
+            )}
         </MarketplaceLayout>
     );
 }
