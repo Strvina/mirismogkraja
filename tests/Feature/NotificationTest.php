@@ -127,14 +127,14 @@ class NotificationTest extends TestCase
         $producer = Producer::factory()->active()->create();
         $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
 
-        $this->actingAs($producer->user)->get('/')->assertInertia(fn ($page) => $page->missing('notifications'));
+        $this->actingAs($producer->user)->get('/')->assertInertia(fn ($page) => $page->missing('recentNotifications'));
 
         $this->actingAs($producer->user)->withHeaders([
             'X-Inertia' => 'true',
             'X-Inertia-Version' => Inertia::getVersion(),
             'X-Inertia-Partial-Component' => 'welcome',
-            'X-Inertia-Partial-Data' => 'notifications',
-        ])->get('/')->assertJsonCount(1, 'props.notifications');
+            'X-Inertia-Partial-Data' => 'recentNotifications',
+        ])->get('/')->assertJsonCount(1, 'props.recentNotifications');
     }
 
     public function test_opening_a_notification_marks_it_read_and_forwards_to_its_page(): void

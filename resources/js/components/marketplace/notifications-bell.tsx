@@ -18,7 +18,7 @@ const POLL_MS = 20_000;
  * built on every request of every page.
  */
 export default function NotificationsBell({ className = '' }: { className?: string }) {
-    const { unreadNotifications, notifications } = usePage<SharedData>().props;
+    const { unreadNotifications, recentNotifications } = usePage<SharedData>().props;
     const [loaded, setLoaded] = useState(false);
 
     usePoll(POLL_MS, { only: ['unreadNotifications'] });
@@ -29,7 +29,7 @@ export default function NotificationsBell({ className = '' }: { className?: stri
         }
 
         setLoaded(true);
-        router.reload({ only: ['notifications'] });
+        router.reload({ only: ['recentNotifications'] });
     };
 
     return (
@@ -50,12 +50,12 @@ export default function NotificationsBell({ className = '' }: { className?: stri
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" sideOffset={10} className="w-80 p-1.5">
-                {notifications === undefined ? (
+                {recentNotifications === undefined ? (
                     <p className="text-muted-foreground px-2 py-6 text-center text-sm">Učitavanje…</p>
-                ) : notifications.length === 0 ? (
+                ) : recentNotifications.length === 0 ? (
                     <p className="text-muted-foreground px-2 py-6 text-center text-sm">Nemate obaveštenja.</p>
                 ) : (
-                    notifications.map((notification) => (
+                    recentNotifications.map((notification) => (
                         <DropdownMenuItem key={notification.id} asChild>
                             <Link
                                 href={route('notifications.open', notification.id)}

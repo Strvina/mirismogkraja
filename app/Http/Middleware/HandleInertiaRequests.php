@@ -53,7 +53,13 @@ class HandleInertiaRequests extends Middleware
             // Evaluated only when a partial reload asks for it by name, so
             // opening the bell costs one small request and every other page
             // load costs nothing.
-            'notifications' => Inertia::optional(fn () => $request->user()
+            //
+            // Deliberately not called 'notifications': page props are merged
+            // over shared ones, so sharing that name would collide with the
+            // notifications page's own paginator - and the bell asking for
+            // 'notifications' there would be handed a paginator instead of a
+            // list.
+            'recentNotifications' => Inertia::optional(fn () => $request->user()
                 ?->notifications()
                 ->latest()
                 ->limit(8)
