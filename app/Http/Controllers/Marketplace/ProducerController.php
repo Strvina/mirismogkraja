@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Models\Producer;
+use App\Models\Report;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -89,6 +90,10 @@ class ProducerController extends Controller
             'canFollow' => $user !== null && $producer->user_id !== $user->id,
             'isFollowing' => $user !== null && $producer->followers()->whereKey($user->id)->exists(),
             'followersCount' => $producer->followers()->count(),
+            // Reporting is for signed-in visitors only, so a complaint has
+            // someone behind it.
+            'canReport' => $user !== null && $producer->user_id !== $user->id,
+            'reportReasons' => Report::REASONS,
             'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'household')
                 ->where('favoritable_id', $producer->id)

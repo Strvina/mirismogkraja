@@ -1,5 +1,6 @@
 import FavoriteButton from '@/components/favorite-button';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import ReportButton from '@/components/marketplace/report-button';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -7,7 +8,7 @@ import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Bell, BellRing, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
+import { BadgeCheck, Bell, BellRing, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 export default function ProducerShow({
@@ -22,6 +23,8 @@ export default function ProducerShow({
     canFollow,
     isFollowing,
     followersCount,
+    canReport,
+    reportReasons,
     isFavorited,
 }: {
     producer: Producer;
@@ -35,6 +38,8 @@ export default function ProducerShow({
     canFollow: boolean;
     isFollowing: boolean;
     followersCount: number;
+    canReport: boolean;
+    reportReasons: Record<string, string>;
     isFavorited: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
@@ -76,7 +81,18 @@ export default function ProducerShow({
                 )}
 
                 <div className="min-w-0 flex-1">
-                    <h1 className="font-serif text-3xl break-words sm:text-4xl">{producer.name}</h1>
+                    <h1 className="flex flex-wrap items-center gap-2 font-serif text-3xl break-words sm:text-4xl">
+                        {producer.name}
+                        {producer.verified_at && (
+                            <span
+                                title="Identitet proizvođača je proveren"
+                                className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
+                            >
+                                <BadgeCheck className="size-3.5" />
+                                Provereno
+                            </span>
+                        )}
+                    </h1>
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                         {producer.city && (
                             <span className="flex items-center gap-1.5">
@@ -126,6 +142,7 @@ export default function ProducerShow({
                         </Button>
                     )}
                     {auth.user && <FavoriteButton type="household" id={producer.id} isFavorited={isFavorited} />}
+                    {canReport && <ReportButton type="household" id={producer.id} reasons={reportReasons} />}
                 </div>
             </div>
 

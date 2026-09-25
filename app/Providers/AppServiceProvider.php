@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\User;
 use App\Observers\ActivityLogObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
@@ -36,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'household' => Producer::class,
             'product' => Product::class,
+            // Reports can name a user too (task 21).
+            'user' => User::class,
         ]);
 
         // Audited models (task 14). Deliberately not every model: messages

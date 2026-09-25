@@ -40,6 +40,16 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function producerVerified(string $producerName, string $url): self
+    {
+        return new self(
+            'producer.verified',
+            'Vaš profil je proveren',
+            "„{$producerName}” od sada nosi oznaku proverenog proizvođača.",
+            $url,
+        );
+    }
+
     public static function producerBlocked(string $producerName, string $url): self
     {
         return new self(

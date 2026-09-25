@@ -69,6 +69,27 @@ class ProducerController extends Controller
     }
 
     /**
+     * Mark a producer as checked, or take that mark away (task 21). Done by
+     * hand, after an admin has seen who they actually are - the badge is
+     * only worth something if nothing awards it automatically.
+     */
+    public function updateVerification(Request $request, Producer $producer): RedirectResponse
+    {
+        $data = $request->validate(['verified' => ['required', 'boolean']]);
+
+        $producer->update(['verified_at' => $data['verified'] ? now() : null]);
+
+        if ($data['verified']) {
+            $producer->user?->notify(SiteNotification::producerVerified(
+                $producer->name,
+                route('marketplace.producers.show', $producer->slug),
+            ));
+        }
+
+        return back();
+    }
+
+    /**
      * Admins can correct a producer's details before or after approving them
      * (task 14, point 2), which the owner-only ProducerPolicy wouldn't allow.
      */

@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { type Producer } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Ban, Check, Pencil, RotateCcw } from 'lucide-react';
+import { BadgeCheck, Ban, Check, Pencil, RotateCcw } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 type AdminProducer = Producer & { user: { id: number; name: string; email: string }; products_count: number };
@@ -92,6 +92,12 @@ export default function AdminProducersIndex({
         router.patch(route('admin.producers.status', producer.id), { status }, { preserveScroll: true });
     };
 
+    // Verification is a separate judgement from approval: approving puts a
+    // producer on the site, verifying says an admin checked who they are.
+    const setVerified = (producer: AdminProducer, verified: boolean) => {
+        router.patch(route('admin.producers.verify', producer.id), { verified }, { preserveScroll: true });
+    };
+
     const filter = (status?: string) => {
         router.get('/admin/proizvodjaci', status ? { status } : {}, { preserveState: true, preserveScroll: true });
     };
@@ -155,6 +161,14 @@ export default function AdminProducersIndex({
                                 <Button size="sm" variant="outline" onClick={() => setEditing(editing === producer.id ? null : producer.id)}>
                                     <Pencil className="size-4" />
                                     Izmeni
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant={producer.verified_at ? 'secondary' : 'outline'}
+                                    onClick={() => setVerified(producer, !producer.verified_at)}
+                                >
+                                    <BadgeCheck className="size-4" />
+                                    {producer.verified_at ? 'Skini oznaku' : 'Označi kao provereno'}
                                 </Button>
                                 {producer.status !== 'blocked' ? (
                                     <Button variant="destructive" size="sm" onClick={() => setStatus(producer, 'blocked')}>

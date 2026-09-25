@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
@@ -13,11 +14,15 @@ export default function ProductShow({
     product,
     similar,
     canInquire,
+    canReport,
+    reportReasons,
     isFavorited,
 }: {
     product: FullProduct;
     similar: Product[];
     canInquire: boolean;
+    canReport: boolean;
+    reportReasons: Record<string, string>;
     isFavorited: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
@@ -86,6 +91,7 @@ export default function ProductShow({
                                 )
                             )}
                             {auth.user && <FavoriteButton type="product" id={product.id} isFavorited={isFavorited} />}
+                            {canReport && <ReportButton type="product" id={product.id} reasons={reportReasons} />}
                         </div>
                     </div>
 
