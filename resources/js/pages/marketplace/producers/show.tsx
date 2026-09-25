@@ -2,6 +2,7 @@ import FavoriteButton from '@/components/favorite-button';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ReportButton from '@/components/marketplace/report-button';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
+import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
@@ -144,6 +145,10 @@ export default function ProducerShow({
                     {auth.user && <FavoriteButton type="household" id={producer.id} isFavorited={isFavorited} />}
                     {canReport && <ReportButton type="household" id={producer.id} reasons={reportReasons} />}
                 </div>
+            </div>
+
+            <div className="mt-4">
+                <ShareButtons url={typeof window === 'undefined' ? '' : window.location.href} title={producer.name} />
             </div>
 
             {(producer.phone || producer.contact_email || producer.address) && (

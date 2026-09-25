@@ -1,5 +1,6 @@
 import FavoriteButton from '@/components/favorite-button';
 import ReportButton from '@/components/marketplace/report-button';
+import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
@@ -29,6 +30,7 @@ export default function ProductShow({
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
     const images = [...(product.images ?? [])].sort((a, b) => a.order - b.order);
+    const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
     const mainImage = images[0];
 
     const sendInquiry = () => {
@@ -93,6 +95,11 @@ export default function ProductShow({
                             {auth.user && <FavoriteButton type="product" id={product.id} isFavorited={isFavorited} />}
                             {canReport && <ReportButton type="product" id={product.id} reasons={reportReasons} />}
                         </div>
+
+                        {/* A link to a jar of honey travels by Viber here, so
+                            the buttons are plain links rather than an embedded
+                            widget that would load tracking on every page. */}
+                        <ShareButtons url={shareUrl} title={product.name} className="mt-4" />
                     </div>
 
                     <Link

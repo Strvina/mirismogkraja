@@ -47,7 +47,15 @@ export default function Footer() {
                     </div>
                 </div>
                 <div className="text-muted-foreground flex flex-col gap-2 pt-6 text-xs sm:flex-row sm:justify-between">
-                    <p>© 2026 Vrelina juga</p>
+                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                        <span>© 2026 Vrelina juga</span>
+                        <Link href={route('legal.terms')} className="hover:text-foreground transition-colors">
+                            Uslovi korišćenja
+                        </Link>
+                        <Link href={route('legal.privacy')} className="hover:text-foreground transition-colors">
+                            Politika privatnosti
+                        </Link>
+                    </p>
                     <p>Pažljivo birano. Od srca predstavljeno.</p>
                 </div>
             </div>
