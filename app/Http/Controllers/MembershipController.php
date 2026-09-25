@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
+use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use Inertia\Response;
  */
 class MembershipController extends Controller
 {
-    public function index(Request $request, SubscriptionService $subscriptions): Response
+    public function index(Request $request, SubscriptionService $subscriptions, PaymentSlipService $slips): Response
     {
         $producers = $request->user()->producers()->with(['subscriptions' => fn ($query) => $query->latest()->with('plan')])->get();
 
@@ -32,14 +33,38 @@ class MembershipController extends Controller
                 'current_plan' => $subscriptions->planFor($producer)?->only(['id', 'name', 'level']),
                 'active' => $producer->subscriptions->first(fn (ProducerSubscription $subscription) => $subscription->isActive())
                     ?->only(['id', 'ends_at']),
-                'pending' => $producer->subscriptions
-                    ->first(fn (ProducerSubscription $subscription) => $subscription->status === ProducerSubscription::STATUS_PENDING)
-                    ?->only(['id', 'reference', 'amount_rsd', 'created_at']),
+                'pending' => $this->pendingSlip($producer, $slips),
             ]),
-            // Where the money actually goes. Kept in config so it is not
-            // buried in a component nobody thinks to look in.
-            'payment' => config('platform.payment'),
         ]);
+    }
+
+    /**
+     * The whole slip, not just its reference: everything the producer copies
+     * onto paper and everything a banking app scans is built in one place,
+     * so the two cannot disagree.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function pendingSlip(Producer $producer, PaymentSlipService $slips): ?array
+    {
+        $pending = $producer->subscriptions->first(
+            fn (ProducerSubscription $subscription) => $subscription->status === ProducerSubscription::STATUS_PENDING
+        );
+
+        if (! $pending) {
+            return null;
+        }
+
+        // Already loaded on the producer, so handing it over saves the slip
+        // a query for each one.
+        $pending->setRelation('producer', $producer);
+
+        return [
+            'id' => $pending->id,
+            'created_at' => $pending->created_at,
+            'plan' => $pending->plan?->name,
+            'slip' => $slips->detailsFor($pending),
+        ];
     }
 
     /**
