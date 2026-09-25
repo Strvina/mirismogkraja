@@ -10,7 +10,6 @@ import Brand from './brand';
 import MenuIcon from './menu-icon';
 import MessagesLink from './messages-link';
 import NotificationsBell from './notifications-bell';
-import SearchForm from './search-form';
 
 /**
  * The site's header: shared by every page except the admin panel, which has
@@ -46,10 +45,6 @@ export default function Navbar() {
     // plain startsWith would let /proizvodjac/mlekara match '/proizvod' as
     // well, leaving a producer's page with both sections underlined.
     const path = url.split(/[?#]/)[0].replace(/\/+$/, '') || '/';
-
-    // Keep the header's field showing what the catalog is filtered by, so it
-    // never contradicts the page under it.
-    const searchTerm = new URLSearchParams(url.split('?')[1] ?? '').get('q');
     const isActive = (paths: string[]) => paths.some((candidate) => path === candidate || path.startsWith(`${candidate}/`));
 
     return (
@@ -57,7 +52,7 @@ export default function Navbar() {
             <div className="mx-auto flex h-16 max-w-[1380px] items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
                 <Brand />
 
-                <nav className="ml-6 hidden items-center gap-7 text-sm md:flex" aria-label="Glavna navigacija">
+                <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm md:flex" aria-label="Glavna navigacija">
                     {sections.map((section) => {
                         const active = isActive(section.paths);
 
@@ -89,11 +84,6 @@ export default function Navbar() {
                         );
                     })}
                 </nav>
-
-                {/* The one thing a visitor looking for something specific
-                    reaches for first, so it sits in the header on every page
-                    rather than only inside the catalog. */}
-                <SearchForm target="/proizvodi" value={searchTerm} className="mx-6 hidden max-w-sm flex-1 lg:block" />
 
                 <div className="ml-auto flex items-center gap-2 sm:gap-3">
                     {auth.user ? (

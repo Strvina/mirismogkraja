@@ -52,35 +52,4 @@ class PublicProducerListTest extends TestCase
         $response->assertInertia(fn ($page) => $page->has('producers.data', 1)
             ->where('producers.data.0.name', 'Vranjsko'));
     }
-
-    /** Producers are searchable by name, place and their own description. */
-    public function test_producers_can_be_searched(): void
-    {
-        Producer::factory()->active()->create(['name' => 'Pcelinjak Medovina', 'city' => 'Nis', 'description' => 'Bagremov med']);
-        Producer::factory()->active()->create(['name' => 'Mlekara Zapis', 'city' => 'Zlatibor', 'description' => 'Kajmak i sir']);
-
-        $this->get(route('marketplace.producers.index', ['q' => 'medov']))->assertInertia(
-            fn ($page) => $page->has('producers.data', 1)
-                ->where('producers.data.0.name', 'Pcelinjak Medovina')
-                ->where('filters.q', 'medov')
-        );
-
-        // City and description are part of the same search.
-        $this->get(route('marketplace.producers.index', ['q' => 'zlatibor']))
-            ->assertInertia(fn ($page) => $page->has('producers.data', 1));
-
-        $this->get(route('marketplace.producers.index', ['q' => 'kajmak']))
-            ->assertInertia(fn ($page) => $page->has('producers.data', 1));
-    }
-
-    /** The term and the city filter narrow the list together. */
-    public function test_search_and_city_filter_combine(): void
-    {
-        Producer::factory()->active()->create(['name' => 'Med i vino', 'city' => 'Nis']);
-        Producer::factory()->active()->create(['name' => 'Med i sir', 'city' => 'Leskovac']);
-
-        $this->get(route('marketplace.producers.index', ['q' => 'med', 'city' => 'Nis']))->assertInertia(
-            fn ($page) => $page->has('producers.data', 1)->where('producers.data.0.city', 'Nis')
-        );
-    }
 }

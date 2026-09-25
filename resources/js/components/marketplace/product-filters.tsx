@@ -6,14 +6,12 @@ import { SlidersHorizontal, X } from 'lucide-react';
 import { useState } from 'react';
 
 export interface ProductFilterValues {
-    q?: string;
     category_id?: string;
     producer_id?: string;
     city?: string;
     min_price?: string;
     max_price?: string;
     in_stock?: string;
-    min_rating?: string;
     sort?: string;
 }
 
@@ -38,15 +36,9 @@ const selectClasses =
 export default function ProductFilters({ filters, categories, producers, cities, priceBounds, onChange, onReset }: Props) {
     const [open, setOpen] = useState(false);
 
-    const activeCount = [
-        filters.category_id,
-        filters.producer_id,
-        filters.city,
-        filters.min_price,
-        filters.max_price,
-        filters.in_stock,
-        filters.min_rating,
-    ].filter(Boolean).length;
+    const activeCount = [filters.category_id, filters.producer_id, filters.city, filters.min_price, filters.max_price, filters.in_stock].filter(
+        Boolean,
+    ).length;
 
     return (
         <div className="lg:w-64 lg:shrink-0">
@@ -151,21 +143,6 @@ export default function ProductFilters({ filters, categories, producers, cities,
                                 onBlur={(e) => onChange({ max_price: e.target.value || undefined })}
                             />
                         </div>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="filter-rating">Ocena proizvođača</Label>
-                        <select
-                            id="filter-rating"
-                            className={selectClasses}
-                            value={filters.min_rating ?? ''}
-                            onChange={(e) => onChange({ min_rating: e.target.value || undefined })}
-                        >
-                            <option value="">Sve ocene</option>
-                            <option value="4">4★ i više</option>
-                            <option value="3">3★ i više</option>
-                            <option value="2">2★ i više</option>
-                        </select>
                     </div>
 
                     <label className="flex cursor-pointer items-center gap-2.5 text-sm">
