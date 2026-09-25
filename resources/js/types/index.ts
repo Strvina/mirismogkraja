@@ -96,8 +96,12 @@ export interface SharedData {
     auth: Auth;
     unreadMessages: number;
     unreadNotifications: number;
-    /** Only present after a partial reload asks for it (the bell dropdown). */
-    notifications?: SiteNotification[];
+    /**
+     * Only present after a partial reload asks for it (the bell dropdown).
+     * Not called `notifications`: the notifications page has a prop of that
+     * name, and page props are merged over shared ones.
+     */
+    recentNotifications?: SiteNotification[];
     [key: string]: unknown;
 }
 
