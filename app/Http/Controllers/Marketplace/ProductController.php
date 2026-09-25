@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
-use App\Models\Review;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,10 +32,6 @@ class ProductController extends Controller
             ->where('status', 'active')
             ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
             ->with(['images', 'producer'])
-            ->when($this->searchTerm($request), fn ($query, $term) => $query->where(fn ($match) => $match
-                ->where('products.name', 'like', $term)
-                ->orWhere('products.description', 'like', $term)
-                ->orWhereHas('producer', fn ($producer) => $producer->where('name', 'like', $term))))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('household_id', $producerId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
@@ -46,20 +41,6 @@ class ProductController extends Controller
             ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->float('min_price')))
             ->when($request->filled('max_price'), fn ($query) => $query->where('price', '<=', $request->float('max_price')))
             ->when($request->boolean('in_stock'), fn ($query) => $query->where('stock_quantity', '>', 0))
-            // Whole stars only, and deliberately an int: binding a float here
-            // makes SQLite compare the average against a text value, which
-            // never matches.
-            ->when($request->integer('min_rating'), fn ($query, $minRating) => $query->whereIn(
-                'household_id',
-                Review::query()
-                    // Only published reviews count: a rejected one must not
-                    // drag a producer below the filter, and one still waiting
-                    // on a moderator must not move them at all.
-                    ->approved()
-                    ->groupBy('household_id')
-                    ->havingRaw('AVG(rating) >= ?', [$minRating])
-                    ->pluck('household_id')
-            ))
             ->when($sort === 'price_asc', fn ($query) => $query->orderBy('price'))
             ->when($sort === 'price_desc', fn ($query) => $query->orderByDesc('price'))
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
@@ -92,33 +73,11 @@ class ProductController extends Controller
                     ->whereHas('producer', fn ($query) => $query->where('status', 'active'))->max('price'),
             ],
             'filters' => $request->only([
-                'q', 'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'min_rating', 'sort',
+                'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'sort',
             ]),
             'perPage' => $this->perPage($request),
             'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
-    }
-
-    /**
-     * What the visitor typed, as a LIKE pattern, or null when they typed
-     * nothing worth searching for.
-     *
-     * LIKE's own wildcards are dropped from the term rather than escaped:
-     * an escape character means different things to SQLite and MySQL unless
-     * every clause spells out ESCAPE, and nobody searching for home-made
-     * food is looking for a percent sign.
-     */
-    private function searchTerm(Request $request): ?string
-    {
-        $term = trim(str_replace(['%', '_', '\\'], '', $request->string('q')->toString()));
-
-        // Nothing but wildcards left is nothing to search for; treating it
-        // as a term would build '%%', which matches the entire catalog.
-        if ($term === '') {
-            return null;
-        }
-
-        return '%'.$term.'%';
     }
 
     /**
