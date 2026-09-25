@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Producer;
 use App\Models\ProducerMessage;
-use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
@@ -14,8 +13,12 @@ use Tests\TestCase;
 
 /**
  * Task 16: the site tells people about the things they would otherwise only
- * find by logging in and looking - a message, a review, and an admin's
- * decision about their producer.
+ * find by logging in and looking - a review, an admin's decision about their
+ * producer, a new listing from someone they follow.
+ *
+ * Messages are deliberately not among them: the header already carries an
+ * unread badge that polls, and the inbox lists every thread, so a second
+ * stream saying the same thing would only bury the rest.
  */
 class NotificationTest extends TestCase
 {
@@ -30,44 +33,27 @@ class NotificationTest extends TestCase
         return $admin;
     }
 
-    public function test_a_producer_is_told_when_a_buyer_writes_to_them(): void
+    private function approvedProducer(User $admin): Producer
     {
-        $buyer = User::factory()->create(['name' => 'Milica']);
+        $producer = Producer::factory()->create(['status' => 'pending']);
+        $this->actingAs($admin)->patch(route('admin.producers.status', $producer), ['status' => 'active']);
+
+        return $producer->refresh();
+    }
+
+    public function test_a_message_does_not_create_a_notification(): void
+    {
+        $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
 
         $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Imate li jaja?']);
+        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Imamo.']);
 
-        $notification = $producer->user->notifications()->sole();
-
-        $this->assertSame('message.received', $notification->data['type']);
-        $this->assertStringContainsString('Milica', $notification->data['title']);
-        $this->assertStringContainsString('jaja', $notification->data['body']);
-
-        // The buyer hears nothing about their own message.
+        // The badge counts it; the bell does not repeat it.
+        $this->assertSame(0, $producer->user->notifications()->count());
         $this->assertSame(0, $buyer->notifications()->count());
-    }
 
-    /** ...and the buyer is told when the producer writes back. */
-    public function test_a_buyer_is_told_when_the_producer_replies(): void
-    {
-        $buyer = User::factory()->create();
-        $producer = Producer::factory()->active()->create(['name' => 'Mlekara Zapis']);
-
-        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje']);
-        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Odgovor']);
-
-        $this->assertStringContainsString('Mlekara Zapis', $buyer->notifications()->sole()->data['title']);
-    }
-
-    public function test_an_inquiry_from_a_product_page_notifies_the_producer(): void
-    {
-        $buyer = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-        $product = Product::factory()->for($producer)->create(['status' => 'active']);
-
-        $this->actingAs($buyer)->post(route('inquiries.store', $product->slug), ['body' => 'Koliko kosta?']);
-
-        $this->assertSame(1, $producer->user->notifications()->count());
+        $this->actingAs($buyer)->get('/')->assertInertia(fn ($page) => $page->where('unreadMessages', 1));
     }
 
     public function test_approving_and_blocking_a_producer_notifies_its_owner(): void
@@ -90,6 +76,7 @@ class NotificationTest extends TestCase
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
+
         ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
         ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
 
@@ -107,12 +94,12 @@ class NotificationTest extends TestCase
 
     public function test_the_unread_count_is_shared_with_every_page(): void
     {
-        $user = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
+        $admin = $this->admin();
+        $producer = Producer::factory()->create(['status' => 'pending']);
 
         $this->actingAs($producer->user)->get('/')->assertInertia(fn ($page) => $page->where('unreadNotifications', 0));
 
-        $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
+        $this->actingAs($admin)->patch(route('admin.producers.status', $producer), ['status' => 'active']);
 
         $this->actingAs($producer->user)->get('/')->assertInertia(fn ($page) => $page->where('unreadNotifications', 1));
     }
@@ -123,9 +110,7 @@ class NotificationTest extends TestCase
      */
     public function test_the_list_is_only_built_when_asked_for(): void
     {
-        $user = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-        $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
+        $producer = $this->approvedProducer($this->admin());
 
         $this->actingAs($producer->user)->get('/')->assertInertia(fn ($page) => $page->missing('recentNotifications'));
 
@@ -139,39 +124,35 @@ class NotificationTest extends TestCase
 
     public function test_opening_a_notification_marks_it_read_and_forwards_to_its_page(): void
     {
-        $buyer = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
-
+        $producer = $this->approvedProducer($this->admin());
         $owner = $producer->user;
         $notification = $owner->notifications()->sole();
 
         $this->actingAs($owner)->get(route('notifications.open', $notification->id))
-            ->assertRedirect(route('messages.thread', [$producer->id, $buyer->id]));
+            ->assertRedirect(route('marketplace.producers.show', $producer->slug));
 
         $this->assertNotNull($notification->refresh()->read_at);
     }
 
     public function test_a_user_cannot_open_someone_elses_notification(): void
     {
-        $buyer = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
-
+        $producer = $this->approvedProducer($this->admin());
         $notification = $producer->user->notifications()->sole();
 
-        $this->actingAs($buyer)->get(route('notifications.open', $notification->id))->assertNotFound();
+        $this->actingAs(User::factory()->create())->get(route('notifications.open', $notification->id))->assertNotFound();
         $this->assertNull($notification->refresh()->read_at);
     }
 
     public function test_everything_can_be_marked_read_at_once(): void
     {
-        $user = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-        $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Prva']);
-        $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Druga']);
+        $admin = $this->admin();
+        $first = Producer::factory()->create(['status' => 'pending']);
+        $second = Producer::factory()->for($first->user)->create(['status' => 'pending']);
 
-        $owner = $producer->user;
+        $this->actingAs($admin)->patch(route('admin.producers.status', $first), ['status' => 'active']);
+        $this->actingAs($admin)->patch(route('admin.producers.status', $second), ['status' => 'active']);
+
+        $owner = $first->user;
         $this->assertSame(2, $owner->unreadNotifications()->count());
 
         $this->actingAs($owner)->post(route('notifications.read-all'));

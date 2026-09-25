@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ProducerSubscription;
+use App\Support\Settings;
 
 /**
  * The details a producer needs to pay a membership, in the shape a Serbian
@@ -14,27 +15,33 @@ use App\Models\ProducerSubscription;
  * a comma. Building it here rather than in the page keeps one definition of
  * what gets printed and what gets scanned - if they disagreed, the money
  * would arrive without a reference and nobody could match it to a producer.
+ *
+ * Who pays is the person, not the business: a slip is signed by whoever
+ * walks up to the counter, and the bank matches the name on it to them. The
+ * producer's name belongs in the purpose instead, which is where the payee
+ * actually reads what the money is for.
  */
 class PaymentSlipService
 {
+    public function __construct(private readonly Settings $settings) {}
+
     /**
      * @return array<string, string>
      */
     public function detailsFor(ProducerSubscription $subscription): array
     {
-        $subscription->loadMissing(['plan', 'producer']);
-        $payment = config('platform.payment');
+        $subscription->loadMissing(['plan', 'producer.user']);
 
         return [
-            'recipient' => $payment['recipient'],
-            'recipient_address' => $payment['address'] ?? '',
-            'account' => $payment['account'],
-            'purpose' => $payment['purpose'],
-            'payment_code' => (string) $payment['code'],
-            'model' => (string) $payment['model'],
+            'recipient' => $this->setting('recipient'),
+            'recipient_address' => $this->setting('address'),
+            'account' => $this->setting('account'),
+            'purpose' => $this->purposeFor($subscription),
+            'payment_code' => $this->setting('code'),
+            'model' => $this->setting('model'),
             'reference' => $subscription->reference,
             'amount' => number_format($subscription->amount_rsd, 2, ',', '.'),
-            'payer' => $subscription->producer->name,
+            'payer' => $this->payerFor($subscription),
             'qr' => $this->qrPayload($subscription),
         ];
     }
@@ -46,22 +53,43 @@ class PaymentSlipService
      */
     public function qrPayload(ProducerSubscription $subscription): string
     {
-        $payment = config('platform.payment');
+        $subscription->loadMissing(['producer.user']);
+        $address = $this->setting('address');
 
         $fields = [
             'K:PR',
             'V:01',
             'C:1',
-            'R:'.$this->accountDigits($payment['account']),
-            'N:'.$this->clean($payment['recipient'].($payment['address'] ? "\n".$payment['address'] : '')),
+            'R:'.$this->accountDigits($this->setting('account')),
+            'N:'.$this->clean($this->setting('recipient').($address ? "\n".$address : '')),
             'I:RSD'.number_format($subscription->amount_rsd, 2, ',', ''),
-            'P:'.$this->clean($subscription->producer->name),
-            'SF:'.$payment['code'],
-            'S:'.$this->clean($payment['purpose']),
-            'RO:'.$payment['model'].str_replace('-', '', $subscription->reference),
+            'P:'.$this->clean($this->payerFor($subscription)),
+            'SF:'.$this->setting('code'),
+            'S:'.$this->clean($this->purposeFor($subscription)),
+            'RO:'.$this->setting('model').str_replace('-', '', $subscription->reference),
         ];
 
         return implode('|', $fields);
+    }
+
+    /** The person paying, not the business they registered. */
+    private function payerFor(ProducerSubscription $subscription): string
+    {
+        return $subscription->producer->user?->name ?? $subscription->producer->name;
+    }
+
+    /**
+     * Names the producer the membership is for, so the payee can tell two
+     * slips from the same person apart.
+     */
+    private function purposeFor(ProducerSubscription $subscription): string
+    {
+        return $this->setting('purpose').' - '.$subscription->producer->name;
+    }
+
+    private function setting(string $key): string
+    {
+        return (string) $this->settings->get('payment.'.$key, (string) config('platform.payment.'.$key));
     }
 
     /**

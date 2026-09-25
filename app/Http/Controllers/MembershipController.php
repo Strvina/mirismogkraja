@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
+use App\Services\PaymentSlipPdf;
 use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
@@ -39,6 +40,21 @@ class MembershipController extends Controller
     }
 
     /**
+     * The slip as a PDF file. A download, not a print dialog: the producer
+     * takes this to a counter or opens it in their banking app, and both
+     * want a file.
+     */
+    public function slip(Request $request, ProducerSubscription $subscription, PaymentSlipPdf $pdf): \Symfony\Component\HttpFoundation\Response
+    {
+        $this->authorize('update', $subscription->producer);
+
+        return response($pdf->render($subscription), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$pdf->filenameFor($subscription).'"',
+        ]);
+    }
+
+    /**
      * The whole slip, not just its reference: everything the producer copies
      * onto paper and everything a banking app scans is built in one place,
      * so the two cannot disagree.
@@ -64,6 +80,7 @@ class MembershipController extends Controller
             'created_at' => $pending->created_at,
             'plan' => $pending->plan?->name,
             'slip' => $slips->detailsFor($pending),
+            'download_url' => route('memberships.slip', $pending),
         ];
     }
 

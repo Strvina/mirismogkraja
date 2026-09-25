@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Producer;
 use App\Models\User;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Inertia;
 use Tests\TestCase;
@@ -19,16 +20,25 @@ class NotificationsPageTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function ownerWithOneNotification(): User
+    {
+        $this->seed(RolesSeeder::class);
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $producer = Producer::factory()->create(['status' => 'pending']);
+        $this->actingAs($admin)->patch(route('admin.producers.status', $producer), ['status' => 'active']);
+
+        return $producer->user;
+    }
+
     public function test_the_notifications_page_opens_with_and_without_notifications(): void
     {
-        $user = User::factory()->create();
+        $this->actingAs(User::factory()->create())->get(route('notifications.index'))->assertOk();
 
-        $this->actingAs($user)->get(route('notifications.index'))->assertOk();
+        $owner = $this->ownerWithOneNotification();
 
-        $producer = Producer::factory()->active()->create();
-        $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
-
-        $this->actingAs($producer->user)->get(route('notifications.index'))
+        $this->actingAs($owner)->get(route('notifications.index'))
             ->assertOk()
             ->assertInertia(fn ($page) => $page->component('notifications/index')->has('notifications.data', 1));
     }
@@ -36,11 +46,7 @@ class NotificationsPageTest extends TestCase
     /** The page's own prop and the bell's are different things. */
     public function test_the_page_prop_and_the_bells_prop_do_not_collide(): void
     {
-        $user = User::factory()->create();
-        $producer = Producer::factory()->active()->create();
-        $this->actingAs($user)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo']);
-
-        $owner = $producer->user;
+        $owner = $this->ownerWithOneNotification();
 
         // The page is served a paginator, and nothing named recentNotifications.
         $this->actingAs($owner)->get(route('notifications.index'))->assertInertia(

@@ -202,29 +202,3 @@
         @apply bg-background text-foreground;
     }
 }
-
-/*
- * Printing a payment slip: the dialog is what the producer wants on paper,
- * so everything else is taken off the page. Kept here rather than in a
- * component because print rules have to apply to the whole document, and a
- * slip printed with the site's header around it is not a slip.
- */
-@media print {
-    body * {
-        visibility: hidden;
-    }
-
-    #payment-slip,
-    #payment-slip * {
-        visibility: visible;
-    }
-
-    #payment-slip {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        border: 0;
-        padding: 0;
-    }
-}

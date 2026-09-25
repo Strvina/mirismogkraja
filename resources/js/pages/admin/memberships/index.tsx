@@ -125,6 +125,58 @@ function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<s
  * step on purpose: the money comes in on a bank slip, so someone has to see
  * the statement and say it arrived.
  */
+interface PaymentDetails {
+    recipient: string;
+    address: string;
+    account: string;
+    purpose: string;
+    model: string;
+    code: string;
+}
+
+/**
+ * The bank details printed on every payment slip. Edited here rather than in
+ * a deployment file: they are not secret, not per-environment, and changing
+ * a bank account should not need a developer.
+ */
+function PaymentForm({ payment }: { payment: PaymentDetails }) {
+    const { data, setData, put, processing, errors, recentlySuccessful } = useForm({ ...payment });
+
+    const submit: FormEventHandler = (event) => {
+        event.preventDefault();
+        put(route('admin.payment.update'), { preserveScroll: true });
+    };
+
+    const fields: { key: keyof PaymentDetails; label: string; hint?: string }[] = [
+        { key: 'recipient', label: 'Primalac' },
+        { key: 'address', label: 'Adresa primaoca' },
+        { key: 'account', label: 'Račun primaoca', hint: 'U obliku 000-0000000000000-00' },
+        { key: 'purpose', label: 'Svrha uplate', hint: 'Naziv proizvođača se dodaje automatski' },
+        { key: 'model', label: 'Model' },
+        { key: 'code', label: 'Šifra plaćanja' },
+    ];
+
+    return (
+        <form onSubmit={submit} className="mt-4 grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
+            {fields.map((field) => (
+                <div key={field.key} className="grid gap-1.5">
+                    <Label htmlFor={`payment-${field.key}`}>{field.label}</Label>
+                    <Input id={`payment-${field.key}`} value={data[field.key]} onChange={(event) => setData(field.key, event.target.value)} />
+                    {field.hint && <p className="text-muted-foreground text-xs">{field.hint}</p>}
+                    {errors[field.key] && <p className="text-destructive text-xs">{errors[field.key]}</p>}
+                </div>
+            ))}
+
+            <div className="flex items-center gap-3 sm:col-span-2">
+                <Button size="sm" disabled={processing}>
+                    Sačuvaj podatke za uplatu
+                </Button>
+                {recentlySuccessful && <span className="text-olive text-sm">Sačuvano</span>}
+            </div>
+        </form>
+    );
+}
+
 export default function AdminMemberships({
     plans,
     featureLabels,
@@ -132,6 +184,7 @@ export default function AdminMemberships({
     filters,
     counts,
     revenue,
+    payment,
 }: {
     plans: Plan[];
     featureLabels: Record<string, string>;
@@ -139,6 +192,7 @@ export default function AdminMemberships({
     filters: { status: Status };
     counts: Record<Status, number>;
     revenue: { plan: string; count: number; total: number }[];
+    payment: PaymentDetails;
 }) {
     const [editingPlans, setEditingPlans] = useState(false);
 
@@ -225,6 +279,12 @@ export default function AdminMemberships({
                     ))}
                 </div>
             )}
+
+            <section className="mt-12">
+                <h2 className="font-serif text-2xl">Podaci za uplatnicu</h2>
+                <p className="text-muted-foreground mt-1 text-sm">Ovo se štampa na svakoj uplatnici i ugrađuje u QR kod.</p>
+                <PaymentForm payment={payment} />
+            </section>
 
             <section className="mt-12">
                 <div className="flex flex-wrap items-center justify-between gap-3">
