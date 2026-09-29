@@ -22,6 +22,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // served from the same origin as everything else.
         $middleware->append(SecurityHeaders::class);
 
+        // A beacon cannot carry a CSRF token, and this route only counts.
+        $middleware->validateCsrfTokens(except: ['statistika/*']);
+
         $middleware->web(append: [
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

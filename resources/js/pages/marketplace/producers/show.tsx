@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
+import { mobileNumberForApps, trackContact } from '@/lib/statistics';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { BadgeCheck, Bell, BellRing, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
@@ -51,6 +52,9 @@ export default function ProducerShow({
     const [comment, setComment] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [phoneShown, setPhoneShown] = useState(false);
+    // Viber and WhatsApp open a chat with a mobile number, so they are only
+    // offered when the number is one.
+    const mobile = producer.phone ? mobileNumberForApps(producer.phone) : null;
 
     const submitReview: FormEventHandler = (e) => {
         e.preventDefault();
@@ -161,11 +165,40 @@ export default function ProducerShow({
                         <div className="min-w-0">
                             <p className="text-muted-foreground text-xs">Telefon</p>
                             {phoneShown ? (
-                                <a href={`tel:${producer.phone}`} className="font-medium break-words">
-                                    {producer.phone}
-                                </a>
+                                <>
+                                    <a href={`tel:${producer.phone}`} className="font-medium break-words">
+                                        {producer.phone}
+                                    </a>
+                                    {mobile && (
+                                        <span className="mt-1 flex gap-3 text-xs">
+                                            <a
+                                                href={`viber://chat?number=%2B${mobile}`}
+                                                onClick={() => trackContact(producer.id, 'viber_click')}
+                                                className="text-primary font-semibold underline"
+                                            >
+                                                Viber
+                                            </a>
+                                            <a
+                                                href={`https://wa.me/${mobile}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => trackContact(producer.id, 'whatsapp_click')}
+                                                className="text-primary font-semibold underline"
+                                            >
+                                                WhatsApp
+                                            </a>
+                                        </span>
+                                    )}
+                                </>
                             ) : (
-                                <button type="button" onClick={() => setPhoneShown(true)} className="text-primary font-medium underline">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPhoneShown(true);
+                                        trackContact(producer.id, 'phone_reveal');
+                                    }}
+                                    className="text-primary font-medium underline"
+                                >
                                     Prikaži broj
                                 </button>
                             )}
@@ -174,7 +207,11 @@ export default function ProducerShow({
                     {producer.contact_email && (
                         <div className="min-w-0">
                             <p className="text-muted-foreground text-xs">Email</p>
-                            <a href={`mailto:${producer.contact_email}`} className="font-medium break-all">
+                            <a
+                                href={`mailto:${producer.contact_email}`}
+                                onClick={() => trackContact(producer.id, 'email_click')}
+                                className="font-medium break-all"
+                            >
                                 {producer.contact_email}
                             </a>
                         </div>

@@ -7,11 +7,14 @@ use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Report;
+use App\Services\ProducerStatistics;
 use App\Support\PageMeta;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+use function Illuminate\Support\defer;
 
 class ProductController extends Controller
 {
@@ -98,13 +101,15 @@ class ProductController extends Controller
      * Show a product's public page. Only 'active' products belonging to an
      * 'active' producer are publicly visible.
      */
-    public function show(Product $product): Response
+    public function show(Request $request, Product $product, ProducerStatistics $statistics): Response
     {
         $product->load(['producer:id,user_id,name,slug,city,logo_path,status', 'category:id,name', 'images']);
 
         if (! $product->isPubliclyVisible()) {
             throw new NotFoundHttpException;
         }
+
+        defer(fn () => $statistics->record($request, $product->producer, ProducerStatistics::PRODUCT_VIEW, $product));
 
         $similar = Product::published()
             ->where('category_id', $product->category_id)
@@ -114,7 +119,7 @@ class ProductController extends Controller
             ->limit(4)
             ->get();
 
-        $user = request()->user();
+        $user = $request->user();
 
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
