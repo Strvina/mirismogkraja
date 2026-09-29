@@ -1,3 +1,4 @@
+import PaidItemActions, { CancelRequestedBadge } from '@/components/admin/paid-item-actions';
 import InputError from '@/components/input-error';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ interface PendingPlace {
     reference: string;
     amount_rsd: number;
     created_at: string;
+    cancel_requested_at?: string | null;
     campaign: { id: number; name: string } | null;
     producer: { id: number; name: string; slug: string } | null;
 }
@@ -118,7 +120,15 @@ function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: ()
     );
 }
 
-export default function AdminCampaigns({ campaigns, pending }: { campaigns: Paginated<Campaign>; pending: PendingPlace[] }) {
+export default function AdminCampaigns({
+    campaigns,
+    pending,
+    active,
+}: {
+    campaigns: Paginated<Campaign>;
+    pending: PendingPlace[];
+    active: PendingPlace[];
+}) {
     const [editing, setEditing] = useState<number | null>(null);
 
     const confirm = (place: PendingPlace) => router.patch(route('admin.campaigns.confirm', place.id), {}, { preserveScroll: true });
@@ -160,6 +170,33 @@ export default function AdminCampaigns({ campaigns, pending }: { campaigns: Pagi
                     </div>
                 )}
             </section>
+
+            {active.length > 0 && (
+                <section className="mt-12">
+                    <h2 className="font-serif text-2xl">Učesnici kampanja u toku</h2>
+                    <div className="mt-4 space-y-3">
+                        {active.map((place) => (
+                            <div key={place.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
+                                <div className="min-w-0 flex-1">
+                                    <p className="flex flex-wrap items-center gap-2 font-medium break-words">
+                                        {place.producer?.name ?? 'Obrisan proizvođač'} · {place.campaign?.name}
+                                        <CancelRequestedBadge at={place.cancel_requested_at} />
+                                    </p>
+                                    <p className="text-muted-foreground mt-1 text-sm">
+                                        Poziv na broj <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
+                                        {dinars.format(place.amount_rsd)} RSD
+                                    </p>
+                                </div>
+                                <PaidItemActions
+                                    status="active"
+                                    what={`učešće „${place.producer?.name ?? ''}” u kampanji`}
+                                    onCancel={() => cancel(place)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             <section className="mt-12">
                 <h2 className="font-serif text-2xl">Nova kampanja</h2>

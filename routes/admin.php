@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AdminBillingController;
 use App\Http\Controllers\Admin\AdminBoostController;
 use App\Http\Controllers\Admin\AdminCampaignController;
 use App\Http\Controllers\Admin\AdminMembershipController;
@@ -39,6 +40,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/clanarine', [AdminMembershipController::class, 'index'])->name('memberships.index');
     Route::patch('/clanarine/{subscription}/potvrdi', [AdminMembershipController::class, 'confirm'])->name('memberships.confirm');
     Route::patch('/clanarine/{subscription}/otkazi', [AdminMembershipController::class, 'cancel'])->name('memberships.cancel');
+    // Prices, plans and the slip's details, on a page of their own.
+    Route::get('/naplata', [AdminBillingController::class, 'index'])->name('billing.index');
+    Route::put('/naplata/osnivaci', [AdminBillingController::class, 'updateFounding'])->name('billing.founding');
     Route::put('/paketi/{plan}', [AdminMembershipController::class, 'updatePlan'])->name('plans.update');
     Route::put('/uplatnica', [AdminMembershipController::class, 'updatePayment'])->name('payment.update');
 

@@ -8,7 +8,9 @@ use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/proizvodjaci', [ProducerController::class, 'index'])->name('marketplace.producers.index');
-Route::get('/prvih-100', FoundingProducerController::class)->name('marketplace.founding');
+Route::get('/osnivaci', FoundingProducerController::class)->name('marketplace.founding');
+// The page's first address, from when there were a hundred places.
+Route::redirect('/prvih-100', '/osnivaci', 301);
 Route::get('/kampanja/{campaign:slug}', [CampaignController::class, 'show'])->name('campaigns.show');
 Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])->name('marketplace.producers.show');
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');

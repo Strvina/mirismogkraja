@@ -1,5 +1,5 @@
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { HowItWorks } from '@/components/marketplace/payment-status';
+import { CancelRequest, HowItWorks } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { cn } from '@/lib/utils';
@@ -25,7 +25,7 @@ interface ProducerMembership {
     name: string;
     status: string;
     current_plan: { id: number; name: string; level: number } | null;
-    active: { id: number; ends_at: string } | null;
+    active: { id: number; ends_at: string; cancel_requested_at: string | null } | null;
     pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip; download_url: string } | null;
 }
 
@@ -115,10 +115,17 @@ export default function Memberships({
                     )}
 
                     {producer?.active && (
-                        <p className="border-olive/30 bg-olive-soft text-olive mt-8 rounded-lg border p-4 text-sm">
-                            Aktivan paket: <strong>{producer.current_plan?.name}</strong> — važi do{' '}
-                            {new Date(producer.active.ends_at).toLocaleDateString('sr-RS')}.
-                        </p>
+                        <div className="border-olive/30 bg-olive-soft text-olive mt-8 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm">
+                            <p>
+                                Aktivan paket: <strong>{producer.current_plan?.name}</strong> — važi do{' '}
+                                {new Date(producer.active.ends_at).toLocaleDateString('sr-RS')}.
+                            </p>
+                            <CancelRequest
+                                href={route('cancellation.membership', producer.active.id)}
+                                requestedAt={producer.active.cancel_requested_at}
+                                what={`paket „${producer.current_plan?.name ?? ''}”`}
+                            />
+                        </div>
                     )}
 
                     {producer?.pending && (

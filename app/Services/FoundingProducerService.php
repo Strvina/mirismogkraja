@@ -4,10 +4,11 @@ namespace App\Services;
 
 use App\Models\Producer;
 use App\Models\SubscriptionPlan;
+use App\Support\Settings;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The founding hundred (task 20.4): the first producers to be approved get a
+ * The founding producers (task 20.4): the first producers to be approved get a
  * permanent number, shown on their page and on a public list, and they keep
  * it for good - including after they start paying like everyone else.
  *
@@ -16,22 +17,33 @@ use Illuminate\Support\Facades\DB;
  */
 class FoundingProducerService
 {
-    public const LIMIT = 100;
-
     /**
-     * What a place in the hundred comes with besides the number: a year of
+     * What a founding place comes with besides the number: a year of
      * this plan, free. Premium rather than Basic, so a founding producer
      * sees the statistics and the featured row for themselves - which is
      * what gives them a reason to keep paying once the year is up.
      */
     public const PLAN = 'premium';
 
-    public function __construct(private readonly SubscriptionService $subscriptions) {}
+    public function __construct(
+        private readonly SubscriptionService $subscriptions,
+        private readonly Settings $settings,
+    ) {}
+
+    /**
+     * How many founding places there are. A setting, not a constant: each
+     * place is a free year of Premium, so the owner decides how many the
+     * launch can afford.
+     */
+    public function limit(): int
+    {
+        return (int) $this->settings->get('founding.limit', (string) config('platform.founding_limit'));
+    }
 
     /**
      * Give this producer the next free number, if any are left and it has
      * none already, together with the founding year of membership. Returns
-     * the number it now holds, or null if the hundred are gone.
+     * the number it now holds, or null if the places are gone.
      *
      * Approving the same producer again - after a block, say - hands out
      * nothing new: the number and the year belong to the first approval.
@@ -63,7 +75,7 @@ class FoundingProducerService
                 ->lockForUpdate()
                 ->max('founding_number') ?? 0;
 
-            if ($taken >= self::LIMIT) {
+            if ($taken >= $this->limit()) {
                 return null;
             }
 
@@ -79,14 +91,14 @@ class FoundingProducerService
     /** How many places are left, for the counter on the sign-up page. */
     public function remaining(): int
     {
-        return max(0, self::LIMIT - $this->claimed());
+        return max(0, $this->limit() - $this->claimed());
     }
 
     /**
      * How many places are gone. Read as the highest number issued rather
      * than as a count of rows: the numbers are handed out in sequence and
      * never reissued, so a producer that was later archived still holds its
-     * place in the hundred.
+     * founding place.
      */
     public function claimed(): int
     {

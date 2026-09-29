@@ -111,7 +111,7 @@ class SubscriptionService
     }
 
     /**
-     * A membership nobody pays for - the founding hundred's first year
+     * A membership nobody pays for - the founding producers's first year
      * (task 20.4). Recorded like any other, at 0 RSD, so it shows in the
      * admin panel, runs out on its own date and sends the same reminders;
      * nothing about it is special-cased later.

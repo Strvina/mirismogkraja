@@ -35,6 +35,16 @@ class AdminCampaignController extends Controller
                 ->oldest()
                 ->limit(100)
                 ->get(['id', 'campaign_id', 'household_id', 'reference', 'amount_rsd', 'created_at']),
+            // Places that are running, asked-to-cancel first - so the admin
+            // can deactivate one, on request or otherwise.
+            'active' => CampaignParticipant::query()
+                ->where('status', CampaignParticipant::STATUS_ACTIVE)
+                ->whereHas('campaign', fn ($query) => $query->whereDate('ends_on', '>=', today()))
+                ->with(['campaign:id,name', 'producer:id,name,slug'])
+                ->orderByRaw('cancel_requested_at is null')
+                ->latest('confirmed_at')
+                ->limit(100)
+                ->get(['id', 'campaign_id', 'household_id', 'reference', 'amount_rsd', 'created_at', 'cancel_requested_at']),
         ]);
     }
 
@@ -74,9 +84,20 @@ class AdminCampaignController extends Controller
         return back();
     }
 
+    /** Cancel an unpaid place, or deactivate a running one; see AdminMembershipController::cancel(). */
     public function cancel(CampaignParticipant $participant): RedirectResponse
     {
+        $wasActive = $participant->status === CampaignParticipant::STATUS_ACTIVE;
+
         $participant->update(['status' => CampaignParticipant::STATUS_CANCELLED]);
+
+        if ($wasActive) {
+            $participant->loadMissing(['campaign', 'producer.user']);
+            $participant->producer?->user?->notify(SiteNotification::paidItemCancelled(
+                'Učešće u kampanji '.$participant->campaign->name,
+                route('campaigns.index'),
+            ));
+        }
 
         return back();
     }

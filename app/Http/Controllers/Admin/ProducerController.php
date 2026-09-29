@@ -51,7 +51,7 @@ class ProducerController extends Controller
         $previous = $producer->status;
         $producer->update($data);
 
-        // The founding hundred are counted from approval, so a request that
+        // The founding producers are counted from approval, so a request that
         // is never approved does not use up a place (task 20.4).
         if ($producer->status === 'active') {
             $founding->claimNumberFor($producer);

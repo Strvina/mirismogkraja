@@ -115,6 +115,20 @@ class SiteNotification extends Notification
         );
     }
 
+    /**
+     * Something the producer paid for was stopped by an admin - at their
+     * request or otherwise. Said plainly, with where to look.
+     */
+    public static function paidItemCancelled(string $what, string $url): self
+    {
+        return new self(
+            'paid-item.cancelled',
+            'Otkazano: '.$what,
+            "„{$what}” više nije aktivno. Ako imate pitanja o povraćaju ili bilo čemu drugom, javite nam se.",
+            $url,
+        );
+    }
+
     public static function boostActivated(string $boostedName, string $endsOn, string $url): self
     {
         return new self(

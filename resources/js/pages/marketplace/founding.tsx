@@ -21,12 +21,12 @@ interface FoundingProducer {
 export default function Founding({ producers, claimed, limit }: { producers: FoundingProducer[]; claimed: number; limit: number }) {
     return (
         <MarketplaceLayout>
-            <Head title="Prvih 100 proizvođača | Vrelina juga">
+            <Head title={`Prvih ${limit} proizvođača | Vrelina juga`}>
                 <meta name="description" content="Proizvođači koji su prvi poverovali u domaću proizvodnju na Vrelini juga." />
             </Head>
 
             <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">Prvi koji su verovali</p>
-            <h1 className="font-serif text-4xl sm:text-5xl">Prvih 100 proizvođača</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">Prvih {limit} proizvođača</h1>
             <p className="text-muted-foreground mt-4 max-w-xl leading-7">
                 Ljudi koji su izneli svoje proizvode pre nego što ih je iko tražio. Njihov redni broj ostaje uz njih zauvek, a prva godina Premium
                 članstva je na nas.
