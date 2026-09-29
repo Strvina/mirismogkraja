@@ -1,3 +1,4 @@
+import InfoHint from '@/components/info-hint';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -117,7 +118,18 @@ export default function ProducerStatistics({
 
             <h1 className="font-serif text-4xl break-words sm:text-5xl">Statistika</h1>
             <p className="text-muted-foreground mt-2">
-                {producer.name} · poslednjih {stats?.days ?? PREVIEW.days} dana. Ne računaju se vaše sopstvene posete ni pretraživači.
+                {producer.name} · poslednjih {stats?.days ?? PREVIEW.days} dana.
+                <InfoHint label="Šta se računa?" title="Šta se računa" className="ml-1 align-middle">
+                    <p>
+                        <strong>Pregled</strong> je svaki put kada neko otvori vašu stranicu ili stranicu proizvoda. Ne računaju se vaše sopstvene
+                        posete, pretraživači i roboti.
+                    </p>
+                    <p>
+                        <strong>Prikaz telefona, Viber, WhatsApp i e-mail</strong> su kliknuti kontakti — najbolji znak da je neko zaista
+                        zainteresovan.
+                    </p>
+                    <p>O posetiocima ne čuvamo ništa — samo broj po danu.</p>
+                </InfoHint>
             </p>
 
             <div className="mt-8">

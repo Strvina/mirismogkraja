@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import InfoHint from '@/components/info-hint';
 import { PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { PremiumBadge } from '@/components/marketplace/plan-badges';
@@ -108,6 +109,25 @@ export default function ProducerShow({
                             </span>
                         )}
                         {isPremium && <PremiumBadge className="py-1" />}
+                        {(producer.verified_at || isPremium || producer.founding_number !== null) && (
+                            <InfoHint label="Šta znače oznake?" title="Oznake na profilu">
+                                {producer.verified_at && (
+                                    <p>
+                                        <strong>Provereno</strong> — proverili smo ko stoji iza ovog proizvođača.
+                                    </p>
+                                )}
+                                {isPremium && (
+                                    <p>
+                                        <strong>Premium</strong> — proizvođač ima plaćeno Premium ili Pro članstvo na sajtu.
+                                    </p>
+                                )}
+                                {producer.founding_number !== null && (
+                                    <p>
+                                        <strong>Osnivač</strong> — jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.
+                                    </p>
+                                )}
+                            </InfoHint>
+                        )}
                     </h1>
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                         {producer.city && (
