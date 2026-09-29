@@ -64,9 +64,12 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                                             Novi naziv „{change.requested_value}” čeka odobrenje. Do tada ostaje dosadašnji.
                                         </p>
                                     ))}
-                                <div className="mt-4 flex gap-2">
+                                <div className="mt-4 flex flex-wrap gap-2">
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.edit', producer.id)}>Izmeni</Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('producers.products.index', producer.id)}>Proizvodi</Link>
                                     </Button>
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.statistics', producer.id)}>Statistika</Link>

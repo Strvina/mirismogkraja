@@ -1,5 +1,5 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type Category } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import ProducerForm from './producer-form';
 
@@ -8,7 +8,13 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Novi proizvođač', href: '/moji-proizvodjaci/novo' },
 ];
 
-export default function ProducersCreate({ founding }: { founding: { claimed: number; limit: number; remaining: number } }) {
+export default function ProducersCreate({
+    founding,
+    categories,
+}: {
+    founding: { claimed: number; limit: number; remaining: number };
+    categories: Category[];
+}) {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Novi proizvođač" />
@@ -32,7 +38,7 @@ export default function ProducersCreate({ founding }: { founding: { claimed: num
                         </Link>
                     </div>
                 )}
-                <ProducerForm action={route('producers.store')} method="post" submitLabel="Pošalji na odobrenje" wizard />
+                <ProducerForm action={route('producers.store')} method="post" submitLabel="Pošalji na odobrenje" wizard categories={categories} />
             </div>
         </MarketplaceLayout>
     );

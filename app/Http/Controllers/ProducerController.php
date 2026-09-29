@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProducerRequest;
 use App\Http\Requests\UpdateProducerRequest;
+use App\Models\Category;
 use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
 use App\Services\FoundingProducerService;
@@ -48,6 +49,8 @@ class ProducerController extends Controller
                 'limit' => $founding->limit(),
                 'remaining' => $founding->remaining(),
             ],
+            // For the wizard's products step.
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -58,9 +61,13 @@ class ProducerController extends Controller
     {
         $producers->create(
             $request->user(),
-            $request->safe()->except(['cover_image', 'logo']),
+            $request->safe()->except(['cover_image', 'logo', 'products']),
             $request->file('cover_image'),
             $request->file('logo'),
+            // Rows and their photos, matched by position.
+            collect($request->validated('products', []))
+                ->map(fn (array $product, int $index) => [...$product, 'image' => $request->file("products.{$index}.image")])
+                ->all(),
         );
 
         return to_route('producers.index');
