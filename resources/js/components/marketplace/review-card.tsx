@@ -1,4 +1,5 @@
 import { formatRelativeTime } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { type Review } from '@/types';
 import { BadgeCheck, Clock, Star } from 'lucide-react';
 
@@ -31,7 +32,7 @@ export default function ReviewCard({ review, pending = false }: { review: Review
                         <span className="font-medium break-words">{review.user.name}</span>
                         <span className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
                             <BadgeCheck className="size-3" />
-                            Provereni korisnik
+                            {t('Provereni korisnik')}
                         </span>
                         <span className="text-gold flex items-center gap-0.5" aria-label={`Ocena ${review.rating} od 5`}>
                             {Array.from({ length: review.rating }).map((_, index) => (
@@ -46,7 +47,7 @@ export default function ReviewCard({ review, pending = false }: { review: Review
                     {review.image_path && (
                         <img
                             src={`/storage/${review.image_path}`}
-                            alt="Slika uz utisak kupca"
+                            alt={t('Slika uz utisak kupca')}
                             loading="lazy"
                             className="mt-3 max-h-48 w-full max-w-xs rounded-md object-cover"
                         />
@@ -55,7 +56,7 @@ export default function ReviewCard({ review, pending = false }: { review: Review
                     {pending && (
                         <p className="text-muted-foreground mt-2 flex items-center gap-1.5 text-xs">
                             <Clock className="size-3.5 shrink-0" />
-                            Čekamo odobrenje — nakon provere vaš utisak će biti objavljen.
+                            {t('Čekamo odobrenje — nakon provere vaš utisak će biti objavljen.')}
                         </p>
                     )}
                 </div>

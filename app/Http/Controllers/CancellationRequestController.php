@@ -53,6 +53,6 @@ class CancellationRequestController extends Controller
             ], $adminUrl));
         }
 
-        return back()->with('status', 'Zahtev za otkazivanje je poslat. Javićemo vam se.');
+        return back()->with('status', __('Zahtev za otkazivanje je poslat. Javićemo vam se.'));
     }
 }

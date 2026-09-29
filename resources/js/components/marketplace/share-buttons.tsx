@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Check, Link2, MessageCircle, Send, Share2 } from 'lucide-react';
 import { useState } from 'react';
@@ -36,7 +37,7 @@ export default function ShareButtons({ url, title, className }: { url: string; t
 
     return (
         <div className={cn('flex flex-wrap items-center gap-2', className)}>
-            <span className="text-muted-foreground text-xs">Podeli:</span>
+            <span className="text-muted-foreground text-xs">{t('Podeli:')}</span>
 
             {targets.map((target) => (
                 <a
@@ -44,7 +45,7 @@ export default function ShareButtons({ url, title, className }: { url: string; t
                     href={target.href}
                     target="_blank"
                     rel="noreferrer"
-                    aria-label={`Podeli na ${target.label}`}
+                    aria-label={t('Podeli na :target', { target: target.label })}
                     className="border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted grid size-8 place-items-center rounded-full border transition-colors"
                 >
                     <target.icon className="size-4" />
@@ -54,13 +55,13 @@ export default function ShareButtons({ url, title, className }: { url: string; t
             <button
                 type="button"
                 onClick={copy}
-                aria-label="Kopiraj link"
+                aria-label={t('Kopiraj link')}
                 className="border-border/70 text-muted-foreground hover:text-foreground hover:bg-muted grid size-8 place-items-center rounded-full border transition-colors"
             >
                 {copied ? <Check className="text-olive size-4" /> : <Link2 className="size-4" />}
             </button>
 
-            {copied && <span className="text-muted-foreground text-xs">Link je kopiran</span>}
+            {copied && <span className="text-muted-foreground text-xs">{t('Link je kopiran')}</span>}
         </div>
     );
 }

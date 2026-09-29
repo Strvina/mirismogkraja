@@ -1,9 +1,10 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePoll } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Poruke', href: '/poruke' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Poruke'), href: '/poruke' }];
 
 interface Thread {
     key: string;
@@ -26,12 +27,12 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Poruke" />
+            <Head title={t('Poruke')} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">Poruke</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">{t('Poruke')}</h1>
 
             {threads.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.</p>
+                <p className="text-muted-foreground mt-6 text-sm">{t('Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.')}</p>
             ) : (
                 <div className="border-border/70 mt-8 max-w-2xl divide-y rounded-lg border">
                     {threads.map((thread) => (

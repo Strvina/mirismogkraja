@@ -3,6 +3,7 @@ import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
@@ -132,7 +133,12 @@ export default function MessageThread({
         if (
             blocked ||
             confirm(
-                `Blokirati razgovor sa korisnikom ${buyer.name}? Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.`,
+                t(
+                    'Blokirati razgovor sa korisnikom :name? Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.',
+                    {
+                        name: buyer.name,
+                    },
+                ),
             )
         ) {
             router.patch(route('messages.block', [producer.id, buyer.id]), {}, { preserveScroll: true });
@@ -145,11 +151,11 @@ export default function MessageThread({
 
     const breadcrumbs: BreadcrumbItem[] = isOwner
         ? [
-              { title: 'Moje poruke', href: '/poruke' },
+              { title: t('Moje poruke'), href: '/poruke' },
               { title: buyer.name, href: '#' },
           ]
         : [
-              { title: 'Moje poruke', href: '/poruke' },
+              { title: t('Moje poruke'), href: '/poruke' },
               { title: producer.name, href: '#' },
           ];
 
@@ -310,7 +316,7 @@ export default function MessageThread({
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Poruke — ${title}`} />
+            <Head title={`${t('Poruke')} — ${title}`} />
 
             <div className="border-border/70 bg-background mx-auto flex h-[calc(100svh-15rem)] max-h-[44rem] min-h-[26rem] w-full max-w-2xl flex-col overflow-hidden rounded-lg border">
                 <header className="border-border/70 flex items-center gap-3 border-b px-4 py-3">
@@ -328,7 +334,7 @@ export default function MessageThread({
                                 href={route('marketplace.producers.show', producer.slug)}
                                 className="text-muted-foreground hover:text-foreground text-xs transition-colors"
                             >
-                                Otvori profil proizvođača
+                                {t('Otvori profil proizvođača')}
                             </Link>
                         )}
                     </div>
@@ -350,16 +356,18 @@ export default function MessageThread({
                 {isOwner && (
                     <div className="border-border/70 bg-muted/30 flex flex-wrap items-center gap-2 border-b px-4 py-2 text-xs">
                         <span className="text-muted-foreground flex items-center gap-1 font-medium">
-                            Ishod upita
-                            <InfoHint label="Šta je ishod upita?" title="Ishod upita — samo za evidenciju">
+                            {t('Ishod upita')}
+                            <InfoHint label={t('Šta je ishod upita?')} title={t('Ishod upita — samo za evidenciju')}>
                                 <p>
-                                    Ovde možete, ako želite, da označite kako se razgovor završio: da ste se čuli sa kupcem, da je kupovina
-                                    realizovana, ili da je otkazana.
+                                    {t(
+                                        'Ovde možete, ako želite, da označite kako se razgovor završio: da ste se čuli sa kupcem, da je kupovina realizovana, ili da je otkazana.',
+                                    )}
                                 </p>
-                                <p>Nije obavezno i ne utiče ni na šta — ni na vaš profil, ni na ocene, ni na cenu. Kupac ovo ne vidi.</p>
+                                <p>{t('Nije obavezno i ne utiče ni na šta — ni na vaš profil, ni na ocene, ni na cenu. Kupac ovo ne vidi.')}</p>
                                 <p>
-                                    Plaćanje i dostavu dogovarate direktno sa kupcem, pa sajt ne može da zna da li je nešto prodato. Vaša oznaka nam
-                                    pomaže da vidimo koliko se preko sajta zaista proda i šta se najviše traži.
+                                    {t(
+                                        'Plaćanje i dostavu dogovarate direktno sa kupcem, pa sajt ne može da zna da li je nešto prodato. Vaša oznaka nam pomaže da vidimo koliko se preko sajta zaista proda i šta se najviše traži.',
+                                    )}
                                 </p>
                             </InfoHint>
                         </span>
@@ -402,14 +410,14 @@ export default function MessageThread({
                                 only={['messages']}
                                 className="border-border/70 hover:bg-muted rounded-full border px-3 py-1 text-xs transition-colors"
                             >
-                                Starije poruke
+                                {t('Starije poruke')}
                             </Link>
                         </div>
                     )}
 
                     {messages.data.length === 0 && messages.current_page === 1 ? (
                         <p className="text-muted-foreground py-8 text-center text-sm">
-                            Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.
+                            {t('Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.')}
                         </p>
                     ) : (
                         messages.data.map((message) => (
@@ -446,17 +454,17 @@ export default function MessageThread({
                                     <p className="mt-1.5 flex flex-wrap items-center gap-2 text-[0.65rem]">
                                         <span className="text-destructive flex items-center gap-1">
                                             <TriangleAlert className="size-3" />
-                                            Nije poslato
+                                            {t('Nije poslato')}
                                         </span>
                                         <button type="button" onClick={() => retry(message)} className="underline underline-offset-2">
-                                            Pokušaj ponovo
+                                            {t('Pokušaj ponovo')}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => discard(message)}
                                             className="text-muted-foreground underline underline-offset-2"
                                         >
-                                            Odbaci
+                                            {t('Odbaci')}
                                         </button>
                                     </p>
                                 ) : (
@@ -475,8 +483,10 @@ export default function MessageThread({
                     <p className="border-border/70 bg-muted/50 text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-sm">
                         <Ban className="size-4 shrink-0" aria-hidden />
                         {isOwner
-                            ? `Blokirali ste ovaj razgovor — ni vi ni ${buyer.name} ne možete da šaljete poruke. Odblokirajte ga da biste nastavili.`
-                            : 'Proizvođač je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.'}
+                            ? t('Blokirali ste ovaj razgovor — ni vi ni :name ne možete da šaljete poruke. Odblokirajte ga da biste nastavili.', {
+                                  name: buyer.name,
+                              })
+                            : t('Proizvođač je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.')}
                     </p>
                 ) : (
                     <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
@@ -491,11 +501,11 @@ export default function MessageThread({
                             onKeyDown={onComposerKeyDown}
                             rows={1}
                             maxLength={2000}
-                            placeholder="Napišite poruku..."
-                            aria-label="Poruka"
+                            placeholder={t('Napišite poruku...')}
+                            aria-label={t('Poruka')}
                             className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
                         />
-                        <Button type="submit" size="icon" disabled={!body.trim()} aria-label="Pošalji poruku" className="size-11 shrink-0">
+                        <Button type="submit" size="icon" disabled={!body.trim()} aria-label={t('Pošalji poruku')} className="size-11 shrink-0">
                             <SendHorizontal className="size-4" />
                         </Button>
                     </form>

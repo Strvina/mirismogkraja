@@ -81,7 +81,7 @@ class ProducerMessageController extends Controller
                 'key' => $key,
                 'as_producer' => $asProducer,
                 // Only the producer sees it; it is their own record.
-                'outcome' => $asProducer ? InquiryOutcome::STATUSES[$outcomes[$key] ?? ''] ?? null : null,
+                'outcome' => $asProducer && isset($outcomes[$key]) ? __(InquiryOutcome::STATUSES[$outcomes[$key]] ?? '') : null,
                 'title' => $asProducer ? $message->buyer->name : $message->producer->name,
                 'subtitle' => $asProducer ? $message->producer->name : null,
                 'avatar_path' => $asProducer ? $message->buyer->avatar_path : $message->producer->logo_path,
@@ -129,8 +129,8 @@ class ProducerMessageController extends Controller
             'outcome' => fn () => $producer->user_id === $request->user()->id
                 ? InquiryOutcome::where('household_id', $producer->id)->where('buyer_id', $buyer->id)->value('status')
                 : null,
-            'outcomeLabels' => InquiryOutcome::STATUSES,
-            'reportReasons' => Report::REASONS,
+            'outcomeLabels' => array_map(__(...), InquiryOutcome::STATUSES),
+            'reportReasons' => array_map(__(...), Report::REASONS),
             // Newest first so opening a thread lands on the latest reply;
             // the page is flipped back to chronological order below, and
             // "older messages" therefore means the next page.

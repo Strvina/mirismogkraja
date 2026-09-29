@@ -1,5 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { formatRelativeTime } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, router, usePage, usePoll } from '@inertiajs/react';
@@ -35,7 +36,7 @@ export default function NotificationsBell({ className = '' }: { className?: stri
     return (
         <DropdownMenu onOpenChange={load}>
             <DropdownMenuTrigger
-                aria-label={unreadNotifications > 0 ? `Obaveštenja (${unreadNotifications} nepročitanih)` : 'Obaveštenja'}
+                aria-label={unreadNotifications > 0 ? t('Obaveštenja (:count nepročitanih)', { count: unreadNotifications }) : t('Obaveštenja')}
                 className={cn('relative transition-opacity hover:opacity-70', className)}
             >
                 <Bell className="size-5" />
@@ -51,9 +52,9 @@ export default function NotificationsBell({ className = '' }: { className?: stri
 
             <DropdownMenuContent align="end" sideOffset={10} className="w-80 p-1.5">
                 {recentNotifications === undefined ? (
-                    <p className="text-muted-foreground px-2 py-6 text-center text-sm">Učitavanje…</p>
+                    <p className="text-muted-foreground px-2 py-6 text-center text-sm">{t('Učitavanje…')}</p>
                 ) : recentNotifications.length === 0 ? (
-                    <p className="text-muted-foreground px-2 py-6 text-center text-sm">Nemate obaveštenja.</p>
+                    <p className="text-muted-foreground px-2 py-6 text-center text-sm">{t('Nemate obaveštenja.')}</p>
                 ) : (
                     recentNotifications.map((notification) => (
                         <DropdownMenuItem key={notification.id} asChild>
@@ -76,7 +77,7 @@ export default function NotificationsBell({ className = '' }: { className?: stri
 
                 <DropdownMenuItem asChild>
                     <Link href={route('notifications.index')} className="cursor-pointer justify-center py-2 text-sm">
-                        Sva obaveštenja
+                        {t('Sva obaveštenja')}
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>

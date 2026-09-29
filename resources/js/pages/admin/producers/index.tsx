@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
+import { t, tx } from '@/lib/i18n';
 import { type Producer } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { BadgeCheck, Ban, Check, Pencil, RotateCcw } from 'lucide-react';
@@ -15,9 +16,9 @@ type AdminProducer = Producer & {
 };
 
 const statusLabels: Record<Producer['status'], string> = {
-    pending: 'Na čekanju',
-    active: 'Odobren',
-    blocked: 'Blokiran',
+    pending: tx('Na čekanju'),
+    active: tx('Odobren'),
+    blocked: tx('Blokiran'),
 };
 
 const statusClasses: Record<Producer['status'], string> = {
@@ -43,25 +44,25 @@ function EditForm({ producer, onDone }: { producer: AdminProducer; onDone: () =>
     return (
         <form onSubmit={submit} className="bg-muted/40 mt-4 grid gap-4 rounded-lg p-4 sm:grid-cols-2">
             <div className="grid gap-1.5">
-                <Label htmlFor={`name-${producer.id}`}>Naziv</Label>
+                <Label htmlFor={`name-${producer.id}`}>{t('Naziv')}</Label>
                 <Input id={`name-${producer.id}`} value={data.name} onChange={(e) => setData('name', e.target.value)} />
                 {errors.name && <p className="text-destructive text-xs">{errors.name}</p>}
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor={`city-${producer.id}`}>Grad</Label>
+                <Label htmlFor={`city-${producer.id}`}>{t('Grad')}</Label>
                 <Input id={`city-${producer.id}`} value={data.city} onChange={(e) => setData('city', e.target.value)} />
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor={`phone-${producer.id}`}>Telefon</Label>
+                <Label htmlFor={`phone-${producer.id}`}>{t('Telefon')}</Label>
                 <Input id={`phone-${producer.id}`} value={data.phone} onChange={(e) => setData('phone', e.target.value)} />
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor={`email-${producer.id}`}>Email</Label>
+                <Label htmlFor={`email-${producer.id}`}>{t('Email')}</Label>
                 <Input id={`email-${producer.id}`} value={data.contact_email} onChange={(e) => setData('contact_email', e.target.value)} />
                 {errors.contact_email && <p className="text-destructive text-xs">{errors.contact_email}</p>}
             </div>
             <div className="grid gap-1.5 sm:col-span-2">
-                <Label htmlFor={`description-${producer.id}`}>Opis</Label>
+                <Label htmlFor={`description-${producer.id}`}>{t('Opis')}</Label>
                 <textarea
                     id={`description-${producer.id}`}
                     value={data.description}
@@ -71,10 +72,10 @@ function EditForm({ producer, onDone }: { producer: AdminProducer; onDone: () =>
             </div>
             <div className="flex gap-2 sm:col-span-2">
                 <Button size="sm" disabled={processing}>
-                    Sačuvaj
+                    {t('Sačuvaj')}
                 </Button>
                 <Button size="sm" variant="ghost" type="button" onClick={onDone}>
-                    Otkaži
+                    {t('Otkaži')}
                 </Button>
             </div>
         </form>
@@ -107,21 +108,19 @@ export default function AdminProducersIndex({
     };
 
     return (
-        <AdminLayout title="Proizvođači">
-            <Head title="Proizvođači — Admin" />
+        <AdminLayout title={t('Proizvođači')}>
+            <Head title={t('Proizvođači — Admin')} />
 
             {pendingCount > 0 && (
-                <p className="bg-gold/15 rounded-lg px-4 py-3 text-sm">
-                    {pendingCount === 1 ? '1 zahtev čeka' : `${pendingCount} zahteva čeka`} na odobrenje.
-                </p>
+                <p className="bg-gold/15 rounded-lg px-4 py-3 text-sm">{t('Zahteva na odobrenju: :count', { count: pendingCount })}</p>
             )}
 
             <div className="mt-4 flex flex-wrap gap-2">
                 {[
-                    { value: undefined, label: 'Svi' },
-                    { value: 'pending', label: 'Na čekanju' },
-                    { value: 'active', label: 'Odobreni' },
-                    { value: 'blocked', label: 'Blokirani' },
+                    { value: undefined, label: t('Svi') },
+                    { value: 'pending', label: t('Na čekanju') },
+                    { value: 'active', label: t('Odobreni') },
+                    { value: 'blocked', label: t('Blokirani') },
                 ].map((option) => (
                     <button
                         key={option.label}
@@ -146,7 +145,7 @@ export default function AdminProducersIndex({
                                 <div className="flex flex-wrap items-center gap-2">
                                     <p className="font-medium break-words">{producer.name}</p>
                                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses[producer.status]}`}>
-                                        {statusLabels[producer.status]}
+                                        {t(statusLabels[producer.status])}
                                     </span>
                                     {producer.current_membership?.plan && (
                                         <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 text-xs font-medium">
@@ -164,12 +163,12 @@ export default function AdminProducersIndex({
                                 {producer.status === 'pending' && (
                                     <Button size="sm" onClick={() => setStatus(producer, 'active')}>
                                         <Check className="size-4" />
-                                        Odobri
+                                        {t('Odobri')}
                                     </Button>
                                 )}
                                 <Button size="sm" variant="outline" onClick={() => setEditing(editing === producer.id ? null : producer.id)}>
                                     <Pencil className="size-4" />
-                                    Izmeni
+                                    {t('Izmeni')}
                                 </Button>
                                 <Button
                                     size="sm"
@@ -177,7 +176,7 @@ export default function AdminProducersIndex({
                                     onClick={() => setVerified(producer, !producer.verified_at)}
                                 >
                                     <BadgeCheck className="size-4" />
-                                    {producer.verified_at ? 'Skini oznaku' : 'Označi kao provereno'}
+                                    {producer.verified_at ? t('Skini oznaku') : t('Označi kao provereno')}
                                 </Button>
                                 {producer.status !== 'blocked' ? (
                                     <Button variant="destructive" size="sm" onClick={() => setStatus(producer, 'blocked')}>
@@ -187,7 +186,7 @@ export default function AdminProducersIndex({
                                 ) : (
                                     <Button variant="outline" size="sm" onClick={() => setStatus(producer, 'active')}>
                                         <RotateCcw className="size-4" />
-                                        Odblokiraj
+                                        {t('Odblokiraj')}
                                     </Button>
                                 )}
                             </div>
@@ -197,7 +196,9 @@ export default function AdminProducersIndex({
                     </div>
                 ))}
 
-                {producers.data.length === 0 && <p className="text-muted-foreground py-8 text-center text-sm">Nema proizvođača za ovaj filter.</p>}
+                {producers.data.length === 0 && (
+                    <p className="text-muted-foreground py-8 text-center text-sm">{t('Nema proizvođača za ovaj filter.')}</p>
+                )}
             </div>
 
             <Pagination meta={producers} />

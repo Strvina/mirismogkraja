@@ -3,6 +3,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
+import { intlLocale, t } from '@/lib/i18n';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { FormEventHandler } from 'react';
@@ -21,7 +22,7 @@ function weekLabel(monday: string): string {
     const start = new Date(monday);
     const end = new Date(start);
     end.setDate(start.getDate() + 6);
-    const format = (date: Date) => date.toLocaleDateString('sr-RS', { day: 'numeric', month: 'numeric' });
+    const format = (date: Date) => date.toLocaleDateString(intlLocale(), { day: 'numeric', month: 'numeric' });
 
     return `${format(start)} – ${format(end)}`;
 }
@@ -57,23 +58,24 @@ export default function AdminWeeklyPicks({
     };
 
     const remove = (pick: Pick) => {
-        if (confirm('Ukloniti ovaj izbor?')) {
+        if (confirm(t('Ukloniti ovaj izbor?'))) {
             router.delete(route('admin.weekly-picks.destroy', pick.id), { preserveScroll: true });
         }
     };
 
     return (
-        <AdminLayout title="Proizvođač nedelje">
-            <Head title="Proizvođač nedelje" />
+        <AdminLayout title={t('Proizvođač nedelje')}>
+            <Head title={t('Proizvođač nedelje')} />
 
             <p className="text-muted-foreground max-w-2xl text-sm leading-6">
-                Izabrani proizvođač stoji na početnoj strani celu nedelju, od ponedeljka do nedelje. Proizvođači birani u poslednjih osam nedelja su
-                označeni, da bi mesto kružilo.
+                {t(
+                    'Izabrani proizvođač stoji na početnoj strani celu nedelju, od ponedeljka do nedelje. Proizvođači birani u poslednjih osam nedelja su označeni, da bi mesto kružilo.',
+                )}
             </p>
 
             {suggestions.length > 0 && (
                 <div className="mt-6">
-                    <p className="text-muted-foreground text-xs font-semibold tracking-[0.12em] uppercase">Predlozi (Pro članovi)</p>
+                    <p className="text-muted-foreground text-xs font-semibold tracking-[0.12em] uppercase">{t('Predlozi (Pro članovi)')}</p>
                     <div className="mt-2 flex flex-wrap gap-2">
                         {suggestions.map((producer) => (
                             <button
@@ -91,12 +93,12 @@ export default function AdminWeeklyPicks({
 
             <form onSubmit={submit} className="mt-6 grid max-w-3xl gap-4 sm:grid-cols-3 sm:items-end">
                 <div className="grid gap-1.5">
-                    <Label htmlFor="pick-week">Nedelja</Label>
+                    <Label htmlFor="pick-week">{t('Nedelja')}</Label>
                     <select id="pick-week" className={selectClasses} value={data.starts_on} onChange={(e) => setData('starts_on', e.target.value)}>
                         {weeks.map((week) => (
                             <option key={week} value={week}>
                                 {weekLabel(week)}
-                                {week === currentWeek ? ' (ova nedelja)' : ''}
+                                {week === currentWeek ? ` (${t('ova nedelja')})` : ''}
                             </option>
                         ))}
                     </select>
@@ -104,13 +106,13 @@ export default function AdminWeeklyPicks({
                 </div>
 
                 <div className="grid gap-1.5">
-                    <Label htmlFor="pick-producer">Proizvođač</Label>
+                    <Label htmlFor="pick-producer">{t('Proizvođač')}</Label>
                     <select id="pick-producer" className={selectClasses} value={data.household_id} onChange={(e) => chooseProducer(e.target.value)}>
-                        <option value="">Izaberite…</option>
+                        <option value="">{t('Izaberite…')}</option>
                         {producers.map((producer) => (
                             <option key={producer.id} value={producer.id}>
                                 {producer.name}
-                                {producer.recent ? ' · biran nedavno' : ''}
+                                {producer.recent ? ` · ${t('biran nedavno')}` : ''}
                             </option>
                         ))}
                     </select>
@@ -118,7 +120,7 @@ export default function AdminWeeklyPicks({
                 </div>
 
                 <div className="grid gap-1.5">
-                    <Label htmlFor="pick-product">Proizvod (opciono)</Label>
+                    <Label htmlFor="pick-product">{t('Proizvod (opciono)')}</Label>
                     <select
                         id="pick-product"
                         className={selectClasses}
@@ -126,7 +128,7 @@ export default function AdminWeeklyPicks({
                         disabled={!data.household_id}
                         onChange={(e) => setData('product_id', e.target.value)}
                     >
-                        <option value="">Bez proizvoda</option>
+                        <option value="">{t('Bez proizvoda')}</option>
                         {products.map((product) => (
                             <option key={product.id} value={product.id}>
                                 {product.name}
@@ -137,14 +139,14 @@ export default function AdminWeeklyPicks({
                 </div>
 
                 <div className="sm:col-span-3">
-                    <Button disabled={processing || !data.household_id}>Sačuvaj izbor</Button>
+                    <Button disabled={processing || !data.household_id}>{t('Sačuvaj izbor')}</Button>
                 </div>
             </form>
 
             <section className="mt-12">
-                <h2 className="font-serif text-2xl">Istorija</h2>
+                <h2 className="font-serif text-2xl">{t('Istorija')}</h2>
                 {picks.data.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Još nijedan proizvođač nije biran.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{t('Još nijedan proizvođač nije biran.')}</p>
                 ) : (
                     <ul className="mt-4 space-y-2">
                         {picks.data.map((pick) => (
@@ -159,14 +161,16 @@ export default function AdminWeeklyPicks({
                                             {pick.producer.name}
                                         </Link>
                                     ) : (
-                                        <span className="text-muted-foreground">Obrisan proizvođač</span>
+                                        <span className="text-muted-foreground">{t('Obrisan proizvođač')}</span>
                                     )}
                                     {pick.product && <span className="text-muted-foreground"> · {pick.product.name}</span>}
                                     {pick.starts_on.startsWith(currentWeek) && (
-                                        <span className="bg-olive-soft text-olive ml-2 rounded-full px-2 py-0.5 text-xs font-medium">sada</span>
+                                        <span className="bg-olive-soft text-olive ml-2 rounded-full px-2 py-0.5 text-xs font-medium">
+                                            {t('sada')}
+                                        </span>
                                     )}
                                 </span>
-                                <Button variant="ghost" size="icon" aria-label="Ukloni izbor" onClick={() => remove(pick)}>
+                                <Button variant="ghost" size="icon" aria-label={t('Ukloni izbor')} onClick={() => remove(pick)}>
                                     <Trash2 className="size-4" />
                                 </Button>
                             </li>

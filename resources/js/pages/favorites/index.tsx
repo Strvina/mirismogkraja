@@ -1,9 +1,10 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moji omiljeni', href: '/omiljeni' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji omiljeni'), href: '/omiljeni' }];
 
 type SavedProducer = Pick<Producer, 'id' | 'name' | 'slug' | 'city'>;
 type SavedProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit'>;
@@ -11,15 +12,15 @@ type SavedProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit'>;
 export default function FavoritesIndex({ producers, products }: { producers: SavedProducer[]; products: SavedProduct[] }) {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Moji omiljeni" />
+            <Head title={t('Moji omiljeni')} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">Moji omiljeni</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">{t('Moji omiljeni')}</h1>
 
             <div className="mt-8 flex flex-col gap-8">
                 <div>
-                    <h2 className="font-serif text-2xl">Omiljeni proizvođači</h2>
+                    <h2 className="font-serif text-2xl">{t('Omiljeni proizvođači')}</h2>
                     {producers.length === 0 ? (
-                        <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvođača.</p>
+                        <p className="text-muted-foreground mt-2 text-sm">{t('Nema omiljenih proizvođača.')}</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
                             {producers.map((producer) => (
@@ -37,9 +38,9 @@ export default function FavoritesIndex({ producers, products }: { producers: Sav
                 </div>
 
                 <div>
-                    <h2 className="font-serif text-2xl">Omiljeni proizvodi</h2>
+                    <h2 className="font-serif text-2xl">{t('Omiljeni proizvodi')}</h2>
                     {products.length === 0 ? (
-                        <p className="text-muted-foreground mt-2 text-sm">Nema omiljenih proizvoda.</p>
+                        <p className="text-muted-foreground mt-2 text-sm">{t('Nema omiljenih proizvoda.')}</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
                             {products.map((product) => (

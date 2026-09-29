@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
-import { formatRelativeTime } from '@/lib/format';
+import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Check, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
@@ -43,8 +44,6 @@ type CampaignForm = {
     is_active: boolean;
 };
 
-const dinars = new Intl.NumberFormat('sr-RS');
-
 function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: () => void }) {
     const { data, setData, post, put, processing, errors, reset } = useForm<CampaignForm>({
         name: campaign?.name ?? '',
@@ -79,12 +78,12 @@ function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: ()
     return (
         <form onSubmit={submit} className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5 sm:col-span-2">
-                <Label htmlFor={id('name')}>Naziv</Label>
-                <Input id={id('name')} value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder="Ajvar sezona" />
+                <Label htmlFor={id('name')}>{t('Naziv')}</Label>
+                <Input id={id('name')} value={data.name} onChange={(e) => setData('name', e.target.value)} placeholder={t('Ajvar sezona')} />
                 <InputError message={errors.name} />
             </div>
             <div className="grid gap-1.5 sm:col-span-2">
-                <Label htmlFor={id('description')}>Opis</Label>
+                <Label htmlFor={id('description')}>{t('Opis')}</Label>
                 <textarea
                     id={id('description')}
                     rows={3}
@@ -95,26 +94,26 @@ function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: ()
                 <InputError message={errors.description} />
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor={id('starts')}>Počinje</Label>
+                <Label htmlFor={id('starts')}>{t('Počinje')}</Label>
                 <Input id={id('starts')} type="date" value={data.starts_on} onChange={(e) => setData('starts_on', e.target.value)} />
                 <InputError message={errors.starts_on} />
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor={id('ends')}>Završava se</Label>
+                <Label htmlFor={id('ends')}>{t('Završava se')}</Label>
                 <Input id={id('ends')} type="date" value={data.ends_on} onChange={(e) => setData('ends_on', e.target.value)} />
                 <InputError message={errors.ends_on} />
             </div>
             <div className="grid gap-1.5">
-                <Label htmlFor={id('price')}>Cena učešća (RSD)</Label>
+                <Label htmlFor={id('price')}>{t('Cena učešća (RSD)')}</Label>
                 <Input id={id('price')} type="number" min={0} value={data.price_rsd} onChange={(e) => setData('price_rsd', Number(e.target.value))} />
                 <InputError message={errors.price_rsd} />
             </div>
             <label className="flex items-center gap-2 self-end pb-2 text-sm">
                 <input type="checkbox" checked={data.is_active} onChange={(e) => setData('is_active', e.target.checked)} />
-                Objavljena (vidljiva proizvođačima i na sajtu)
+                {t('Objavljena (vidljiva proizvođačima i na sajtu)')}
             </label>
             <div className="sm:col-span-2">
-                <Button disabled={processing}>{campaign ? 'Sačuvaj izmene' : 'Napravi kampanju'}</Button>
+                <Button disabled={processing}>{campaign ? t('Sačuvaj izmene') : t('Napravi kampanju')}</Button>
             </div>
         </form>
     );
@@ -135,34 +134,34 @@ export default function AdminCampaigns({
     const cancel = (place: PendingPlace) => router.patch(route('admin.campaigns.cancel', place.id), {}, { preserveScroll: true });
 
     return (
-        <AdminLayout title="Kampanje">
-            <Head title="Kampanje" />
+        <AdminLayout title={t('Kampanje')}>
+            <Head title={t('Kampanje')} />
 
             <section>
-                <h2 className="font-serif text-2xl">Prijave koje čekaju uplatu</h2>
+                <h2 className="font-serif text-2xl">{t('Prijave koje čekaju uplatu')}</h2>
                 {pending.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Nema prijava na čekanju.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{t('Nema prijava na čekanju.')}</p>
                 ) : (
                     <div className="mt-4 space-y-3">
                         {pending.map((place) => (
                             <div key={place.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                                 <div className="min-w-0 flex-1">
                                     <p className="font-medium break-words">
-                                        {place.producer?.name ?? 'Obrisan proizvođač'} · {place.campaign?.name}
+                                        {place.producer?.name ?? t('Obrisan proizvođač')} · {place.campaign?.name}
                                     </p>
                                     <p className="text-muted-foreground mt-1 text-sm">
-                                        Poziv na broj <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
-                                        {dinars.format(place.amount_rsd)} RSD · zatraženo {formatRelativeTime(place.created_at)}
+                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
+                                        {formatNumber(place.amount_rsd)} RSD · {t('zatraženo :when', { when: formatRelativeTime(place.created_at) })}
                                     </p>
                                 </div>
                                 <div className="flex shrink-0 flex-wrap gap-2">
                                     <Button size="sm" onClick={() => confirm(place)}>
                                         <Check className="size-4" />
-                                        Uplata primljena
+                                        {t('Uplata primljena')}
                                     </Button>
                                     <Button variant="outline" size="sm" onClick={() => cancel(place)}>
                                         <X className="size-4" />
-                                        Otkaži
+                                        {t('Otkaži')}
                                     </Button>
                                 </div>
                             </div>
@@ -173,23 +172,23 @@ export default function AdminCampaigns({
 
             {active.length > 0 && (
                 <section className="mt-12">
-                    <h2 className="font-serif text-2xl">Učesnici kampanja u toku</h2>
+                    <h2 className="font-serif text-2xl">{t('Učesnici kampanja u toku')}</h2>
                     <div className="mt-4 space-y-3">
                         {active.map((place) => (
                             <div key={place.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                                 <div className="min-w-0 flex-1">
                                     <p className="flex flex-wrap items-center gap-2 font-medium break-words">
-                                        {place.producer?.name ?? 'Obrisan proizvođač'} · {place.campaign?.name}
+                                        {place.producer?.name ?? t('Obrisan proizvođač')} · {place.campaign?.name}
                                         <CancelRequestedBadge at={place.cancel_requested_at} />
                                     </p>
                                     <p className="text-muted-foreground mt-1 text-sm">
-                                        Poziv na broj <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
-                                        {dinars.format(place.amount_rsd)} RSD
+                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
+                                        {formatNumber(place.amount_rsd)} RSD
                                     </p>
                                 </div>
                                 <PaidItemActions
                                     status="active"
-                                    what={`učešće „${place.producer?.name ?? ''}” u kampanji`}
+                                    what={t('učešće „:name” u kampanji', { name: place.producer?.name ?? '' })}
                                     onCancel={() => cancel(place)}
                                 />
                             </div>
@@ -199,16 +198,16 @@ export default function AdminCampaigns({
             )}
 
             <section className="mt-12">
-                <h2 className="font-serif text-2xl">Nova kampanja</h2>
+                <h2 className="font-serif text-2xl">{t('Nova kampanja')}</h2>
                 <div className="mt-4 max-w-2xl">
                     <CampaignFields />
                 </div>
             </section>
 
             <section className="mt-12">
-                <h2 className="font-serif text-2xl">Sve kampanje</h2>
+                <h2 className="font-serif text-2xl">{t('Sve kampanje')}</h2>
                 {campaigns.data.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Još nema kampanja.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{t('Još nema kampanja.')}</p>
                 ) : (
                     <div className="mt-4 space-y-3">
                         {campaigns.data.map((campaign) => (
@@ -218,19 +217,22 @@ export default function AdminCampaigns({
                                         <p className="font-medium break-words">
                                             {campaign.name}{' '}
                                             {!campaign.is_active && (
-                                                <span className="text-muted-foreground text-xs font-normal">(nije objavljena)</span>
+                                                <span className="text-muted-foreground text-xs font-normal">{t('(nije objavljena)')}</span>
                                             )}
                                         </p>
                                         <p className="text-muted-foreground mt-1 text-sm">
-                                            {new Date(campaign.starts_on).toLocaleDateString('sr-RS')} –{' '}
-                                            {new Date(campaign.ends_on).toLocaleDateString('sr-RS')} · {dinars.format(campaign.price_rsd)} RSD ·
-                                            učestvuje {campaign.active_count}, čeka {campaign.pending_count}
+                                            {formatDate(campaign.starts_on)} – {formatDate(campaign.ends_on)} · {formatNumber(campaign.price_rsd)} RSD
+                                            ·{' '}
+                                            {t('učestvuje :active, čeka :pending', {
+                                                active: campaign.active_count,
+                                                pending: campaign.pending_count,
+                                            })}
                                         </p>
                                     </div>
                                     <div className="flex gap-2">
                                         {campaign.is_active && (
                                             <Button asChild variant="ghost" size="sm">
-                                                <Link href={route('campaigns.show', campaign.slug)}>Stranica</Link>
+                                                <Link href={route('campaigns.show', campaign.slug)}>{t('Stranica')}</Link>
                                             </Button>
                                         )}
                                         <Button variant="outline" size="sm" onClick={() => setEditing(editing === campaign.id ? null : campaign.id)}>

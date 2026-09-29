@@ -45,16 +45,16 @@ class DashboardController extends Controller
             // Everything waiting on an admin, in one place - each line links
             // to the queue it counts. Lines at zero are dropped by the page.
             'todo' => [
-                ['label' => 'proizvođača čeka odobrenje', 'count' => Producer::where('status', 'pending')->count(), 'href' => route('admin.producers.index', ['status' => 'pending'])],
-                ['label' => 'uplata za članarinu čeka potvrdu', 'count' => ProducerSubscription::where('status', ProducerSubscription::STATUS_PENDING)->count(), 'href' => route('admin.memberships.index')],
-                ['label' => 'uplata za isticanje čeka potvrdu', 'count' => Boost::where('status', Boost::STATUS_PENDING)->count(), 'href' => route('admin.boosts.index')],
-                ['label' => 'prijava za kampanju čeka potvrdu', 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_PENDING)->count(), 'href' => route('admin.campaigns.index')],
-                ['label' => 'zahteva za otkazivanje članarine', 'count' => ProducerSubscription::where('status', ProducerSubscription::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.memberships.index', ['status' => 'active'])],
-                ['label' => 'zahteva za otkazivanje isticanja', 'count' => Boost::where('status', Boost::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.boosts.index', ['status' => 'active'])],
-                ['label' => 'zahteva za otkazivanje učešća u kampanji', 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.campaigns.index')],
-                ['label' => 'utisaka čeka odobrenje', 'count' => Review::pending()->count(), 'href' => route('admin.reviews.index', ['status' => 'pending'])],
-                ['label' => 'zahteva za izmenu naziva', 'count' => ProducerChangeRequest::pending()->count(), 'href' => route('admin.change-requests.index')],
-                ['label' => 'otvorenih prijava problema', 'count' => Report::open()->count(), 'href' => route('admin.reports.index')],
+                ['label' => __('proizvođača čeka odobrenje'), 'count' => Producer::where('status', 'pending')->count(), 'href' => route('admin.producers.index', ['status' => 'pending'])],
+                ['label' => __('uplata za članarinu čeka potvrdu'), 'count' => ProducerSubscription::where('status', ProducerSubscription::STATUS_PENDING)->count(), 'href' => route('admin.memberships.index')],
+                ['label' => __('uplata za isticanje čeka potvrdu'), 'count' => Boost::where('status', Boost::STATUS_PENDING)->count(), 'href' => route('admin.boosts.index')],
+                ['label' => __('prijava za kampanju čeka potvrdu'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_PENDING)->count(), 'href' => route('admin.campaigns.index')],
+                ['label' => __('zahteva za otkazivanje članarine'), 'count' => ProducerSubscription::where('status', ProducerSubscription::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.memberships.index', ['status' => 'active'])],
+                ['label' => __('zahteva za otkazivanje isticanja'), 'count' => Boost::where('status', Boost::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.boosts.index', ['status' => 'active'])],
+                ['label' => __('zahteva za otkazivanje učešća u kampanji'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.campaigns.index')],
+                ['label' => __('utisaka čeka odobrenje'), 'count' => Review::pending()->count(), 'href' => route('admin.reviews.index', ['status' => 'pending'])],
+                ['label' => __('zahteva za izmenu naziva'), 'count' => ProducerChangeRequest::pending()->count(), 'href' => route('admin.change-requests.index')],
+                ['label' => __('otvorenih prijava problema'), 'count' => Report::open()->count(), 'href' => route('admin.reports.index')],
             ],
             // How inquiries ended this month, as producers report it (task
             // 14.5) - unverifiable, and labelled so on the page.
@@ -62,9 +62,9 @@ class DashboardController extends Controller
             // What the platform earns, by source (task 20.9): only money an
             // admin confirmed, and nothing given away free.
             'revenue' => [
-                ['label' => 'Članarine', ...$this->earned(ProducerSubscription::query())],
-                ['label' => 'Isticanja', ...$this->earned(Boost::query())],
-                ['label' => 'Kampanje', ...$this->earned(CampaignParticipant::query())],
+                ['label' => __('Članarine'), ...$this->earned(ProducerSubscription::query())],
+                ['label' => __('Isticanja'), ...$this->earned(Boost::query())],
+                ['label' => __('Kampanje'), ...$this->earned(CampaignParticipant::query())],
             ],
         ]);
     }
@@ -96,7 +96,7 @@ class DashboardController extends Controller
 
         return [
             'counts' => collect(InquiryOutcome::STATUSES)->map(fn ($label, string $status) => (int) ($counts[$status] ?? 0))->all(),
-            'labels' => InquiryOutcome::STATUSES,
+            'labels' => array_map(__(...), InquiryOutcome::STATUSES),
             'topProducts' => $top
                 ->filter(fn ($count, $id) => $products->has($id))
                 ->map(fn ($count, $id) => ['name' => $products[$id]->name, 'slug' => $products[$id]->slug, 'count' => (int) $count])

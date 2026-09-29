@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -8,3 +9,5 @@ Route::get('/uslovi-koriscenja', fn () => Inertia::render('legal/terms'))->name(
 Route::get('/politika-privatnosti', fn () => Inertia::render('legal/privacy'))->name('legal.privacy');
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+
+Route::get('/jezik/{locale}', LocaleController::class)->name('locale');

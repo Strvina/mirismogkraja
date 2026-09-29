@@ -26,7 +26,7 @@ class ProducerImageController extends Controller
             'captions' => ['nullable', 'array'],
             'captions.*' => ['nullable', 'string', 'max:255'],
         ], [
-            'images.max' => 'Galerija može imati najviše '.self::MAX_IMAGES.' fotografija.',
+            'images.max' => __('Galerija može imati najviše :max fotografija.', ['max' => self::MAX_IMAGES]),
         ]);
 
         $nextOrder = ($producer->images()->max('order') ?? -1) + 1;

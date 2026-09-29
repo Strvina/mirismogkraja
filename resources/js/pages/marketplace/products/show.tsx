@@ -4,6 +4,7 @@ import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
@@ -56,7 +57,7 @@ export default function ProductShow({
                 </div>
 
                 <div>
-                    <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">{product.category?.name}</p>
+                    <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">{product.category && t(product.category.name)}</p>
                     <h1 className="mt-2 font-serif text-3xl break-words sm:text-4xl">{product.name}</h1>
                     <p className="mt-3 font-serif text-2xl">
                         {formatPrice(product.price)} <span className="text-muted-foreground font-sans text-sm">/ {product.unit}</span>
@@ -68,14 +69,14 @@ export default function ProductShow({
                         {canInquire && (
                             <>
                                 <p className="text-muted-foreground text-sm">
-                                    Pitajte proizvođača za dostupnost, količinu i dostavu — dogovor ide direktno između vas.
+                                    {t('Pitajte proizvođača za dostupnost, količinu i dostavu — dogovor ide direktno između vas.')}
                                 </p>
                                 <textarea
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     maxLength={2000}
-                                    placeholder="Zdravo, zainteresovan/a sam za..."
-                                    aria-label="Poruka proizvođaču"
+                                    placeholder={t('Zdravo, zainteresovan/a sam za...')}
+                                    aria-label={t('Poruka proizvođaču')}
                                     className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                                 />
                             </>
@@ -84,12 +85,12 @@ export default function ProductShow({
                         <div className="flex flex-wrap items-center gap-3">
                             {canInquire ? (
                                 <Button onClick={sendInquiry} disabled={sending || !message.trim()}>
-                                    Pošalji upit
+                                    {t('Pošalji upit')}
                                 </Button>
                             ) : (
                                 !auth.user && (
                                     <Button asChild>
-                                        <Link href={route('login')}>Prijavite se da pošaljete upit</Link>
+                                        <Link href={route('login')}>{t('Prijavite se da pošaljete upit')}</Link>
                                     </Button>
                                 )
                             )}
@@ -130,7 +131,7 @@ export default function ProductShow({
 
             {similar.length > 0 && (
                 <section className="mt-16">
-                    <h2 className="font-serif text-2xl">Slični proizvodi</h2>
+                    <h2 className="font-serif text-2xl">{t('Slični proizvodi')}</h2>
                     <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
                         {similar.map((p) => (
                             <Link key={p.id} href={route('marketplace.products.show', p.slug)} className="group">

@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react';
@@ -62,7 +63,7 @@ export default function CardSlider({
                         type="button"
                         onClick={() => scrollBy(-1)}
                         disabled={atStart}
-                        aria-label={`${label}: prethodni`}
+                        aria-label={t(':label: prethodni', { label })}
                         className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
                     >
                         <ChevronLeft className="size-4" />
@@ -71,7 +72,7 @@ export default function CardSlider({
                         type="button"
                         onClick={() => scrollBy(1)}
                         disabled={atEnd}
-                        aria-label={`${label}: sledeći`}
+                        aria-label={t(':label: sledeći', { label })}
                         className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
                     >
                         <ChevronRight className="size-4" />

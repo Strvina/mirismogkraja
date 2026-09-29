@@ -60,7 +60,7 @@ class LoginRequest extends FormRequest
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => 'Ovaj nalog je blokiran.',
+                'email' => __('Ovaj nalog je blokiran.'),
             ]);
         }
     }

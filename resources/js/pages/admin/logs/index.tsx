@@ -1,5 +1,6 @@
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import AdminLayout from '@/layouts/admin-layout';
+import { intlLocale, t, tx } from '@/lib/i18n';
 import { Head, router } from '@inertiajs/react';
 
 interface LogEntry {
@@ -14,11 +15,11 @@ interface LogEntry {
 }
 
 const actionLabels: Record<string, string> = {
-    created: 'Kreirano',
-    updated: 'Izmenjeno',
-    archived: 'Arhivirano',
-    restored: 'Vraćeno',
-    deleted: 'Obrisano',
+    created: tx('Kreirano'),
+    updated: tx('Izmenjeno'),
+    archived: tx('Arhivirano'),
+    restored: tx('Vraćeno'),
+    deleted: tx('Obrisano'),
 };
 
 const actionClasses: Record<string, string> = {
@@ -56,21 +57,21 @@ export default function AdminLogsIndex({
     };
 
     return (
-        <AdminLayout title="Logovi">
-            <Head title="Logovi — Admin" />
+        <AdminLayout title={t('Logovi')}>
+            <Head title={t('Logovi — Admin')} />
 
             <p className="text-muted-foreground max-w-2xl text-sm leading-6">
-                Ko je šta uradio na sajtu. Zapis ostaje i kada se sam podatak obriše — to je i slučaj koji najviše vredi zabeležiti.
+                {t('Ko je šta uradio na sajtu. Zapis ostaje i kada se sam podatak obriše — to je i slučaj koji najviše vredi zabeležiti.')}
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
                 <select
-                    aria-label="Filtriraj po radnji"
+                    aria-label={t('Filtriraj po radnji')}
                     className={selectClasses}
                     value={filters.action ?? ''}
                     onChange={(e) => filter({ action: e.target.value || undefined })}
                 >
-                    <option value="">Sve akcije</option>
+                    <option value="">{t('Sve akcije')}</option>
                     {Object.entries(actionLabels).map(([value, label]) => (
                         <option key={value} value={value}>
                             {label}
@@ -79,12 +80,12 @@ export default function AdminLogsIndex({
                 </select>
 
                 <select
-                    aria-label="Filtriraj po vrsti zapisa"
+                    aria-label={t('Filtriraj po vrsti zapisa')}
                     className={selectClasses}
                     value={filters.subject ?? ''}
                     onChange={(e) => filter({ subject: e.target.value || undefined })}
                 >
-                    <option value="">Sve vrste</option>
+                    <option value="">{t('Sve vrste')}</option>
                     {subjects.map((subject) => (
                         <option key={subject} value={subject}>
                             {subjectLabels[subject] ?? subject}
@@ -98,7 +99,7 @@ export default function AdminLogsIndex({
                     <div key={log.id} className="p-4">
                         <div className="flex flex-wrap items-center gap-2 text-sm">
                             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${actionClasses[log.action] ?? 'bg-muted'}`}>
-                                {actionLabels[log.action] ?? log.action}
+                                {t(actionLabels[log.action] ?? log.action)}
                             </span>
                             <span className="font-medium">{subjectLabels[log.subject_type] ?? log.subject_type}</span>
                             <span className="text-muted-foreground break-words">
@@ -106,7 +107,7 @@ export default function AdminLogsIndex({
                             </span>
                             <span className="text-muted-foreground">· {log.user_name}</span>
                             <span className="text-muted-foreground ml-auto text-xs whitespace-nowrap">
-                                {new Date(log.created_at).toLocaleString('sr-RS')}
+                                {new Date(log.created_at).toLocaleString(intlLocale())}
                             </span>
                         </div>
 
@@ -122,7 +123,7 @@ export default function AdminLogsIndex({
                     </div>
                 ))}
 
-                {logs.data.length === 0 && <p className="text-muted-foreground p-8 text-center text-sm">Nema zapisa za ove filtere.</p>}
+                {logs.data.length === 0 && <p className="text-muted-foreground p-8 text-center text-sm">{t('Nema zapisa za ove filtere.')}</p>}
             </div>
 
             <Pagination meta={logs} />

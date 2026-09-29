@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { t, tx } from '@/lib/i18n';
 import { router } from '@inertiajs/react';
 import { Flag } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
@@ -17,7 +18,7 @@ export default function ReportButton({
     type,
     id,
     reasons,
-    label = 'Prijavi problem',
+    label = tx('Prijavi problem'),
 }: {
     /** Morph alias, not a class name: 'household' | 'product' | 'user'. */
     type: string;
@@ -53,18 +54,18 @@ export default function ReportButton({
             <DialogTrigger asChild>
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                     <Flag className="size-4" />
-                    {label}
+                    {t(label)}
                 </Button>
             </DialogTrigger>
 
             <DialogContent>
-                <DialogTitle>Prijavi problem</DialogTitle>
-                <DialogDescription>Prijava ide našem timu, a ne proizvođaču. Nećemo je javno objaviti.</DialogDescription>
+                <DialogTitle>{t('Prijavi problem')}</DialogTitle>
+                <DialogDescription>{t('Prijava ide našem timu, a ne proizvođaču. Nećemo je javno objaviti.')}</DialogDescription>
 
                 <form onSubmit={submit} className="space-y-4">
                     <div className="grid gap-1.5">
                         <label htmlFor="report-reason" className="text-muted-foreground text-xs">
-                            Šta se desilo?
+                            {t('Šta se desilo?')}
                         </label>
                         <select
                             id="report-reason"
@@ -82,7 +83,7 @@ export default function ReportButton({
 
                     <div className="grid gap-1.5">
                         <label htmlFor="report-message" className="text-muted-foreground text-xs">
-                            Možete dodati detalje (nije obavezno)
+                            {t('Možete dodati detalje (nije obavezno)')}
                         </label>
                         <textarea
                             id="report-message"
@@ -95,10 +96,10 @@ export default function ReportButton({
 
                     <div className="flex justify-end gap-2">
                         <Button type="button" variant="outline" size="sm" onClick={() => setOpen(false)}>
-                            Odustani
+                            {t('Odustani')}
                         </Button>
                         <Button size="sm" disabled={sending}>
-                            Pošalji prijavu
+                            {t('Pošalji prijavu')}
                         </Button>
                     </div>
                 </form>

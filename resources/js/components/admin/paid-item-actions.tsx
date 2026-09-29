@@ -1,4 +1,6 @@
 import { Button } from '@/components/ui/button';
+import { formatDate } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { Check, Power, X } from 'lucide-react';
 
 /**
@@ -13,7 +15,7 @@ export function CancelRequestedBadge({ at }: { at: string | null | undefined }) 
 
     return (
         <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
-            Traži otkazivanje · {new Date(at).toLocaleDateString('sr-RS')}
+            Traži otkazivanje · {formatDate(at)}
         </span>
     );
 }
@@ -36,12 +38,12 @@ export default function PaidItemActions({
                 {onConfirm && (
                     <Button size="sm" onClick={onConfirm}>
                         <Check className="size-4" />
-                        Uplata primljena
+                        {t('Uplata primljena')}
                     </Button>
                 )}
                 <Button variant="outline" size="sm" onClick={onCancel}>
                     <X className="size-4" />
-                    Otkaži
+                    {t('Otkaži')}
                 </Button>
             </div>
         );
@@ -56,7 +58,10 @@ export default function PaidItemActions({
                 onClick={() => {
                     if (
                         confirm(
-                            `Deaktivirati ${what}? Prestaje odmah i prelazi u otkazane; proizvođač dobija obaveštenje. Povraćaj novca, ako ga dogovorite, radite van sajta.`,
+                            t(
+                                'Deaktivirati :what? Prestaje odmah i prelazi u otkazane; proizvođač dobija obaveštenje. Povraćaj novca, ako ga dogovorite, radite van sajta.',
+                                { what },
+                            ),
                         )
                     ) {
                         onCancel();
@@ -64,7 +69,7 @@ export default function PaidItemActions({
                 }}
             >
                 <Power className="size-4" />
-                Deaktiviraj
+                {t('Deaktiviraj')}
             </Button>
         );
     }

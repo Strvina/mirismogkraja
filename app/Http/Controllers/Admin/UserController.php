@@ -43,7 +43,7 @@ class UserController extends Controller
         ]);
 
         if ($user->is($request->user()) && ! in_array('admin', $data['roles'], true)) {
-            throw ValidationException::withMessages(['roles' => 'Ne možeš sebi ukloniti admin rolu.']);
+            throw ValidationException::withMessages(['roles' => __('Ne možeš sebi ukloniti admin rolu.')]);
         }
 
         $user->syncRoles($data['roles']);
@@ -54,7 +54,7 @@ class UserController extends Controller
     public function toggleBlock(Request $request, User $user): RedirectResponse
     {
         if ($user->is($request->user())) {
-            throw ValidationException::withMessages(['user' => 'Ne možeš blokirati sopstveni nalog.']);
+            throw ValidationException::withMessages(['user' => __('Ne možeš blokirati sopstveni nalog.')]);
         }
 
         $user->update(['blocked_at' => $user->isBlocked() ? null : now()]);

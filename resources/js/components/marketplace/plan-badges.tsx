@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
 
@@ -5,7 +6,7 @@ import { Crown } from 'lucide-react';
 export function PremiumBadge({ className }: { className?: string }) {
     return (
         <span
-            title="Proizvođač sa Premium članstvom"
+            title={t('Proizvođač sa Premium članstvom')}
             className={cn(
                 'border-gold/40 text-gold inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-sans text-[0.68rem] font-semibold tracking-[0.06em] uppercase',
                 className,
@@ -30,7 +31,7 @@ export function FeaturedLabel({ className }: { className?: string }) {
                 className,
             )}
         >
-            Istaknuto
+            {t('Istaknuto')}
         </span>
     );
 }

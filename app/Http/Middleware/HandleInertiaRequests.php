@@ -31,6 +31,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // Which language the page is in; the client loads its words.
+            'locale' => app()->getLocale(),
             'auth' => [
                 // Roles come along so the header can offer the admin panel
                 // link without every page having to pass them.

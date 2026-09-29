@@ -1,6 +1,8 @@
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatDate } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { CalendarHeart } from 'lucide-react';
@@ -14,8 +16,9 @@ interface Campaign {
     ends_on: string;
 }
 
-function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString('sr-RS', { day: 'numeric', month: 'long' });
+/** "12. oktobar" / "12 October" / "12 октября". */
+function longDay(date: string): string {
+    return formatDate(date, { day: 'numeric', month: 'long' });
 }
 
 function daysLeft(endsOn: string): number {
@@ -35,21 +38,21 @@ export default function CampaignShow({ campaign, producers }: { campaign: Campai
             <section className="bg-primary text-primary-foreground rounded-2xl px-6 py-10 sm:px-10">
                 <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.16em] uppercase opacity-85">
                     <CalendarHeart className="size-4" aria-hidden />
-                    Sezonska kampanja · {formatDate(campaign.starts_on)} – {formatDate(campaign.ends_on)}
+                    {t('Sezonska kampanja')} · {longDay(campaign.starts_on)} – {longDay(campaign.ends_on)}
                 </p>
                 <h1 className="mt-3 font-serif text-4xl break-words sm:text-6xl">{campaign.name}</h1>
                 {campaign.description && <p className="mt-4 max-w-2xl leading-7 whitespace-pre-line opacity-90">{campaign.description}</p>}
                 <p className="mt-6 inline-flex rounded-full bg-white/15 px-3 py-1 text-sm font-medium">
-                    {left === 0 ? 'Poslednji dan' : `Traje još ${left} ${left === 1 ? 'dan' : 'dana'}`}
+                    {left === 0 ? t('Poslednji dan') : left === 1 ? t('Traje još 1 dan') : t('Traje još :count dana', { count: left })}
                 </p>
             </section>
 
-            <h2 className="mt-10 font-serif text-2xl">Proizvođači u kampanji</h2>
+            <h2 className="mt-10 font-serif text-2xl">{t('Proizvođači u kampanji')}</h2>
             {producers.length === 0 ? (
                 <p className="text-muted-foreground mt-2 text-sm">
                     Proizvođači se upravo prijavljuju.{' '}
                     <Link href={route('marketplace.producers.index')} className="underline">
-                        Pogledajte sve proizvođače
+                        {t('Pogledajte sve proizvođače')}
                     </Link>
                 </p>
             ) : (
@@ -63,11 +66,11 @@ export default function CampaignShow({ campaign, producers }: { campaign: Campai
             {/* Producers find out about campaigns here too. */}
             <aside className="border-border/70 bg-muted/30 mt-12 flex flex-wrap items-center justify-between gap-4 rounded-2xl border p-6">
                 <div>
-                    <p className="font-serif text-xl">Pravite nešto za ovu sezonu?</p>
-                    <p className="text-muted-foreground mt-1 text-sm">Pridružite se kampanji i budite ovde, pred kupcima koji traže baš to.</p>
+                    <p className="font-serif text-xl">{t('Pravite nešto za ovu sezonu?')}</p>
+                    <p className="text-muted-foreground mt-1 text-sm">{t('Pridružite se kampanji i budite ovde, pred kupcima koji traže baš to.')}</p>
                 </div>
                 <Button asChild variant="outline">
-                    <Link href={auth.user ? route('campaigns.index') : route('register')}>Pridružite se</Link>
+                    <Link href={auth.user ? route('campaigns.index') : route('register')}>{t('Pridružite se')}</Link>
                 </Button>
             </aside>
         </MarketplaceLayout>

@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { Link, usePage, usePoll } from '@inertiajs/react';
 import { MessageCircle } from 'lucide-react';
@@ -24,7 +25,7 @@ export default function MessagesLink({ className = '' }: { className?: string })
     return (
         <Link
             href={route('messages.index')}
-            aria-label={unreadMessages > 0 ? `Poruke (${unreadMessages} nepročitanih)` : 'Poruke'}
+            aria-label={unreadMessages > 0 ? t('Poruke (:count nepročitanih)', { count: unreadMessages }) : t('Poruke')}
             className={`relative transition-opacity hover:opacity-70 ${className}`}
         >
             <MessageCircle className="size-5" />

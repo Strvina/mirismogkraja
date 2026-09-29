@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { t } from '@/lib/i18n';
 import { Check, Copy, Download } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
@@ -83,23 +84,23 @@ export default function PaymentSlipDialog({
     };
 
     const rows: { label: string; value: string; copyable?: boolean }[] = [
-        { label: 'Platilac', value: slip.payer },
-        { label: 'Svrha uplate', value: slip.purpose },
-        { label: 'Primalac', value: [slip.recipient, slip.recipient_address].filter(Boolean).join(', ') },
-        { label: 'Šifra plaćanja', value: slip.payment_code },
-        { label: 'Valuta', value: 'RSD' },
-        { label: 'Iznos', value: slip.amount, copyable: true },
-        { label: 'Račun primaoca', value: slip.account, copyable: true },
-        { label: 'Model', value: slip.model },
-        { label: 'Poziv na broj', value: slip.reference, copyable: true },
+        { label: t('Platilac'), value: slip.payer },
+        { label: t('Svrha uplate'), value: slip.purpose },
+        { label: t('Primalac'), value: [slip.recipient, slip.recipient_address].filter(Boolean).join(', ') },
+        { label: t('Šifra plaćanja'), value: slip.payment_code },
+        { label: t('Valuta'), value: 'RSD' },
+        { label: t('Iznos'), value: slip.amount, copyable: true },
+        { label: t('Račun primaoca'), value: slip.account, copyable: true },
+        { label: t('Model'), value: slip.model },
+        { label: t('Poziv na broj'), value: slip.reference, copyable: true },
     ];
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-                <DialogTitle>Nalog za uplatu</DialogTitle>
+                <DialogTitle>{t('Nalog za uplatu')}</DialogTitle>
                 <DialogDescription>
-                    Skenirajte QR kod aplikacijom svoje banke i sva polja se popunjavaju sama. Članarinu aktiviramo čim vidimo uplatu.
+                    {t('Skenirajte QR kod aplikacijom svoje banke i sva polja se popunjavaju sama. Članarinu aktiviramo čim vidimo uplatu.')}
                 </DialogDescription>
 
                 <div id="payment-slip" className="border-border/70 mt-2 rounded-lg border p-5">
@@ -127,25 +128,27 @@ export default function PaymentSlipDialog({
 
                         <figure className="shrink-0 text-center">
                             {qrImage ? (
-                                <img src={qrImage} alt="IPS QR kod za plaćanje" className="size-40" />
+                                <img src={qrImage} alt={t('IPS QR kod za plaćanje')} className="size-40" />
                             ) : (
-                                <span className="bg-muted text-muted-foreground grid size-40 place-items-center text-xs">QR kod…</span>
+                                <span className="bg-muted text-muted-foreground grid size-40 place-items-center text-xs">{t('QR kod…')}</span>
                             )}
-                            <figcaption className="text-muted-foreground mt-1 text-[0.65rem]">IPS QR — skenirajte u aplikaciji banke</figcaption>
+                            <figcaption className="text-muted-foreground mt-1 text-[0.65rem]">
+                                {t('IPS QR — skenirajte u aplikaciji banke')}
+                            </figcaption>
                         </figure>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap justify-end gap-2 print:hidden">
                     <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
-                        Zatvori
+                        {t('Zatvori')}
                     </Button>
                     {/* A plain link, so the browser downloads the file the
                         server built rather than rendering the page again. */}
                     <Button asChild size="sm">
                         <a href={downloadUrl} download>
                             <Download className="size-4" />
-                            Preuzmi uplatnicu (PDF)
+                            {t('Preuzmi uplatnicu (PDF)')}
                         </a>
                     </Button>
                 </div>

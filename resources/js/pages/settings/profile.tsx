@@ -11,11 +11,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { t, tx } from '@/lib/i18n';
 import { shrinkImage } from '@/lib/shrink-image';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Moj nalog',
+        title: tx('Moj nalog'),
         href: '/settings/profile',
     },
 ];
@@ -77,17 +78,19 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Moj nalog" />
+            <Head title={t('Moj nalog')} />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Lični podaci" description="Izmenite svoje ime, email i kontakt podatke" />
+                    <HeadingSmall title={t('Lični podaci')} description={t('Izmenite svoje ime, email i kontakt podatke')} />
 
                     <div className="grid gap-2">
-                        <Label htmlFor="avatar">Profilna slika</Label>
+                        <Label htmlFor="avatar">{t('Profilna slika')}</Label>
 
                         <div className="flex items-center gap-4">
-                            {avatarPreview && <img src={avatarPreview} alt="Pregled profilne slike" className="size-16 rounded-full object-cover" />}
+                            {avatarPreview && (
+                                <img src={avatarPreview} alt={t('Pregled profilne slike')} className="size-16 rounded-full object-cover" />
+                            )}
                             <Input
                                 id="avatar"
                                 type="file"
@@ -103,7 +106,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                     <form onSubmit={submit} className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="name">Ime i prezime</Label>
+                            <Label htmlFor="name">{t('Ime i prezime')}</Label>
 
                             <Input
                                 id="name"
@@ -112,14 +115,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 onChange={(e) => setData('name', e.target.value)}
                                 required
                                 autoComplete="name"
-                                placeholder="Ime i prezime"
+                                placeholder={t('Ime i prezime')}
                             />
 
                             <InputError className="mt-2" message={errors.name} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="email">Email adresa</Label>
+                            <Label htmlFor="email">{t('Email adresa')}</Label>
 
                             <Input
                                 id="email"
@@ -129,14 +132,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 onChange={(e) => setData('email', e.target.value)}
                                 required
                                 autoComplete="username"
-                                placeholder="Email adresa"
+                                placeholder={t('Email adresa')}
                             />
 
                             <InputError className="mt-2" message={errors.email} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="phone">Telefon</Label>
+                            <Label htmlFor="phone">{t('Telefon')}</Label>
 
                             <Input
                                 id="phone"
@@ -144,14 +147,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 value={data.phone}
                                 onChange={(e) => setData('phone', e.target.value)}
                                 autoComplete="tel"
-                                placeholder="+381 6x xxx xxxx"
+                                placeholder={t('+381 6x xxx xxxx')}
                             />
 
                             <InputError className="mt-2" message={errors.phone} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="address">Adresa</Label>
+                            <Label htmlFor="address">{t('Adresa')}</Label>
 
                             <Input
                                 id="address"
@@ -159,14 +162,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 value={data.address}
                                 onChange={(e) => setData('address', e.target.value)}
                                 autoComplete="street-address"
-                                placeholder="Ulica i broj"
+                                placeholder={t('Ulica i broj')}
                             />
 
                             <InputError className="mt-2" message={errors.address} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="city">Grad</Label>
+                            <Label htmlFor="city">{t('Grad')}</Label>
 
                             <Input
                                 id="city"
@@ -174,7 +177,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 value={data.city}
                                 onChange={(e) => setData('city', e.target.value)}
                                 autoComplete="address-level2"
-                                placeholder="Grad"
+                                placeholder={t('Grad')}
                             />
 
                             <InputError className="mt-2" message={errors.city} />
@@ -183,25 +186,27 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
                             <div>
                                 <p className="mt-2 text-sm text-neutral-800">
-                                    Vaša email adresa nije potvrđena.
+                                    {t('Vaša email adresa nije potvrđena.')}
                                     <Link
                                         href={route('verification.send')}
                                         method="post"
                                         as="button"
                                         className="rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2 focus:outline-hidden"
                                     >
-                                        Kliknite ovde da ponovo pošaljemo email za potvrdu.
+                                        {t('Kliknite ovde da ponovo pošaljemo email za potvrdu.')}
                                     </Link>
                                 </p>
 
                                 {status === 'verification-link-sent' && (
-                                    <div className="mt-2 text-sm font-medium text-green-600">Nov link za potvrdu je poslat na vašu email adresu.</div>
+                                    <div className="mt-2 text-sm font-medium text-green-600">
+                                        {t('Nov link za potvrdu je poslat na vašu email adresu.')}
+                                    </div>
                                 )}
                             </div>
                         )}
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Sačuvaj</Button>
+                            <Button disabled={processing}>{t('Sačuvaj')}</Button>
 
                             <Transition
                                 show={recentlySuccessful}
@@ -210,7 +215,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Sačuvano</p>
+                                <p className="text-sm text-neutral-600">{t('Sačuvano')}</p>
                             </Transition>
                         </div>
                     </form>

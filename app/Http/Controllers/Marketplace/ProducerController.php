@@ -161,7 +161,7 @@ class ProducerController extends Controller
             // Reporting is for signed-in visitors only, so a complaint has
             // someone behind it.
             'canReport' => $user !== null && $producer->user_id !== $user->id,
-            'reportReasons' => Report::REASONS,
+            'reportReasons' => array_map(__(...), Report::REASONS),
             'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'household')
                 ->where('favoritable_id', $producer->id)

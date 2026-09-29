@@ -24,7 +24,7 @@ class AdminBillingController extends Controller
     {
         return Inertia::render('admin/billing/index', [
             'plans' => SubscriptionPlan::orderBy('level')->get(),
-            'featureLabels' => SubscriptionPlan::FEATURES,
+            'featureLabels' => array_map(__(...), SubscriptionPlan::FEATURES),
             'boostTerms' => $boosts->terms(),
             'payment' => collect(['recipient', 'address', 'account', 'purpose', 'model', 'code'])
                 ->mapWithKeys(fn (string $key) => [
@@ -44,7 +44,7 @@ class AdminBillingController extends Controller
         $data = $request->validate([
             'limit' => ['required', 'integer', 'min:'.$founding->claimed(), 'max:1000'],
         ], [
-            'limit.min' => 'Već je dodeljeno '.$founding->claimed().' mesta - broj ne može biti manji.',
+            'limit.min' => __('Već je dodeljeno :count mesta - broj ne može biti manji.', ['count' => $founding->claimed()]),
         ]);
 
         $settings->put(['founding.limit' => (string) $data['limit']]);

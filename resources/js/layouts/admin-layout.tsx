@@ -1,6 +1,8 @@
 import Brand from '@/components/marketplace/brand';
+import LanguageSwitcher from '@/components/marketplace/language-switcher';
 import MenuIcon from '@/components/marketplace/menu-icon';
 import { Button } from '@/components/ui/button';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
 import {
@@ -24,20 +26,20 @@ import {
 import { type ReactNode, useState } from 'react';
 
 const sections = [
-    { href: '/admin', label: 'Evidencija', icon: LayoutDashboard, exact: true },
-    { href: '/admin/proizvodjaci', label: 'Proizvođači', icon: Sprout },
-    { href: '/admin/zahtevi', label: 'Zahtevi za izmenu', icon: FilePen },
-    { href: '/admin/proizvodi', label: 'Proizvodi', icon: Package },
-    { href: '/admin/kategorije', label: 'Kategorije', icon: FolderTree },
-    { href: '/admin/korisnici', label: 'Korisnici', icon: Users },
-    { href: '/admin/utisci', label: 'Utisci', icon: Star },
-    { href: '/admin/prijave', label: 'Prijave', icon: Flag },
-    { href: '/admin/clanarine', label: 'Članarine', icon: Wallet },
-    { href: '/admin/isticanja', label: 'Isticanja', icon: Megaphone },
-    { href: '/admin/kampanje', label: 'Kampanje', icon: CalendarHeart },
-    { href: '/admin/naplata', label: 'Naplata', icon: Banknote },
-    { href: '/admin/nedelja', label: 'Proizvođač nedelje', icon: Award },
-    { href: '/admin/logovi', label: 'Logovi', icon: ScrollText },
+    { href: '/admin', label: tx('Evidencija'), icon: LayoutDashboard, exact: true },
+    { href: '/admin/proizvodjaci', label: tx('Proizvođači'), icon: Sprout },
+    { href: '/admin/zahtevi', label: tx('Zahtevi za izmenu'), icon: FilePen },
+    { href: '/admin/proizvodi', label: tx('Proizvodi'), icon: Package },
+    { href: '/admin/kategorije', label: tx('Kategorije'), icon: FolderTree },
+    { href: '/admin/korisnici', label: tx('Korisnici'), icon: Users },
+    { href: '/admin/utisci', label: tx('Utisci'), icon: Star },
+    { href: '/admin/prijave', label: tx('Prijave'), icon: Flag },
+    { href: '/admin/clanarine', label: tx('Članarine'), icon: Wallet },
+    { href: '/admin/isticanja', label: tx('Isticanja'), icon: Megaphone },
+    { href: '/admin/kampanje', label: tx('Kampanje'), icon: CalendarHeart },
+    { href: '/admin/naplata', label: tx('Naplata'), icon: Banknote },
+    { href: '/admin/nedelja', label: tx('Proizvođač nedelje'), icon: Award },
+    { href: '/admin/logovi', label: tx('Logovi'), icon: ScrollText },
 ];
 
 /**
@@ -58,7 +60,7 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
         section.exact ? path === section.href : path === section.href || path.startsWith(`${section.href}/`);
 
     const nav = (
-        <nav className="space-y-1" aria-label="Admin sekcije">
+        <nav className="space-y-1" aria-label={t('Admin sekcije')}>
             {sections.map((section) => (
                 <Link
                     key={section.href}
@@ -71,7 +73,7 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
                     )}
                 >
                     <section.icon className="size-4 shrink-0" />
-                    {section.label}
+                    {t(section.label)}
                 </Link>
             ))}
         </nav>
@@ -82,9 +84,18 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
             <aside className="border-border/70 bg-background/95 sticky top-0 z-40 border-b lg:h-screen lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
                 <div className="flex items-center justify-between gap-3 p-5">
                     <Brand />
-                    <Button variant="outline" size="icon" className="lg:hidden" aria-label="Admin meni" onClick={() => setMenuOpen((o) => !o)}>
-                        <MenuIcon open={menuOpen} />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <LanguageSwitcher />
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="lg:hidden"
+                            aria-label={t('Admin meni')}
+                            onClick={() => setMenuOpen((o) => !o)}
+                        >
+                            <MenuIcon open={menuOpen} />
+                        </Button>
+                    </div>
                 </div>
 
                 <div className={cn('px-3 pb-5', menuOpen ? 'block' : 'hidden lg:block')}>
@@ -96,7 +107,7 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
                             className="text-muted-foreground hover:text-foreground flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors"
                         >
                             <Store className="size-4 shrink-0" />
-                            Nazad na sajt
+                            {t('Nazad na sajt')}
                         </Link>
                         <Link
                             href={route('logout')}
@@ -105,7 +116,7 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
                             className="text-muted-foreground hover:text-destructive flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors"
                         >
                             <LogOut className="size-4 shrink-0" />
-                            Odjava
+                            {t('Odjava')}
                         </Link>
                     </div>
                 </div>

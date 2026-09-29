@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t, tx } from '@/lib/i18n';
 import { type Category, type Product } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -21,15 +22,15 @@ type ProductFormData = {
  * each one actually does to their listing.
  */
 const STATUS_OPTIONS: { value: Product['status']; label: string }[] = [
-    { value: 'draft', label: 'Nacrt — još nije javno' },
-    { value: 'active', label: 'Objavljeno' },
-    { value: 'archived', label: 'Sklonjeno' },
+    { value: 'draft', label: tx('Nacrt — još nije javno') },
+    { value: 'active', label: tx('Objavljeno') },
+    { value: 'archived', label: tx('Sklonjeno') },
 ];
 
 const STATUS_HINTS: Record<Product['status'], string> = {
-    draft: 'Vidite ga samo vi, dok ga ne objavite.',
-    active: 'Svi ga vide i mogu da vam pišu o njemu.',
-    archived: 'Sklonjen sa sajta, ali ostaje sačuvan kod vas.',
+    draft: tx('Vidite ga samo vi, dok ga ne objavite.'),
+    active: tx('Svi ga vide i mogu da vam pišu o njemu.'),
+    archived: tx('Sklonjen sa sajta, ali ostaje sačuvan kod vas.'),
 };
 
 export default function ProductForm({
@@ -63,7 +64,7 @@ export default function ProductForm({
     return (
         <form onSubmit={submit} className="max-w-xl space-y-6">
             <div className="grid gap-2">
-                <Label htmlFor="category_id">Kategorija</Label>
+                <Label htmlFor="category_id">{t('Kategorija')}</Label>
                 <select
                     id="category_id"
                     className="border-input bg-background rounded-md border px-3 py-2 text-sm"
@@ -71,7 +72,7 @@ export default function ProductForm({
                     onChange={(e) => setData('category_id', e.target.value)}
                     required
                 >
-                    <option value="">Izaberi kategoriju</option>
+                    <option value="">{t('Izaberi kategoriju')}</option>
                     {categories.map((c) => (
                         <option key={c.id} value={c.id}>
                             {c.name}
@@ -82,13 +83,13 @@ export default function ProductForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="name">Naziv proizvoda</Label>
+                <Label htmlFor="name">{t('Naziv proizvoda')}</Label>
                 <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                 <InputError message={errors.name} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="description">Opis</Label>
+                <Label htmlFor="description">{t('Opis')}</Label>
                 <textarea
                     id="description"
                     className="border-input bg-background min-h-32 rounded-md border px-3 py-2 text-sm"
@@ -100,7 +101,7 @@ export default function ProductForm({
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                    <Label htmlFor="price">Cena (RSD)</Label>
+                    <Label htmlFor="price">{t('Cena (RSD)')}</Label>
                     <Input
                         id="price"
                         type="number"
@@ -114,7 +115,7 @@ export default function ProductForm({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="unit">Jedinica mere</Label>
+                    <Label htmlFor="unit">{t('Jedinica mere')}</Label>
                     <select
                         id="unit"
                         className="border-input bg-background rounded-md border px-3 py-2 text-sm"
@@ -133,7 +134,7 @@ export default function ProductForm({
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                    <Label htmlFor="stock_quantity">Količina na stanju</Label>
+                    <Label htmlFor="stock_quantity">{t('Količina na stanju')}</Label>
                     <Input
                         id="stock_quantity"
                         type="number"
@@ -146,7 +147,7 @@ export default function ProductForm({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="status">Vidljivost</Label>
+                    <Label htmlFor="status">{t('Vidljivost')}</Label>
                     <select
                         id="status"
                         className="border-input bg-background rounded-md border px-3 py-2 text-sm"
@@ -155,11 +156,11 @@ export default function ProductForm({
                     >
                         {STATUS_OPTIONS.map((option) => (
                             <option key={option.value} value={option.value}>
-                                {option.label}
+                                {t(option.label)}
                             </option>
                         ))}
                     </select>
-                    <p className="text-muted-foreground text-xs">{STATUS_HINTS[data.status]}</p>
+                    <p className="text-muted-foreground text-xs">{t(STATUS_HINTS[data.status])}</p>
                     <InputError message={errors.status} />
                 </div>
             </div>

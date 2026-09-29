@@ -1,5 +1,6 @@
 import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { Link } from '@inertiajs/react';
 import { ImageOff, MapPin, Star } from 'lucide-react';
 
@@ -74,7 +75,7 @@ export function HomeProducerCard({ producer, featured = false }: { producer: Hom
                             <span className="text-muted-foreground text-xs">({producer.reviews_count})</span>
                         </span>
                     ) : (
-                        <span className="text-muted-foreground text-xs">Još nema utisaka</span>
+                        <span className="text-muted-foreground text-xs">{t('Još nema utisaka')}</span>
                     )}
                 </div>
 

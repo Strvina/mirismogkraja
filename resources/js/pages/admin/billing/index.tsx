@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
+import { t } from '@/lib/i18n';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
@@ -34,7 +35,7 @@ type BoostTerms = {
 };
 
 function Saved({ show }: { show: boolean }) {
-    return show ? <span className="text-olive text-sm">Sačuvano</span> : null;
+    return show ? <span className="text-olive text-sm">{t('Sačuvano')}</span> : null;
 }
 
 function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<string, string> }) {
@@ -59,12 +60,12 @@ function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<s
         <form onSubmit={submit} className="grid gap-3 rounded-xl border p-4">
             <div className="grid gap-2 sm:grid-cols-2">
                 <div className="grid gap-1.5">
-                    <Label htmlFor={`name-${plan.id}`}>Naziv</Label>
+                    <Label htmlFor={`name-${plan.id}`}>{t('Naziv')}</Label>
                     <Input id={`name-${plan.id}`} value={data.name} onChange={(event) => setData('name', event.target.value)} />
                     <InputError message={errors.name} />
                 </div>
                 <div className="grid gap-1.5">
-                    <Label htmlFor={`price-${plan.id}`}>Cena (RSD / godišnje)</Label>
+                    <Label htmlFor={`price-${plan.id}`}>{t('Cena (RSD / godišnje)')}</Label>
                     <Input
                         id={`price-${plan.id}`}
                         type="number"
@@ -77,7 +78,7 @@ function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<s
             </div>
 
             <div className="grid gap-1.5">
-                <Label htmlFor={`description-${plan.id}`}>Opis</Label>
+                <Label htmlFor={`description-${plan.id}`}>{t('Opis')}</Label>
                 <textarea
                     id={`description-${plan.id}`}
                     value={data.description}
@@ -87,7 +88,7 @@ function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<s
             </div>
 
             <fieldset className="grid gap-2">
-                <legend className="text-sm font-medium">Šta paket nosi</legend>
+                <legend className="text-sm font-medium">{t('Šta paket nosi')}</legend>
                 {Object.entries(featureLabels).map(([key, label]) => (
                     <label key={key} className="flex cursor-pointer items-center gap-2.5 text-sm">
                         <input
@@ -108,12 +109,12 @@ function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<s
                     checked={data.is_active}
                     onChange={(event) => setData('is_active', event.target.checked)}
                 />
-                Paket je u ponudi
+                {t('Paket je u ponudi')}
             </label>
 
             <div className="flex items-center gap-3">
                 <Button size="sm" disabled={processing}>
-                    Sačuvaj paket
+                    {t('Sačuvaj paket')}
                 </Button>
                 <Saved show={recentlySuccessful} />
             </div>
@@ -130,9 +131,9 @@ function BoostTermsForm({ terms }: { terms: BoostTerms }) {
     };
 
     const fields: { key: keyof BoostTerms; label: string }[] = [
-        { key: 'profile_price', label: 'Isticanje profila (RSD)' },
-        { key: 'product_price', label: 'Isticanje proizvoda (RSD)' },
-        { key: 'days', label: 'Trajanje (dana)' },
+        { key: 'profile_price', label: t('Isticanje profila (RSD)') },
+        { key: 'product_price', label: t('Isticanje proizvoda (RSD)') },
+        { key: 'days', label: t('Trajanje (dana)') },
     ];
 
     return (
@@ -152,7 +153,7 @@ function BoostTermsForm({ terms }: { terms: BoostTerms }) {
             ))}
             <div className="flex items-center gap-3 sm:col-span-3">
                 <Button size="sm" disabled={processing}>
-                    Sačuvaj
+                    {t('Sačuvaj')}
                 </Button>
                 <Saved show={recentlySuccessful} />
             </div>
@@ -174,12 +175,12 @@ function PaymentForm({ payment }: { payment: PaymentDetails }) {
     };
 
     const fields: { key: keyof PaymentDetails; label: string; hint?: string }[] = [
-        { key: 'recipient', label: 'Primalac' },
-        { key: 'address', label: 'Adresa primaoca' },
-        { key: 'account', label: 'Račun primaoca', hint: 'U obliku 000-0000000000000-00' },
-        { key: 'purpose', label: 'Svrha uplate za članarinu', hint: 'Naziv proizvođača se dodaje automatski' },
-        { key: 'model', label: 'Model' },
-        { key: 'code', label: 'Šifra plaćanja' },
+        { key: 'recipient', label: t('Primalac') },
+        { key: 'address', label: t('Adresa primaoca') },
+        { key: 'account', label: t('Račun primaoca'), hint: t('U obliku 000-0000000000000-00') },
+        { key: 'purpose', label: t('Svrha uplate za članarinu'), hint: t('Naziv proizvođača se dodaje automatski') },
+        { key: 'model', label: t('Model') },
+        { key: 'code', label: t('Šifra plaćanja') },
     ];
 
     return (
@@ -195,7 +196,7 @@ function PaymentForm({ payment }: { payment: PaymentDetails }) {
 
             <div className="flex items-center gap-3 sm:col-span-2">
                 <Button size="sm" disabled={processing}>
-                    Sačuvaj podatke za uplatu
+                    {t('Sačuvaj podatke za uplatu')}
                 </Button>
                 <Saved show={recentlySuccessful} />
             </div>
@@ -214,7 +215,7 @@ function FoundingForm({ founding }: { founding: { limit: number; claimed: number
     return (
         <form onSubmit={submit} className="flex flex-wrap items-end gap-4 rounded-xl border p-4">
             <div className="grid gap-1.5">
-                <Label htmlFor="founding-limit">Broj mesta za osnivače</Label>
+                <Label htmlFor="founding-limit">{t('Broj mesta za osnivače')}</Label>
                 <Input
                     id="founding-limit"
                     type="number"
@@ -228,7 +229,7 @@ function FoundingForm({ founding }: { founding: { limit: number; claimed: number
             <p className="text-muted-foreground pb-2 text-sm">Dodeljeno: {founding.claimed}</p>
             <div className="flex items-center gap-3 pb-0.5">
                 <Button size="sm" disabled={processing}>
-                    Sačuvaj
+                    {t('Sačuvaj')}
                 </Button>
                 <Saved show={recentlySuccessful} />
             </div>
@@ -264,10 +265,13 @@ export default function AdminBilling({
     founding: { limit: number; claimed: number };
 }) {
     return (
-        <AdminLayout title="Naplata">
-            <Head title="Naplata" />
+        <AdminLayout title={t('Naplata')}>
+            <Head title={t('Naplata')} />
 
-            <Section title="Paketi članarine" lead="Cene i šta koji paket donosi. Nova cena važi za zahteve od sada; već zatraženi zadržavaju svoju.">
+            <Section
+                title={t('Paketi članarine')}
+                lead={t('Cene i šta koji paket donosi. Nova cena važi za zahteve od sada; već zatraženi zadržavaju svoju.')}
+            >
                 <div className="grid gap-4 lg:grid-cols-3">
                     {plans.map((plan) => (
                         <PlanForm key={plan.id} plan={plan} featureLabels={featureLabels} />
@@ -275,17 +279,19 @@ export default function AdminBilling({
                 </div>
             </Section>
 
-            <Section title="Isticanje" lead="Cene i trajanje isticanja. Važe za isticanja zatražena od sada.">
+            <Section title={t('Isticanje')} lead={t('Cene i trajanje isticanja. Važe za isticanja zatražena od sada.')}>
                 <BoostTermsForm terms={boostTerms} />
             </Section>
 
-            <Section title="Podaci za uplatnicu" lead="Štampa se na svakoj uplatnici i ugrađuje u QR kod.">
+            <Section title={t('Podaci za uplatnicu')} lead={t('Štampa se na svakoj uplatnici i ugrađuje u QR kod.')}>
                 <PaymentForm payment={payment} />
             </Section>
 
             <Section
-                title="Osnivači"
-                lead="Prvi odobreni proizvođači dobijaju trajni redni broj i godinu dana Premium članstva besplatno. Broj ne može biti manji od već dodeljenih mesta."
+                title={t('Osnivači')}
+                lead={t(
+                    'Prvi odobreni proizvođači dobijaju trajni redni broj i godinu dana Premium članstva besplatno. Broj ne može biti manji od već dodeljenih mesta.',
+                )}
             >
                 <FoundingForm founding={founding} />
             </Section>

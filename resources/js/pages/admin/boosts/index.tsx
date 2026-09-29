@@ -1,7 +1,8 @@
 import PaidItemActions, { CancelRequestedBadge } from '@/components/admin/paid-item-actions';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import AdminLayout from '@/layouts/admin-layout';
-import { formatRelativeTime } from '@/lib/format';
+import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -22,13 +23,11 @@ interface BoostRow {
 }
 
 const TABS: { status: Status; label: string }[] = [
-    { status: 'pending_payment', label: 'Čekaju uplatu' },
-    { status: 'active', label: 'Aktivna' },
-    { status: 'expired', label: 'Istekla' },
-    { status: 'cancelled', label: 'Otkazana' },
+    { status: 'pending_payment', label: tx('Čekaju uplatu') },
+    { status: 'active', label: tx('Aktivna') },
+    { status: 'expired', label: tx('Istekla') },
+    { status: 'cancelled', label: tx('Otkazana') },
 ];
-
-const dinars = new Intl.NumberFormat('sr-RS');
 
 export default function AdminBoosts({
     boosts,
@@ -43,13 +42,13 @@ export default function AdminBoosts({
     const cancel = (boost: BoostRow) => router.patch(route('admin.boosts.cancel', boost.id), {}, { preserveScroll: true });
 
     return (
-        <AdminLayout title="Isticanja">
-            <Head title="Isticanja" />
+        <AdminLayout title={t('Isticanja')}>
+            <Head title={t('Isticanja')} />
 
             <p className="text-muted-foreground -mt-4 mb-6 text-sm">
                 Cene i trajanje isticanja su na stranici{' '}
                 <Link href={route('admin.billing.index')} className="underline">
-                    Naplata
+                    {t('Naplata')}
                 </Link>
                 .
             </p>
@@ -65,7 +64,7 @@ export default function AdminBoosts({
                             filters.status === tab.status ? 'bg-olive-soft text-olive' : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
-                        {tab.label}
+                        {t(tab.label)}
                         <span
                             className={cn(
                                 'rounded-full px-1.5 py-0.5 text-[0.65rem] tabular-nums',
@@ -81,7 +80,7 @@ export default function AdminBoosts({
             </div>
 
             {boosts.data.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">Ovde nema ničega.</p>
+                <p className="text-muted-foreground mt-6 text-sm">{t('Ovde nema ničega.')}</p>
             ) : (
                 <div className="mt-6 space-y-3">
                     {boosts.data.map((boost) => (
@@ -89,20 +88,22 @@ export default function AdminBoosts({
                             <div className="min-w-0 flex-1">
                                 <p className="flex flex-wrap items-center gap-2 font-medium break-words">
                                     {boost.name}
-                                    <span className="text-muted-foreground font-normal">· {boost.kind === 'product' ? 'proizvod' : 'profil'}</span>
+                                    <span className="text-muted-foreground font-normal">
+                                        · {boost.kind === 'product' ? t('proizvod') : t('profil')}
+                                    </span>
                                     {boost.status === 'active' && <CancelRequestedBadge at={boost.cancel_requested_at} />}
                                 </p>
                                 <p className="text-muted-foreground mt-1 text-sm">
-                                    {boost.producer?.name ?? 'Obrisan proizvođač'} · poziv na broj{' '}
-                                    <span className="text-foreground font-medium">{boost.reference}</span> · {dinars.format(boost.amount_rsd)} RSD ·{' '}
-                                    {boost.days} dana · zatraženo {formatRelativeTime(boost.created_at)}
-                                    {boost.ends_at && ` · do ${new Date(boost.ends_at).toLocaleDateString('sr-RS')}`}
+                                    {boost.producer?.name ?? t('Obrisan proizvođač')} · {t('poziv na broj')}{' '}
+                                    <span className="text-foreground font-medium">{boost.reference}</span> · {formatNumber(boost.amount_rsd)} RSD ·{' '}
+                                    {t(':days dana', { days: boost.days })} · {t('zatraženo :when', { when: formatRelativeTime(boost.created_at) })}
+                                    {boost.ends_at && ` · ${t('do :date', { date: formatDate(boost.ends_at) })}`}
                                 </p>
                             </div>
 
                             <PaidItemActions
                                 status={boost.status}
-                                what={`isticanje „${boost.name}”`}
+                                what={t('isticanje „:name”', { name: boost.name })}
                                 onConfirm={() => confirm(boost)}
                                 onCancel={() => cancel(boost)}
                             />

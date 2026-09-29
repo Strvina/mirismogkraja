@@ -2,6 +2,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
+import { t } from '@/lib/i18n';
 import { type User } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
@@ -29,24 +30,24 @@ export default function AdminUsersIndex({ users, filters }: { users: Paginated<A
     };
 
     return (
-        <AdminLayout title="Korisnici">
-            <Head title="Korisnici" />
+        <AdminLayout title={t('Korisnici')}>
+            <Head title={t('Korisnici')} />
 
             <div className="flex flex-col gap-4">
                 <form onSubmit={submitSearch} role="search" className="flex max-w-md gap-2">
                     <Input
                         type="search"
-                        aria-label="Pretraga korisnika"
-                        placeholder="Ime ili e-mail"
+                        aria-label={t('Pretraga korisnika')}
+                        placeholder={t('Ime ili e-mail')}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                     <Button type="submit" variant="outline">
-                        Traži
+                        {t('Traži')}
                     </Button>
                 </form>
 
-                {users.data.length === 0 && <p className="text-muted-foreground text-sm">Nema korisnika za ovu pretragu.</p>}
+                {users.data.length === 0 && <p className="text-muted-foreground text-sm">{t('Nema korisnika za ovu pretragu.')}</p>}
 
                 <div className="space-y-2">
                     {users.data.map((user) => {

@@ -79,7 +79,7 @@ class BoostController extends Controller
 
         $boosts->request($producer, $target);
 
-        return back()->with('status', 'Isticanje je zabeleženo. Uplatite iznos i mi ćemo ga aktivirati.');
+        return back()->with('status', __('Isticanje je zabeleženo. Uplatite iznos i mi ćemo ga aktivirati.'));
     }
 
     public function slip(Boost $boost, PaymentSlipPdf $pdf): HttpResponse

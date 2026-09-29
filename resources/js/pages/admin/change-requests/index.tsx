@@ -2,6 +2,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowRight, Check, X } from 'lucide-react';
@@ -20,14 +21,14 @@ interface ChangeRequest {
 }
 
 const TABS: { status: Status; label: string }[] = [
-    { status: 'pending', label: 'Čekaju odluku' },
-    { status: 'approved', label: 'Odobreni' },
-    { status: 'rejected', label: 'Odbijeni' },
+    { status: 'pending', label: tx('Čekaju odluku') },
+    { status: 'approved', label: tx('Odobreni') },
+    { status: 'rejected', label: tx('Odbijeni') },
 ];
 
 /** Plain words for the stored column names. */
 const FIELD_LABELS: Record<string, string> = {
-    name: 'Naziv proizvođača',
+    name: tx('Naziv proizvođača'),
 };
 
 /**
@@ -50,8 +51,8 @@ export default function AdminChangeRequests({
     const reject = (request: ChangeRequest) => router.patch(route('admin.change-requests.reject', request.id), {}, { preserveScroll: true });
 
     return (
-        <AdminLayout title="Zahtevi za izmenu">
-            <Head title="Zahtevi za izmenu" />
+        <AdminLayout title={t('Zahtevi za izmenu')}>
+            <Head title={t('Zahtevi za izmenu')} />
 
             <div className="border-border/70 flex flex-wrap gap-1 border-b pb-3">
                 {TABS.map((tab) => (
@@ -64,7 +65,7 @@ export default function AdminChangeRequests({
                             filters.status === tab.status ? 'bg-olive-soft text-olive' : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
-                        {tab.label}
+                        {t(tab.label)}
                         <span
                             className={cn(
                                 'rounded-full px-1.5 py-0.5 text-[0.65rem] tabular-nums',
@@ -81,7 +82,7 @@ export default function AdminChangeRequests({
 
             {requests.data.length === 0 ? (
                 <p className="text-muted-foreground mt-6 text-sm">
-                    {filters.status === 'pending' ? 'Nema zahteva koji čekaju odluku.' : 'Ovde još nema ničega.'}
+                    {filters.status === 'pending' ? t('Nema zahteva koji čekaju odluku.') : t('Ovde još nema ničega.')}
                 </p>
             ) : (
                 <div className="mt-6 space-y-3">
@@ -89,7 +90,7 @@ export default function AdminChangeRequests({
                         <div key={request.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-xs">
-                                    {FIELD_LABELS[request.field] ?? request.field} · zatražio {request.requester.name} ·{' '}
+                                    {t(FIELD_LABELS[request.field] ?? request.field)} · {t('zatražio :name', { name: request.requester.name })} ·{' '}
                                     {formatRelativeTime(request.created_at)}
                                 </p>
 
@@ -105,7 +106,7 @@ export default function AdminChangeRequests({
                                     rel="noreferrer"
                                     className="text-muted-foreground mt-1 inline-block text-xs underline underline-offset-2"
                                 >
-                                    Otvori stranicu proizvođača
+                                    {t('Otvori stranicu proizvođača')}
                                 </a>
                             </div>
 
@@ -113,11 +114,11 @@ export default function AdminChangeRequests({
                                 <div className="flex shrink-0 flex-wrap gap-2">
                                     <Button size="sm" onClick={() => approve(request)}>
                                         <Check className="size-4" />
-                                        Odobri
+                                        {t('Odobri')}
                                     </Button>
                                     <Button variant="outline" size="sm" onClick={() => reject(request)}>
                                         <X className="size-4" />
-                                        Odbij
+                                        {t('Odbij')}
                                     </Button>
                                 </div>
                             )}

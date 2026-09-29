@@ -1,35 +1,38 @@
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { t } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
 export default function ProductsIndex({ producer, products }: { producer: Producer; products: Product[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Moji proizvođači', href: '/moji-proizvodjaci' },
+        { title: t('Moji proizvođači'), href: '/moji-proizvodjaci' },
         { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
-        { title: 'Proizvodi', href: `/moji-proizvodjaci/${producer.id}/proizvodi` },
+        { title: t('Proizvodi'), href: `/moji-proizvodjaci/${producer.id}/proizvodi` },
     ];
 
     const destroy = (product: Product) => {
-        if (confirm(`Obrisati proizvod "${product.name}"?`)) {
+        if (confirm(t('Obrisati proizvod „:name”?', { name: product.name }))) {
             router.delete(route('producers.products.destroy', [producer.id, product.id]));
         }
     };
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Proizvodi — ${producer.name}`} />
+            <Head title={`${t('Proizvodi')} — ${producer.name}`} />
 
             <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="font-serif text-4xl sm:text-5xl">Proizvodi — {producer.name}</h1>
+                    <h1 className="font-serif text-4xl sm:text-5xl">
+                        {t('Proizvodi')} — {producer.name}
+                    </h1>
                     <Button asChild>
-                        <Link href={route('producers.products.create', producer.id)}>Novi proizvod</Link>
+                        <Link href={route('producers.products.create', producer.id)}>{t('Novi proizvod')}</Link>
                     </Button>
                 </div>
 
                 {products.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">Nema još proizvoda.</p>
+                    <p className="text-muted-foreground text-sm">{t('Nema još proizvoda.')}</p>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {products.map((product) => (
@@ -39,14 +42,14 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                                     <span className="bg-muted rounded-full px-2 py-1 text-xs">{product.status}</span>
                                 </div>
                                 <p className="text-muted-foreground mt-1 text-sm">
-                                    {product.price} RSD / {product.unit} · {product.category?.name}
+                                    {product.price} RSD / {product.unit} · {product.category && t(product.category.name)}
                                 </p>
                                 <div className="mt-4 flex gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link href={route('producers.products.edit', [producer.id, product.id])}>Izmeni</Link>
+                                        <Link href={route('producers.products.edit', [producer.id, product.id])}>{t('Izmeni')}</Link>
                                     </Button>
                                     <Button variant="destructive" size="sm" onClick={() => destroy(product)}>
-                                        Obriši
+                                        {t('Obriši')}
                                     </Button>
                                 </div>
                             </div>

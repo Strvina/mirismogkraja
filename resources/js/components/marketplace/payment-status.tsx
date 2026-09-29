@@ -1,3 +1,5 @@
+import { formatDate } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { type LucideIcon } from 'lucide-react';
@@ -5,17 +7,19 @@ import { type LucideIcon } from 'lucide-react';
 export type PaymentStatus = 'pending_payment' | 'active' | 'expired' | 'cancelled';
 
 const STYLES: Record<PaymentStatus, { label: string; className: string }> = {
-    pending_payment: { label: 'Čeka uplatu', className: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100' },
-    active: { label: 'Aktivno', className: 'bg-olive-soft text-olive' },
-    expired: { label: 'Isteklo', className: 'bg-muted text-muted-foreground' },
-    cancelled: { label: 'Otkazano', className: 'bg-destructive/10 text-destructive' },
+    pending_payment: { label: tx('Čeka uplatu'), className: 'bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-100' },
+    active: { label: tx('Aktivno'), className: 'bg-olive-soft text-olive' },
+    expired: { label: tx('Isteklo'), className: 'bg-muted text-muted-foreground' },
+    cancelled: { label: tx('Otkazano'), className: 'bg-destructive/10 text-destructive' },
 };
 
 /** Where something paid for by slip stands, in the same colours everywhere. */
 export function PaymentStatusBadge({ status, label }: { status: PaymentStatus; label?: string }) {
     const style = STYLES[status];
 
-    return <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap', style.className)}>{label ?? style.label}</span>;
+    return (
+        <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap', style.className)}>{label ?? t(style.label)}</span>
+    );
 }
 
 /**
@@ -50,7 +54,7 @@ export function HowItWorks({ steps }: { steps: { icon: LucideIcon; title: string
  */
 export function CancelRequest({ href, requestedAt, what }: { href: string; requestedAt: string | null; what: string }) {
     if (requestedAt) {
-        return <span className="text-muted-foreground text-xs">Otkazivanje zatraženo {new Date(requestedAt).toLocaleDateString('sr-RS')}</span>;
+        return <span className="text-muted-foreground text-xs">Otkazivanje zatraženo {formatDate(requestedAt)}</span>;
     }
 
     return (
@@ -58,12 +62,12 @@ export function CancelRequest({ href, requestedAt, what }: { href: string; reque
             type="button"
             className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
             onClick={() => {
-                if (confirm(`Zatražiti otkazivanje za ${what}? Zahtev stiže nama; javićemo vam se pre nego što ga otkažemo.`)) {
+                if (confirm(t('Zatražiti otkazivanje za :what? Zahtev stiže nama; javićemo vam se pre nego što ga otkažemo.', { what }))) {
                     router.post(href, {}, { preserveScroll: true });
                 }
             }}
         >
-            Zatraži otkazivanje
+            {t('Zatraži otkazivanje')}
         </button>
     );
 }

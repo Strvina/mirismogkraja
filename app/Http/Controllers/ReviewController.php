@@ -55,7 +55,7 @@ class ReviewController extends Controller
             'rating' => $review->rating,
         ], route('admin.reviews.index')));
 
-        return back()->with('status', 'Hvala! Vaš utisak čeka odobrenje i biće objavljen uskoro.')
+        return back()->with('status', __('Hvala! Vaš utisak čeka odobrenje i biće objavljen uskoro.'))
             ->with('reviewId', $review->id);
     }
 

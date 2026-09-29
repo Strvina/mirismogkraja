@@ -1,4 +1,5 @@
 import InfoHint from '@/components/info-hint';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Sparkles } from 'lucide-react';
 import { type ReactNode } from 'react';
@@ -30,7 +31,7 @@ export default function FeaturedSection({
                 <div className="mb-4 flex items-center gap-2">
                     <Sparkles className="text-gold size-4" aria-hidden />
                     <h2 className="text-xs font-semibold tracking-[0.16em] uppercase">{title}</h2>
-                    <InfoHint label={`Šta znači „${title}”?`} title={title}>
+                    <InfoHint label={t('Šta znači „:title”?', { title })} title={title}>
                         {explanation}
                     </InfoHint>
                 </div>

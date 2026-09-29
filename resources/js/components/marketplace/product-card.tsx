@@ -1,5 +1,6 @@
 import { FeaturedLabel } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
 import { Link, router } from '@inertiajs/react';
@@ -60,7 +61,7 @@ export default function ProductCard({
                     <button
                         type="button"
                         onClick={toggleFavorite}
-                        aria-label={product.is_favorited ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'}
+                        aria-label={product.is_favorited ? t('Ukloni iz omiljenih') : t('Dodaj u omiljene')}
                         aria-pressed={product.is_favorited}
                         className="bg-background/85 hover:bg-background absolute top-3 right-3 grid size-9 place-items-center rounded-full shadow-sm backdrop-blur transition-colors"
                     >
@@ -72,7 +73,7 @@ export default function ProductCard({
 
                 {outOfStock && (
                     <span className="bg-charcoal/85 text-primary-foreground absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase">
-                        Nema na stanju
+                        {t('Nema na stanju')}
                     </span>
                 )}
             </div>

@@ -70,21 +70,21 @@ class ReportController extends Controller
 
         return match (true) {
             $subject instanceof Producer => [
-                'label' => 'Proizvođač',
+                'label' => __('Proizvođač'),
                 'name' => $subject->name,
                 'url' => route('marketplace.producers.show', $subject->slug),
             ],
             $subject instanceof Product => [
-                'label' => 'Proizvod',
+                'label' => __('Proizvod'),
                 'name' => $subject->name,
                 'url' => route('marketplace.products.show', $subject->slug),
             ],
             $subject instanceof User => [
-                'label' => 'Korisnik',
+                'label' => __('Korisnik'),
                 'name' => $subject->name,
                 'url' => route('admin.users.index'),
             ],
-            default => ['label' => 'Obrisano', 'name' => '—', 'url' => null],
+            default => ['label' => __('Obrisano'), 'name' => '—', 'url' => null],
         };
     }
 }

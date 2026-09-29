@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -30,8 +31,8 @@ export default function Pagination({ meta }: { meta: PaginatedMeta }) {
     const next = meta.links[meta.links.length - 1];
 
     return (
-        <nav aria-label="Stranice" className="mt-10 flex flex-wrap items-center justify-center gap-1.5">
-            <PageLink url={previous.url} label="Prethodna" ariaLabel="Prethodna stranica">
+        <nav aria-label={t('Stranice')} className="mt-10 flex flex-wrap items-center justify-center gap-1.5">
+            <PageLink url={previous.url} label={t('Prethodna')} ariaLabel={t('Prethodna stranica')}>
                 <ChevronLeft className="size-4" />
             </PageLink>
 
@@ -41,7 +42,7 @@ export default function Pagination({ meta }: { meta: PaginatedMeta }) {
                 </PageLink>
             ))}
 
-            <PageLink url={next.url} label="Sledeća" ariaLabel="Sledeća stranica">
+            <PageLink url={next.url} label={t('Sledeća')} ariaLabel={t('Sledeća stranica')}>
                 <ChevronRight className="size-4" />
             </PageLink>
         </nav>

@@ -90,7 +90,7 @@ class CampaignController extends Controller
         $place = CampaignParticipant::firstOrNew(['campaign_id' => $campaign->id, 'household_id' => $producer->id]);
 
         if ($place->status === CampaignParticipant::STATUS_ACTIVE) {
-            throw ValidationException::withMessages(['producer_id' => "„{$producer->name}” već učestvuje u ovoj kampanji."]);
+            throw ValidationException::withMessages(['producer_id' => __('„:name” već učestvuje u ovoj kampanji.', ['name' => $producer->name])]);
         }
 
         if ($place->status !== CampaignParticipant::STATUS_PENDING) {
@@ -112,7 +112,7 @@ class CampaignController extends Controller
             ], route('admin.campaigns.index')));
         }
 
-        return back()->with('status', 'Prijava je zabeležena. Uplatite iznos i mi ćemo vas uključiti u kampanju.');
+        return back()->with('status', __('Prijava je zabeležena. Uplatite iznos i mi ćemo vas uključiti u kampanju.'));
     }
 
     public function slip(CampaignParticipant $participant, PaymentSlipPdf $pdf): HttpResponse

@@ -29,7 +29,7 @@ class ProducerStatisticsController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug']),
             'unlocked' => $unlocked,
             'stats' => $unlocked ? $statistics->summary($producer) : null,
-            'clickLabels' => ProducerStatistics::CLICKS,
+            'clickLabels' => array_map(__(...), ProducerStatistics::CLICKS),
         ]);
     }
 

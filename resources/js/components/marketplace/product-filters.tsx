@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t } from '@/lib/i18n';
 import { type Category } from '@/types';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useState } from 'react';
@@ -52,7 +53,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
             <div className={`${open ? 'mt-4 block' : 'hidden'} lg:mt-0 lg:block`}>
                 <div className="border-border/70 space-y-5 rounded-lg border p-5">
                     <div className="flex items-center justify-between">
-                        <p className="font-serif text-lg">Filteri</p>
+                        <p className="font-serif text-lg">{t('Filteri')}</p>
                         {activeCount > 0 && (
                             <button
                                 type="button"
@@ -60,37 +61,37 @@ export default function ProductFilters({ filters, categories, producers, cities,
                                 className="text-muted-foreground hover:text-foreground flex items-center gap-1 text-xs transition-colors"
                             >
                                 <X className="size-3" />
-                                Poništi
+                                {t('Poništi')}
                             </button>
                         )}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="filter-category">Kategorija</Label>
+                        <Label htmlFor="filter-category">{t('Kategorija')}</Label>
                         <select
                             id="filter-category"
                             className={selectClasses}
                             value={filters.category_id ?? ''}
                             onChange={(e) => onChange({ category_id: e.target.value || undefined })}
                         >
-                            <option value="">Sve kategorije</option>
+                            <option value="">{t('Sve kategorije')}</option>
                             {categories.map((category) => (
                                 <option key={category.id} value={category.id}>
-                                    {category.name}
+                                    {t(category.name)}
                                 </option>
                             ))}
                         </select>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="filter-producer">Proizvođač</Label>
+                        <Label htmlFor="filter-producer">{t('Proizvođač')}</Label>
                         <select
                             id="filter-producer"
                             className={selectClasses}
                             value={filters.producer_id ?? ''}
                             onChange={(e) => onChange({ producer_id: e.target.value || undefined })}
                         >
-                            <option value="">Svi proizvođači</option>
+                            <option value="">{t('Svi proizvođači')}</option>
                             {producers.map((producer) => (
                                 <option key={producer.id} value={producer.id}>
                                     {producer.name}
@@ -101,14 +102,14 @@ export default function ProductFilters({ filters, categories, producers, cities,
 
                     {cities.length > 0 && (
                         <div className="grid gap-2">
-                            <Label htmlFor="filter-city">Mesto</Label>
+                            <Label htmlFor="filter-city">{t('Mesto')}</Label>
                             <select
                                 id="filter-city"
                                 className={selectClasses}
                                 value={filters.city ?? ''}
                                 onChange={(e) => onChange({ city: e.target.value || undefined })}
                             >
-                                <option value="">Cela Srbija</option>
+                                <option value="">{t('Cela Srbija')}</option>
                                 {cities.map((city) => (
                                     <option key={city} value={city}>
                                         {city}
@@ -120,7 +121,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
 
                     <div className="grid gap-2">
                         <Label>
-                            Cena <span className="text-muted-foreground font-normal">(RSD)</span>
+                            {t('Cena')} <span className="text-muted-foreground font-normal">(RSD)</span>
                         </Label>
                         <div className="flex items-center gap-2">
                             <Input
@@ -128,7 +129,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
                                 inputMode="numeric"
                                 min={0}
                                 placeholder={String(Math.floor(priceBounds.min))}
-                                aria-label="Najniža cena"
+                                aria-label={t('Najniža cena')}
                                 defaultValue={filters.min_price ?? ''}
                                 onBlur={(e) => onChange({ min_price: e.target.value || undefined })}
                             />
@@ -138,7 +139,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
                                 inputMode="numeric"
                                 min={0}
                                 placeholder={String(Math.ceil(priceBounds.max))}
-                                aria-label="Najviša cena"
+                                aria-label={t('Najviša cena')}
                                 defaultValue={filters.max_price ?? ''}
                                 onBlur={(e) => onChange({ max_price: e.target.value || undefined })}
                             />
@@ -152,7 +153,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
                             checked={filters.in_stock === '1'}
                             onChange={(e) => onChange({ in_stock: e.target.checked ? '1' : undefined })}
                         />
-                        Samo dostupno na stanju
+                        {t('Samo dostupno na stanju')}
                     </label>
                 </div>
             </div>

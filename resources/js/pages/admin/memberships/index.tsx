@@ -1,7 +1,8 @@
 import PaidItemActions, { CancelRequestedBadge } from '@/components/admin/paid-item-actions';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import AdminLayout from '@/layouts/admin-layout';
-import { formatRelativeTime } from '@/lib/format';
+import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
 
@@ -20,13 +21,11 @@ interface Subscription {
 }
 
 const TABS: { status: Status; label: string }[] = [
-    { status: 'pending_payment', label: 'Čekaju uplatu' },
-    { status: 'active', label: 'Aktivne' },
-    { status: 'expired', label: 'Istekle' },
-    { status: 'cancelled', label: 'Otkazane' },
+    { status: 'pending_payment', label: tx('Čekaju uplatu') },
+    { status: 'active', label: tx('Aktivne') },
+    { status: 'expired', label: tx('Istekle') },
+    { status: 'cancelled', label: tx('Otkazane') },
 ];
-
-const dinars = new Intl.NumberFormat('sr-RS');
 
 /**
  * The membership queue (task 20.9). Confirming a payment is a human step on
@@ -46,13 +45,13 @@ export default function AdminMemberships({
     const cancel = (subscription: Subscription) => router.patch(route('admin.memberships.cancel', subscription.id), {}, { preserveScroll: true });
 
     return (
-        <AdminLayout title="Članarine">
-            <Head title="Članarine" />
+        <AdminLayout title={t('Članarine')}>
+            <Head title={t('Članarine')} />
 
             <p className="text-muted-foreground -mt-4 mb-6 text-sm">
                 Paketi, cene i podaci za uplatnicu su na stranici{' '}
                 <Link href={route('admin.billing.index')} className="underline">
-                    Naplata
+                    {t('Naplata')}
                 </Link>
                 .
             </p>
@@ -68,7 +67,7 @@ export default function AdminMemberships({
                             filters.status === tab.status ? 'bg-olive-soft text-olive' : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
-                        {tab.label}
+                        {t(tab.label)}
                         <span
                             className={cn(
                                 'rounded-full px-1.5 py-0.5 text-[0.65rem] tabular-nums',
@@ -84,26 +83,27 @@ export default function AdminMemberships({
             </div>
 
             {subscriptions.data.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">Ovde nema ničega.</p>
+                <p className="text-muted-foreground mt-6 text-sm">{t('Ovde nema ničega.')}</p>
             ) : (
                 <div className="mt-6 space-y-3">
                     {subscriptions.data.map((subscription) => (
                         <div key={subscription.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
                                 <p className="flex flex-wrap items-center gap-2 font-medium">
-                                    {subscription.producer?.name ?? 'Obrisan proizvođač'} · {subscription.plan?.name}
+                                    {subscription.producer?.name ?? t('Obrisan proizvođač')} · {subscription.plan?.name}
                                     {subscription.status === 'active' && <CancelRequestedBadge at={subscription.cancel_requested_at} />}
                                 </p>
                                 <p className="text-muted-foreground mt-1 text-sm">
-                                    Poziv na broj <span className="text-foreground font-medium">{subscription.reference}</span> ·{' '}
-                                    {dinars.format(subscription.amount_rsd)} RSD · zatraženo {formatRelativeTime(subscription.created_at)}
-                                    {subscription.ends_at && ` · važi do ${new Date(subscription.ends_at).toLocaleDateString('sr-RS')}`}
+                                    {t('Poziv na broj')} <span className="text-foreground font-medium">{subscription.reference}</span> ·{' '}
+                                    {formatNumber(subscription.amount_rsd)} RSD ·{' '}
+                                    {t('zatraženo :when', { when: formatRelativeTime(subscription.created_at) })}
+                                    {subscription.ends_at && ` · ${t('važi do :date', { date: formatDate(subscription.ends_at) })}`}
                                 </p>
                             </div>
 
                             <PaidItemActions
                                 status={subscription.status}
-                                what={`članarinu za ${subscription.producer?.name ?? 'ovog proizvođača'}`}
+                                what={t('članarinu za :name', { name: subscription.producer?.name ?? '' })}
                                 onConfirm={() => confirm(subscription)}
                                 onCancel={() => cancel(subscription)}
                             />

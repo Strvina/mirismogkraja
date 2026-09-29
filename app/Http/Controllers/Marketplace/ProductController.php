@@ -164,7 +164,7 @@ class ProductController extends Controller
             // signed in can open a thread from here.
             'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
             'canReport' => $user !== null && $product->producer->user_id !== $user->id,
-            'reportReasons' => Report::REASONS,
+            'reportReasons' => array_map(__(...), Report::REASONS),
             'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'product')
                 ->where('favoritable_id', $product->id)

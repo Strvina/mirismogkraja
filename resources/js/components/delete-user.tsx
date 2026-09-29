@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import HeadingSmall from '@/components/heading-small';
 
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { t } from '@/lib/i18n';
 
 export default function DeleteUser() {
     const passwordInput = useRef<HTMLInputElement>(null);
@@ -33,27 +34,28 @@ export default function DeleteUser() {
 
     return (
         <div className="space-y-6">
-            <HeadingSmall title="Brisanje naloga" description="Trajno obrišite svoj nalog i sve podatke vezane za njega" />
+            <HeadingSmall title={t('Brisanje naloga')} description={t('Trajno obrišite svoj nalog i sve podatke vezane za njega')} />
             <div className="space-y-4 rounded-lg border border-red-100 bg-red-50 p-4 dark:border-red-200/10 dark:bg-red-700/10">
                 <div className="relative space-y-0.5 text-red-600 dark:text-red-100">
-                    <p className="font-medium">Upozorenje</p>
-                    <p className="text-sm">Budite oprezni — ova radnja se ne može poništiti.</p>
+                    <p className="font-medium">{t('Upozorenje')}</p>
+                    <p className="text-sm">{t('Budite oprezni — ova radnja se ne može poništiti.')}</p>
                 </div>
 
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button variant="destructive">Obriši nalog</Button>
+                        <Button variant="destructive">{t('Obriši nalog')}</Button>
                     </DialogTrigger>
                     <DialogContent>
-                        <DialogTitle>Da li ste sigurni da želite da obrišete nalog?</DialogTitle>
+                        <DialogTitle>{t('Da li ste sigurni da želite da obrišete nalog?')}</DialogTitle>
                         <DialogDescription>
-                            Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Unesite lozinku da potvrdite da želite trajno da
-                            obrišete nalog.
+                            {t(
+                                'Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Unesite lozinku da potvrdite da želite trajno da obrišete nalog.',
+                            )}
                         </DialogDescription>
                         <form className="space-y-6" onSubmit={deleteUser}>
                             <div className="grid gap-2">
                                 <Label htmlFor="password" className="sr-only">
-                                    Lozinka
+                                    {t('Lozinka')}
                                 </Label>
 
                                 <Input
@@ -63,7 +65,7 @@ export default function DeleteUser() {
                                     ref={passwordInput}
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    placeholder="Lozinka"
+                                    placeholder={t('Lozinka')}
                                     autoComplete="current-password"
                                 />
 
@@ -73,12 +75,12 @@ export default function DeleteUser() {
                             <DialogFooter>
                                 <DialogClose asChild>
                                     <Button variant="secondary" onClick={closeModal}>
-                                        Otkaži
+                                        {t('Otkaži')}
                                     </Button>
                                 </DialogClose>
 
                                 <Button variant="destructive" disabled={processing} asChild>
-                                    <button type="submit">Obriši nalog</button>
+                                    <button type="submit">{t('Obriši nalog')}</button>
                                 </Button>
                             </DialogFooter>
                         </form>

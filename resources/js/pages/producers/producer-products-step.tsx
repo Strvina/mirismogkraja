@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t } from '@/lib/i18n';
 import { shrinkImage } from '@/lib/shrink-image';
 import { type Category } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
@@ -45,7 +46,7 @@ export default function ProducerProductsStep({
         <div className="space-y-4">
             {products.length === 0 && (
                 <p className="border-border/70 text-muted-foreground rounded-lg border border-dashed p-5 text-center text-sm">
-                    Još niste dodali proizvode. Ovaj korak nije obavezan — proizvode možete dodati i kasnije.
+                    {t('Još niste dodali proizvode. Ovaj korak nije obavezan — proizvode možete dodati i kasnije.')}
                 </p>
             )}
 
@@ -57,28 +58,28 @@ export default function ProducerProductsStep({
                         <legend className="px-1 text-sm font-medium">Proizvod {index + 1}</legend>
 
                         <div className="grid gap-1.5 sm:col-span-4">
-                            <Label htmlFor={id('name')}>Naziv</Label>
+                            <Label htmlFor={id('name')}>{t('Naziv')}</Label>
                             <Input
                                 id={id('name')}
                                 value={product.name}
                                 onChange={(e) => update(index, { name: e.target.value })}
-                                placeholder="Npr. Bagremov med"
+                                placeholder={t('Npr. Bagremov med')}
                             />
                             <InputError message={error(index, 'name')} />
                         </div>
 
                         <div className="grid gap-1.5 sm:col-span-2">
-                            <Label htmlFor={id('category')}>Kategorija</Label>
+                            <Label htmlFor={id('category')}>{t('Kategorija')}</Label>
                             <select
                                 id={id('category')}
                                 value={product.category_id}
                                 onChange={(e) => update(index, { category_id: e.target.value })}
                                 className="border-input bg-background h-9 rounded-md border px-3 text-sm"
                             >
-                                <option value="">Izaberite…</option>
+                                <option value="">{t('Izaberite…')}</option>
                                 {categories.map((category) => (
                                     <option key={category.id} value={category.id}>
-                                        {category.name}
+                                        {t(category.name)}
                                     </option>
                                 ))}
                             </select>
@@ -86,7 +87,7 @@ export default function ProducerProductsStep({
                         </div>
 
                         <div className="grid gap-1.5 sm:col-span-2">
-                            <Label htmlFor={id('price')}>Cena (RSD)</Label>
+                            <Label htmlFor={id('price')}>{t('Cena (RSD)')}</Label>
                             <Input
                                 id={id('price')}
                                 type="number"
@@ -99,7 +100,7 @@ export default function ProducerProductsStep({
                         </div>
 
                         <div className="grid gap-1.5 sm:col-span-2">
-                            <Label htmlFor={id('unit')}>Po jedinici</Label>
+                            <Label htmlFor={id('unit')}>{t('Po jedinici')}</Label>
                             <select
                                 id={id('unit')}
                                 value={product.unit}
@@ -115,7 +116,7 @@ export default function ProducerProductsStep({
                         </div>
 
                         <div className="grid gap-1.5 sm:col-span-2">
-                            <Label htmlFor={id('stock')}>Na stanju</Label>
+                            <Label htmlFor={id('stock')}>{t('Na stanju')}</Label>
                             <Input
                                 id={id('stock')}
                                 type="number"
@@ -127,7 +128,7 @@ export default function ProducerProductsStep({
                         </div>
 
                         <div className="grid gap-1.5 sm:col-span-5">
-                            <Label htmlFor={id('image')}>Slika (opciono)</Label>
+                            <Label htmlFor={id('image')}>{t('Slika (opciono)')}</Label>
                             <Input
                                 id={id('image')}
                                 type="file"
@@ -145,7 +146,7 @@ export default function ProducerProductsStep({
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                aria-label={`Ukloni proizvod ${index + 1}`}
+                                aria-label={t('Ukloni proizvod :number', { number: index + 1 })}
                                 onClick={() => onChange(products.filter((_, i) => i !== index))}
                             >
                                 <Trash2 className="size-4" />
@@ -158,7 +159,7 @@ export default function ProducerProductsStep({
             {products.length < 20 && (
                 <Button type="button" variant="outline" onClick={() => onChange([...products, emptyProduct()])}>
                     <Plus className="size-4" />
-                    Dodaj proizvod
+                    {t('Dodaj proizvod')}
                 </Button>
             )}
             <InputError message={errors.products} />

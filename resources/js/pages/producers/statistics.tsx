@@ -1,6 +1,8 @@
 import InfoHint from '@/components/info-hint';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatDate } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { Lock } from 'lucide-react';
@@ -28,14 +30,14 @@ const PREVIEW: Stats = {
 };
 
 function formatDay(date: string): string {
-    return new Date(date).toLocaleDateString('sr-RS', { day: 'numeric', month: 'numeric' });
+    return formatDate(date, { day: 'numeric', month: 'numeric' });
 }
 
 function Dashboard({ stats, clickLabels, interactive }: { stats: Stats; clickLabels: Record<string, string>; interactive: boolean }) {
     const peak = Math.max(1, ...stats.daily.map((day) => day.views));
     const tiles = [
-        { key: 'profile_view', label: 'Pregledi profila' },
-        { key: 'product_view', label: 'Pregledi proizvoda' },
+        { key: 'profile_view', label: t('Pregledi profila') },
+        { key: 'product_view', label: t('Pregledi proizvoda') },
         ...Object.entries(clickLabels).map(([key, label]) => ({ key, label })),
     ];
 
@@ -51,10 +53,14 @@ function Dashboard({ stats, clickLabels, interactive }: { stats: Stats; clickLab
             </div>
 
             <section>
-                <h2 className="font-serif text-2xl">Pregledi profila po danu</h2>
+                <h2 className="font-serif text-2xl">{t('Pregledi profila po danu')}</h2>
                 <div
                     role="img"
-                    aria-label={`Ukupno ${stats.totals.profile_view ?? 0} pregleda profila za ${stats.days} dana, najviše ${peak} u jednom danu.`}
+                    aria-label={t('Ukupno :total pregleda profila za :days dana, najviše :peak u jednom danu.', {
+                        total: stats.totals.profile_view ?? 0,
+                        days: stats.days,
+                        peak,
+                    })}
                     className="border-border/70 mt-4 flex h-40 items-end gap-1 rounded-lg border p-3"
                 >
                     {stats.daily.map((day) => (
@@ -69,9 +75,9 @@ function Dashboard({ stats, clickLabels, interactive }: { stats: Stats; clickLab
             </section>
 
             <section>
-                <h2 className="font-serif text-2xl">Najgledaniji proizvodi</h2>
+                <h2 className="font-serif text-2xl">{t('Najgledaniji proizvodi')}</h2>
                 {stats.topProducts.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Proizvodi još nisu imali preglede u ovom periodu.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{t('Proizvodi još nisu imali preglede u ovom periodu.')}</p>
                 ) : (
                     <ol className="mt-4 space-y-2">
                         {stats.topProducts.map((product, index) => (
@@ -108,27 +114,29 @@ export default function ProducerStatistics({
     clickLabels: Record<string, string>;
 }) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Moji proizvođači', href: '/moji-proizvodjaci' },
-        { title: 'Statistika', href: '#' },
+        { title: t('Moji proizvođači'), href: '/moji-proizvodjaci' },
+        { title: t('Statistika'), href: '#' },
     ];
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Statistika - ${producer.name}`} />
+            <Head title={`${t('Statistika')} — ${producer.name}`} />
 
-            <h1 className="font-serif text-4xl break-words sm:text-5xl">Statistika</h1>
+            <h1 className="font-serif text-4xl break-words sm:text-5xl">{t('Statistika')}</h1>
             <p className="text-muted-foreground mt-2">
                 {producer.name} · poslednjih {stats?.days ?? PREVIEW.days} dana.
-                <InfoHint label="Šta se računa?" title="Šta se računa" className="ml-1 align-middle">
+                <InfoHint label={t('Šta se računa?')} title={t('Šta se računa')} className="ml-1 align-middle">
                     <p>
-                        <strong>Pregled</strong> je svaki put kada neko otvori vašu stranicu ili stranicu proizvoda. Ne računaju se vaše sopstvene
-                        posete, pretraživači i roboti.
+                        <strong>{t('Pregled')}</strong>{' '}
+                        {t(
+                            'je svaki put kada neko otvori vašu stranicu ili stranicu proizvoda. Ne računaju se vaše sopstvene posete, pretraživači i roboti.',
+                        )}
                     </p>
                     <p>
-                        <strong>Prikaz telefona, Viber, WhatsApp i e-mail</strong> su kliknuti kontakti — najbolji znak da je neko zaista
-                        zainteresovan.
+                        <strong>{t('Prikaz telefona, Viber, WhatsApp i e-mail')}</strong>{' '}
+                        {t('su kliknuti kontakti — najbolji znak da je neko zaista zainteresovan.')}
                     </p>
-                    <p>O posetiocima ne čuvamo ništa — samo broj po danu.</p>
+                    <p>{t('O posetiocima ne čuvamo ništa — samo broj po danu.')}</p>
                 </InfoHint>
             </p>
 
@@ -143,13 +151,14 @@ export default function ProducerStatistics({
                         <div className="absolute inset-0 grid place-items-start justify-center pt-16">
                             <div className="bg-background max-w-sm rounded-lg border p-6 text-center shadow-lg">
                                 <Lock className="text-primary mx-auto size-6" aria-hidden />
-                                <h2 className="mt-3 font-serif text-2xl">Statistika je deo paketa Premium i Pro</h2>
+                                <h2 className="mt-3 font-serif text-2xl">{t('Statistika je deo paketa Premium i Pro')}</h2>
                                 <p className="text-muted-foreground mt-2 text-sm leading-6">
-                                    Vidite koliko ljudi gleda vaš profil i proizvode, koliko njih traži vaš broj i javlja se preko Vibera ili
-                                    WhatsApp-a, i šta se najviše gleda.
+                                    {t(
+                                        'Vidite koliko ljudi gleda vaš profil i proizvode, koliko njih traži vaš broj i javlja se preko Vibera ili WhatsApp-a, i šta se najviše gleda.',
+                                    )}
                                 </p>
                                 <Button asChild className="mt-4">
-                                    <Link href={route('memberships.index')}>Pogledaj pakete</Link>
+                                    <Link href={route('memberships.index')}>{t('Pogledaj pakete')}</Link>
                                 </Button>
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
-import { DELIVERY_METHOD_LABELS } from '@/lib/delivery';
+import { deliveryMethodLabel } from '@/lib/delivery';
+import { t } from '@/lib/i18n';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BadgeCheck, MapPin, Star, Truck } from 'lucide-react';
@@ -32,7 +33,7 @@ function Avatar({ name, path, className = 'size-8' }: { name: string; path: stri
 
 function Rating({ value, count }: { value: number | null; count: number }) {
     if (!value) {
-        return <span className="text-muted-foreground text-xs">Još nema utisaka</span>;
+        return <span className="text-muted-foreground text-xs">{t('Još nema utisaka')}</span>;
     }
 
     return (
@@ -76,7 +77,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
 
                 <h2 className="flex flex-wrap items-center gap-1.5 font-serif text-2xl leading-tight">
                     <Link href={href}>{producer.name}</Link>
-                    {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label="Provereni proizvođač" />}
+                    {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label={t('Provereni proizvođač')} />}
                     {producer.is_premium && <PremiumBadge />}
                 </h2>
 
@@ -97,7 +98,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                 {producer.delivery_methods && producer.delivery_methods.length > 0 && (
                     <p className="text-muted-foreground mt-3 flex items-start gap-1.5 text-xs">
                         <Truck className="mt-0.5 size-3.5 shrink-0" />
-                        <span>{producer.delivery_methods.map((method) => DELIVERY_METHOD_LABELS[method] ?? method).join(' · ')}</span>
+                        <span>{producer.delivery_methods.map(deliveryMethodLabel).join(' · ')}</span>
                     </p>
                 )}
 

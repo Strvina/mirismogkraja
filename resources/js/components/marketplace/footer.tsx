@@ -1,3 +1,4 @@
+import { t } from '@/lib/i18n';
 import { Link } from '@inertiajs/react';
 import Brand from './brand';
 
@@ -22,41 +23,41 @@ export default function Footer() {
                     <div>
                         <Brand />
                         <p className="text-muted-foreground mt-5 max-w-xs text-sm leading-6">
-                            Mesto gde upoznajete ljude, proizvođače i ukuse juga Srbije.
+                            {t('Mesto gde upoznajete ljude, proizvođače i ukuse juga Srbije.')}
                         </p>
                     </div>
                     <div>
-                        <p className="text-primary mb-4 text-xs font-semibold tracking-[0.14em] uppercase">Istražite</p>
+                        <p className="text-primary mb-4 text-xs font-semibold tracking-[0.14em] uppercase">{t('Istražite')}</p>
                         <nav className="grid gap-3 text-sm">
                             <Link href={route('marketplace.producers.index')} className="hover:opacity-70">
-                                Proizvođači
+                                {t('Proizvođači')}
                             </Link>
                             <Link href={route('marketplace.products.index')} className="hover:opacity-70">
-                                Proizvodi
+                                {t('Proizvodi')}
                             </Link>
                             <a href="/#o-nama" className="hover:opacity-70">
-                                O nama
+                                {t('O nama')}
                             </a>
                         </nav>
                     </div>
                     <div>
-                        <p className="text-primary mb-4 text-xs font-semibold tracking-[0.14em] uppercase">Budimo u kontaktu</p>
+                        <p className="text-primary mb-4 text-xs font-semibold tracking-[0.14em] uppercase">{t('Budimo u kontaktu')}</p>
                         <a className="text-sm hover:opacity-70" href="mailto:zdravo@vrelinajuga.rs">
-                            zdravo@vrelinajuga.rs
+                            {t('zdravo@vrelinajuga.rs')}
                         </a>
                     </div>
                 </div>
                 <div className="text-muted-foreground flex flex-col gap-2 pt-6 text-xs sm:flex-row sm:justify-between">
                     <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                        <span>© 2026 Vrelina juga</span>
+                        <span>{t('© 2026 Vrelina juga')}</span>
                         <Link href={route('legal.terms')} className="hover:text-foreground transition-colors">
-                            Uslovi korišćenja
+                            {t('Uslovi korišćenja')}
                         </Link>
                         <Link href={route('legal.privacy')} className="hover:text-foreground transition-colors">
-                            Politika privatnosti
+                            {t('Politika privatnosti')}
                         </Link>
                     </p>
-                    <p>Pažljivo birano. Od srca predstavljeno.</p>
+                    <p>{t('Pažljivo birano. Od srca predstavljeno.')}</p>
                 </div>
             </div>
         </footer>
