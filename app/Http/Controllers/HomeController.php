@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Models\WeeklyPick;
 use App\Services\SubscriptionService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -47,11 +48,24 @@ class HomeController extends Controller
             ->filter(fn (Producer $producer) => $producer->favorites_count + $producer->reviews_count > 0)
             ->values();
 
-        $everyone = $featuredProducers->concat($newProducers)->concat($popularProducers);
+        // "Proizvođač nedelje" (task 20.7), chosen by an admin. Only shown
+        // while the producer - and the product, if one was picked - is
+        // still public.
+        $pick = WeeklyPick::current()->first();
+        $weeklyProducer = $pick ? $this->publishedProducers()->find($pick->household_id) : null;
+        $weeklyProduct = $weeklyProducer && $pick->product_id
+            ? $this->productCards()->find($pick->product_id)
+            : null;
+
+        $everyone = $featuredProducers->concat($newProducers)->concat($popularProducers)->concat(array_filter([$weeklyProducer]));
         $tags = $this->categoryTags($everyone->pluck('id')->unique());
         $subscriptions->markPremium($everyone);
 
         return Inertia::render('welcome', [
+            'weeklyPick' => $weeklyProducer ? [
+                'producer' => $this->mapProducers(collect([$weeklyProducer]), $tags)->first(),
+                'product' => $weeklyProduct ? $this->mapProduct($weeklyProduct) : null,
+            ] : null,
             'featuredProducers' => $this->mapProducers($featuredProducers, $tags),
             'newProducers' => $this->mapProducers($newProducers, $tags),
             'popularProducers' => $this->mapProducers($popularProducers, $tags),
@@ -135,27 +149,43 @@ class HomeController extends Controller
      */
     private function mapProducts(): Collection
     {
-        return Product::published()
-            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'created_at'])
-            ->with(['producer:id,name,slug,city', 'images:id,product_id,path,order'])
+        return $this->productCards()
             ->withCount(['favorites', 'inquiries'])
             ->orderByDesc('favorites_count')
             ->orderByDesc('inquiries_count')
             ->latest()
             ->take(10)
             ->get()
-            ->map(fn (Product $product) => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'slug' => $product->slug,
-                'price' => $product->price,
-                'unit' => $product->unit,
-                'image' => $product->images->first()?->path,
-                'producer' => [
-                    'name' => $product->producer->name,
-                    'slug' => $product->producer->slug,
-                    'city' => $product->producer->city,
-                ],
-            ]);
+            ->map(fn (Product $product) => $this->mapProduct($product));
+    }
+
+    /**
+     * Published products with what a product card shows.
+     *
+     * @return Builder<Product>
+     */
+    private function productCards(): Builder
+    {
+        return Product::published()
+            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'created_at'])
+            ->with(['producer:id,name,slug,city', 'images:id,product_id,path,order']);
+    }
+
+    /** @return array<string, mixed> */
+    private function mapProduct(Product $product): array
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'slug' => $product->slug,
+            'price' => $product->price,
+            'unit' => $product->unit,
+            'image' => $product->images->first()?->path,
+            'producer' => [
+                'name' => $product->producer->name,
+                'slug' => $product->producer->slug,
+                'city' => $product->producer->city,
+            ],
+        ];
     }
 }
