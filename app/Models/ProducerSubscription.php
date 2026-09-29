@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
 
 /**
  * One producer's membership. Paid by bank slip, so it waits in
@@ -72,16 +71,28 @@ class ProducerSubscription extends Model
     }
 
     /**
-     * Short, unambiguous and readable over the phone - a producer copies it
-     * onto a paper slip by hand, so no lowercase and no characters that look
-     * like one another.
+     * A "poziv na broj" valid under model 97: two control digits, a dash,
+     * and eight digits.
+     *
+     * A reference on a Serbian slip may hold only digits and dashes, and
+     * under model 97 its first two digits must check out (ISO 7064 MOD
+     * 97-10) - a bank rejects anything else at the counter, and a banking
+     * app refuses the QR. The control digits also catch the one mistake a
+     * hand-copied slip is prone to: a mistyped digit.
      */
     public static function newReference(): string
     {
         do {
-            $reference = 'VJ-'.Str::upper(Str::random(3)).'-'.random_int(1000, 9999);
+            $base = (string) random_int(10_000_000, 99_999_999);
+            $reference = self::controlDigits($base).'-'.$base;
         } while (static::where('reference', $reference)->exists());
 
         return $reference;
+    }
+
+    /** ISO 7064 MOD 97-10, as model 97 prescribes. */
+    public static function controlDigits(string $digits): string
+    {
+        return str_pad((string) (98 - ((int) $digits * 100) % 97), 2, '0', STR_PAD_LEFT);
     }
 }

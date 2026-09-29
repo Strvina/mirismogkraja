@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProductRequest;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
@@ -45,8 +46,7 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock_quantity' => ['required', 'integer', 'min:0'],
+            ...StoreProductRequest::amountRules(),
             'category_id' => ['required', 'exists:categories,id'],
             'status' => ['required', Rule::in(self::STATUSES)],
         ]);
@@ -74,8 +74,11 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'action' => ['required', Rule::in(['delete', 'status', 'category'])],
-            'ids' => ['required', 'array', 'min:1'],
-            'ids.*' => ['integer', 'exists:products,id'],
+            // Capped because each row goes through the model one by one.
+            // Not checked against the table id by id: that is a query per
+            // id, and an id that is not there simply matches nothing below.
+            'ids' => ['required', 'array', 'min:1', 'max:100'],
+            'ids.*' => ['integer'],
             'status' => ['required_if:action,status', Rule::in(self::STATUSES)],
             'category_id' => ['required_if:action,category', 'exists:categories,id'],
         ]);

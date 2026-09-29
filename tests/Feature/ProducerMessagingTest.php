@@ -75,6 +75,26 @@ class ProducerMessagingTest extends TestCase
         $this->assertNotNull($message->refresh()->read_at);
     }
 
+    /**
+     * A producer still waiting for approval, or blocked, is not open for
+     * business - but a conversation begun while it was stays readable.
+     */
+    public function test_a_new_thread_needs_a_published_producer(): void
+    {
+        $buyer = User::factory()->create();
+        $pending = Producer::factory()->create(['status' => 'pending']);
+
+        $this->actingAs($buyer)->post(route('messages.store', $pending->slug), ['body' => 'Zdravo'])->assertForbidden();
+        $this->actingAs($buyer)->get(route('messages.show', $pending->slug))->assertForbidden();
+        $this->assertSame(0, ProducerMessage::count());
+
+        $blocked = Producer::factory()->active()->create();
+        $this->actingAs($buyer)->post(route('messages.store', $blocked->slug), ['body' => 'Pitanje']);
+        $blocked->update(['status' => 'blocked']);
+
+        $this->actingAs($buyer)->get(route('messages.show', $blocked->slug))->assertOk();
+    }
+
     public function test_an_owner_cannot_open_a_thread_with_their_own_producer(): void
     {
         $owner = User::factory()->create();
@@ -204,9 +224,8 @@ class ProducerMessagingTest extends TestCase
                 ->where('threads.0.unread', 0)
         );
 
-        $this->actingAs($owner)->get(route('messages.inbox'))->assertInertia(
-            fn ($page) => $page->where('threads.0.last_message', 'Imamo, javite se.')
-        );
+        // The old seller-only inbox is the same list now.
+        $this->actingAs($owner)->get(route('messages.inbox'))->assertRedirect('/poruke');
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Services\CategoryService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,7 +17,7 @@ class CategoryController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/categories/index', [
-            'categories' => Category::with('parent:id,name')->orderBy('name')->get(),
+            'categories' => Category::with('parent:id,name')->withCount('products')->orderBy('name')->get(),
         ]);
     }
 
@@ -34,9 +35,22 @@ class CategoryController extends Controller
         return back();
     }
 
+    /**
+     * Subcategories are let go rather than deleted with it. Products are not
+     * - every product must have a category, and the table enforces it - so
+     * a category still in use has to be emptied first. Said as a message:
+     * left to the database, it was a server error.
+     */
     public function destroy(Category $category): RedirectResponse
     {
-        $category->update(['parent_id' => null]);
+        $inUse = $category->products()->count();
+
+        if ($inUse > 0) {
+            throw ValidationException::withMessages([
+                'category' => "Kategorija „{$category->name}” ima proizvoda ({$inUse}). Prebacite ih u drugu kategoriju pa je obrišite.",
+            ]);
+        }
+
         $category->children()->update(['parent_id' => null]);
         $category->delete();
 

@@ -12,17 +12,22 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductImageController extends Controller
 {
+    /** A product page shows its photos in one row; past this is clutter and disk. */
+    public const MAX_IMAGES = 10;
+
     public function store(Request $request, Producer $producer, Product $product): RedirectResponse
     {
         abort_unless($product->household_id === $producer->id, 404);
         $this->authorize('update', $product);
 
         $request->validate([
-            'images' => ['required', 'array'],
+            'images' => ['required', 'array', 'max:'.max(0, self::MAX_IMAGES - $product->images()->count())],
             'images.*' => ['image', 'max:4096'],
+        ], [
+            'images.max' => 'Proizvod može imati najviše '.self::MAX_IMAGES.' fotografija.',
         ]);
 
-        $nextOrder = (int) $product->images()->max('order') + ($product->images()->exists() ? 1 : 0);
+        $nextOrder = ($product->images()->max('order') ?? -1) + 1;
 
         foreach ($request->file('images') as $file) {
             $product->images()->create([

@@ -124,7 +124,7 @@ export default function MessageThread({
 
     const breadcrumbs: BreadcrumbItem[] = isOwner
         ? [
-              { title: 'Poruke proizvođača', href: '/poruke-proizvodjaca' },
+              { title: 'Moje poruke', href: '/poruke' },
               { title: buyer.name, href: '#' },
           ]
         : [

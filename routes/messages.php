@@ -14,8 +14,9 @@ Route::middleware('auth')->group(function () {
         ->middleware('throttle:20,1')
         ->name('messages.store');
 
-    // Seller's side: every buyer who has written to their producers.
-    Route::get('/poruke-proizvodjaca', [ProducerMessageController::class, 'producerInbox'])->name('messages.inbox');
+    // Seller's side of a thread. Its inbox is /poruke, which lists both
+    // sides together; the old address still leads there.
+    Route::redirect('/poruke-proizvodjaca', '/poruke')->name('messages.inbox');
     Route::get('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'show'])->name('messages.thread');
     Route::post('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')

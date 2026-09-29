@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,6 +58,19 @@ class AdminCategoryManagementTest extends TestCase
             'name' => $category->name,
             'parent_id' => $category->id,
         ])->assertSessionHasErrors('parent_id');
+    }
+
+    public function test_a_category_in_use_is_refused_rather_than_failing()
+    {
+        $admin = $this->admin();
+        $category = Category::factory()->create();
+        Product::factory()->create(['category_id' => $category->id]);
+
+        $this->actingAs($admin)
+            ->delete(route('admin.categories.destroy', $category))
+            ->assertSessionHasErrors('category');
+
+        $this->assertDatabaseHas('categories', ['id' => $category->id]);
     }
 
     public function test_deleting_a_parent_orphans_its_children_instead_of_cascading()

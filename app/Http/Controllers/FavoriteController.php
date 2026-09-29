@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Favorite;
 use App\Models\Producer;
 use App\Models\Product;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,15 +14,35 @@ use Inertia\Response;
 class FavoriteController extends Controller
 {
     /**
-     * "Moji omiljeni": the authenticated user's favorited producers and products.
+     * "Moji omiljeni": the authenticated user's favorited producers and
+     * products, most recently saved first.
+     *
+     * Only what is still public: a saved producer that was later blocked, or
+     * a product taken down, must not stay reachable through someone's list.
+     * And only the columns the list shows - the full models carried phone
+     * numbers, addresses and whole stories to a page that prints a name.
      */
     public function index(Request $request): Response
     {
-        $favorites = $request->user()->favorites()->with('favoritable')->latest()->get();
+        $userId = $request->user()->id;
+
+        $savedBy = fn (string $type, string $table) => fn (JoinClause $join) => $join
+            ->on('favorites.favoritable_id', '=', "{$table}.id")
+            ->where('favorites.favoritable_type', $type)
+            ->where('favorites.user_id', $userId);
 
         return Inertia::render('favorites/index', [
-            'producers' => $favorites->where('favoritable_type', 'household')->pluck('favoritable')->filter()->values(),
-            'products' => $favorites->where('favoritable_type', 'product')->pluck('favoritable')->filter()->values(),
+            'producers' => Producer::query()
+                ->join('favorites', $savedBy('household', 'households'))
+                ->where('households.status', 'active')
+                ->orderByDesc('favorites.created_at')
+                ->get(['households.id', 'households.name', 'households.slug', 'households.city']),
+            'products' => Product::query()
+                ->join('favorites', $savedBy('product', 'products'))
+                ->where('products.status', 'active')
+                ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
+                ->orderByDesc('favorites.created_at')
+                ->get(['products.id', 'products.name', 'products.slug', 'products.price', 'products.unit']),
         ]);
     }
 

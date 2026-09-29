@@ -8,6 +8,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProducerRequest extends FormRequest
 {
+    /** Shared with the admin's edit form, which writes the same column. */
+    public const DESCRIPTION_MAX = 5000;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -34,8 +37,9 @@ class StoreProducerRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'story' => ['nullable', 'string'],
+            // Bounded, since both are sent to every visitor of the page.
+            'description' => ['nullable', 'string', 'max:'.self::DESCRIPTION_MAX],
+            'story' => ['nullable', 'string', 'max:10000'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:255'],

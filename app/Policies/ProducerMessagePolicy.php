@@ -23,6 +23,13 @@ class ProducerMessagePolicy
                 && ProducerMessage::thread($producer, $buyer)->exists();
         }
 
-        return $buyer->id === $user->id;
+        if ($buyer->id !== $user->id) {
+            return false;
+        }
+
+        // A new conversation only with a producer the public can see - one
+        // still waiting for approval, or blocked, is not open for business.
+        // A conversation that already exists stays readable either way.
+        return $producer->status === 'active' || ProducerMessage::thread($producer, $buyer)->exists();
     }
 }
