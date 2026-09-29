@@ -114,6 +114,17 @@ class Producer extends Model
             ->ofMany(['ends_at' => 'max'], fn ($query) => $query->active());
     }
 
+    /** Buyers this producer no longer takes messages from. */
+    public function blockedBuyers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'conversation_blocks', 'household_id', 'buyer_id');
+    }
+
+    public function hasBlocked(User $buyer): bool
+    {
+        return $this->blockedBuyers()->whereKey($buyer->id)->exists();
+    }
+
     /** People who asked to hear when this producer lists something new. */
     public function followers(): BelongsToMany
     {

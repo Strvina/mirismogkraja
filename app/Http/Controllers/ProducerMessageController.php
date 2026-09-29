@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
+use App\Models\Report;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,7 @@ class ProducerMessageController extends Controller
 
         abort_unless($product->isPubliclyVisible(), 404);
         abort_if($product->producer->user_id === $request->user()->id, 403);
+        abort_if($product->producer->hasBlocked($request->user()), 403);
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
@@ -105,6 +107,10 @@ class ProducerMessageController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
             'buyer' => $buyer->only(['id', 'name', 'avatar_path']),
             'isOwner' => $producer->user_id === $request->user()->id,
+            // Both sides see it: the producer to undo it, the buyer so the
+            // box they cannot type into explains itself.
+            'blocked' => $producer->hasBlocked($buyer),
+            'reportReasons' => Report::REASONS,
             // Newest first so opening a thread lands on the latest reply;
             // the page is flipped back to chronological order below, and
             // "older messages" therefore means the next page.
@@ -137,7 +143,7 @@ class ProducerMessageController extends Controller
     {
         $buyer ??= $request->user();
 
-        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
+        $this->authorize('send', [ProducerMessage::class, $producer, $buyer]);
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
@@ -147,6 +153,20 @@ class ProducerMessageController extends Controller
             'sender_id' => $request->user()->id,
             'body' => $data['body'],
         ]);
+
+        return back();
+    }
+
+    /**
+     * The producer stops, or resumes, taking messages from this buyer. Only
+     * for a conversation the buyer started - there is nobody else to block.
+     */
+    public function toggleBlock(Request $request, Producer $producer, User $buyer): RedirectResponse
+    {
+        $this->authorize('update', $producer);
+        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
+
+        $producer->blockedBuyers()->toggle($buyer->id);
 
         return back();
     }
