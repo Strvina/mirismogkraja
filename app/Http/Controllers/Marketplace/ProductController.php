@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Report;
+use App\Support\PageMeta;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -118,6 +119,12 @@ class ProductController extends Controller
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
             'similar' => $similar,
+            'meta' => PageMeta::make(
+                "{$product->name} - {$product->producer->name}",
+                $product->description,
+                $product->images->first()?->path,
+                'product',
+            ),
             // The owner has no one to ask about their own listing; anyone else
             // signed in can open a thread from here.
             'canInquire' => $user !== null && $product->producer->user_id !== $user->id,

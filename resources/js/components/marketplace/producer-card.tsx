@@ -18,7 +18,7 @@ export interface ProducerCardProducer extends Producer {
 
 function Avatar({ name, path, className = 'size-8' }: { name: string; path: string | null; className?: string }) {
     if (path) {
-        return <img src={`/storage/${path}`} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
+        return <img loading="lazy" src={`/storage/${path}`} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
     }
 
     return (

@@ -108,7 +108,12 @@ export default function ProductShow({
                         className="hover:bg-muted mt-8 flex items-center gap-3 rounded-md border p-4"
                     >
                         {product.producer.logo_path && (
-                            <img src={`/storage/${product.producer.logo_path}`} alt="" className="size-10 shrink-0 rounded-full object-cover" />
+                            <img
+                                loading="lazy"
+                                src={`/storage/${product.producer.logo_path}`}
+                                alt=""
+                                className="size-10 shrink-0 rounded-full object-cover"
+                            />
                         )}
                         <div className="min-w-0">
                             <p className="font-serif break-words">{product.producer.name}</p>
@@ -132,6 +137,7 @@ export default function ProductShow({
                                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
                                     {p.images?.[0] && (
                                         <img
+                                            loading="lazy"
                                             src={`/storage/${p.images[0].path}`}
                                             alt={p.name}
                                             className="image-warm size-full object-cover transition group-hover:scale-105"
