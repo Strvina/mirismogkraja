@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -46,6 +47,17 @@ class Product extends Model
     public function isPubliclyVisible(): bool
     {
         return $this->status === 'active' && $this->producer?->status === 'active';
+    }
+
+    /**
+     * What the public may see: listed as active, by a producer that is
+     * itself published. The query twin of isPubliclyVisible().
+     *
+     * @param  Builder<Product>  $query
+     */
+    public function scopePublished(Builder $query): void
+    {
+        $query->where($query->qualifyColumn('status'), 'active')->whereHas('producer', fn (Builder $producer) => $producer->published());
     }
 
     public function category(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ProducerSubscription extends Model
 {
+    use CountsByStatus;
+
     public const STATUS_PENDING = 'pending_payment';
 
     public const STATUS_ACTIVE = 'active';

@@ -130,8 +130,8 @@ class ReportAndVerificationTest extends TestCase
         $this->actingAs($buyer)->patch(route('admin.reports.update', $report), ['status' => 'reviewed'])->assertForbidden();
 
         $this->actingAs($this->admin())->get(route('admin.reports.index'))->assertInertia(
-            fn ($page) => $page->has('reports', 1)
-                ->where('reports.0.subject.name', $producer->name)
+            fn ($page) => $page->has('reports.data', 1)
+                ->where('reports.data.0.subject.name', $producer->name)
                 ->where('counts.open', 1)
         );
 

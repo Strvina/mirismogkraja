@@ -9,7 +9,8 @@ import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 import { useState } from 'react';
 
-type FullProduct = Product & { producer: Producer };
+type FullProduct = Product & { producer: Pick<Producer, 'id' | 'name' | 'slug' | 'city' | 'logo_path'> };
+type SimilarProduct = Pick<Product, 'id' | 'name' | 'slug' | 'images'>;
 
 export default function ProductShow({
     product,
@@ -20,7 +21,7 @@ export default function ProductShow({
     isFavorited,
 }: {
     product: FullProduct;
-    similar: Product[];
+    similar: SimilarProduct[];
     canInquire: boolean;
     canReport: boolean;
     reportReasons: Record<string, string>;

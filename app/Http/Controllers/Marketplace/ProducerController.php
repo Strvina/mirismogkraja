@@ -20,8 +20,9 @@ class ProducerController extends Controller
      */
     public function index(Request $request): Response
     {
-        $producers = Producer::query()
-            ->where('status', 'active')
+        $producers = Producer::published()
+            // What the card shows, not the story and contact details behind it.
+            ->select(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods'])
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->where('city', $city))
             ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
             ->withCount([
@@ -33,8 +34,7 @@ class ProducerController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        $cities = Producer::query()
-            ->where('status', 'active')
+        $cities = Producer::published()
             ->whereNotNull('city')
             ->distinct()
             ->orderBy('city')
@@ -60,9 +60,18 @@ class ProducerController extends Controller
         $user = request()->user();
 
         return Inertia::render('marketplace/producers/show', [
-            'producer' => $producer,
+            // What the page prints. Not the owner's account id, the stored
+            // coordinates or the moderation fields.
+            'producer' => $producer->only([
+                'id', 'name', 'slug', 'description', 'story', 'address', 'city', 'phone', 'contact_email',
+                'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at',
+            ]),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
-            'products' => $producer->products()->where('status', 'active')->with('images')->get(),
+            'products' => $producer->products()
+                ->where('status', 'active')
+                ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit'])
+                ->with('images:id,product_id,path,order')
+                ->get(),
             // Ordered and stamped by when they were written, not by when a
             // moderator got to them: the date on a review is the day its
             // author had the experience.

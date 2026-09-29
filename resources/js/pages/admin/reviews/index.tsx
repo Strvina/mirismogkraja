@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatRelativeTime } from '@/lib/format';
@@ -26,7 +27,7 @@ export default function AdminReviewsIndex({
     filters,
     counts,
 }: {
-    reviews: ReviewWithRelations[];
+    reviews: Paginated<ReviewWithRelations>;
     filters: { status: Status };
     counts: Record<Status, number>;
 }) {
@@ -69,13 +70,13 @@ export default function AdminReviewsIndex({
                 ))}
             </div>
 
-            {reviews.length === 0 ? (
+            {reviews.data.length === 0 ? (
                 <p className="text-muted-foreground mt-6 text-sm">
                     {filters.status === 'pending' ? 'Nema utisaka koji čekaju odobrenje.' : 'Ovde još nema ničega.'}
                 </p>
             ) : (
                 <div className="mt-6 space-y-3">
-                    {reviews.map((review) => (
+                    {reviews.data.map((review) => (
                         <div key={review.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2">
@@ -135,6 +136,8 @@ export default function AdminReviewsIndex({
                     ))}
                 </div>
             )}
+
+            <Pagination meta={reviews} />
         </AdminLayout>
     );
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
+use App\Observers\ActivityLogObserver;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,7 +23,9 @@ class ActivityLogController extends Controller
 
         return Inertia::render('admin/logs/index', [
             'logs' => $logs,
-            'subjects' => ActivityLog::query()->distinct()->orderBy('subject_type')->pluck('subject_type'),
+            // The audited models are a fixed list, so the filter reads it
+            // rather than scanning the fastest-growing table for it.
+            'subjects' => ActivityLogObserver::subjects(),
             'filters' => $request->only(['action', 'subject']),
         ]);
     }

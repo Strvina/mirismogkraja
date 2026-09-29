@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatRelativeTime } from '@/lib/format';
@@ -33,7 +34,7 @@ export default function AdminReports({
     filters,
     counts,
 }: {
-    reports: Report[];
+    reports: Paginated<Report>;
     filters: { status: Status };
     counts: Record<Status, number>;
 }) {
@@ -68,11 +69,11 @@ export default function AdminReports({
                 ))}
             </div>
 
-            {reports.length === 0 ? (
+            {reports.data.length === 0 ? (
                 <p className="text-muted-foreground mt-6 text-sm">{filters.status === 'open' ? 'Nema novih prijava.' : 'Ovde još nema ničega.'}</p>
             ) : (
                 <div className="mt-6 space-y-3">
-                    {reports.map((report) => (
+                    {reports.data.map((report) => (
                         <div key={report.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-xs">
@@ -107,6 +108,8 @@ export default function AdminReports({
                     ))}
                 </div>
             )}
+
+            <Pagination meta={reports} />
         </AdminLayout>
     );
 }

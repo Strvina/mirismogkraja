@@ -137,12 +137,12 @@ class AdminReviewModerationTest extends TestCase
 
         $this->actingAs($this->admin())->get(route('admin.reviews.index'))
             ->assertInertia(fn ($page) => $page->where('filters.status', Review::STATUS_PENDING)
-                ->has('reviews', 1)
+                ->has('reviews.data', 1)
                 ->where('counts.pending', 1)
                 ->where('counts.approved', 1));
 
         $this->actingAs($this->admin())->get(route('admin.reviews.index', ['status' => Review::STATUS_APPROVED]))
-            ->assertInertia(fn ($page) => $page->has('reviews', 1));
+            ->assertInertia(fn ($page) => $page->has('reviews.data', 1));
     }
 
     /**

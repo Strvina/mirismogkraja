@@ -4,10 +4,11 @@ import { type Product } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { Heart, ImageOff } from 'lucide-react';
 
-export interface ProductCardProduct extends Product {
+/** What the catalog sends per card - not the whole product row. */
+export type ProductCardProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'stock_quantity' | 'images'> & {
     producer?: { id: number; name: string; city: string | null };
     is_favorited?: boolean;
-}
+};
 
 /**
  * The product tile used across the catalog (task 11): image with a hover

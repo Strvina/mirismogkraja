@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -188,7 +189,7 @@ export default function AdminMemberships({
 }: {
     plans: Plan[];
     featureLabels: Record<string, string>;
-    subscriptions: Subscription[];
+    subscriptions: Paginated<Subscription>;
     filters: { status: Status };
     counts: Record<Status, number>;
     revenue: { plan: string; count: number; total: number }[];
@@ -246,11 +247,11 @@ export default function AdminMemberships({
                 ))}
             </div>
 
-            {subscriptions.length === 0 ? (
+            {subscriptions.data.length === 0 ? (
                 <p className="text-muted-foreground mt-6 text-sm">Ovde nema ničega.</p>
             ) : (
                 <div className="mt-6 space-y-3">
-                    {subscriptions.map((subscription) => (
+                    {subscriptions.data.map((subscription) => (
                         <div key={subscription.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
                                 <p className="font-medium">
@@ -279,6 +280,8 @@ export default function AdminMemberships({
                     ))}
                 </div>
             )}
+
+            <Pagination meta={subscriptions} />
 
             <section className="mt-12">
                 <h2 className="font-serif text-2xl">Podaci za uplatnicu</h2>
