@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Product;
 use Illuminate\Support\Str;
 
 /**
@@ -26,5 +27,32 @@ class PageMeta
             'image' => $imagePath ? asset('storage/'.$imagePath) : null,
             'type' => $type,
         ];
+    }
+
+    /**
+     * schema.org Product data, which lets a search result show the price
+     * and whether it is in stock. Expects producer, category and images
+     * loaded.
+     *
+     * @return array<string, mixed>
+     */
+    public static function product(Product $product): array
+    {
+        return array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name,
+            'description' => Str::limit(Str::squish(strip_tags((string) $product->description)), 500) ?: null,
+            'image' => $product->images->map(fn ($image) => asset('storage/'.$image->path))->values()->all() ?: null,
+            'category' => $product->category?->name,
+            'offers' => [
+                '@type' => 'Offer',
+                'price' => (string) $product->price,
+                'priceCurrency' => 'RSD',
+                'availability' => $product->stock_quantity > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'url' => route('marketplace.products.show', $product->slug),
+                'seller' => ['@type' => 'Organization', 'name' => $product->producer->name],
+            ],
+        ], fn ($value) => $value !== null);
     }
 }
