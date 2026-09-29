@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\Marketplace\FoundingProducerController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
@@ -8,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/proizvodjaci', [ProducerController::class, 'index'])->name('marketplace.producers.index');
 Route::get('/prvih-100', FoundingProducerController::class)->name('marketplace.founding');
+Route::get('/kampanja/{campaign:slug}', [CampaignController::class, 'show'])->name('campaigns.show');
 Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])->name('marketplace.producers.show');
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');

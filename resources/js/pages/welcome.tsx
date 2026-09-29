@@ -74,6 +74,7 @@ function Section({
 }
 
 export default function Welcome({
+    campaigns,
     weeklyPick,
     featuredProducers,
     newProducers,
@@ -81,6 +82,7 @@ export default function Welcome({
     popularProducts,
     categories,
 }: {
+    campaigns: { id: number; name: string; slug: string; description: string | null; ends_on: string }[];
     weeklyPick: { producer: HomeProducer; product: HomeProduct | null } | null;
     featuredProducers: HomeProducer[];
     newProducers: HomeProducer[];
@@ -190,6 +192,29 @@ export default function Welcome({
                         ))}
                     </div>
                 </section>
+
+                {/* Seasonal campaigns under way (task 20.3). */}
+                {campaigns.length > 0 && (
+                    <section aria-label="Kampanje" className="bg-primary text-primary-foreground">
+                        <div className="mx-auto flex max-w-[1380px] flex-col gap-3 px-5 py-6 sm:px-8 lg:px-12">
+                            {campaigns.map((campaign) => (
+                                <Link
+                                    key={campaign.id}
+                                    href={route('campaigns.show', campaign.slug)}
+                                    className="group flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"
+                                >
+                                    <span>
+                                        <span className="text-xs font-semibold tracking-[0.16em] uppercase opacity-80">Kampanja</span>{' '}
+                                        <span className="font-serif text-2xl">{campaign.name}</span>
+                                    </span>
+                                    <span className="flex items-center gap-2 text-sm font-semibold group-hover:underline">
+                                        Pogledaj proizvođače <ArrowRight className="size-4" />
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
 
                 {weeklyPick && (
                     <Section

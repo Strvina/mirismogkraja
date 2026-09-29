@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AdminBoostController;
+use App\Http\Controllers\Admin\AdminCampaignController;
 use App\Http\Controllers\Admin\AdminMembershipController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -45,6 +46,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/isticanja/{boost}/potvrdi', [AdminBoostController::class, 'confirm'])->name('boosts.confirm');
     Route::patch('/isticanja/{boost}/otkazi', [AdminBoostController::class, 'cancel'])->name('boosts.cancel');
     Route::put('/isticanja/cene', [AdminBoostController::class, 'updateTerms'])->name('boosts.terms');
+
+    Route::get('/kampanje', [AdminCampaignController::class, 'index'])->name('campaigns.index');
+    Route::post('/kampanje', [AdminCampaignController::class, 'store'])->name('campaigns.store');
+    Route::put('/kampanje/{campaign}', [AdminCampaignController::class, 'update'])->name('campaigns.update');
+    Route::patch('/kampanje/prijave/{participant}/potvrdi', [AdminCampaignController::class, 'confirm'])->name('campaigns.confirm');
+    Route::patch('/kampanje/prijave/{participant}/otkazi', [AdminCampaignController::class, 'cancel'])->name('campaigns.cancel');
 
     Route::get('/nedelja', [WeeklyPickController::class, 'index'])->name('weekly-picks.index');
     Route::post('/nedelja', [WeeklyPickController::class, 'store'])->name('weekly-picks.store');
