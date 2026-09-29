@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Producer;
 use App\Models\Report;
 use App\Models\Review;
+use App\Services\ProducerStatistics;
 use App\Services\SubscriptionService;
 use App\Support\PageMeta;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +14,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+use function Illuminate\Support\defer;
 
 class ProducerController extends Controller
 {
@@ -82,13 +85,16 @@ class ProducerController extends Controller
      * Show a producer's public page. Only 'active' producers (approved by
      * an admin, task 2.6) are publicly visible - pending/blocked ones 404.
      */
-    public function show(Producer $producer, SubscriptionService $subscriptions): Response
+    public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics): Response
     {
         if ($producer->status !== 'active') {
             throw new NotFoundHttpException;
         }
 
-        $user = request()->user();
+        // After the response is sent, so a visitor never waits on a counter.
+        defer(fn () => $statistics->record($request, $producer, ProducerStatistics::PROFILE_VIEW));
+
+        $user = $request->user();
 
         return Inertia::render('marketplace/producers/show', [
             // What the page prints. Not the owner's account id, the stored

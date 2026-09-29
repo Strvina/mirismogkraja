@@ -20,6 +20,12 @@ import { router } from '@inertiajs/react';
  * local component state, so the only visible change is data that had gone
  * stale. Ordinary Link navigation already hits the server and is left alone.
  */
+/**
+ * Marks these reloads, so the server can tell a page being refreshed from
+ * a page being visited - a producer's statistics count only the second.
+ */
+const REVALIDATE = { headers: { 'X-Revalidate': '1' } };
+
 export function revalidateOnHistoryNavigation(): void {
     let restoringFromHistory = false;
 
@@ -36,7 +42,7 @@ export function revalidateOnHistoryNavigation(): void {
         }
 
         restoringFromHistory = false;
-        router.reload();
+        router.reload(REVALIDATE);
     });
 
     // Some browsers answer Back from the back/forward cache: the whole
@@ -44,7 +50,7 @@ export function revalidateOnHistoryNavigation(): void {
     // check above never runs.
     window.addEventListener('pageshow', (event) => {
         if (event.persisted) {
-            router.reload();
+            router.reload(REVALIDATE);
         }
     });
 }

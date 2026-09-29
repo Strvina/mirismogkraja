@@ -68,6 +68,9 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.edit', producer.id)}>Izmeni</Link>
                                     </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('producers.statistics', producer.id)}>Statistika</Link>
+                                    </Button>
                                     <Button variant="destructive" size="sm" onClick={() => destroy(producer)}>
                                         Obriši
                                     </Button>
