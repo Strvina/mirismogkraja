@@ -26,8 +26,7 @@ class SitemapController extends Controller
             ['loc' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'yearly'],
         ]);
 
-        $producers = Producer::query()
-            ->where('status', 'active')
+        $producers = Producer::published()
             ->get(['slug', 'updated_at'])
             ->map(fn (Producer $producer) => [
                 'loc' => route('marketplace.producers.show', $producer->slug),
@@ -36,9 +35,7 @@ class SitemapController extends Controller
                 'changefreq' => 'weekly',
             ]);
 
-        $products = Product::query()
-            ->where('status', 'active')
-            ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
+        $products = Product::published()
             ->get(['slug', 'updated_at'])
             ->map(fn (Product $product) => [
                 'loc' => route('marketplace.products.show', $product->slug),

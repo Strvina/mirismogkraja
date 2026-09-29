@@ -28,9 +28,9 @@ export default function ProducerShow({
     reportReasons,
     isFavorited,
 }: {
-    producer: Producer;
+    producer: Omit<Producer, 'user_id' | 'status' | 'created_at' | 'updated_at'>;
     gallery: { id: number; path: string; caption: string | null }[];
-    products: Product[];
+    products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
     canReview: boolean;

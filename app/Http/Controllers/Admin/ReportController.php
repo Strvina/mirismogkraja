@@ -26,8 +26,9 @@ class ReportController extends Controller
             'reports' => Report::with(['reporter:id,name', 'reportable'])
                 ->where('status', $status)
                 ->oldest()
-                ->get()
-                ->map(fn (Report $report) => [
+                ->paginate(30)
+                ->withQueryString()
+                ->through(fn (Report $report) => [
                     'id' => $report->id,
                     'reason' => $report->reasonLabel(),
                     'message' => $report->message,
@@ -37,9 +38,7 @@ class ReportController extends Controller
                     'subject' => $this->describe($report),
                 ]),
             'filters' => ['status' => $status],
-            'counts' => collect(Report::STATUSES)
-                ->mapWithKeys(fn (string $value) => [$value => Report::where('status', $value)->count()])
-                ->all(),
+            'counts' => Report::countsByStatus(),
         ]);
     }
 

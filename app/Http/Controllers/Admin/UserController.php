@@ -12,10 +12,26 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(): Response
+    /**
+     * Paged and searchable. Every account at once, with every column, grew
+     * with the user base on every visit - and sent phone numbers and home
+     * addresses the page never shows.
+     */
+    public function index(Request $request): Response
     {
+        $search = $request->string('search')->trim()->toString();
+
         return Inertia::render('admin/users/index', [
-            'users' => User::with('roles:id,name')->orderBy('name')->get(),
+            'users' => User::query()
+                ->select(['id', 'name', 'email', 'blocked_at'])
+                ->with('roles:id,name')
+                ->when($search, fn ($query) => $query->where(fn ($inner) => $inner
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")))
+                ->orderBy('name')
+                ->paginate(50)
+                ->withQueryString(),
+            'filters' => ['search' => $search ?: null],
         ]);
     }
 

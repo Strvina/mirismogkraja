@@ -31,11 +31,10 @@ class ProducerChangeRequestController extends Controller
             'requests' => ProducerChangeRequest::with(['producer:id,name,slug', 'requester:id,name'])
                 ->where('status', $status)
                 ->oldest()
-                ->get(),
+                ->paginate(30)
+                ->withQueryString(),
             'filters' => ['status' => $status],
-            'counts' => collect(ProducerChangeRequest::STATUSES)
-                ->mapWithKeys(fn (string $value) => [$value => ProducerChangeRequest::where('status', $value)->count()])
-                ->all(),
+            'counts' => ProducerChangeRequest::countsByStatus(),
         ]);
     }
 

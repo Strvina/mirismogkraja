@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class Report extends Model
 {
+    use CountsByStatus;
+
     public const STATUS_OPEN = 'open';
 
     public const STATUS_REVIEWED = 'reviewed';

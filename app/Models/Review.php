@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CountsByStatus;
 use Database\Factories\ReviewFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,13 +13,16 @@ use Illuminate\Support\Carbon;
 class Review extends Model
 {
     /** @use HasFactory<ReviewFactory> */
-    use HasFactory;
+    use CountsByStatus, HasFactory;
 
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_APPROVED = 'approved';
 
     public const STATUS_REJECTED = 'rejected';
+
+    /** @var list<string> */
+    public const STATUSES = [self::STATUS_PENDING, self::STATUS_APPROVED, self::STATUS_REJECTED];
 
     protected $fillable = [
         'user_id',

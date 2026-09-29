@@ -2,10 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
-use App\Models\Review;
 use App\Models\User;
 use App\Observers\ActivityLogObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -41,9 +39,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
         ]);
 
-        // Audited models (task 14). Deliberately not every model: messages
-        // and message reads would bury the entries that matter.
-        foreach ([Producer::class, Product::class, Category::class, Review::class] as $model) {
+        foreach (ActivityLogObserver::AUDITED as $model) {
             $model::observe(ActivityLogObserver::class);
         }
     }

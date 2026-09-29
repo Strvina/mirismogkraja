@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\ActivityLog;
+use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
@@ -17,8 +18,26 @@ use Illuminate\Support\Facades\Storage;
  */
 class ActivityLogObserver
 {
+    /**
+     * Audited models (task 14). Deliberately not every model: messages and
+     * message reads would bury the entries that matter.
+     *
+     * @var list<class-string<Model>>
+     */
+    public const AUDITED = [Producer::class, Product::class, Category::class, Review::class];
+
     /** Never store these, even when they change. */
     private const HIDDEN = ['password', 'remember_token'];
+
+    /**
+     * The subject types entries can carry, as stored.
+     *
+     * @return list<string>
+     */
+    public static function subjects(): array
+    {
+        return array_map(class_basename(...), self::AUDITED);
+    }
 
     public function created(Model $model): void
     {

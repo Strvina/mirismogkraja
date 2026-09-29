@@ -18,21 +18,22 @@ class ProductController extends Controller
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
     /**
-     * List active products (belonging to active producers), with optional
-     * category/producer/city/price/availability/rating filters and sorting.
+     * List published products, with optional category/producer/city/price/
+     * availability filters and sorting.
      *
-     * Note on `min_rating`: ratings live on producers, not products (reviews
-     * are written about a producer), so this filters by the rating of the
-     * producer behind each product.
+     * Only the columns a card shows are read. The whole row - and the whole
+     * producer behind it, story and phone number included - used to go out
+     * once per card, which made a page of the catalog several times heavier
+     * than what it displays.
      */
     public function index(Request $request): Response
     {
         $sort = $request->string('sort')->toString();
 
         $products = Product::query()
-            ->where('status', 'active')
-            ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
-            ->with(['images', 'producer'])
+            ->published()
+            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'created_at'])
+            ->with(['images:id,product_id,path,order', 'producer:id,name,city'])
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('household_id', $producerId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
@@ -50,8 +51,13 @@ class ProductController extends Controller
 
         // Query cities directly off Producer instead of loading every
         // matching Product just to read producer.city off each one.
-        $sellingProducers = Producer::where('status', 'active')
+        $sellingProducers = Producer::published()
             ->whereHas('products', fn ($query) => $query->where('status', 'active'));
+
+        // Both ends of the slider in one pass over the catalog, not two.
+        $bounds = Product::query()->published()->toBase()
+            ->selectRaw('min(price) as lowest, max(price) as highest')
+            ->first();
 
         $favoritedIds = $request->user()?->favorites()
             ->where('favoritable_type', 'product')
@@ -67,12 +73,7 @@ class ProductController extends Controller
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name']),
             'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city'),
-            'priceBounds' => [
-                'min' => (float) Product::where('status', 'active')
-                    ->whereHas('producer', fn ($query) => $query->where('status', 'active'))->min('price'),
-                'max' => (float) Product::where('status', 'active')
-                    ->whereHas('producer', fn ($query) => $query->where('status', 'active'))->max('price'),
-            ],
+            'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
             'filters' => $request->only([
                 'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'sort',
             ]),
@@ -98,17 +99,17 @@ class ProductController extends Controller
      */
     public function show(Product $product): Response
     {
-        $product->load(['producer', 'category', 'images']);
+        $product->load(['producer:id,user_id,name,slug,city,logo_path,status', 'category:id,name', 'images']);
 
         if (! $product->isPubliclyVisible()) {
             throw new NotFoundHttpException;
         }
 
-        $similar = Product::where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->where('status', 'active')
-            ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
-            ->with('images')
+        $similar = Product::published()
+            ->where('category_id', $product->category_id)
+            ->whereKeyNot($product->id)
+            ->select(['id', 'name', 'slug'])
+            ->with('images:id,product_id,path,order')
             ->limit(4)
             ->get();
 
@@ -122,7 +123,7 @@ class ProductController extends Controller
             'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
             'canReport' => $user !== null && $product->producer->user_id !== $user->id,
             'reportReasons' => Report::REASONS,
-            'isFavorited' => request()->user()?->favorites()
+            'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'product')
                 ->where('favoritable_id', $product->id)
                 ->exists() ?? false,

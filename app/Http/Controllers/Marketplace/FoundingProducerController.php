@@ -18,9 +18,8 @@ class FoundingProducerController extends Controller
     public function __invoke(FoundingProducerService $founding): Response
     {
         return Inertia::render('marketplace/founding', [
-            'producers' => Producer::query()
+            'producers' => Producer::published()
                 ->whereNotNull('founding_number')
-                ->where('status', 'active')
                 ->orderBy('founding_number')
                 ->get(['id', 'name', 'slug', 'city', 'description', 'logo_path', 'cover_image_path', 'founding_number', 'founding_joined_at']),
             'claimed' => $founding->claimed(),

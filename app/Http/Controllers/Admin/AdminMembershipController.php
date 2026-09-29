@@ -38,13 +38,10 @@ class AdminMembershipController extends Controller
             'subscriptions' => ProducerSubscription::with(['producer:id,name,slug', 'plan:id,name'])
                 ->where('status', $status)
                 ->latest()
-                ->get(),
+                ->paginate(30)
+                ->withQueryString(),
             'filters' => ['status' => $status],
-            'counts' => collect(ProducerSubscription::STATUSES)
-                ->mapWithKeys(fn (string $value) => [$value => ProducerSubscription::where('status', $value)->count()])
-                ->all(),
-            // What the platform has actually been paid, by plan. Only
-            // confirmed money counts.
+            'counts' => ProducerSubscription::countsByStatus(),
             // Printed on every slip, so the owner edits it here rather
             // than in a deployment file.
             'payment' => collect(['recipient', 'address', 'account', 'purpose', 'model', 'code'])
@@ -52,6 +49,8 @@ class AdminMembershipController extends Controller
                     $key => $this->settings->get('payment.'.$key, (string) config('platform.payment.'.$key)),
                 ])
                 ->all(),
+            // What the platform has actually been paid, by plan. Only
+            // confirmed money counts.
             'revenue' => ProducerSubscription::query()
                 ->whereNotNull('confirmed_at')
                 ->selectRaw('subscription_plan_id, count(*) as count, sum(amount_rsd) as total')

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\ProducerFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -95,10 +96,7 @@ class Producer extends Model
         return $this->hasMany(ProducerMessage::class, 'household_id');
     }
 
-    /**
-     * Saved by buyers. Counted as the popularity signal on the homepage -
-     * it's a deliberate action by a signed-in person, unlike a page view.
-     */
+    /** Memberships, paid and pending (task 20.1). */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(ProducerSubscription::class, 'household_id');
@@ -108,6 +106,18 @@ class Producer extends Model
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'producer_follows', 'household_id', 'user_id');
+    }
+
+    /**
+     * Approved by an admin and so visible to the public (task 2.6). Every
+     * public query starts here, so a pending or blocked producer cannot leak
+     * through one that forgot to ask.
+     *
+     * @param  Builder<Producer>  $query
+     */
+    public function scopePublished(Builder $query): void
+    {
+        $query->where($query->qualifyColumn('status'), 'active');
     }
 
     public function isVerified(): bool
@@ -120,6 +130,10 @@ class Producer extends Model
         return $this->founding_number !== null;
     }
 
+    /**
+     * Saved by buyers. Counted as the popularity signal on the homepage -
+     * it's a deliberate action by a signed-in person, unlike a page view.
+     */
     public function favorites(): MorphMany
     {
         return $this->morphMany(Favorite::class, 'favoritable');
