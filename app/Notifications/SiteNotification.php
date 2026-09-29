@@ -115,6 +115,16 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function boostActivated(string $boostedName, string $endsOn, string $url): self
+    {
+        return new self(
+            'boost.activated',
+            'Isticanje je aktivirano',
+            "„{$boostedName}” je istaknut do {$endsOn}.",
+            $url,
+        );
+    }
+
     public static function weeklyPick(string $producerName, string $weekStarting, string $url): self
     {
         return new self(

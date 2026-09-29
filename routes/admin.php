@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AdminBoostController;
 use App\Http\Controllers\Admin\AdminMembershipController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -39,6 +40,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/clanarine/{subscription}/otkazi', [AdminMembershipController::class, 'cancel'])->name('memberships.cancel');
     Route::put('/paketi/{plan}', [AdminMembershipController::class, 'updatePlan'])->name('plans.update');
     Route::put('/uplatnica', [AdminMembershipController::class, 'updatePayment'])->name('payment.update');
+
+    Route::get('/isticanja', [AdminBoostController::class, 'index'])->name('boosts.index');
+    Route::patch('/isticanja/{boost}/potvrdi', [AdminBoostController::class, 'confirm'])->name('boosts.confirm');
+    Route::patch('/isticanja/{boost}/otkazi', [AdminBoostController::class, 'cancel'])->name('boosts.cancel');
+    Route::put('/isticanja/cene', [AdminBoostController::class, 'updateTerms'])->name('boosts.terms');
 
     Route::get('/nedelja', [WeeklyPickController::class, 'index'])->name('weekly-picks.index');
     Route::post('/nedelja', [WeeklyPickController::class, 'store'])->name('weekly-picks.store');

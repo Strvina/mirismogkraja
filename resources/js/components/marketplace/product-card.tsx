@@ -1,3 +1,4 @@
+import { FeaturedLabel } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
@@ -15,7 +16,15 @@ export type ProductCardProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' 
  * zoom, a favourite toggle pinned in the corner, and the price set in the
  * landing page's type scale.
  */
-export default function ProductCard({ product, canFavorite }: { product: ProductCardProduct; canFavorite: boolean }) {
+export default function ProductCard({
+    product,
+    canFavorite,
+    featured = false,
+}: {
+    product: ProductCardProduct;
+    canFavorite: boolean;
+    featured?: boolean;
+}) {
     const image = product.images?.[0];
     const outOfStock = product.stock_quantity === 0;
 
@@ -58,6 +67,8 @@ export default function ProductCard({ product, canFavorite }: { product: Product
                         <Heart className={cn('size-4', product.is_favorited ? 'fill-primary text-primary' : 'text-foreground/70')} />
                     </button>
                 )}
+
+                {featured && <FeaturedLabel className="absolute top-3 left-3" />}
 
                 {outOfStock && (
                     <span className="bg-charcoal/85 text-primary-foreground absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase">

@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
+use App\Models\Boost;
 use App\Models\Producer;
 use App\Models\Report;
 use App\Models\Review;
+use App\Services\BoostService;
 use App\Services\ProducerStatistics;
 use App\Services\SubscriptionService;
 use App\Support\PageMeta;
@@ -24,7 +26,7 @@ class ProducerController extends Controller
      * their card shows (task 13): rating, review count and the latest few
      * reviews with their authors.
      */
-    public function index(Request $request, SubscriptionService $subscriptions): Response
+    public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
     {
         $city = $request->string('city')->toString();
 
@@ -37,10 +39,13 @@ class ProducerController extends Controller
         // never mixed into it: the list below stays alphabetical for
         // everyone, and a visitor can always tell what was paid for. The
         // row is drawn at random from the paying producers on each visit,
-        // so no single one holds the top for good (task 20.2).
+        // so no single one holds the top for good (task 20.2). Premium and
+        // Pro members are in it for their whole membership; anyone else for
+        // the days of a boost they paid for. Filtered by city, it is the
+        // regional placement of task 20.8.
         $featured = $producers->onFirstPage()
             ? $this->cards($city)
-                ->whereIn('id', $subscriptions->producerIdsWith('featured_section'))
+                ->whereIn('id', $subscriptions->producerIdsWith('featured_section')->concat($boosts->runningIds(Boost::PROFILE))->unique()->values())
                 ->inRandomOrder()
                 ->limit(3)
                 ->get()

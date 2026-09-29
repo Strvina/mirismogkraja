@@ -10,6 +10,7 @@ const selectClasses =
 
 export default function ProductsIndex({
     products,
+    featured,
     categories,
     producers,
     cities,
@@ -19,6 +20,7 @@ export default function ProductsIndex({
     perPageOptions,
 }: {
     products: Paginated<ProductCardProduct>;
+    featured: ProductCardProduct[];
     categories: Category[];
     producers: { id: number; name: string }[];
     cities: string[];
@@ -89,6 +91,19 @@ export default function ProductsIndex({
                             </label>
                         </div>
                     </div>
+
+                    {featured.length > 0 && (
+                        <section aria-labelledby="istaknuti-proizvodi" className="mb-8">
+                            <h2 id="istaknuti-proizvodi" className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">
+                                Istaknuti proizvodi
+                            </h2>
+                            <div className="grid grid-cols-2 gap-5 xl:grid-cols-4">
+                                {featured.map((product) => (
+                                    <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {products.data.length === 0 ? (
                         <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvoda za odabrane filtere.</p>

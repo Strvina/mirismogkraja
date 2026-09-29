@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Services\BoostService;
 use App\Services\SubscriptionService;
 use Illuminate\Console\Command;
 
@@ -17,13 +18,14 @@ class ProcessSubscriptionExpiries extends Command
 {
     protected $signature = 'memberships:process-expiries';
 
-    protected $description = 'Obavesti proizvođače pred istek članarine i zatvori istekle';
+    protected $description = 'Obavesti proizvođače pred istek članarine i zatvori istekle članarine i isticanja';
 
-    public function handle(SubscriptionService $subscriptions): int
+    public function handle(SubscriptionService $subscriptions, BoostService $boosts): int
     {
         ['warned' => $warned, 'expired' => $expired] = $subscriptions->processExpiries();
+        $boostsEnded = $boosts->closeEnded();
 
-        $this->info("Obaveštenja pred istek: {$warned}. Istekle članarine: {$expired}.");
+        $this->info("Obaveštenja pred istek: {$warned}. Istekle članarine: {$expired}. Istekla isticanja: {$boostsEnded}.");
 
         return self::SUCCESS;
     }

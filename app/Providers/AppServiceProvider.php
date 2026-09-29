@@ -6,7 +6,6 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use App\Observers\ActivityLogObserver;
-use App\Services\SubscriptionService;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -17,9 +16,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // One instance per request, so what it has looked up about plans is
-        // shared by every section of a page and forgotten afterwards.
-        $this->app->scoped(SubscriptionService::class);
+        //
     }
 
     /**

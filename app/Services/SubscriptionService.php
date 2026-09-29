@@ -6,6 +6,7 @@ use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Notifications\SiteNotification;
+use App\Support\PaymentReference;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -24,15 +25,6 @@ use Illuminate\Support\Collection;
  */
 class SubscriptionService
 {
-    /**
-     * Producer ids per feature, remembered for the rest of the request - a
-     * listing asks for the same feature once per section. The service is
-     * bound as scoped, so this never outlives the request.
-     *
-     * @var array<string, Collection<int, int>>
-     */
-    private array $holders = [];
-
     /**
      * The plan a producer's benefits are currently based on: their paid one,
      * or the free floor when they have none.
@@ -67,7 +59,7 @@ class SubscriptionService
      */
     public function producerIdsWith(string $feature): Collection
     {
-        return $this->holders[$feature] ??= ProducerSubscription::query()
+        return ProducerSubscription::query()
             ->active()
             ->whereIn('subscription_plan_id', SubscriptionPlan::query()
                 ->get(['id', 'features'])
@@ -113,7 +105,7 @@ class SubscriptionService
         return $producer->subscriptions()->create([
             'subscription_plan_id' => $plan->id,
             'status' => ProducerSubscription::STATUS_PENDING,
-            'reference' => ProducerSubscription::newReference(),
+            'reference' => PaymentReference::generate(),
             'amount_rsd' => $plan->price_rsd,
         ]);
     }
@@ -129,7 +121,7 @@ class SubscriptionService
         $subscription = $producer->subscriptions()->create([
             'subscription_plan_id' => $plan->id,
             'status' => ProducerSubscription::STATUS_PENDING,
-            'reference' => ProducerSubscription::newReference(),
+            'reference' => PaymentReference::generate(),
             'amount_rsd' => 0,
         ]);
 

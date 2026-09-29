@@ -7,12 +7,14 @@ use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * One producer's membership. Paid by bank slip, so it waits in
- * 'pending_payment' until an admin confirms the money arrived (task 20.1).
+ * A paid boost (task 20.2): a producer's profile, or one of their products,
+ * in the labelled "Istaknuto" row for a number of days. Paid by bank slip,
+ * so it waits for an admin like a membership does.
  */
-class ProducerSubscription extends Model implements Payable
+class Boost extends Model implements Payable
 {
     use CountsByStatus;
 
@@ -27,20 +29,23 @@ class ProducerSubscription extends Model implements Payable
     /** @var list<string> */
     public const STATUSES = [self::STATUS_PENDING, self::STATUS_ACTIVE, self::STATUS_EXPIRED, self::STATUS_CANCELLED];
 
-    /** How long before the end date the producer is reminded to pay again. */
-    public const WARN_DAYS_BEFORE = 14;
+    /** What can be boosted, by morph alias. */
+    public const PROFILE = 'household';
+
+    public const PRODUCT = 'product';
 
     protected $fillable = [
         'household_id',
-        'subscription_plan_id',
+        'boostable_type',
+        'boostable_id',
         'status',
         'reference',
         'amount_rsd',
+        'days',
         'starts_at',
         'ends_at',
         'confirmed_by',
         'confirmed_at',
-        'expiry_warned_at',
     ];
 
     protected function casts(): array
@@ -49,7 +54,6 @@ class ProducerSubscription extends Model implements Payable
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'confirmed_at' => 'datetime',
-            'expiry_warned_at' => 'datetime',
         ];
     }
 
@@ -58,9 +62,26 @@ class ProducerSubscription extends Model implements Payable
         return $this->belongsTo(Producer::class, 'household_id');
     }
 
-    public function plan(): BelongsTo
+    public function boostable(): MorphTo
     {
-        return $this->belongsTo(SubscriptionPlan::class, 'subscription_plan_id');
+        return $this->morphTo();
+    }
+
+    /**
+     * Running right now. The end date decides, not the status: a boost is
+     * over the moment it ends, whether or not the daily command has marked
+     * it expired yet.
+     *
+     * @param  Builder<Boost>  $query
+     */
+    public function scopeRunning(Builder $query): void
+    {
+        $query->where('status', self::STATUS_ACTIVE)->where('ends_at', '>', now());
+    }
+
+    public function isProduct(): bool
+    {
+        return $this->boostable_type === self::PRODUCT;
     }
 
     public function paymentProducer(): Producer
@@ -78,20 +99,8 @@ class ProducerSubscription extends Model implements Payable
         return $this->reference;
     }
 
-    /** The purpose the admin set for memberships. */
     public function paymentPurpose(): ?string
     {
-        return null;
-    }
-
-    /** @param  Builder<ProducerSubscription>  $query */
-    public function scopeActive(Builder $query): void
-    {
-        $query->where('status', self::STATUS_ACTIVE)->where('ends_at', '>', now());
-    }
-
-    public function isActive(): bool
-    {
-        return $this->status === self::STATUS_ACTIVE && $this->ends_at?->isFuture();
+        return 'Isticanje na sajtu '.config('app.name');
     }
 }
