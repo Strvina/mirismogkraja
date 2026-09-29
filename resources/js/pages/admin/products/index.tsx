@@ -64,6 +64,7 @@ export default function AdminProductsIndex({
 
             <div className="flex flex-wrap gap-3">
                 <Input
+                    aria-label="Pretraga proizvoda po nazivu"
                     defaultValue={filters.search ?? ''}
                     placeholder="Pretraga po nazivu"
                     className="max-w-xs"
@@ -71,6 +72,7 @@ export default function AdminProductsIndex({
                 />
 
                 <select
+                    aria-label="Filtriraj po proizvođaču"
                     className={selectClasses}
                     value={filters.producer_id ?? ''}
                     onChange={(e) => filter({ producer_id: e.target.value || undefined })}
@@ -83,7 +85,12 @@ export default function AdminProductsIndex({
                     ))}
                 </select>
 
-                <select className={selectClasses} value={filters.status ?? ''} onChange={(e) => filter({ status: e.target.value || undefined })}>
+                <select
+                    aria-label="Filtriraj po statusu"
+                    className={selectClasses}
+                    value={filters.status ?? ''}
+                    onChange={(e) => filter({ status: e.target.value || undefined })}
+                >
                     <option value="">Svi statusi</option>
                     {statuses.map((status) => (
                         <option key={status} value={status}>
@@ -98,6 +105,7 @@ export default function AdminProductsIndex({
                     <span className="text-olive font-medium">Izabrano: {selected.length}</span>
 
                     <select
+                        aria-label="Promeni status izabranih proizvoda"
                         className={selectClasses}
                         defaultValue=""
                         onChange={(e) => e.target.value && runBulk({ action: 'status', status: e.target.value })}
@@ -111,6 +119,7 @@ export default function AdminProductsIndex({
                     </select>
 
                     <select
+                        aria-label="Promeni kategoriju izabranih proizvoda"
                         className={selectClasses}
                         defaultValue=""
                         onChange={(e) => e.target.value && runBulk({ action: 'category', category_id: e.target.value })}

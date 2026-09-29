@@ -64,7 +64,12 @@ export default function AdminLogsIndex({
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3">
-                <select className={selectClasses} value={filters.action ?? ''} onChange={(e) => filter({ action: e.target.value || undefined })}>
+                <select
+                    aria-label="Filtriraj po radnji"
+                    className={selectClasses}
+                    value={filters.action ?? ''}
+                    onChange={(e) => filter({ action: e.target.value || undefined })}
+                >
                     <option value="">Sve akcije</option>
                     {Object.entries(actionLabels).map(([value, label]) => (
                         <option key={value} value={value}>
@@ -73,7 +78,12 @@ export default function AdminLogsIndex({
                     ))}
                 </select>
 
-                <select className={selectClasses} value={filters.subject ?? ''} onChange={(e) => filter({ subject: e.target.value || undefined })}>
+                <select
+                    aria-label="Filtriraj po vrsti zapisa"
+                    className={selectClasses}
+                    value={filters.subject ?? ''}
+                    onChange={(e) => filter({ subject: e.target.value || undefined })}
+                >
                     <option value="">Sve vrste</option>
                     {subjects.map((subject) => (
                         <option key={subject} value={subject}>
