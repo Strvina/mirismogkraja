@@ -6,6 +6,25 @@
 
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+        {{-- Link previews and search results read this first response and
+             never run JavaScript, so a page's own description is written
+             here rather than by React. See App\Support\PageMeta. --}}
+        @php($meta = $page['props']['meta'] ?? null)
+        @if ($meta)
+            <meta name="description" content="{{ $meta['description'] }}">
+            <link rel="canonical" href="{{ $meta['url'] }}">
+            <meta property="og:site_name" content="{{ config('app.name') }}">
+            <meta property="og:type" content="{{ $meta['type'] }}">
+            <meta property="og:title" content="{{ $meta['title'] }}">
+            <meta property="og:description" content="{{ $meta['description'] }}">
+            <meta property="og:url" content="{{ $meta['url'] }}">
+            <meta property="og:locale" content="sr_RS">
+            @if ($meta['image'])
+                <meta property="og:image" content="{{ $meta['image'] }}">
+                <meta name="twitter:card" content="summary_large_image">
+            @endif
+        @endif
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=manrope:400,500,600,700|lora:400,500,600,700&display=swap" rel="stylesheet" />
 

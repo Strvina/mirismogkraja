@@ -56,7 +56,7 @@ export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
                 <div className="-mt-11 mb-3 flex items-end justify-between gap-3">
                     <span className="ring-background rounded-full ring-4">
                         {producer.logo_path ? (
-                            <img src={`/storage/${producer.logo_path}`} alt="" className="size-14 rounded-full object-cover" />
+                            <img loading="lazy" src={`/storage/${producer.logo_path}`} alt="" className="size-14 rounded-full object-cover" />
                         ) : (
                             <span className="bg-olive-soft text-olive grid size-14 place-items-center rounded-full font-serif text-xl">
                                 {producer.name.charAt(0).toUpperCase()}

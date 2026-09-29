@@ -19,7 +19,7 @@ export default function ReviewCard({ review, pending = false }: { review: Review
         <article className="border-border border-b pb-4 last:border-b-0">
             <div className="flex gap-3">
                 {review.user.avatar_path ? (
-                    <img src={`/storage/${review.user.avatar_path}`} alt="" className="size-9 shrink-0 rounded-full object-cover" />
+                    <img loading="lazy" src={`/storage/${review.user.avatar_path}`} alt="" className="size-9 shrink-0 rounded-full object-cover" />
                 ) : (
                     <span className="bg-olive-soft text-olive grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold">
                         {review.user.name.charAt(0).toUpperCase()}

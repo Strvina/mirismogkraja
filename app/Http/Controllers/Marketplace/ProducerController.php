@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Producer;
 use App\Models\Report;
 use App\Models\Review;
+use App\Support\PageMeta;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -66,6 +67,12 @@ class ProducerController extends Controller
                 'id', 'name', 'slug', 'description', 'story', 'address', 'city', 'phone', 'contact_email',
                 'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at',
             ]),
+            'meta' => PageMeta::make(
+                $producer->city ? "{$producer->name} - {$producer->city}" : $producer->name,
+                $producer->description,
+                $producer->cover_image_path ?? $producer->logo_path,
+                'profile',
+            ),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'products' => $producer->products()
                 ->where('status', 'active')

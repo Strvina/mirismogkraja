@@ -49,7 +49,12 @@ export default function Founding({ producers, claimed, limit }: { producers: Fou
                                 className="group border-border/70 hover:border-border flex h-full gap-4 rounded-lg border p-4 transition-shadow hover:shadow-lg"
                             >
                                 {producer.logo_path ? (
-                                    <img src={`/storage/${producer.logo_path}`} alt="" className="size-14 shrink-0 rounded-full object-cover" />
+                                    <img
+                                        loading="lazy"
+                                        src={`/storage/${producer.logo_path}`}
+                                        alt=""
+                                        className="size-14 shrink-0 rounded-full object-cover"
+                                    />
                                 ) : (
                                     <span className="bg-olive-soft text-olive grid size-14 shrink-0 place-items-center rounded-full font-serif text-xl">
                                         {producer.name.charAt(0).toUpperCase()}

@@ -35,7 +35,12 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
                     {threads.map((thread) => (
                         <Link key={thread.key} href={thread.href} className="hover:bg-muted/60 flex items-center gap-4 p-4 transition-colors">
                             {thread.avatar_path ? (
-                                <img src={`/storage/${thread.avatar_path}`} alt="" className="size-10 shrink-0 rounded-full object-cover" />
+                                <img
+                                    loading="lazy"
+                                    src={`/storage/${thread.avatar_path}`}
+                                    alt=""
+                                    className="size-10 shrink-0 rounded-full object-cover"
+                                />
                             ) : (
                                 <span className="bg-olive-soft text-olive grid size-10 shrink-0 place-items-center rounded-full text-sm font-semibold">
                                     {thread.title.charAt(0)}

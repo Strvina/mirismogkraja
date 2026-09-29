@@ -239,6 +239,7 @@ export default function ProducerShow({
                                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
                                     {product.images?.[0] && (
                                         <img
+                                            loading="lazy"
                                             src={`/storage/${product.images[0].path}`}
                                             alt={product.name}
                                             className="image-warm size-full object-cover transition group-hover:scale-105"
