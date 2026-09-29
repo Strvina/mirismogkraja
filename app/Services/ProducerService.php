@@ -6,11 +6,14 @@ use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProducerService
 {
+    public function __construct(private readonly ProductService $products) {}
+
     /**
      * Write a change an admin has approved. This goes straight to the model:
      * putting it back through update() would only set it aside as a fresh
@@ -69,31 +72,49 @@ class ProducerService
      * grants the 'seller' role, on top of whatever role(s) the user already has.
      *
      * @param  array<string, mixed>  $attributes
+     * @param  list<array<string, mixed>>  $products  The wizard's first products, each with an optional 'image' upload.
      */
-    public function create(User $user, array $attributes, ?UploadedFile $coverImage = null, ?UploadedFile $logo = null): Producer
+    public function create(User $user, array $attributes, ?UploadedFile $coverImage = null, ?UploadedFile $logo = null, array $products = []): Producer
     {
-        $producer = $user->producers()->create([
-            ...$attributes,
-            'slug' => $this->uniqueSlug($attributes['name']),
-        ]);
+        // One step: a producer whose products failed half-way would be a
+        // sign-up the owner cannot see through.
+        return DB::transaction(function () use ($user, $attributes, $coverImage, $logo, $products) {
+            $producer = $user->producers()->create([
+                ...$attributes,
+                'slug' => $this->uniqueSlug($attributes['name']),
+            ]);
 
-        if (! $user->hasRole('seller')) {
-            $user->assignRole('seller');
-        }
+            if (! $user->hasRole('seller')) {
+                $user->assignRole('seller');
+            }
 
-        if ($coverImage) {
-            $producer->cover_image_path = $coverImage->store('producers/covers', 'public');
-        }
+            if ($coverImage) {
+                $producer->cover_image_path = $coverImage->store('producers/covers', 'public');
+            }
 
-        if ($logo) {
-            $producer->logo_path = $logo->store('producers/logos', 'public');
-        }
+            if ($logo) {
+                $producer->logo_path = $logo->store('producers/logos', 'public');
+            }
 
-        if ($coverImage || $logo) {
-            $producer->save();
-        }
+            if ($coverImage || $logo) {
+                $producer->save();
+            }
 
-        return $producer;
+            // The wizard's first products, listed straight away: they are only
+            // public once the producer is, so there is nothing to hold back.
+            foreach ($products as $row) {
+                $image = $row['image'] ?? null;
+                unset($row['image']);
+
+                $product = $this->products->create($producer, [...$row, 'description' => null, 'status' => 'active']);
+
+                if ($image) {
+                    $product->images()->create(['path' => $image->store('products', 'public'), 'order' => 0]);
+                }
+            }
+
+            return $producer;
+        });
     }
 
     /**

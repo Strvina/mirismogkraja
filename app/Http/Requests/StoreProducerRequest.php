@@ -52,6 +52,26 @@ class StoreProducerRequest extends FormRequest
             'lng' => ['nullable', 'numeric', 'between:-180,180', 'required_with:lat'],
             'cover_image' => ['nullable', 'image', 'max:4096'],
             'logo' => ['nullable', 'image', 'max:2048'],
+            ...$this->productRules(),
+        ];
+    }
+
+    /**
+     * The first products, entered in the sign-up wizard alongside the
+     * producer. Optional; a producer adds the rest from their own page.
+     *
+     * @return array<string, mixed>
+     */
+    protected function productRules(): array
+    {
+        return [
+            'products' => ['nullable', 'array', 'max:20'],
+            'products.*.name' => ['required', 'string', 'max:255'],
+            'products.*.category_id' => ['required', 'exists:categories,id'],
+            'products.*.price' => StoreProductRequest::amountRules()['price'],
+            'products.*.unit' => ['required', 'in:kg,g,l,ml,kom,paket'],
+            'products.*.stock_quantity' => StoreProductRequest::amountRules()['stock_quantity'],
+            'products.*.image' => ['nullable', 'image', 'max:4096'],
         ];
     }
 }

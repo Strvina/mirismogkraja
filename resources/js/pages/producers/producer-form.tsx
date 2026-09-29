@@ -5,10 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { shrinkImage } from '@/lib/shrink-image';
 import { cn } from '@/lib/utils';
-import { type Producer } from '@/types';
+import { type Category, type Producer } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { Check, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
+import ProducerProductsStep, { type DraftProduct } from './producer-products-step';
 
 type ProducerFormData = {
     name: string;
@@ -24,14 +25,36 @@ type ProducerFormData = {
     /** Empty until a point is chosen on the map; sent as null then. */
     lat: string;
     lng: string;
+    /** Only when signing up: the first products, created with the producer. */
+    products: DraftProduct[];
 };
 
-/** The three steps of the sign-up wizard, in order. */
+/** The steps of the sign-up wizard, in order. */
 const STEPS = [
     { title: 'Ko ste', hint: 'Naziv pod kojim vas kupci prepoznaju i gde vas mogu naći.' },
     { title: 'Kako vas dobijaju', hint: 'Kontakt i načini na koje roba stiže do kupca.' },
     { title: 'Kako se predstavljate', hint: 'Slike i priča — ovo je ono što kupca zadrži na stranici.' },
+    {
+        title: 'Proizvodi',
+        hint: 'Dodajte nekoliko proizvoda odmah — biće vidljivi kupcima čim odobrimo vaš profil. Nije obavezno; možete i kasnije.',
+    },
 ];
+
+/** Which step each field is on, so an error sends the producer back to it. */
+const FIELD_STEP: Record<string, number> = {
+    name: 0,
+    city: 0,
+    address: 0,
+    lat: 0,
+    lng: 0,
+    phone: 1,
+    contact_email: 1,
+    delivery_methods: 1,
+    cover_image: 2,
+    logo: 2,
+    description: 2,
+    story: 2,
+};
 
 /** Keys must match Producer::DELIVERY_METHODS. */
 const deliveryMethods = {
@@ -92,6 +115,7 @@ export default function ProducerForm({
     method,
     submitLabel,
     wizard = false,
+    categories = [],
 }: {
     producer?: Producer;
     action: string;
@@ -99,6 +123,8 @@ export default function ProducerForm({
     submitLabel: string;
     /** Step through the form instead of showing it all at once. */
     wizard?: boolean;
+    /** For the products step of the wizard. */
+    categories?: Category[];
 }) {
     const { data, setData, post, put, processing, errors } = useForm<ProducerFormData>({
         name: producer?.name ?? '',
@@ -113,6 +139,7 @@ export default function ProducerForm({
         logo: null,
         lat: producer?.lat ? String(Number(producer.lat)) : '',
         lng: producer?.lng ? String(Number(producer.lng)) : '',
+        products: [],
     });
 
     const location = data.lat && data.lng ? { lat: Number(data.lat), lng: Number(data.lng) } : null;
@@ -161,7 +188,17 @@ export default function ProducerForm({
         }
 
         const submitFn = method === 'post' ? post : put;
-        submitFn(action, { forceFormData: true });
+        submitFn(action, {
+            forceFormData: true,
+            // An error on a field from an earlier step is invisible from the
+            // last one, so the wizard goes back to the first step that has one.
+            onError: (failed) => {
+                if (wizard) {
+                    const steps = Object.keys(failed).map((field) => (field.startsWith('products') ? STEPS.length - 1 : (FIELD_STEP[field] ?? 0)));
+                    setStep(Math.min(...steps));
+                }
+            },
+        });
     };
 
     const basics = (
@@ -317,7 +354,16 @@ export default function ProducerForm({
         </>
     );
 
-    const groups = [basics, contact, presentation];
+    const products = (
+        <ProducerProductsStep
+            products={data.products}
+            categories={categories}
+            errors={errors as Record<string, string | undefined>}
+            onChange={(next) => setData('products', next)}
+        />
+    );
+
+    const groups = [basics, contact, presentation, products];
 
     if (!wizard) {
         return (
