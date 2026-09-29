@@ -10,6 +10,8 @@ interface Thread {
     as_producer: boolean;
     title: string;
     subtitle: string | null;
+    /** The producer's own note on how the inquiry ended. */
+    outcome: string | null;
     avatar_path: string | null;
     href: string;
     last_message: string;
@@ -53,6 +55,11 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
                                     {thread.as_producer && (
                                         <span className="bg-olive-soft text-olive rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
                                             kupac · {thread.subtitle}
+                                        </span>
+                                    )}
+                                    {thread.outcome && (
+                                        <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
+                                            {thread.outcome}
                                         </span>
                                     )}
                                 </p>

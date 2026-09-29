@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Boost;
 use App\Models\CampaignParticipant;
+use App\Models\InquiryOutcome;
 use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
 use App\Models\ProducerMessage;
@@ -52,6 +53,9 @@ class DashboardController extends Controller
                 ['label' => 'zahteva za izmenu naziva', 'count' => ProducerChangeRequest::pending()->count(), 'href' => route('admin.change-requests.index')],
                 ['label' => 'otvorenih prijava problema', 'count' => Report::open()->count(), 'href' => route('admin.reports.index')],
             ],
+            // How inquiries ended this month, as producers report it (task
+            // 14.5) - unverifiable, and labelled so on the page.
+            'outcomes' => $this->outcomesThisMonth(),
             // What the platform earns, by source (task 20.9): only money an
             // admin confirmed, and nothing given away free.
             'revenue' => [
@@ -60,6 +64,42 @@ class DashboardController extends Controller
                 ['label' => 'Kampanje', ...$this->earned(CampaignParticipant::query())],
             ],
         ]);
+    }
+
+    /**
+     * @return array{counts: array<string, int>, labels: array<string, string>, topProducts: list<array{name: string, slug: string, count: int}>}
+     */
+    private function outcomesThisMonth(): array
+    {
+        $thisMonth = InquiryOutcome::query()->where('updated_at', '>=', now()->startOfMonth());
+
+        $counts = (clone $thisMonth)
+            ->toBase()
+            ->selectRaw('status, count(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        $top = (clone $thisMonth)
+            ->where('status', 'completed')
+            ->whereNotNull('product_id')
+            ->toBase()
+            ->selectRaw('product_id, count(*) as aggregate')
+            ->groupBy('product_id')
+            ->orderByDesc('aggregate')
+            ->limit(5)
+            ->pluck('aggregate', 'product_id');
+
+        $products = Product::whereKey($top->keys())->get(['id', 'name', 'slug'])->keyBy('id');
+
+        return [
+            'counts' => collect(InquiryOutcome::STATUSES)->map(fn ($label, string $status) => (int) ($counts[$status] ?? 0))->all(),
+            'labels' => InquiryOutcome::STATUSES,
+            'topProducts' => $top
+                ->filter(fn ($count, $id) => $products->has($id))
+                ->map(fn ($count, $id) => ['name' => $products[$id]->name, 'slug' => $products[$id]->slug, 'count' => (int) $count])
+                ->values()
+                ->all(),
+        ];
     }
 
     /**

@@ -19,6 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::redirect('/poruke-proizvodjaca', '/poruke')->name('messages.inbox');
     Route::get('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'show'])->name('messages.thread');
     Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/blokada', [ProducerMessageController::class, 'toggleBlock'])->name('messages.block');
+    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/ishod', [ProducerMessageController::class, 'setOutcome'])->name('messages.outcome');
     Route::post('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')
         ->name('messages.thread.store');
