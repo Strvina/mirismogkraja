@@ -1,4 +1,3 @@
-import { type Paginated } from '@/components/marketplace/pagination';
 import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -96,7 +95,8 @@ export default function MessageThread({
 }: {
     producer: { id: number; name: string; slug: string; logo_path: string | null };
     buyer: { id: number; name: string; avatar_path: string | null };
-    messages: Paginated<Message>;
+    /** A simple paginator: it knows whether older messages exist, not how many. */
+    messages: { data: Message[]; current_page: number; next_page_url: string | null };
     isOwner: boolean;
     blocked: boolean;
     reportReasons: Record<string, string>;
@@ -152,7 +152,7 @@ export default function MessageThread({
     const newestId = messages.data[messages.data.length - 1]?.id ?? 0;
     // The paginator walks backwards through the history, so its "next" link
     // is the older part of the conversation.
-    const olderPage = messages.links[messages.links.length - 1]?.url ?? null;
+    const olderPage = messages.next_page_url;
 
     const shownPage = useRef(messages.current_page);
 
@@ -375,7 +375,7 @@ export default function MessageThread({
                         </div>
                     )}
 
-                    {messages.total === 0 ? (
+                    {messages.data.length === 0 && messages.current_page === 1 ? (
                         <p className="text-muted-foreground py-8 text-center text-sm">
                             Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.
                         </p>

@@ -12,7 +12,7 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -124,7 +124,9 @@ class ProducerMessageController extends Controller
             // box they cannot type into explains itself.
             'blocked' => $producer->hasBlocked($buyer),
             // The producer's own note on how this inquiry ended.
-            'outcome' => $producer->user_id === $request->user()->id
+            // A closure, like the other props the three-second poll does
+            // not ask for, so polling never runs its query.
+            'outcome' => fn () => $producer->user_id === $request->user()->id
                 ? InquiryOutcome::where('household_id', $producer->id)->where('buyer_id', $buyer->id)->value('status')
                 : null,
             'outcomeLabels' => InquiryOutcome::STATUSES,
@@ -135,7 +137,11 @@ class ProducerMessageController extends Controller
             'messages' => tap(ProducerMessage::thread($producer, $buyer)
                 ->with(['sender:id,name,avatar_path', 'product:id,name,slug,price,unit', 'product.images'])
                 ->latest('id')
-                ->paginate(50)
+                // Simple pagination: the page only needs to know whether
+                // there are older messages, and the thread is re-read every
+                // three seconds while open - a COUNT each time would be
+                // waste.
+                ->simplePaginate(50)
                 ->withQueryString()
                 ->through(fn (ProducerMessage $message) => [
                     'id' => $message->id,
@@ -153,7 +159,7 @@ class ProducerMessageController extends Controller
                         'unit' => $message->product->unit,
                         'image' => $message->product->images->first()?->path,
                     ],
-                ]), fn (LengthAwarePaginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
+                ]), fn (Paginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
         ]);
     }
 
