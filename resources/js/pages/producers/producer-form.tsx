@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import { LocationPicker } from '@/components/marketplace/map';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,9 @@ type ProducerFormData = {
     delivery_methods: string[];
     cover_image: File | null;
     logo: File | null;
+    /** Empty until a point is chosen on the map; sent as null then. */
+    lat: string;
+    lng: string;
 };
 
 /** The three steps of the sign-up wizard, in order. */
@@ -107,7 +111,13 @@ export default function ProducerForm({
         delivery_methods: producer?.delivery_methods ?? [],
         cover_image: null,
         logo: null,
+        lat: producer?.lat ? String(Number(producer.lat)) : '',
+        lng: producer?.lng ? String(Number(producer.lng)) : '',
     });
+
+    const location = data.lat && data.lng ? { lat: Number(data.lat), lng: Number(data.lng) } : null;
+    const setLocation = (point: { lat: number; lng: number } | null) =>
+        setData((current) => ({ ...current, lat: point ? String(point.lat) : '', lng: point ? String(point.lng) : '' }));
 
     const [customMethod, setCustomMethod] = useState('');
     const [step, setStep] = useState(0);
@@ -172,6 +182,21 @@ export default function ProducerForm({
                 <Label htmlFor="address">Adresa</Label>
                 <Input id="address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
                 <InputError message={errors.address} />
+            </div>
+
+            <div className="grid gap-2">
+                <p className="text-sm font-medium">Lokacija na mapi (opciono)</p>
+                <p className="text-muted-foreground text-xs">
+                    Kliknite na mapu da označite gde ste — kupci će vas videti na mapi proizvođača. Ne mora biti tačna kućna adresa; dovoljno je selo
+                    ili deo grada.
+                </p>
+                <LocationPicker value={location} onChange={setLocation} />
+                {location && (
+                    <button type="button" onClick={() => setLocation(null)} className="text-muted-foreground w-fit text-xs underline">
+                        Ukloni lokaciju
+                    </button>
+                )}
+                <InputError message={errors.lat ?? errors.lng} />
             </div>
         </>
     );

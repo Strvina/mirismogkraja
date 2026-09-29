@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import { PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { PremiumBadge } from '@/components/marketplace/plan-badges';
 import ReportButton from '@/components/marketplace/report-button';
@@ -53,6 +54,11 @@ export default function ProducerShow({
     const [comment, setComment] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [phoneShown, setPhoneShown] = useState(false);
+    // Opened on request: Leaflet and the map tiles are only fetched for a
+    // visitor who asks to see them.
+    const [mapShown, setMapShown] = useState(false);
+    const point =
+        producer.lat && producer.lng ? { id: producer.id, name: producer.name, lat: Number(producer.lat), lng: Number(producer.lng) } : null;
     // Viber and WhatsApp open a chat with a mobile number, so they are only
     // offered when the number is one.
     const mobile = producer.phone ? mobileNumberForApps(producer.phone) : null;
@@ -223,6 +229,32 @@ export default function ProducerShow({
                             <p className="font-medium break-words">{producer.address}</p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {point && (
+                <div className="mt-4">
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                        <button
+                            type="button"
+                            onClick={() => setMapShown(!mapShown)}
+                            aria-expanded={mapShown}
+                            className="text-primary font-medium underline"
+                        >
+                            {mapShown ? 'Sakrij mapu' : 'Prikaži na mapi'}
+                        </button>
+                        {/* Directions are what a buyer on their way needs, and
+                            every phone already has Google Maps. */}
+                        <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground underline"
+                        >
+                            Otvori u Google mapama
+                        </a>
+                    </div>
+                    {mapShown && <PointsMap points={[point]} className="mt-3 h-64 max-w-2xl" />}
                 </div>
             )}
 
