@@ -91,6 +91,8 @@ export default function MessageThread({
     isOwner,
     blocked,
     reportReasons,
+    outcome,
+    outcomeLabels,
 }: {
     producer: { id: number; name: string; slug: string; logo_path: string | null };
     buyer: { id: number; name: string; avatar_path: string | null };
@@ -98,6 +100,8 @@ export default function MessageThread({
     isOwner: boolean;
     blocked: boolean;
     reportReasons: Record<string, string>;
+    outcome: string | null;
+    outcomeLabels: Record<string, string>;
 }) {
     const { auth } = usePage<SharedData>().props;
     const [body, setBody] = useState('');
@@ -327,6 +331,27 @@ export default function MessageThread({
                         stop: refuse their messages, or report them. */}
                     {isOwner && (
                         <div className="flex shrink-0 items-center gap-1">
+                            {/* The producer's own record of how this ended. */}
+                            <select
+                                aria-label="Ishod upita (samo za vašu evidenciju)"
+                                title="Samo za vašu evidenciju"
+                                value={outcome ?? ''}
+                                onChange={(e) =>
+                                    router.patch(
+                                        route('messages.outcome', [producer.id, buyer.id]),
+                                        { status: e.target.value || null },
+                                        { preserveScroll: true },
+                                    )
+                                }
+                                className="border-input bg-background h-8 rounded-md border px-2 text-xs"
+                            >
+                                <option value="">Ishod…</option>
+                                {Object.entries(outcomeLabels).map(([value, label]) => (
+                                    <option key={value} value={value}>
+                                        {label}
+                                    </option>
+                                ))}
+                            </select>
                             <Button variant="ghost" size="sm" onClick={toggleBlock}>
                                 {blocked ? 'Odblokiraj' : 'Blokiraj'}
                             </Button>

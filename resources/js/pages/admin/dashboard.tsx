@@ -12,10 +12,15 @@ type Stats = {
 
 type Todo = { label: string; count: number; href: string };
 type Revenue = { label: string; total: number; month: number };
+type Outcomes = {
+    counts: Record<string, number>;
+    labels: Record<string, string>;
+    topProducts: { name: string; slug: string; count: number }[];
+};
 
 const dinars = new Intl.NumberFormat('sr-RS');
 
-export default function AdminDashboard({ stats, todo, revenue }: { stats: Stats; todo: Todo[]; revenue: Revenue[] }) {
+export default function AdminDashboard({ stats, todo, revenue, outcomes }: { stats: Stats; todo: Todo[]; revenue: Revenue[]; outcomes: Outcomes }) {
     const tiles: { label: string; value: string }[] = [
         { label: 'Korisnici', value: String(stats.users) },
         { label: 'Proizvođači', value: String(stats.producers) },
@@ -71,6 +76,34 @@ export default function AdminDashboard({ stats, todo, revenue }: { stats: Stats;
                             </div>
                         ))}
                     </div>
+                </section>
+
+                <section>
+                    <h2 className="font-serif text-2xl">Ishodi upita ovog meseca</h2>
+                    {/* The platform never sees a sale, so this is only what
+                        producers chose to report - said plainly. */}
+                    <p className="text-muted-foreground mt-1 text-sm">Samoprijavljeno od strane proizvođača — neprovereno i samo orijentaciono.</p>
+                    <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                        {Object.entries(outcomes.labels).map(([status, label]) => (
+                            <div key={status} className="rounded-xl border p-4">
+                                <p className="text-muted-foreground text-sm">{label}</p>
+                                <p className="mt-1 text-2xl font-semibold">{outcomes.counts[status] ?? 0}</p>
+                            </div>
+                        ))}
+                    </div>
+                    {outcomes.topProducts.length > 0 && (
+                        <ol className="mt-4 space-y-1 text-sm">
+                            {outcomes.topProducts.map((product, index) => (
+                                <li key={product.slug}>
+                                    <span className="text-muted-foreground mr-2">{index + 1}.</span>
+                                    <Link href={route('marketplace.products.show', product.slug)} className="hover:underline">
+                                        {product.name}
+                                    </Link>
+                                    <span className="text-muted-foreground"> · realizovano {product.count}×</span>
+                                </li>
+                            ))}
+                        </ol>
+                    )}
                 </section>
 
                 <section>
