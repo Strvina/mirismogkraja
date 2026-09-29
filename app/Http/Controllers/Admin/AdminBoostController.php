@@ -71,10 +71,7 @@ class AdminBoostController extends Controller
 
         if ($wasActive) {
             $boost->loadMissing(['producer.user', 'boostable']);
-            $boost->producer?->user?->notify(SiteNotification::paidItemCancelled(
-                ($boost->isProduct() ? 'Isticanje proizvoda ' : 'Isticanje profila ').($boost->boostable?->name ?? ''),
-                route('boosts.index'),
-            ));
+            $boost->producer?->user?->notify(SiteNotification::boostCancelled($boost->boostable?->name ?? '', route('boosts.index')));
         }
 
         return back();

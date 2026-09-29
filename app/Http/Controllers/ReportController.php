@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Report;
 use App\Models\User;
+use App\Notifications\SiteNotification;
+use App\Support\Admins;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -35,7 +37,7 @@ class ReportController extends Controller
         // Reporting yourself is not a complaint, it is noise.
         abort_if($reported instanceof User && $reported->is($request->user()), 403);
 
-        Report::updateOrCreate(
+        $report = Report::updateOrCreate(
             [
                 'reported_by' => $request->user()->id,
                 'reportable_type' => $data['reportable_type'],
@@ -49,6 +51,11 @@ class ReportController extends Controller
                 'reviewed_at' => null,
             ],
         );
+
+        Admins::notify(SiteNotification::forAdmins('report-opened', [
+            'subject' => $reported->name ?? '—',
+            'reason' => $report->reasonLabel(),
+        ], route('admin.reports.index')));
 
         return back()->with('status', 'Hvala. Prijava je poslata i neko će je pregledati.');
     }

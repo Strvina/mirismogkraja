@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Services\FoundingProducerService;
 use App\Services\SubscriptionService;
+use App\Support\NotificationText;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -174,7 +175,7 @@ class FoundingAndFollowTest extends TestCase
 
         $notification = $follower->notifications()->sole();
         $this->assertSame('product.published', $notification->data['type']);
-        $this->assertStringContainsString('Mladi sir', $notification->data['body']);
+        $this->assertStringContainsString('Mladi sir', NotificationText::for($notification->data)['body']);
     }
 
     /** A draft is nobody's news. */

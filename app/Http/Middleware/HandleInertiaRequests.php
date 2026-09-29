@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ProducerMessage;
+use App\Support\NotificationText;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -56,8 +57,7 @@ class HandleInertiaRequests extends Middleware
                 ->get()
                 ->map(fn ($notification) => [
                     'id' => $notification->id,
-                    'title' => $notification->data['title'] ?? '',
-                    'body' => $notification->data['body'] ?? null,
+                    ...NotificationText::for($notification->data),
                     'read' => $notification->read_at !== null,
                     'created_at' => $notification->created_at,
                 ])),

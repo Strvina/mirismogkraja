@@ -87,7 +87,7 @@ class WeeklyPickController extends Controller
             $producer = $pick->producer;
             $producer->user?->notify(SiteNotification::weeklyPick(
                 $producer->name,
-                $pick->starts_on->translatedFormat('j. F'),
+                $pick->starts_on,
                 route('marketplace.producers.show', $producer->slug),
             ));
         }

@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
 use App\Models\User;
+use App\Notifications\SiteNotification;
+use App\Support\Admins;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -47,7 +49,7 @@ class ProducerService
                 continue;
             }
 
-            ProducerChangeRequest::updateOrCreate(
+            $change = ProducerChangeRequest::updateOrCreate(
                 [
                     'household_id' => $producer->id,
                     'field' => $field,
@@ -59,6 +61,15 @@ class ProducerService
                     'requested_value' => $attributes[$field],
                 ],
             );
+
+            // Only for a new or changed request - saving the same form
+            // twice asks nothing new.
+            if ($change->wasRecentlyCreated || $change->wasChanged('requested_value')) {
+                Admins::notify(SiteNotification::forAdmins('change-requested', [
+                    'current' => (string) $producer->{$field},
+                    'requested' => (string) $attributes[$field],
+                ], route('admin.change-requests.index')));
+            }
 
             unset($attributes[$field]);
         }

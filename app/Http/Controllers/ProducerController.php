@@ -7,8 +7,10 @@ use App\Http\Requests\UpdateProducerRequest;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
+use App\Notifications\SiteNotification;
 use App\Services\FoundingProducerService;
 use App\Services\ProducerService;
+use App\Support\Admins;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -59,7 +61,7 @@ class ProducerController extends Controller
      */
     public function store(StoreProducerRequest $request, ProducerService $producers): RedirectResponse
     {
-        $producers->create(
+        $producer = $producers->create(
             $request->user(),
             $request->safe()->except(['cover_image', 'logo', 'products']),
             $request->file('cover_image'),
@@ -69,6 +71,11 @@ class ProducerController extends Controller
                 ->map(fn (array $product, int $index) => [...$product, 'image' => $request->file("products.{$index}.image")])
                 ->all(),
         );
+
+        Admins::notify(SiteNotification::forAdmins('producer-pending', [
+            'producer' => $producer->name,
+            'city' => $producer->city ?: '—',
+        ], route('admin.producers.index', ['status' => 'pending'])));
 
         return to_route('producers.index');
     }

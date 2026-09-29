@@ -4,16 +4,19 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Carbon;
 
 /**
  * Everything the site tells a user, in one shape.
  *
  * The platform's notifications are all the same kind of thing - a short
  * sentence and a page to open - so they share one class with a named
- * constructor per occasion instead of a class per event. That keeps the
- * stored payload uniform, which is what lets the bell render any of them
- * without knowing which event produced it, and it means adding a new
- * occasion is one method rather than a new file.
+ * constructor per occasion instead of a class per event.
+ *
+ * What is stored is the occasion and its facts (type, params, url), not the
+ * sentence: the sentence is written when it is read, in the reader's
+ * language, from lang/{locale}/notifications.php (see NotificationText).
+ * Params whose name ends in "_on" are dates, formatted the same way.
  *
  * Only the database channel is used: mail would need a configured mailer and
  * a queue worker, and a notification nobody can see because delivery failed
@@ -28,165 +31,140 @@ class SiteNotification extends Notification
 {
     use Queueable;
 
+    /** @param  array<string, string|int>  $params */
     private function __construct(
         private readonly string $type,
-        private readonly string $title,
-        private readonly ?string $body,
+        private readonly array $params,
         private readonly ?string $url,
     ) {}
 
+    // ---------------------------------------------------------------- producer
+
     public static function producerApproved(string $producerName, string $url): self
     {
-        return new self(
-            'producer.approved',
-            'Vaš proizvođač je odobren',
-            "„{$producerName}” je od sada vidljiv svima na sajtu.",
-            $url,
-        );
-    }
-
-    public static function membershipActivated(string $planName, string $endsOn, string $url): self
-    {
-        return new self(
-            'membership.activated',
-            'Članarina je aktivirana',
-            "Paket „{$planName}” važi do {$endsOn}",
-            $url,
-        );
-    }
-
-    public static function membershipEnding(string $planName, string $endsOn, string $url): self
-    {
-        return new self(
-            'membership.ending',
-            'Članarina uskoro ističe',
-            "Paket „{$planName}” važi do {$endsOn}. Uplatnicu i poziv na broj naći ćete na stranici članarine.",
-            $url,
-        );
-    }
-
-    public static function membershipExpired(string $planName, string $url): self
-    {
-        return new self(
-            'membership.expired',
-            'Članarina je istekla',
-            "Paket „{$planName}” je istekao. Vaša stranica ostaje na sajtu, ali bez dodatnih pogodnosti dok ne obnovite.",
-            $url,
-        );
+        return new self('producer.approved', ['producer' => $producerName], $url);
     }
 
     public static function producerVerified(string $producerName, string $url): self
     {
-        return new self(
-            'producer.verified',
-            'Vaš profil je proveren',
-            "„{$producerName}” od sada nosi oznaku proverenog proizvođača.",
-            $url,
-        );
+        return new self('producer.verified', ['producer' => $producerName], $url);
     }
 
     public static function producerBlocked(string $producerName, string $url): self
     {
-        return new self(
-            'producer.blocked',
-            'Vaš proizvođač je skriven',
-            "„{$producerName}” trenutno nije vidljiv na sajtu. Javite nam se ako mislite da je greška.",
-            $url,
-        );
+        return new self('producer.blocked', ['producer' => $producerName], $url);
+    }
+
+    /** A founding place, and the free Premium year that comes with it. */
+    public static function foundingGranted(string $producerName, int $number, Carbon $endsOn, string $url): self
+    {
+        return new self('founding.granted', ['producer' => $producerName, 'number' => $number, 'ends_on' => $endsOn->toDateString()], $url);
     }
 
     public static function changeRequestApproved(string $requestedName, string $url): self
     {
-        return new self(
-            'change-request.approved',
-            'Izmena naziva je odobrena',
-            "Vaš proizvođač se od sada zove „{$requestedName}”.",
-            $url,
-        );
+        return new self('change-request.approved', ['name' => $requestedName], $url);
     }
 
     public static function changeRequestRejected(string $requestedName, string $url): self
     {
-        return new self(
-            'change-request.rejected',
-            'Izmena naziva nije odobrena',
-            "Naziv „{$requestedName}” nije prihvaćen, pa ostaje dosadašnji. Javite nam se ako vam treba pomoć.",
-            $url,
-        );
-    }
-
-    /**
-     * Something the producer paid for was stopped by an admin - at their
-     * request or otherwise. Said plainly, with where to look.
-     */
-    public static function paidItemCancelled(string $what, string $url): self
-    {
-        return new self(
-            'paid-item.cancelled',
-            'Otkazano: '.$what,
-            "„{$what}” više nije aktivno. Ako imate pitanja o povraćaju ili bilo čemu drugom, javite nam se.",
-            $url,
-        );
-    }
-
-    public static function boostActivated(string $boostedName, string $endsOn, string $url): self
-    {
-        return new self(
-            'boost.activated',
-            'Isticanje je aktivirano',
-            "„{$boostedName}” je istaknut do {$endsOn}.",
-            $url,
-        );
-    }
-
-    public static function campaignJoined(string $campaignName, string $url): self
-    {
-        return new self(
-            'campaign.joined',
-            'Učestvujete u kampanji',
-            "Uplata je primljena - vaš profil je na stranici kampanje „{$campaignName}”.",
-            $url,
-        );
-    }
-
-    public static function weeklyPick(string $producerName, string $weekStarting, string $url): self
-    {
-        return new self(
-            'weekly-pick',
-            'Proizvođač nedelje',
-            "„{$producerName}” je proizvođač nedelje od {$weekStarting} i biće istaknut na početnoj strani.",
-            $url,
-        );
+        return new self('change-request.rejected', ['name' => $requestedName], $url);
     }
 
     public static function productPublished(string $producerName, string $productName, string $url): self
     {
-        return new self(
-            'product.published',
-            "{$producerName} ima nešto novo",
-            "„{$productName}” je upravo objavljen.",
-            $url,
-        );
+        return new self('product.published', ['producer' => $producerName, 'product' => $productName], $url);
     }
 
     public static function reviewReceived(string $producerName, string $url): self
     {
-        return new self(
-            'review.received',
-            'Novi utisak o vama',
-            "Neko je ostavio utisak o „{$producerName}”. Biće objavljen kada ga pregledamo.",
-            $url,
-        );
+        return new self('review.received', ['producer' => $producerName], $url);
     }
 
     public static function reviewPublished(string $producerName, string $url): self
     {
-        return new self(
-            'review.published',
-            'Vaš utisak je objavljen',
-            "Utisak o „{$producerName}” je od sada vidljiv svima.",
-            $url,
-        );
+        return new self('review.published', ['producer' => $producerName], $url);
+    }
+
+    public static function weeklyPick(string $producerName, Carbon $weekStartsOn, string $url): self
+    {
+        return new self('weekly-pick', ['producer' => $producerName, 'starts_on' => $weekStartsOn->toDateString()], $url);
+    }
+
+    // ---------------------------------------------------------------- paid by slip
+
+    /** The slip is ready - the one thing left for the producer to do. */
+    public static function membershipRequested(string $planName, int $amount, string $reference, string $url): self
+    {
+        return new self('membership.requested', ['plan' => $planName, 'amount' => number_format($amount, 0, ',', '.'), 'reference' => $reference], $url);
+    }
+
+    public static function membershipActivated(string $planName, Carbon $endsOn, string $url): self
+    {
+        return new self('membership.activated', ['plan' => $planName, 'ends_on' => $endsOn->toDateString()], $url);
+    }
+
+    public static function membershipEnding(string $planName, Carbon $endsOn, string $url): self
+    {
+        return new self('membership.ending', ['plan' => $planName, 'ends_on' => $endsOn->toDateString()], $url);
+    }
+
+    public static function membershipExpired(string $planName, string $url): self
+    {
+        return new self('membership.expired', ['plan' => $planName], $url);
+    }
+
+    public static function membershipCancelled(string $planName, string $url): self
+    {
+        return new self('membership.cancelled', ['plan' => $planName], $url);
+    }
+
+    public static function boostRequested(string $boostedName, int $amount, string $reference, string $url): self
+    {
+        return new self('boost.requested', ['name' => $boostedName, 'amount' => number_format($amount, 0, ',', '.'), 'reference' => $reference], $url);
+    }
+
+    public static function boostActivated(string $boostedName, Carbon $endsOn, string $url): self
+    {
+        return new self('boost.activated', ['name' => $boostedName, 'ends_on' => $endsOn->toDateString()], $url);
+    }
+
+    public static function boostEnding(string $boostedName, Carbon $endsOn, string $url): self
+    {
+        return new self('boost.ending', ['name' => $boostedName, 'ends_on' => $endsOn->toDateString()], $url);
+    }
+
+    public static function boostExpired(string $boostedName, string $url): self
+    {
+        return new self('boost.expired', ['name' => $boostedName], $url);
+    }
+
+    public static function boostCancelled(string $boostedName, string $url): self
+    {
+        return new self('boost.cancelled', ['name' => $boostedName], $url);
+    }
+
+    public static function campaignRequested(string $campaignName, int $amount, string $reference, string $url): self
+    {
+        return new self('campaign.requested', ['campaign' => $campaignName, 'amount' => number_format($amount, 0, ',', '.'), 'reference' => $reference], $url);
+    }
+
+    public static function campaignJoined(string $campaignName, string $url): self
+    {
+        return new self('campaign.joined', ['campaign' => $campaignName], $url);
+    }
+
+    public static function campaignCancelled(string $campaignName, string $url): self
+    {
+        return new self('campaign.cancelled', ['campaign' => $campaignName], $url);
+    }
+
+    // ---------------------------------------------------------------- admin
+
+    /** Something waiting on an admin; $kind names the queue it is in. */
+    public static function forAdmins(string $kind, array $params, string $url): self
+    {
+        return new self('admin.'.$kind, $params, $url);
     }
 
     /** @return list<string> */
@@ -200,8 +178,7 @@ class SiteNotification extends Notification
     {
         return [
             'type' => $this->type,
-            'title' => $this->title,
-            'body' => $this->body,
+            'params' => $this->params,
             'url' => $this->url,
         ];
     }

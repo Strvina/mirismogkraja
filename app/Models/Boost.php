@@ -44,6 +44,7 @@ class Boost extends Model implements Payable
         'days',
         'starts_at',
         'ends_at',
+        'ending_warned_at',
         'confirmed_by',
         'confirmed_at',
     ];
@@ -53,6 +54,7 @@ class Boost extends Model implements Payable
         return [
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
+            'ending_warned_at' => 'datetime',
             'confirmed_at' => 'datetime',
             'cancel_requested_at' => 'datetime',
         ];

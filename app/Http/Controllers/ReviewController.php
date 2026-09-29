@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producer;
 use App\Models\Review;
 use App\Notifications\SiteNotification;
+use App\Support\Admins;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -49,6 +50,10 @@ class ReviewController extends Controller
             $producer->name,
             route('marketplace.producers.show', $producer->slug),
         ));
+        Admins::notify(SiteNotification::forAdmins('review-pending', [
+            'producer' => $producer->name,
+            'rating' => $review->rating,
+        ], route('admin.reviews.index')));
 
         return back()->with('status', 'Hvala! Vaš utisak čeka odobrenje i biće objavljen uskoro.')
             ->with('reviewId', $review->id);

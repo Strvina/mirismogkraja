@@ -78,7 +78,7 @@ class BillingAndCancellationTest extends TestCase
 
         $this->assertSame(ProducerSubscription::STATUS_CANCELLED, $membership->refresh()->status);
         $this->assertFalse(app(SubscriptionService::class)->hasFeature($producer, 'statistics'));
-        $this->assertContains('paid-item.cancelled', $producer->user->notifications()->get()->pluck('data.type'));
+        $this->assertContains('membership.cancelled', $producer->user->notifications()->get()->pluck('data.type'));
     }
 
     /** Only something running can be asked to stop. */
@@ -100,6 +100,6 @@ class BillingAndCancellationTest extends TestCase
 
         $this->assertSame(Boost::STATUS_CANCELLED, $boost->refresh()->status);
         $this->assertFalse($boosts->runningIds(Boost::PROFILE)->contains($producer->id));
-        $this->assertContains('paid-item.cancelled', $producer->user->notifications()->get()->pluck('data.type'));
+        $this->assertContains('boost.cancelled', $producer->user->notifications()->get()->pluck('data.type'));
     }
 }

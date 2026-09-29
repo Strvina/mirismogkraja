@@ -23,6 +23,7 @@ class ProcessSubscriptionExpiries extends Command
     public function handle(SubscriptionService $subscriptions, BoostService $boosts): int
     {
         ['warned' => $warned, 'expired' => $expired] = $subscriptions->processExpiries();
+        $boosts->warnEnding();
         $boostsEnded = $boosts->closeEnded();
 
         $this->info("Obaveštenja pred istek: {$warned}. Istekle članarine: {$expired}. Istekla isticanja: {$boostsEnded}.");

@@ -70,10 +70,7 @@ class AdminMembershipController extends Controller
 
         if ($wasActive) {
             $subscription->loadMissing(['plan', 'producer.user']);
-            $subscription->producer?->user?->notify(SiteNotification::paidItemCancelled(
-                'Članarina '.$subscription->plan?->name,
-                route('memberships.index'),
-            ));
+            $subscription->producer?->user?->notify(SiteNotification::membershipCancelled($subscription->plan?->name ?? '', route('memberships.index')));
         }
 
         return back();

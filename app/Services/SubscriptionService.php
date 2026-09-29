@@ -6,6 +6,7 @@ use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Notifications\SiteNotification;
+use App\Support\Admins;
 use App\Support\PaymentReference;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -102,12 +103,22 @@ class SubscriptionService
             ->where('status', ProducerSubscription::STATUS_PENDING)
             ->delete();
 
-        return $producer->subscriptions()->create([
+        $subscription = $producer->subscriptions()->create([
             'subscription_plan_id' => $plan->id,
             'status' => ProducerSubscription::STATUS_PENDING,
             'reference' => PaymentReference::generate(),
             'amount_rsd' => $plan->price_rsd,
         ]);
+
+        $producer->user?->notify(SiteNotification::membershipRequested($plan->name, $plan->price_rsd, $subscription->reference, route('memberships.index')));
+        Admins::notify(SiteNotification::forAdmins('membership-requested', [
+            'producer' => $producer->name,
+            'plan' => $plan->name,
+            'amount' => number_format($plan->price_rsd, 0, ',', '.'),
+            'reference' => $subscription->reference,
+        ], route('admin.memberships.index')));
+
+        return $subscription;
     }
 
     /**
@@ -125,7 +136,9 @@ class SubscriptionService
             'amount_rsd' => 0,
         ]);
 
-        return $this->confirmPayment($subscription, null);
+        // Quietly: the founding notification says what this is, and a
+        // second "membership activated" beside it would only repeat it.
+        return $this->confirmPayment($subscription, null, notify: false);
     }
 
     /**
@@ -136,7 +149,7 @@ class SubscriptionService
      * $confirmedBy is the admin who saw the payment; null when there was no
      * payment to see.
      */
-    public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy): ProducerSubscription
+    public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy, bool $notify = true): ProducerSubscription
     {
         $subscription->loadMissing(['plan', 'producer']);
 
@@ -156,11 +169,13 @@ class SubscriptionService
             'expiry_warned_at' => null,
         ]);
 
-        $subscription->producer->user?->notify(SiteNotification::membershipActivated(
-            $subscription->plan->name,
-            $subscription->ends_at->translatedFormat('j. F Y.'),
-            route('memberships.index'),
-        ));
+        if ($notify) {
+            $subscription->producer->user?->notify(SiteNotification::membershipActivated(
+                $subscription->plan->name,
+                $subscription->ends_at,
+                route('memberships.index'),
+            ));
+        }
 
         return $subscription;
     }
@@ -192,7 +207,7 @@ class SubscriptionService
         foreach ($ending as $subscription) {
             $subscription->producer->user?->notify(SiteNotification::membershipEnding(
                 $subscription->plan->name,
-                $subscription->ends_at->translatedFormat('j. F Y.'),
+                $subscription->ends_at,
                 route('memberships.index'),
             ));
 

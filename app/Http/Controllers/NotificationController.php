@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\NotificationText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
@@ -18,8 +19,7 @@ class NotificationController extends Controller
                 ->paginate(20)
                 ->through(fn (DatabaseNotification $notification) => [
                     'id' => $notification->id,
-                    'title' => $notification->data['title'] ?? '',
-                    'body' => $notification->data['body'] ?? null,
+                    ...NotificationText::for($notification->data),
                     'url' => $notification->data['url'] ?? null,
                     'read' => $notification->read_at !== null,
                     'created_at' => $notification->created_at,
