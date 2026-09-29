@@ -10,18 +10,26 @@ use Illuminate\Support\Facades\Storage;
 
 class ProducerImageController extends Controller
 {
+    /**
+     * Every photo is sent to every visitor of the producer's page and kept
+     * on disk for good, so the gallery has a ceiling.
+     */
+    public const MAX_IMAGES = 20;
+
     public function store(Request $request, Producer $producer): RedirectResponse
     {
         $this->authorize('update', $producer);
 
         $request->validate([
-            'images' => ['required', 'array'],
+            'images' => ['required', 'array', 'max:'.max(0, self::MAX_IMAGES - $producer->images()->count())],
             'images.*' => ['image', 'max:4096'],
             'captions' => ['nullable', 'array'],
             'captions.*' => ['nullable', 'string', 'max:255'],
+        ], [
+            'images.max' => 'Galerija može imati najviše '.self::MAX_IMAGES.' fotografija.',
         ]);
 
-        $nextOrder = (int) $producer->images()->max('order') + ($producer->images()->exists() ? 1 : 0);
+        $nextOrder = ($producer->images()->max('order') ?? -1) + 1;
 
         foreach ($request->file('images') as $index => $file) {
             $producer->images()->create([

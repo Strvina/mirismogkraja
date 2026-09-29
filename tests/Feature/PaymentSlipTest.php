@@ -60,6 +60,24 @@ class PaymentSlipTest extends TestCase
         $this->assertStringContainsString('|RO:97'.str_replace('-', '', $subscription->reference), $payload);
     }
 
+    /**
+     * A reference may hold only digits and dashes, and under model 97 its
+     * first two digits are a MOD 97-10 check over the rest - a bank rejects
+     * anything else, and a banking app refuses the QR.
+     */
+    public function test_the_reference_is_valid_under_model_97(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $reference = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole())->reference;
+
+        $this->assertMatchesRegularExpression('/^\d{2}-\d{8}$/', $reference);
+
+        [$control, $base] = explode('-', $reference);
+        // The standard check: the base followed by its control digits
+        // leaves a remainder of one.
+        $this->assertSame(1, (int) ($base.$control) % 97);
+    }
+
     /** What is printed and what is scanned have to be the same money. */
     public function test_the_printed_amount_and_reference_match_the_qr(): void
     {

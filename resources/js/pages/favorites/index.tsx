@@ -5,7 +5,10 @@ import { Head, Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moji omiljeni', href: '/omiljeni' }];
 
-export default function FavoritesIndex({ producers, products }: { producers: Producer[]; products: Product[] }) {
+type SavedProducer = Pick<Producer, 'id' | 'name' | 'slug' | 'city'>;
+type SavedProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit'>;
+
+export default function FavoritesIndex({ producers, products }: { producers: SavedProducer[]; products: SavedProduct[] }) {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title="Moji omiljeni" />
@@ -46,7 +49,9 @@ export default function FavoritesIndex({ producers, products }: { producers: Pro
                                     className="hover:bg-muted rounded-xl border p-4"
                                 >
                                     <p className="font-medium">{product.name}</p>
-                                    <p className="text-muted-foreground text-sm">{formatPrice(product.price)}</p>
+                                    <p className="text-muted-foreground text-sm">
+                                        {formatPrice(product.price)} / {product.unit}
+                                    </p>
                                 </Link>
                             ))}
                         </div>

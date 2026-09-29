@@ -41,9 +41,10 @@ class NotificationController extends Controller
         return redirect($record->data['url'] ?? route('notifications.index'));
     }
 
+    /** One UPDATE, rather than loading every unread row to save it back. */
     public function readAll(Request $request): RedirectResponse
     {
-        $request->user()->unreadNotifications->markAsRead();
+        $request->user()->unreadNotifications()->update(['read_at' => now()]);
 
         return back();
     }

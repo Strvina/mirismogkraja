@@ -83,29 +83,6 @@ class ProducerMessageController extends Controller
     }
 
     /**
-     * Threads for the producers the authenticated user owns - the seller's
-     * side of the same conversations.
-     */
-    public function producerInbox(Request $request): Response
-    {
-        $user = $request->user();
-        $producerIds = $user->producers()->pluck('id');
-
-        $threads = $this->threadSummaries(
-            $user,
-            fn ($query) => $query->whereIn('household_id', $producerIds)
-        )->map(fn (array $thread) => [
-            'producer' => $thread['message']->producer,
-            'buyer' => $thread['message']->buyer,
-            'last_message' => $thread['message']->body,
-            'last_at' => $thread['message']->created_at,
-            'unread' => $thread['unread'],
-        ])->values();
-
-        return Inertia::render('messages/producer-inbox', ['threads' => $threads]);
-    }
-
-    /**
      * One thread, from whichever side is looking at it. Opening it marks the
      * other side's messages as read.
      */

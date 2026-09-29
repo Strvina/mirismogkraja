@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreProducerRequest;
 use App\Models\Producer;
 use App\Notifications\SiteNotification;
 use App\Services\FoundingProducerService;
@@ -100,7 +101,7 @@ class ProducerController extends Controller
             'city' => ['nullable', 'string', 'max:255'],
             'phone' => ['nullable', 'string', 'max:255'],
             'contact_email' => ['nullable', 'email', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'description' => ['nullable', 'string', 'max:'.StoreProducerRequest::DESCRIPTION_MAX],
         ]);
 
         $producer->update($data);
