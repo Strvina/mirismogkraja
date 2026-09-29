@@ -62,6 +62,22 @@ class ProducerController extends Controller
         return Inertia::render('marketplace/producers/index', [
             'producers' => $producers,
             'featured' => $featured,
+            // Every published producer that marked a point, within the city
+            // filter. Only sent when the visitor opens the map, as a partial
+            // reload - the list itself never pays for it.
+            'mapPoints' => Inertia::optional(fn () => Producer::published()
+                ->whereNotNull('lat')
+                ->whereNotNull('lng')
+                ->when($city, fn ($query) => $query->where('city', $city))
+                ->get(['id', 'name', 'slug', 'city', 'lat', 'lng'])
+                ->map(fn (Producer $producer) => [
+                    'id' => $producer->id,
+                    'name' => $producer->name,
+                    'subtitle' => $producer->city,
+                    'href' => route('marketplace.producers.show', $producer->slug),
+                    'lat' => (float) $producer->lat,
+                    'lng' => (float) $producer->lng,
+                ])),
             'cities' => $cities,
             'filters' => ['city' => $request->string('city')->toString() ?: null],
         ]);
@@ -106,7 +122,7 @@ class ProducerController extends Controller
             // coordinates or the moderation fields.
             'producer' => $producer->only([
                 'id', 'name', 'slug', 'description', 'story', 'address', 'city', 'phone', 'contact_email',
-                'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at',
+                'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at', 'lat', 'lng',
             ]),
             'meta' => PageMeta::make(
                 $producer->city ? "{$producer->name} - {$producer->city}" : $producer->name,

@@ -67,6 +67,9 @@ export interface Producer {
     phone: string | null;
     contact_email: string | null;
     delivery_methods: string[] | null;
+    /** Decimal strings from the database; null until the producer marks a point. */
+    lat?: string | null;
+    lng?: string | null;
     cover_image_path: string | null;
     logo_path: string | null;
     status: 'pending' | 'active' | 'blocked';

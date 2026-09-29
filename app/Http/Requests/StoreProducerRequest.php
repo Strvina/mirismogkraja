@@ -47,6 +47,9 @@ class StoreProducerRequest extends FormRequest
             'delivery_methods' => ['nullable', 'array'],
             // Either one of Producer::DELIVERY_METHODS' keys or a producer's own wording.
             'delivery_methods.*' => ['string', 'max:60'],
+            // A point on the map, or none - never half of one.
+            'lat' => ['nullable', 'numeric', 'between:-90,90', 'required_with:lng'],
+            'lng' => ['nullable', 'numeric', 'between:-180,180', 'required_with:lat'],
             'cover_image' => ['nullable', 'image', 'max:4096'],
             'logo' => ['nullable', 'image', 'max:2048'],
         ];

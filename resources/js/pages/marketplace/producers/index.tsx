@@ -1,19 +1,37 @@
+import { type MapPoint, PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
+import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { Head, router } from '@inertiajs/react';
+import { Map as MapIcon } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ProducersIndex({
     producers,
     featured,
+    mapPoints,
     cities,
     filters,
 }: {
     producers: Paginated<ProducerCardProducer>;
     featured: ProducerCardProducer[];
+    /** Present once the visitor has opened the map. */
+    mapPoints?: MapPoint[];
     cities: string[];
     filters: { city: string | null };
 }) {
+    const [showMap, setShowMap] = useState(false);
+
+    const toggleMap = () => {
+        // The points come as a partial reload the first time the map opens.
+        if (!showMap && mapPoints === undefined) {
+            router.reload({ only: ['mapPoints'] });
+        }
+
+        setShowMap(!showMap);
+    };
+
     const filterByCity = (city: string) => {
         router.get('/proizvodjaci', city ? { city } : {}, { preserveState: true, preserveScroll: true });
     };
@@ -43,6 +61,23 @@ export default function ProducersIndex({
                         ))}
                     </select>
                 )}
+            </div>
+
+            <div className="mt-6">
+                <Button type="button" variant="outline" size="sm" onClick={toggleMap} aria-expanded={showMap}>
+                    <MapIcon className="size-4" />
+                    {showMap ? 'Sakrij mapu' : 'Prikaži mapu'}
+                </Button>
+                {showMap &&
+                    (mapPoints === undefined ? (
+                        <p className="text-muted-foreground mt-3 text-sm">Učitavam mapu…</p>
+                    ) : mapPoints.length === 0 ? (
+                        <p className="text-muted-foreground mt-3 text-sm">
+                            Još nijedan proizvođač{filters.city ? ` iz ${filters.city}` : ''} nije označio lokaciju.
+                        </p>
+                    ) : (
+                        <PointsMap points={mapPoints} className="mt-3 h-96" />
+                    ))}
             </div>
 
             {featured.length > 0 && (
