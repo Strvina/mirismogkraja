@@ -51,7 +51,11 @@ class BoostTest extends TestCase
         $this->assertSame(1000, $boost->amount_rsd);
         $this->assertSame(7, $boost->days);
         $this->assertMatchesRegularExpression('/^\d{2}-\d{8}$/', $boost->reference);
-        $this->assertSame('Isticanje na sajtu Vrelina juga - Mlekara Zapis', app(PaymentSlipService::class)->detailsFor($boost)['purpose']);
+        $this->assertSame('Isticanje profila na sajtu Vrelina juga - Mlekara Zapis', app(PaymentSlipService::class)->detailsFor($boost)['purpose']);
+
+        // A product boost says so, so two slips from one producer differ.
+        $product = Product::factory()->for($producer)->create();
+        $this->assertStringStartsWith('Isticanje proizvoda na sajtu', app(PaymentSlipService::class)->detailsFor($this->ask($producer, 'product', $product))['purpose']);
 
         $this->actingAs($producer->user)->get(route('boosts.index'))
             ->assertInertia(fn ($page) => $page->where('boosts.0.status', 'pending_payment')->has('boosts.0.slip.qr'));

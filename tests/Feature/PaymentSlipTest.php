@@ -78,6 +78,25 @@ class PaymentSlipTest extends TestCase
         $this->assertSame(1, (int) ($base.$control) % 97);
     }
 
+    /**
+     * The IPS standard caps the purpose at 35 characters and the names at
+     * 70; a banking app refuses a code that runs over. The printed slip
+     * keeps the whole purpose.
+     */
+    public function test_qr_fields_keep_to_the_ips_limits(): void
+    {
+        $owner = User::factory()->create(['name' => str_repeat('Dugo Ime ', 12)]);
+        $producer = Producer::factory()->for($owner)->active()->create(['name' => 'Poljoprivredno gazdinstvo Stanković i sinovi']);
+        $subscription = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole());
+
+        $details = app(PaymentSlipService::class)->detailsFor($subscription);
+        $fields = collect(explode('|', $details['qr']))->mapWithKeys(fn (string $field) => [strstr($field, ':', true) => substr(strstr($field, ':'), 1)]);
+
+        $this->assertLessThanOrEqual(35, mb_strlen($fields['S']));
+        $this->assertLessThanOrEqual(70, mb_strlen($fields['P']));
+        $this->assertStringContainsString('Stanković i sinovi', $details['purpose']);
+    }
+
     /** What is printed and what is scanned have to be the same money. */
     public function test_the_printed_amount_and_reference_match_the_qr(): void
     {
