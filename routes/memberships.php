@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BoostController;
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\CancellationRequestController;
 use App\Http\Controllers\MembershipController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +20,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/kampanje', [CampaignController::class, 'index'])->name('campaigns.index');
     Route::post('/kampanje/{campaign}/prijava', [CampaignController::class, 'join'])->name('campaigns.join');
     Route::get('/kampanje/uplatnica/{participant}.pdf', [CampaignController::class, 'slip'])->name('campaigns.slip');
+
+    // Asking for something paid for to be stopped; an admin decides.
+    Route::post('/otkazivanje/clanarina/{subscription}', [CancellationRequestController::class, 'membership'])->name('cancellation.membership');
+    Route::post('/otkazivanje/isticanje/{boost}', [CancellationRequestController::class, 'boost'])->name('cancellation.boost');
+    Route::post('/otkazivanje/kampanja/{participant}', [CancellationRequestController::class, 'campaign'])->name('cancellation.campaign');
 });

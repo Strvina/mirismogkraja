@@ -65,6 +65,7 @@ class CampaignController extends Controller
                 'producer' => $place->producer->name,
                 'status' => $place->status,
                 'amount_rsd' => $place->amount_rsd,
+                'cancel_requested_at' => $place->cancel_requested_at,
                 'slip' => $place->status === CampaignParticipant::STATUS_PENDING ? $slips->detailsFor($place) : null,
                 'download_url' => $place->status === CampaignParticipant::STATUS_PENDING ? route('campaigns.slip', $place) : null,
             ]),

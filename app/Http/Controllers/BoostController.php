@@ -50,6 +50,7 @@ class BoostController extends Controller
                 'days' => $boost->days,
                 'ends_at' => $boost->ends_at,
                 'created_at' => $boost->created_at,
+                'cancel_requested_at' => $boost->cancel_requested_at,
                 // Everything the producer needs to pay, for the unpaid ones.
                 'slip' => $boost->status === Boost::STATUS_PENDING ? $slips->detailsFor($boost) : null,
                 'download_url' => $boost->status === Boost::STATUS_PENDING ? route('boosts.slip', $boost) : null,

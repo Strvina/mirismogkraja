@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Boost;
+use App\Notifications\SiteNotification;
 use App\Services\BoostService;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ use Inertia\Response;
  */
 class AdminBoostController extends Controller
 {
-    public function index(Request $request, BoostService $boosts): Response
+    public function index(Request $request): Response
     {
         $status = $request->string('status')->toString();
 
@@ -30,6 +31,7 @@ class AdminBoostController extends Controller
             'boosts' => Boost::query()
                 ->with(['producer:id,name,slug', 'boostable'])
                 ->where('status', $status)
+                ->orderByRaw('cancel_requested_at is null')
                 ->latest()
                 ->paginate(30)
                 ->withQueryString()
@@ -44,10 +46,10 @@ class AdminBoostController extends Controller
                     'days' => $boost->days,
                     'ends_at' => $boost->ends_at,
                     'created_at' => $boost->created_at,
+                    'cancel_requested_at' => $boost->cancel_requested_at,
                 ]),
             'filters' => ['status' => $status],
             'counts' => Boost::countsByStatus(),
-            'terms' => $boosts->terms(),
         ]);
     }
 
@@ -60,9 +62,20 @@ class AdminBoostController extends Controller
         return back();
     }
 
+    /** Cancel an unpaid request, or deactivate a running boost; see AdminMembershipController::cancel(). */
     public function cancel(Boost $boost): RedirectResponse
     {
+        $wasActive = $boost->status === Boost::STATUS_ACTIVE;
+
         $boost->update(['status' => Boost::STATUS_CANCELLED]);
+
+        if ($wasActive) {
+            $boost->loadMissing(['producer.user', 'boostable']);
+            $boost->producer?->user?->notify(SiteNotification::paidItemCancelled(
+                ($boost->isProduct() ? 'Isticanje proizvoda ' : 'Isticanje profila ').($boost->boostable?->name ?? ''),
+                route('boosts.index'),
+            ));
+        }
 
         return back();
     }

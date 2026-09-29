@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { router } from '@inertiajs/react';
 import { type LucideIcon } from 'lucide-react';
 
 export type PaymentStatus = 'pending_payment' | 'active' | 'expired' | 'cancelled';
@@ -39,5 +40,30 @@ export function HowItWorks({ steps }: { steps: { icon: LucideIcon; title: string
                 </li>
             ))}
         </ol>
+    );
+}
+
+/**
+ * Asking for something running to be stopped. It only sends the request -
+ * an admin decides, and a refund, if any, is agreed with us directly - so
+ * once sent it just says so.
+ */
+export function CancelRequest({ href, requestedAt, what }: { href: string; requestedAt: string | null; what: string }) {
+    if (requestedAt) {
+        return <span className="text-muted-foreground text-xs">Otkazivanje zatraženo {new Date(requestedAt).toLocaleDateString('sr-RS')}</span>;
+    }
+
+    return (
+        <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground text-xs underline underline-offset-2"
+            onClick={() => {
+                if (confirm(`Zatražiti otkazivanje za ${what}? Zahtev stiže nama; javićemo vam se pre nego što ga otkažemo.`)) {
+                    router.post(href, {}, { preserveScroll: true });
+                }
+            }}
+        >
+            Zatraži otkazivanje
+        </button>
     );
 }

@@ -24,6 +24,12 @@ return [
     ],
 
     /*
+     * How many producers get a founding number - and with it a free year
+     * of Premium (task 20.4).
+     */
+    'founding_limit' => 50,
+
+    /*
      * Paid boosts (task 20.2), in whole dinars and days.
      */
     'boost' => [

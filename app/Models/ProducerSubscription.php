@@ -50,6 +50,7 @@ class ProducerSubscription extends Model implements Payable
             'ends_at' => 'datetime',
             'confirmed_at' => 'datetime',
             'expiry_warned_at' => 'datetime',
+            'cancel_requested_at' => 'datetime',
         ];
     }
 

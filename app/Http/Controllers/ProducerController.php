@@ -45,7 +45,7 @@ class ProducerController extends Controller
             // running out (task 20.4).
             'founding' => [
                 'claimed' => $founding->claimed(),
-                'limit' => FoundingProducerService::LIMIT,
+                'limit' => $founding->limit(),
                 'remaining' => $founding->remaining(),
             ],
         ]);

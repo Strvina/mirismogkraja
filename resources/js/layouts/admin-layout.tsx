@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
 import {
     Award,
+    Banknote,
     CalendarHeart,
     FilePen,
     Flag,
@@ -34,6 +35,7 @@ const sections = [
     { href: '/admin/clanarine', label: 'Članarine', icon: Wallet },
     { href: '/admin/isticanja', label: 'Isticanja', icon: Megaphone },
     { href: '/admin/kampanje', label: 'Kampanje', icon: CalendarHeart },
+    { href: '/admin/naplata', label: 'Naplata', icon: Banknote },
     { href: '/admin/nedelja', label: 'Proizvođač nedelje', icon: Award },
     { href: '/admin/logovi', label: 'Logovi', icon: ScrollText },
 ];

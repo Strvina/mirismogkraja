@@ -1,6 +1,6 @@
 import InputError from '@/components/input-error';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { HowItWorks, PaymentStatusBadge } from '@/components/marketplace/payment-status';
+import { CancelRequest, HowItWorks, PaymentStatusBadge } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -26,6 +26,7 @@ interface Place {
     producer: string;
     status: 'pending_payment' | 'active' | 'cancelled';
     amount_rsd: number;
+    cancel_requested_at: string | null;
     slip: PaymentSlip | null;
     download_url: string | null;
 }
@@ -230,6 +231,13 @@ export default function Campaigns({
                                     </span>
                                 </span>
                                 <span className="flex items-center gap-2">
+                                    {place.status === 'active' && (
+                                        <CancelRequest
+                                            href={route('cancellation.campaign', place.id)}
+                                            requestedAt={place.cancel_requested_at}
+                                            what={`učešće u kampanji „${place.campaign}”`}
+                                        />
+                                    )}
                                     <PaymentStatusBadge status={place.status} label={place.status === 'active' ? 'Učestvujete' : undefined} />
                                     {place.slip && (
                                         <Button variant="outline" size="sm" onClick={() => setSlipFor(place.id)}>

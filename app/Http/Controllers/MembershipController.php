@@ -33,7 +33,7 @@ class MembershipController extends Controller
                 'status' => $producer->status,
                 'current_plan' => $subscriptions->planFor($producer)?->only(['id', 'name', 'level']),
                 'active' => $producer->subscriptions->first(fn (ProducerSubscription $subscription) => $subscription->isActive())
-                    ?->only(['id', 'ends_at']),
+                    ?->only(['id', 'ends_at', 'cancel_requested_at']),
                 'pending' => $this->pendingSlip($producer, $slips),
             ]),
         ]);

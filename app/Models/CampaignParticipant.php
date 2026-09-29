@@ -36,7 +36,7 @@ class CampaignParticipant extends Model implements Payable
 
     protected function casts(): array
     {
-        return ['confirmed_at' => 'datetime'];
+        return ['confirmed_at' => 'datetime', 'cancel_requested_at' => 'datetime'];
     }
 
     public function campaign(): BelongsTo

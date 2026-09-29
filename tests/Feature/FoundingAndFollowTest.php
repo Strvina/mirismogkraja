@@ -15,7 +15,7 @@ use Tests\TestCase;
 
 /**
  * Tasks 20.4 and 20.5 - the two parts of the monetisation plan that involve
- * no money: the founding hundred, and following a producer.
+ * no money: the founding producers, and following a producer.
  */
 class FoundingAndFollowTest extends TestCase
 {
@@ -78,13 +78,13 @@ class FoundingAndFollowTest extends TestCase
         $this->assertSame($number, $producer->refresh()->founding_number);
     }
 
-    public function test_no_places_are_handed_out_past_the_hundred(): void
+    public function test_no_places_are_handed_out_past_the_limit(): void
     {
         $this->seed(SubscriptionPlansSeeder::class);
         $admin = $this->admin();
 
-        // Standing in for the first hundred without creating a hundred rows.
-        Producer::factory()->active()->create(['founding_number' => FoundingProducerService::LIMIT]);
+        // Standing in for every place taken, without creating a row for each.
+        Producer::factory()->active()->create(['founding_number' => app(FoundingProducerService::class)->limit()]);
 
         $late = Producer::factory()->create(['status' => 'pending']);
         $this->approve($admin, $late);
@@ -119,7 +119,7 @@ class FoundingAndFollowTest extends TestCase
         $this->assertSame(1, $producer->subscriptions()->count());
 
         // A gift is not revenue.
-        $this->actingAs($admin)->get(route('admin.memberships.index'))->assertInertia(fn ($page) => $page->has('revenue', 0));
+        $this->actingAs($admin)->get(route('admin.dashboard'))->assertInertia(fn ($page) => $page->where('revenue.0.total', 0));
     }
 
     public function test_the_public_roll_lists_them_in_order(): void

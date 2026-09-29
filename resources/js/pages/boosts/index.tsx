@@ -1,6 +1,6 @@
 import InfoHint from '@/components/info-hint';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { HowItWorks, PaymentStatusBadge, type PaymentStatus } from '@/components/marketplace/payment-status';
+import { CancelRequest, HowItWorks, PaymentStatusBadge, type PaymentStatus } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -23,6 +23,7 @@ interface BoostRow {
     days: number;
     ends_at: string | null;
     created_at: string;
+    cancel_requested_at: string | null;
     slip: PaymentSlip | null;
     download_url: string | null;
 }
@@ -262,6 +263,13 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                                     </span>
                                 </span>
                                 <span className="flex items-center gap-2">
+                                    {boost.status === 'active' && (
+                                        <CancelRequest
+                                            href={route('cancellation.boost', boost.id)}
+                                            requestedAt={boost.cancel_requested_at}
+                                            what={`isticanje „${boost.name}”`}
+                                        />
+                                    )}
                                     <PaymentStatusBadge status={boost.status} />
                                     {boost.slip && (
                                         <Button variant="outline" size="sm" onClick={() => setSlipFor(boost.id)}>

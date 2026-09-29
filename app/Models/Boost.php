@@ -54,6 +54,7 @@ class Boost extends Model implements Payable
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'confirmed_at' => 'datetime',
+            'cancel_requested_at' => 'datetime',
         ];
     }
 
