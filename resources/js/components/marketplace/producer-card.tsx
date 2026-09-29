@@ -68,7 +68,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
 
             <div className="flex flex-1 flex-col p-5">
                 <div className="-mt-11 mb-3 flex items-end justify-between gap-3">
-                    <span className="ring-background rounded-full ring-4">
+                    <span className="ring-background relative z-10 rounded-full ring-4">
                         <Avatar name={producer.name} path={producer.logo_path} className="size-14" />
                     </span>
                     <Rating value={producer.reviews_avg_rating} count={producer.reviews_count} />

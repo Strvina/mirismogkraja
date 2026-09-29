@@ -1,3 +1,4 @@
+import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
@@ -93,16 +94,24 @@ export default function ProductsIndex({
                     </div>
 
                     {featured.length > 0 && (
-                        <section aria-labelledby="istaknuti-proizvodi" className="mb-8">
-                            <h2 id="istaknuti-proizvodi" className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">
-                                Istaknuti proizvodi
-                            </h2>
+                        <FeaturedSection
+                            className=""
+                            title="Istaknuti proizvodi"
+                            listLabel="Svi proizvodi"
+                            explanation={
+                                <>
+                                    <p>Proizvođači su platili da ovi proizvodi budu istaknuti nekoliko dana.</p>
+                                    <p>Prikazuju se samo oni koji odgovaraju vašim filterima, a mesta se smenjuju pri svakoj poseti.</p>
+                                    <p>Rezultati ispod su isti za sve i nisu uređeni po tome ko plaća.</p>
+                                </>
+                            }
+                        >
                             <div className="grid grid-cols-2 gap-5 xl:grid-cols-4">
                                 {featured.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
                                 ))}
                             </div>
-                        </section>
+                        </FeaturedSection>
                     )}
 
                     {products.data.length === 0 ? (

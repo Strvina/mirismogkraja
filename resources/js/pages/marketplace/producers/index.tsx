@@ -1,8 +1,10 @@
+import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { cn } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
 import { Map as MapIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -81,23 +83,30 @@ export default function ProducersIndex({
             </div>
 
             {featured.length > 0 && (
-                <section aria-labelledby="istaknuti" className="mt-10">
-                    <h2 id="istaknuti" className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">
-                        Istaknuti proizvođači{filters.city ? ` — ${filters.city}` : ''}
-                    </h2>
-                    <div className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <FeaturedSection
+                    title={`Istaknuti proizvođači${filters.city ? ` — ${filters.city}` : ''}`}
+                    listLabel={filters.city ? `Svi proizvođači — ${filters.city}` : 'Svi proizvođači'}
+                    explanation={
+                        <>
+                            <p>Ovi proizvođači su platili isticanje ili imaju Premium ili Pro članstvo.</p>
+                            <p>Mesta se nasumično smenjuju pri svakoj poseti, pa niko ne drži vrh stalno.</p>
+                            <p>Lista ispod je ista za sve i nije uređena po tome ko plaća.</p>
+                        </>
+                    }
+                >
+                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
                         {featured.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} featured />
                         ))}
                     </div>
-                </section>
+                </FeaturedSection>
             )}
 
             {producers.data.length === 0 ? (
                 <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvođača za prikaz.</p>
             ) : (
                 <>
-                    <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <div className={cn('grid gap-6 md:grid-cols-2 xl:grid-cols-3', featured.length === 0 && 'mt-10')}>
                         {producers.data.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} />
                         ))}

@@ -236,9 +236,10 @@ export default function Welcome({
                     <Section
                         eyebrow="Istaknuto"
                         title="Istaknuti proizvođači"
-                        lead="Proizvođači koji su se predstavili na početnoj strani."
+                        lead="Proizvođači sa Pro članstvom, koji su izabrali da se predstave ovde. Mesta se smenjuju pri svakoj poseti."
                         moreHref={route('marketplace.producers.index')}
                         moreLabel="Svi proizvođači"
+                        className="bg-gold/5 border-gold/30 border-y"
                     >
                         <CardSlider label="Istaknuti proizvođači">
                             {featuredProducers.map((producer) => (
