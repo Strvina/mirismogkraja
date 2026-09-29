@@ -151,12 +151,15 @@ class ProductController extends Controller
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
             'similar' => $similar,
-            'meta' => PageMeta::make(
-                "{$product->name} - {$product->producer->name}",
-                $product->description,
-                $product->images->first()?->path,
-                'product',
-            ),
+            'meta' => [
+                ...PageMeta::make(
+                    "{$product->name} - {$product->producer->name}",
+                    $product->description,
+                    $product->images->first()?->path,
+                    'product',
+                ),
+                'structured' => PageMeta::product($product),
+            ],
             // The owner has no one to ask about their own listing; anyone else
             // signed in can open a thread from here.
             'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
