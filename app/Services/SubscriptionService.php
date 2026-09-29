@@ -119,11 +119,32 @@ class SubscriptionService
     }
 
     /**
+     * A membership nobody pays for - the founding hundred's first year
+     * (task 20.4). Recorded like any other, at 0 RSD, so it shows in the
+     * admin panel, runs out on its own date and sends the same reminders;
+     * nothing about it is special-cased later.
+     */
+    public function grant(Producer $producer, SubscriptionPlan $plan): ProducerSubscription
+    {
+        $subscription = $producer->subscriptions()->create([
+            'subscription_plan_id' => $plan->id,
+            'status' => ProducerSubscription::STATUS_PENDING,
+            'reference' => ProducerSubscription::newReference(),
+            'amount_rsd' => 0,
+        ]);
+
+        return $this->confirmPayment($subscription, null);
+    }
+
+    /**
      * The money arrived. A renewal starts where the current membership ends,
      * not today, so paying early never costs the producer the days they have
      * already paid for.
+     *
+     * $confirmedBy is the admin who saw the payment; null when there was no
+     * payment to see.
      */
-    public function confirmPayment(ProducerSubscription $subscription, int $confirmedBy): ProducerSubscription
+    public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy): ProducerSubscription
     {
         $subscription->loadMissing(['plan', 'producer']);
 

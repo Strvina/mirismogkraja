@@ -24,7 +24,8 @@ export default function ProducersCreate({ founding }: { founding: { claimed: num
                             {founding.claimed} / {founding.limit}
                         </span>
                         <span className="text-muted-foreground">
-                            mesta među osnivačima je zauzeto. Prvih {founding.limit} odobrenih proizvođača trajno nosi svoj redni broj na profilu.
+                            mesta među osnivačima je zauzeto. Prvih {founding.limit} odobrenih proizvođača trajno nosi svoj redni broj na profilu i
+                            dobija godinu dana Premium članstva besplatno.
                         </span>
                         <Link href={route('marketplace.founding')} className="font-semibold underline underline-offset-4">
                             Pogledaj listu

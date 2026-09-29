@@ -50,9 +50,11 @@ class AdminMembershipController extends Controller
                 ])
                 ->all(),
             // What the platform has actually been paid, by plan. Only
-            // confirmed money counts.
+            // confirmed money counts - and a founding producer's free year
+            // is not money.
             'revenue' => ProducerSubscription::query()
                 ->whereNotNull('confirmed_at')
+                ->where('amount_rsd', '>', 0)
                 ->selectRaw('subscription_plan_id, count(*) as count, sum(amount_rsd) as total')
                 ->groupBy('subscription_plan_id')
                 ->with('plan:id,name')
