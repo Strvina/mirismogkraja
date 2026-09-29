@@ -14,7 +14,7 @@ class ConversationBlockTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_blocked_buyer_can_read_the_thread_but_not_write(): void
+    public function test_a_block_closes_the_conversation_both_ways_but_keeps_it_readable(): void
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
@@ -29,10 +29,14 @@ class ConversationBlockTest extends TestCase
         $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Opet ja'])->assertForbidden();
         $this->actingAs($buyer)->post(route('inquiries.store', $product->slug), ['body' => 'Preko proizvoda'])->assertForbidden();
 
-        // The producer can still answer, and can lift it.
-        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Hvala'])->assertRedirect();
+        // Neither side writes while it stands - the producer included.
+        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Hvala'])->assertForbidden();
+        $this->actingAs($producer->user)->get(route('messages.thread', [$producer->id, $buyer->id]))->assertOk();
+
+        // Lifted, both can write again.
         $this->actingAs($producer->user)->patch(route('messages.block', [$producer->id, $buyer->id]));
         $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Ponovo'])->assertRedirect();
+        $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Hvala'])->assertRedirect();
 
         $this->assertSame(3, ProducerMessage::count());
     }

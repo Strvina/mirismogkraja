@@ -120,8 +120,8 @@ class ProducerMessageController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
             'buyer' => $buyer->only(['id', 'name', 'avatar_path']),
             'isOwner' => $producer->user_id === $request->user()->id,
-            // Both sides see it: the producer to undo it, the buyer so the
-            // box they cannot type into explains itself.
+            // Both sides see it: the producer to undo it, and both so the
+            // missing message box explains itself.
             'blocked' => $producer->hasBlocked($buyer),
             // The producer's own note on how this inquiry ended.
             // A closure, like the other props the three-second poll does
