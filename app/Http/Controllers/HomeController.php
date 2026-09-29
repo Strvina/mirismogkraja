@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Services\SubscriptionService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -22,8 +23,17 @@ class HomeController extends Controller
      * orders to rank by, by design, and page views aren't tracked, so nothing
      * here is invented.
      */
-    public function __invoke(): Response
+    public function __invoke(SubscriptionService $subscriptions): Response
     {
+        // The homepage slot is what the top plan pays for (task 20.1). It
+        // is its own labelled section, drawn at random from the paying
+        // producers on every visit so none of them owns it.
+        $featuredProducers = $this->publishedProducers()
+            ->whereIn('id', $subscriptions->producerIdsWith('homepage'))
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
         $newProducers = $this->publishedProducers()->latest()->take(10)->get();
 
         // A producer nobody has saved or reviewed yet isn't popular, so the
@@ -37,9 +47,12 @@ class HomeController extends Controller
             ->filter(fn (Producer $producer) => $producer->favorites_count + $producer->reviews_count > 0)
             ->values();
 
-        $tags = $this->categoryTags($newProducers->concat($popularProducers)->pluck('id')->unique());
+        $everyone = $featuredProducers->concat($newProducers)->concat($popularProducers);
+        $tags = $this->categoryTags($everyone->pluck('id')->unique());
+        $subscriptions->markPremium($everyone);
 
         return Inertia::render('welcome', [
+            'featuredProducers' => $this->mapProducers($featuredProducers, $tags),
             'newProducers' => $this->mapProducers($newProducers, $tags),
             'popularProducers' => $this->mapProducers($popularProducers, $tags),
             'popularProducts' => $this->mapProducts(),
@@ -113,6 +126,7 @@ class HomeController extends Controller
             'reviews_count' => $producer->reviews_count,
             'rating' => $producer->reviews_avg_rating ? round($producer->reviews_avg_rating, 1) : null,
             'tags' => $tags->get($producer->id, collect()),
+            'is_premium' => (bool) $producer->is_premium,
         ]);
     }
 

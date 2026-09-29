@@ -1,3 +1,4 @@
+import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { DELIVERY_METHOD_LABELS } from '@/lib/delivery';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -7,6 +8,7 @@ export interface ProducerCardProducer extends Producer {
     reviews_avg_rating: number | null;
     reviews_count: number;
     products_count: number;
+    is_premium?: boolean;
     reviews: {
         id: number;
         rating: number;
@@ -47,7 +49,7 @@ function Rating({ value, count }: { value: number | null; count: number }) {
  * producer's avatar overlapping it, their tagline, rating and location, and
  * a couple of recent reviews so the card carries some social proof.
  */
-export default function ProducerCard({ producer }: { producer: ProducerCardProducer }) {
+export default function ProducerCard({ producer, featured = false }: { producer: ProducerCardProducer; featured?: boolean }) {
     const href = route('marketplace.producers.show', producer.slug);
 
     return (
@@ -61,6 +63,7 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                 )}
+                {featured && <FeaturedLabel className="absolute top-3 left-3" />}
             </Link>
 
             <div className="flex flex-1 flex-col p-5">
@@ -74,6 +77,7 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                 <h2 className="flex flex-wrap items-center gap-1.5 font-serif text-2xl leading-tight">
                     <Link href={href}>{producer.name}</Link>
                     {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label="Provereni proizvođač" />}
+                    {producer.is_premium && <PremiumBadge />}
                 </h2>
 
                 <div className="text-muted-foreground mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">

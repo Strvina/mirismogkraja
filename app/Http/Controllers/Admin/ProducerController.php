@@ -19,7 +19,12 @@ class ProducerController extends Controller
         $producers = Producer::query()
             // The owner may have archived their account, and the listing still
             // has to say whose producer this was.
-            ->with(['user' => fn ($query) => $query->withTrashed()->select('id', 'name', 'email')])
+            ->with([
+                'user' => fn ($query) => $query->withTrashed()->select('id', 'name', 'email'),
+                // Which plan they pay for - Pro includes priority support,
+                // so whoever answers them needs to see it.
+                'currentMembership.plan:id,name,level',
+            ])
             ->withCount('products')
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             // Applications waiting on a decision come first.

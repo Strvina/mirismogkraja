@@ -25,6 +25,15 @@ use Illuminate\Support\Collection;
 class SubscriptionService
 {
     /**
+     * Producer ids per feature, remembered for the rest of the request - a
+     * listing asks for the same feature once per section. The service is
+     * bound as scoped, so this never outlives the request.
+     *
+     * @var array<string, Collection<int, int>>
+     */
+    private array $holders = [];
+
+    /**
      * The plan a producer's benefits are currently based on: their paid one,
      * or the free floor when they have none.
      */
@@ -41,7 +50,47 @@ class SubscriptionService
 
     public function hasFeature(Producer $producer, string $feature): bool
     {
-        return (bool) $this->planFor($producer)?->has($feature);
+        return $this->producerIdsWith($feature)->contains($producer->id);
+    }
+
+    /**
+     * Every producer whose current membership includes a feature - what a
+     * listing needs to badge or feature a whole page of cards at once,
+     * instead of asking producer by producer.
+     *
+     * Two small queries: the plans (a handful of rows, whose features are a
+     * JSON list and so are read in PHP rather than matched in SQL that
+     * differs between MySQL and SQLite), then the active memberships on
+     * them.
+     *
+     * @return Collection<int, int>
+     */
+    public function producerIdsWith(string $feature): Collection
+    {
+        return $this->holders[$feature] ??= ProducerSubscription::query()
+            ->active()
+            ->whereIn('subscription_plan_id', SubscriptionPlan::query()
+                ->get(['id', 'features'])
+                ->filter(fn (SubscriptionPlan $plan) => $plan->has($feature))
+                ->modelKeys())
+            ->distinct()
+            ->pluck('household_id');
+    }
+
+    /**
+     * Flag each producer that carries the premium badge, for the card that
+     * shows them. Set as an attribute on the loaded models only - these are
+     * read for display, never saved back.
+     *
+     * @param  iterable<Producer>  $producers
+     */
+    public function markPremium(iterable $producers): void
+    {
+        $premium = $this->producerIdsWith('premium_badge');
+
+        foreach ($producers as $producer) {
+            $producer->setAttribute('is_premium', $premium->contains($producer->id));
+        }
     }
 
     /** The cheapest active plan - what everyone gets without paying. */

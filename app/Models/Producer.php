@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -100,6 +101,17 @@ class Producer extends Model
     public function subscriptions(): HasMany
     {
         return $this->hasMany(ProducerSubscription::class, 'household_id');
+    }
+
+    /**
+     * The membership in force right now, if any - the one running longest
+     * when a renewal has already been paid. Loaded in one query for a whole
+     * list, which is how the admin panel shows every producer's plan.
+     */
+    public function currentMembership(): HasOne
+    {
+        return $this->hasOne(ProducerSubscription::class, 'household_id')
+            ->ofMany(['ends_at' => 'max'], fn ($query) => $query->active());
     }
 
     /** People who asked to hear when this producer lists something new. */

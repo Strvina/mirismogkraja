@@ -1,3 +1,4 @@
+import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
 import { Link } from '@inertiajs/react';
 import { ImageOff, MapPin, Star } from 'lucide-react';
@@ -14,6 +15,7 @@ export interface HomeProducer {
     reviews_count: number;
     rating: number | null;
     tags: string[];
+    is_premium: boolean;
 }
 
 export interface HomeProduct {
@@ -32,7 +34,7 @@ export interface HomeProduct {
  * carries the same facts: who, where, how much they offer and how they're
  * rated.
  */
-export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
+export function HomeProducerCard({ producer, featured = false }: { producer: HomeProducer; featured?: boolean }) {
     const href = route('marketplace.producers.show', producer.slug);
 
     return (
@@ -50,6 +52,7 @@ export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
                         <ImageOff className="size-7" />
                     </span>
                 )}
+                {featured && <FeaturedLabel className="absolute top-3 left-3" />}
             </Link>
 
             <div className="flex flex-1 flex-col p-5">
@@ -75,8 +78,9 @@ export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
                     )}
                 </div>
 
-                <h3 className="font-serif text-2xl leading-tight">
+                <h3 className="flex flex-wrap items-center gap-2 font-serif text-2xl leading-tight">
                     <Link href={href}>{producer.name}</Link>
+                    {producer.is_premium && <PremiumBadge />}
                 </h3>
 
                 <div className="text-muted-foreground mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">

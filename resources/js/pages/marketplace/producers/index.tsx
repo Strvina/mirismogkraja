@@ -5,10 +5,12 @@ import { Head, router } from '@inertiajs/react';
 
 export default function ProducersIndex({
     producers,
+    featured,
     cities,
     filters,
 }: {
     producers: Paginated<ProducerCardProducer>;
+    featured: ProducerCardProducer[];
     cities: string[];
     filters: { city: string | null };
 }) {
@@ -42,6 +44,19 @@ export default function ProducersIndex({
                     </select>
                 )}
             </div>
+
+            {featured.length > 0 && (
+                <section aria-labelledby="istaknuti" className="mt-10">
+                    <h2 id="istaknuti" className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">
+                        Istaknuti proizvođači
+                    </h2>
+                    <div className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                        {featured.map((producer) => (
+                            <ProducerCard key={producer.id} producer={producer} featured />
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {producers.data.length === 0 ? (
                 <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvođača za prikaz.</p>

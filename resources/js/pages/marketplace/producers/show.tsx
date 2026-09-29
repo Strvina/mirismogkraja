@@ -1,5 +1,6 @@
 import FavoriteButton from '@/components/favorite-button';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import { PremiumBadge } from '@/components/marketplace/plan-badges';
 import ReportButton from '@/components/marketplace/report-button';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
@@ -18,6 +19,7 @@ export default function ProducerShow({
     products,
     reviews,
     averageRating,
+    isPremium,
     canReview,
     myPendingReview,
     canMessage,
@@ -33,6 +35,7 @@ export default function ProducerShow({
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
+    isPremium: boolean;
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
     canMessage: boolean;
@@ -93,6 +96,7 @@ export default function ProducerShow({
                                 Provereno
                             </span>
                         )}
+                        {isPremium && <PremiumBadge className="py-1" />}
                     </h1>
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
                         {producer.city && (
