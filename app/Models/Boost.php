@@ -99,8 +99,9 @@ class Boost extends Model implements Payable
         return $this->reference;
     }
 
+    /** Says which of the two was bought, so two slips from one producer differ. */
     public function paymentPurpose(): ?string
     {
-        return 'Isticanje na sajtu '.config('app.name');
+        return ($this->isProduct() ? 'Isticanje proizvoda' : 'Isticanje profila').' na sajtu '.config('app.name');
     }
 }

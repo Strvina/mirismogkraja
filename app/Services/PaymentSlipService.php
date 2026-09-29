@@ -62,11 +62,14 @@ class PaymentSlipService
             'V:01',
             'C:1',
             'R:'.$this->accountDigits($this->setting('account')),
-            'N:'.$this->clean($this->setting('recipient').($address ? "\n".$address : '')),
+            'N:'.$this->fit($this->setting('recipient').($address ? "\n".$address : ''), 70),
             'I:RSD'.number_format($payable->paymentAmount(), 2, ',', ''),
-            'P:'.$this->clean($this->payerFor($payable)),
+            'P:'.$this->fit($this->payerFor($payable), 70),
             'SF:'.$this->setting('code'),
-            'S:'.$this->clean($this->purposeFor($payable)),
+            // The printed slip carries the whole purpose; the QR field is
+            // capped at 35 characters by the standard, and a banking app
+            // refuses a code that runs over.
+            'S:'.$this->fit($this->purposeFor($payable), 35),
             'RO:'.$this->setting('model').str_replace('-', '', $payable->paymentReference()),
         ];
 
@@ -113,9 +116,12 @@ class PaymentSlipService
             .str_pad($parts[2], 2, '0', STR_PAD_LEFT);
     }
 
-    /** '|' separates fields, so it can never appear inside one. */
-    private function clean(string $value): string
+    /**
+     * A field as the IPS standard allows it: no '|' (it separates fields),
+     * and no longer than the field's limit.
+     */
+    private function fit(string $value, int $limit): string
     {
-        return trim(str_replace('|', ' ', $value));
+        return rtrim(mb_substr(trim(str_replace('|', ' ', $value)), 0, $limit));
     }
 }
