@@ -2,7 +2,20 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Bell, ChevronDown, Heart, LayoutDashboard, LogOut, MessageCircle, Package, Sprout, UserRound, Wallet } from 'lucide-react';
+import {
+    Bell,
+    CalendarHeart,
+    ChevronDown,
+    Heart,
+    LayoutDashboard,
+    LogOut,
+    Megaphone,
+    MessageCircle,
+    Package,
+    Sprout,
+    UserRound,
+    Wallet,
+} from 'lucide-react';
 import { useState } from 'react';
 import MenuIcon from './menu-icon';
 
@@ -24,6 +37,7 @@ export default function AccountMenu({ user }: { user: User }) {
     const [open, setOpen] = useState(false);
 
     const isAdmin = user.roles?.some((role) => role.name === 'admin') ?? false;
+    const isSeller = user.roles?.some((role) => role.name === 'seller') ?? false;
 
     const browseLinks: MenuLink[] = [
         { href: route('marketplace.producers.index'), label: 'Proizvođači', icon: Sprout, mobileOnly: true },
@@ -35,7 +49,15 @@ export default function AccountMenu({ user }: { user: User }) {
         { href: route('notifications.index'), label: 'Obaveštenja', icon: Bell, badge: unreadNotifications },
         { href: route('favorites.index'), label: 'Omiljeni', icon: Heart },
         { href: route('producers.index'), label: 'Moji proizvođači', icon: Sprout },
-        { href: route('memberships.index'), label: 'Članarina', icon: Wallet },
+        // What a seller pays for; a buyer without a producer has nothing
+        // to see on these pages, so they are not offered.
+        ...(isSeller
+            ? [
+                  { href: route('memberships.index'), label: 'Članarina', icon: Wallet },
+                  { href: route('boosts.index'), label: 'Isticanje', icon: Megaphone },
+                  { href: route('campaigns.index'), label: 'Kampanje', icon: CalendarHeart },
+              ]
+            : []),
         { href: route('profile.edit'), label: 'Moj nalog', icon: UserRound },
     ];
 
