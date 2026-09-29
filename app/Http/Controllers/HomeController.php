@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Campaign;
+use App\Models\CampaignParticipant;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
@@ -64,7 +65,10 @@ class HomeController extends Controller
 
         return Inertia::render('welcome', [
             // Seasonal campaigns under way, announced at the top of the page.
-            'campaigns' => Campaign::running()->orderBy('ends_on')->get(['id', 'name', 'slug', 'description', 'ends_on']),
+            'campaigns' => Campaign::running()
+                ->withCount(['participants as producers_count' => fn ($query) => $query->where('status', CampaignParticipant::STATUS_ACTIVE)])
+                ->orderBy('ends_on')
+                ->get(['id', 'name', 'slug', 'description', 'starts_on', 'ends_on']),
             'weeklyPick' => $weeklyProducer ? [
                 'producer' => $this->mapProducers(collect([$weeklyProducer]), $tags)->first(),
                 'product' => $weeklyProduct ? $this->mapProduct($weeklyProduct) : null,

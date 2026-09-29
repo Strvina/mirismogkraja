@@ -1,4 +1,6 @@
-import PaidItemActions, { CancelRequestedBadge } from '@/components/admin/paid-item-actions';
+import PaidItemActions, { CancelRequestedBadge, type PaidItemFields, RefundLine, TARGET_ROW } from '@/components/admin/paid-item-actions';
+import SettingsPanel from '@/components/admin/settings-panel';
+import StatusTabs from '@/components/admin/status-tabs';
 import InputError from '@/components/input-error';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
@@ -6,9 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
-import { t } from '@/lib/i18n';
+import { t, tx } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Check, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 interface Campaign {
@@ -24,13 +26,12 @@ interface Campaign {
     pending_count: number;
 }
 
-interface PendingPlace {
-    id: number;
+type Tab = 'settings' | 'pending_payment' | 'active' | 'ended' | 'cancelled';
+
+interface Place extends PaidItemFields {
     reference: string;
-    amount_rsd: number;
     created_at: string;
-    cancel_requested_at?: string | null;
-    campaign: { id: number; name: string } | null;
+    campaign: { id: number; name: string; slug: string; starts_on: string; ends_on: string } | null;
     producer: { id: number; name: string; slug: string } | null;
 }
 
@@ -43,6 +44,13 @@ type CampaignForm = {
     price_rsd: number;
     is_active: boolean;
 };
+
+const TABS: { status: Exclude<Tab, 'settings'>; label: string }[] = [
+    { status: 'pending_payment', label: tx('Čekaju uplatu') },
+    { status: 'active', label: tx('U toku') },
+    { status: 'ended', label: tx('Završene') },
+    { status: 'cancelled', label: tx('Otkazane') },
+];
 
 function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: () => void }) {
     const { data, setData, post, put, processing, errors, reset } = useForm<CampaignForm>({
@@ -119,99 +127,42 @@ function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: ()
     );
 }
 
+/**
+ * Seasonal campaigns (task 20.3): making and editing them on the first tab,
+ * the producers who paid to join, by status, on the others.
+ */
 export default function AdminCampaigns({
     campaigns,
-    pending,
-    active,
+    places,
+    filters,
+    counts,
 }: {
-    campaigns: Paginated<Campaign>;
-    pending: PendingPlace[];
-    active: PendingPlace[];
+    campaigns: Paginated<Campaign> | null;
+    places: Paginated<Place> | null;
+    filters: { status: Tab };
+    counts: Record<string, number>;
 }) {
     const [editing, setEditing] = useState<number | null>(null);
 
-    const confirm = (place: PendingPlace) => router.patch(route('admin.campaigns.confirm', place.id), {}, { preserveScroll: true });
-    const cancel = (place: PendingPlace) => router.patch(route('admin.campaigns.cancel', place.id), {}, { preserveScroll: true });
+    const confirm = (place: Place) => router.patch(route('admin.campaigns.confirm', place.id), {}, { preserveScroll: true });
 
     return (
         <AdminLayout title={t('Kampanje')}>
             <Head title={t('Kampanje')} />
 
-            <section>
-                <h2 className="font-serif text-2xl">{t('Prijave koje čekaju uplatu')}</h2>
-                {pending.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">{t('Nema prijava na čekanju.')}</p>
-                ) : (
-                    <div className="mt-4 space-y-3">
-                        {pending.map((place) => (
-                            <div key={place.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
-                                <div className="min-w-0 flex-1">
-                                    <p className="font-medium break-words">
-                                        {place.producer?.name ?? t('Obrisan proizvođač')} · {place.campaign?.name}
-                                    </p>
-                                    <p className="text-muted-foreground mt-1 text-sm">
-                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
-                                        {formatNumber(place.amount_rsd)} RSD · {t('zatraženo :when', { when: formatRelativeTime(place.created_at) })}
-                                    </p>
-                                </div>
-                                <div className="flex shrink-0 flex-wrap gap-2">
-                                    <Button size="sm" onClick={() => confirm(place)}>
-                                        <Check className="size-4" />
-                                        {t('Uplata primljena')}
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => cancel(place)}>
-                                        <X className="size-4" />
-                                        {t('Otkaži')}
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
+            <StatusTabs routeName="admin.campaigns.index" current={filters.status} settingsLabel={tx('Kampanje')} tabs={TABS} counts={counts} />
 
-            {active.length > 0 && (
-                <section className="mt-12">
-                    <h2 className="font-serif text-2xl">{t('Učesnici kampanja u toku')}</h2>
-                    <div className="mt-4 space-y-3">
-                        {active.map((place) => (
-                            <div key={place.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
-                                <div className="min-w-0 flex-1">
-                                    <p className="flex flex-wrap items-center gap-2 font-medium break-words">
-                                        {place.producer?.name ?? t('Obrisan proizvođač')} · {place.campaign?.name}
-                                        <CancelRequestedBadge at={place.cancel_requested_at} />
-                                    </p>
-                                    <p className="text-muted-foreground mt-1 text-sm">
-                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
-                                        {formatNumber(place.amount_rsd)} RSD
-                                    </p>
-                                </div>
-                                <PaidItemActions
-                                    status="active"
-                                    what={t('učešće „:name” u kampanji', { name: place.producer?.name ?? '' })}
-                                    onCancel={() => cancel(place)}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            )}
+            {campaigns && (
+                <div className="mt-6 max-w-3xl space-y-3">
+                    <SettingsPanel title={t('Nova kampanja')} summary={t('Tematska stranica za jednu sezonu — ajvar, zimnica, slava…')}>
+                        <CampaignFields />
+                    </SettingsPanel>
 
-            <section className="mt-12">
-                <h2 className="font-serif text-2xl">{t('Nova kampanja')}</h2>
-                <div className="mt-4 max-w-2xl">
-                    <CampaignFields />
-                </div>
-            </section>
-
-            <section className="mt-12">
-                <h2 className="font-serif text-2xl">{t('Sve kampanje')}</h2>
-                {campaigns.data.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">{t('Još nema kampanja.')}</p>
-                ) : (
-                    <div className="mt-4 space-y-3">
-                        {campaigns.data.map((campaign) => (
-                            <div key={campaign.id} className="rounded-xl border p-4">
+                    {campaigns.data.length === 0 ? (
+                        <p className="text-muted-foreground pt-3 text-sm">{t('Još nema kampanja.')}</p>
+                    ) : (
+                        campaigns.data.map((campaign) => (
+                            <div key={campaign.id} className="bg-background rounded-xl border p-4">
                                 <div className="flex flex-wrap items-start justify-between gap-3">
                                     <div className="min-w-0">
                                         <p className="font-medium break-words">
@@ -236,21 +187,57 @@ export default function AdminCampaigns({
                                             </Button>
                                         )}
                                         <Button variant="outline" size="sm" onClick={() => setEditing(editing === campaign.id ? null : campaign.id)}>
-                                            {editing === campaign.id ? 'Zatvori' : 'Izmeni'}
+                                            {editing === campaign.id ? t('Zatvori') : t('Izmeni')}
                                         </Button>
                                     </div>
                                 </div>
                                 {editing === campaign.id && (
-                                    <div className="mt-4 max-w-2xl">
+                                    <div className="border-border/70 mt-4 border-t pt-4">
                                         <CampaignFields campaign={campaign} onDone={() => setEditing(null)} />
                                     </div>
                                 )}
                             </div>
+                        ))
+                    )}
+                    <Pagination meta={campaigns} />
+                </div>
+            )}
+
+            {places &&
+                (places.data.length === 0 ? (
+                    <p className="text-muted-foreground mt-6 text-sm">{t('Ovde nema ničega.')}</p>
+                ) : (
+                    <div className="mt-6 space-y-3">
+                        {places.data.map((place) => (
+                            <div key={place.id} id={place.anchor} className={cn('rounded-xl border p-4', TARGET_ROW)}>
+                                <div className="flex flex-wrap items-start justify-between gap-4">
+                                    <div className="min-w-0 flex-1">
+                                        <p className="flex flex-wrap items-center gap-2 font-medium break-words">
+                                            {place.producer?.name ?? t('Obrisan proizvođač')} · {place.campaign?.name}
+                                            {place.status === 'active' && <CancelRequestedBadge at={place.cancel_requested_at} />}
+                                        </p>
+                                        <p className="text-muted-foreground mt-1 text-sm">
+                                            {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
+                                            {formatNumber(place.amount_rsd)} RSD ·{' '}
+                                            {t('zatraženo :when', { when: formatRelativeTime(place.created_at) })}
+                                            {place.campaign && ` · ${formatDate(place.campaign.starts_on)} – ${formatDate(place.campaign.ends_on)}`}
+                                        </p>
+                                    </div>
+                                    {filters.status !== 'ended' && (
+                                        <PaidItemActions
+                                            item={place}
+                                            what={t('učešće „:name” u kampanji', { name: place.producer?.name ?? '' })}
+                                            onConfirm={() => confirm(place)}
+                                        />
+                                    )}
+                                </div>
+                                <RefundLine item={place} />
+                            </div>
                         ))}
                     </div>
-                )}
-                <Pagination meta={campaigns} />
-            </section>
+                ))}
+
+            {places && <Pagination meta={places} />}
         </AdminLayout>
     );
 }

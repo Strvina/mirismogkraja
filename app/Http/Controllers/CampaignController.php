@@ -6,11 +6,13 @@ use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Models\Producer;
 use App\Notifications\SiteNotification;
+use App\Services\CancellationService;
 use App\Services\PaymentSlipPdf;
 use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
 use App\Support\Admins;
 use App\Support\PageMeta;
+use App\Support\PaidItems;
 use App\Support\PaymentReference;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -68,6 +70,7 @@ class CampaignController extends Controller
                 'status' => $place->status,
                 'amount_rsd' => $place->amount_rsd,
                 'cancel_requested_at' => $place->cancel_requested_at,
+                'refund' => CancellationService::refundState($place),
                 'slip' => $place->status === CampaignParticipant::STATUS_PENDING ? $slips->detailsFor($place) : null,
                 'download_url' => $place->status === CampaignParticipant::STATUS_PENDING ? route('campaigns.slip', $place) : null,
             ]),
@@ -103,13 +106,13 @@ class CampaignController extends Controller
                 'cancel_requested_at' => null,
             ])->save();
 
-            $request->user()->notify(SiteNotification::campaignRequested($campaign->name, $place->amount_rsd, $place->reference, route('campaigns.index')));
+            $request->user()->notify(SiteNotification::campaignRequested($campaign->name, $place->amount_rsd, $place->reference, PaidItems::slipUrl($place)));
             Admins::notify(SiteNotification::forAdmins('campaign-requested', [
                 'producer' => $producer->name,
                 'campaign' => $campaign->name,
                 'amount' => number_format($place->amount_rsd, 0, ',', '.'),
                 'reference' => $place->reference,
-            ], route('admin.campaigns.index')));
+            ], PaidItems::adminUrl($place)));
         }
 
         return back()->with('status', __('Prijava je zabeležena. Uplatite iznos i mi ćemo vas uključiti u kampanju.'));

@@ -107,7 +107,7 @@ export default function ProducersIndex({
                 <p className="text-muted-foreground py-16 text-center text-sm">{t('Nema proizvođača za prikaz.')}</p>
             ) : (
                 <>
-                    <div className={cn('grid gap-6 md:grid-cols-2 xl:grid-cols-3', featured.length === 0 && 'mt-10')}>
+                    <div className={cn('grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4', featured.length === 0 && 'mt-10')}>
                         {producers.data.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} />
                         ))}

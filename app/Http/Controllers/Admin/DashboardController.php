@@ -51,7 +51,8 @@ class DashboardController extends Controller
                 ['label' => __('prijava za kampanju čeka potvrdu'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_PENDING)->count(), 'href' => route('admin.campaigns.index')],
                 ['label' => __('zahteva za otkazivanje članarine'), 'count' => ProducerSubscription::where('status', ProducerSubscription::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.memberships.index', ['status' => 'active'])],
                 ['label' => __('zahteva za otkazivanje isticanja'), 'count' => Boost::where('status', Boost::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.boosts.index', ['status' => 'active'])],
-                ['label' => __('zahteva za otkazivanje učešća u kampanji'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.campaigns.index')],
+                ['label' => __('zahteva za otkazivanje učešća u kampanji'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_ACTIVE)->whereNotNull('cancel_requested_at')->count(), 'href' => route('admin.campaigns.index', ['status' => 'active'])],
+                ['label' => __('povraćaja novca čeka isplatu'), 'count' => $this->refundsDue(), 'href' => $this->refundsDueHref()],
                 ['label' => __('utisaka čeka odobrenje'), 'count' => Review::pending()->count(), 'href' => route('admin.reviews.index', ['status' => 'pending'])],
                 ['label' => __('zahteva za izmenu naziva'), 'count' => ProducerChangeRequest::pending()->count(), 'href' => route('admin.change-requests.index')],
                 ['label' => __('otvorenih prijava problema'), 'count' => Report::open()->count(), 'href' => route('admin.reports.index')],
@@ -112,14 +113,33 @@ class DashboardController extends Controller
      * @param  Builder<Model>  $payments
      * @return array{total: int, month: int}
      */
+    private function refundsDue(): int
+    {
+        return ProducerSubscription::refundDue()->count() + Boost::refundDue()->count() + CampaignParticipant::refundDue()->count();
+    }
+
+    /** The first queue that has a refund waiting; they sit on the cancelled tab. */
+    private function refundsDueHref(): string
+    {
+        return match (true) {
+            ProducerSubscription::refundDue()->exists() => route('admin.memberships.index', ['status' => 'cancelled']),
+            Boost::refundDue()->exists() => route('admin.boosts.index', ['status' => 'cancelled']),
+            default => route('admin.campaigns.index', ['status' => 'cancelled']),
+        };
+    }
+
     private function earned(Builder $payments): array
     {
+        // Money sent back is subtracted, in the month it was sent.
         $row = $payments
             ->whereNotNull('confirmed_at')
             ->where('amount_rsd', '>', 0)
             ->toBase()
-            ->selectRaw('coalesce(sum(amount_rsd), 0) as total')
-            ->selectRaw('coalesce(sum(case when confirmed_at >= ? then amount_rsd else 0 end), 0) as month', [now()->startOfMonth()])
+            ->selectRaw('coalesce(sum(amount_rsd - case when refunded_at is not null then refund_rsd else 0 end), 0) as total')
+            ->selectRaw(
+                'coalesce(sum(case when confirmed_at >= ? then amount_rsd else 0 end) - sum(case when refunded_at >= ? then refund_rsd else 0 end), 0) as month',
+                [now()->startOfMonth(), now()->startOfMonth()],
+            )
             ->first();
 
         return ['total' => (int) $row->total, 'month' => (int) $row->month];

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Boost;
 use App\Models\Producer;
 use App\Services\BoostService;
+use App\Services\CancellationService;
 use App\Services\PaymentSlipPdf;
 use App\Services\PaymentSlipService;
 use Illuminate\Http\RedirectResponse;
@@ -51,6 +52,7 @@ class BoostController extends Controller
                 'ends_at' => $boost->ends_at,
                 'created_at' => $boost->created_at,
                 'cancel_requested_at' => $boost->cancel_requested_at,
+                'refund' => CancellationService::refundState($boost),
                 // Everything the producer needs to pay, for the unpaid ones.
                 'slip' => $boost->status === Boost::STATUS_PENDING ? $slips->detailsFor($boost) : null,
                 'download_url' => $boost->status === Boost::STATUS_PENDING ? route('boosts.slip', $boost) : null,

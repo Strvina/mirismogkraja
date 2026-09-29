@@ -54,14 +54,21 @@ return [
         'cancelled' => ['title' => 'Campaign place cancelled', 'body' => 'You are no longer on the “:campaign” campaign page. Contact us if you have any questions.'],
     ],
 
+    'refund' => [
+        'decided' => ['title' => 'We are refunding :amount RSD', 'body' => ':what_label “:name” has been cancelled. We are sending the money to account :account and will let you know once it is paid.'],
+        'needs-account' => ['title' => 'We are refunding :amount RSD', 'body' => ':what_label “:name” has been cancelled. Open this notification and enter the account we should send the money to.'],
+        'paid' => ['title' => 'Refund sent', 'body' => ':amount RSD for :what_label “:name” has been paid to account :account.'],
+    ],
+
     'admin' => [
         'producer-pending' => ['title' => 'New producer awaiting approval', 'body' => '“:producer” (:city).'],
         'membership-requested' => ['title' => 'New membership payment', 'body' => '“:producer” — plan :plan, :amount RSD, reference :reference.'],
         'boost-requested' => ['title' => 'New boost payment', 'body' => '“:producer” — :name, :amount RSD, reference :reference.'],
         'campaign-requested' => ['title' => 'New campaign sign-up', 'body' => '“:producer” — :campaign, :amount RSD, reference :reference.'],
-        'cancel-requested' => ['title' => 'Cancellation request', 'body' => '“:producer” asks to cancel: :what.'],
+        'cancel-requested' => ['title' => 'Cancellation request', 'body' => '“:producer” asks to cancel: :what_label “:name”.'],
         'review-pending' => ['title' => 'New review awaiting approval', 'body' => 'About “:producer”, rating :rating/5.'],
         'report-opened' => ['title' => 'New problem report', 'body' => ':subject — :reason.'],
         'change-requested' => ['title' => 'Name change request', 'body' => '“:current” wants to be called “:requested”.'],
+        'refund-account' => ['title' => 'Refund account', 'body' => '“:producer” is waiting for a refund of :amount RSD to account :account.'],
     ],
 ];

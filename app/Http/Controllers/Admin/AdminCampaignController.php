@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Notifications\SiteNotification;
+use App\Services\CancellationService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -13,38 +15,56 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Seasonal campaigns in the admin panel (task 20.3): creating them, and
- * confirming the producers who paid to join.
+ * Seasonal campaigns in the admin panel (task 20.3): creating and editing
+ * them on the settings tab, and the producers who paid to join, by status,
+ * on the others.
  */
 class AdminCampaignController extends Controller
 {
-    public function index(): Response
+    /**
+     * A place has no "expired" status of its own: it is over when its
+     * campaign is, so "ended" is an active place in a finished campaign.
+     */
+    private const TABS = ['settings', CampaignParticipant::STATUS_PENDING, CampaignParticipant::STATUS_ACTIVE, 'ended', CampaignParticipant::STATUS_CANCELLED];
+
+    public function index(Request $request, CancellationService $cancellations): Response
     {
+        $status = $request->string('status')->toString();
+
+        if (! in_array($status, self::TABS, true)) {
+            $status = CampaignParticipant::STATUS_PENDING;
+        }
+
         return Inertia::render('admin/campaigns/index', [
-            'campaigns' => Campaign::query()
+            'filters' => ['status' => $status],
+            'counts' => $this->counts(),
+            // Only the open tab's data is loaded: the places, or the campaigns.
+            'campaigns' => $status === 'settings' ? Campaign::query()
                 ->withCount([
                     'participants as active_count' => fn ($query) => $query->where('status', CampaignParticipant::STATUS_ACTIVE),
                     'participants as pending_count' => fn ($query) => $query->where('status', CampaignParticipant::STATUS_PENDING),
                 ])
                 ->orderByDesc('starts_on')
-                ->paginate(20),
-            // Every unpaid place across campaigns - the admin's to-do list.
-            'pending' => CampaignParticipant::query()
-                ->where('status', CampaignParticipant::STATUS_PENDING)
-                ->with(['campaign:id,name', 'producer:id,name,slug'])
-                ->oldest()
-                ->limit(100)
-                ->get(['id', 'campaign_id', 'household_id', 'reference', 'amount_rsd', 'created_at']),
-            // Places that are running, asked-to-cancel first - so the admin
-            // can deactivate one, on request or otherwise.
-            'active' => CampaignParticipant::query()
-                ->where('status', CampaignParticipant::STATUS_ACTIVE)
-                ->whereHas('campaign', fn ($query) => $query->whereDate('ends_on', '>=', today()))
-                ->with(['campaign:id,name', 'producer:id,name,slug'])
+                ->paginate(20)
+                ->withQueryString() : null,
+            'places' => $status === 'settings' ? null : $this->places($status)
+                ->with(['campaign:id,name,slug,starts_on,ends_on', 'producer:id,name,slug'])
+                // What needs acting on leads: a request to cancel, a refund to send.
                 ->orderByRaw('cancel_requested_at is null')
-                ->latest('confirmed_at')
-                ->limit(100)
-                ->get(['id', 'campaign_id', 'household_id', 'reference', 'amount_rsd', 'created_at', 'cancel_requested_at']),
+                ->orderByRaw('(refund_rsd > 0 and refunded_at is null) desc')
+                ->latest()
+                ->paginate(30)
+                ->withQueryString()
+                ->through(fn (CampaignParticipant $place) => [
+                    'id' => $place->id,
+                    'status' => $place->status,
+                    'reference' => $place->reference,
+                    'amount_rsd' => $place->amount_rsd,
+                    'created_at' => $place->created_at,
+                    'campaign' => $place->campaign?->only(['id', 'name', 'slug', 'starts_on', 'ends_on']),
+                    'producer' => $place->producer?->only(['id', 'name', 'slug']),
+                    ...$cancellations->adminFields($place),
+                ]),
         ]);
     }
 
@@ -76,6 +96,7 @@ class AdminCampaignController extends Controller
         ]);
 
         $participant->loadMissing(['campaign', 'producer.user']);
+        // Straight to the campaign's page, where the producer now is.
         $participant->producer->user?->notify(SiteNotification::campaignJoined(
             $participant->campaign->name,
             route('campaigns.show', $participant->campaign->slug),
@@ -84,19 +105,33 @@ class AdminCampaignController extends Controller
         return back();
     }
 
-    /** Cancel an unpaid place, or deactivate a running one; see AdminMembershipController::cancel(). */
-    public function cancel(CampaignParticipant $participant): RedirectResponse
+    /** @return Builder<CampaignParticipant> */
+    private function places(string $tab): Builder
     {
-        $wasActive = $participant->status === CampaignParticipant::STATUS_ACTIVE;
+        $running = fn (Builder $query) => $query->whereDate('ends_on', '>=', today());
 
-        $participant->update(['status' => CampaignParticipant::STATUS_CANCELLED]);
+        return match ($tab) {
+            CampaignParticipant::STATUS_ACTIVE => CampaignParticipant::where('status', $tab)->whereHas('campaign', $running),
+            'ended' => CampaignParticipant::where('status', CampaignParticipant::STATUS_ACTIVE)->whereDoesntHave('campaign', $running),
+            default => CampaignParticipant::where('status', $tab),
+        };
+    }
 
-        if ($wasActive) {
-            $participant->loadMissing(['campaign', 'producer.user']);
-            $participant->producer?->user?->notify(SiteNotification::campaignCancelled($participant->campaign->name, route('campaigns.index')));
-        }
+    /** @return array<string, int> */
+    private function counts(): array
+    {
+        $byStatus = CampaignParticipant::countsByStatus();
+        $running = CampaignParticipant::where('status', CampaignParticipant::STATUS_ACTIVE)
+            ->whereHas('campaign', fn (Builder $query) => $query->whereDate('ends_on', '>=', today()))
+            ->count();
 
-        return back();
+        return [
+            CampaignParticipant::STATUS_PENDING => $byStatus[CampaignParticipant::STATUS_PENDING],
+            CampaignParticipant::STATUS_ACTIVE => $running,
+            'ended' => $byStatus[CampaignParticipant::STATUS_ACTIVE] - $running,
+            CampaignParticipant::STATUS_CANCELLED => $byStatus[CampaignParticipant::STATUS_CANCELLED],
+            'refunds_due' => CampaignParticipant::refundDue()->count(),
+        ];
     }
 
     /** @return array<string, mixed> */

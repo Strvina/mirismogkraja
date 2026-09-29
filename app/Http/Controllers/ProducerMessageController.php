@@ -120,9 +120,9 @@ class ProducerMessageController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
             'buyer' => $buyer->only(['id', 'name', 'avatar_path']),
             'isOwner' => $producer->user_id === $request->user()->id,
-            // Both sides see it: the producer to undo it, and both so the
-            // missing message box explains itself.
-            'blocked' => $producer->hasBlocked($buyer),
+            // Both sides see who closed it: that side to undo it, and both
+            // so the missing message box explains itself.
+            'blockedBy' => $producer->blockedBy($buyer),
             // The producer's own note on how this inquiry ended.
             // A closure, like the other props the three-second poll does
             // not ask for, so polling never runs its query.
@@ -214,15 +214,22 @@ class ProducerMessageController extends Controller
     }
 
     /**
-     * The producer stops, or resumes, taking messages from this buyer. Only
-     * for a conversation the buyer started - there is nobody else to block.
+     * Either side closes the conversation, or reopens one it closed itself.
+     * A side cannot lift the other's block - that would make it meaningless.
      */
     public function toggleBlock(Request $request, Producer $producer, User $buyer): RedirectResponse
     {
-        $this->authorize('update', $producer);
         $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
 
-        $producer->blockedBuyers()->toggle($buyer->id);
+        $side = $producer->user_id === $request->user()->id ? 'producer' : 'buyer';
+        $blockedBy = $producer->blockedBy($buyer);
+
+        if ($blockedBy === null) {
+            $producer->blockedBuyers()->attach($buyer->id, ['blocked_by' => $side]);
+        } else {
+            abort_unless($blockedBy === $side, 403);
+            $producer->blockedBuyers()->detach($buyer->id);
+        }
 
         return back();
     }

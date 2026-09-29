@@ -58,14 +58,21 @@ return [
         'cancelled' => ['title' => 'Učešće u kampanji je otkazano', 'body' => 'Više niste na stranici kampanje „:campaign”. Ako imate pitanja, javite nam se.'],
     ],
 
+    'refund' => [
+        'decided' => ['title' => 'Vraćamo vam :amount RSD', 'body' => 'Otkazano: :what_label „:name”. Novac šaljemo na račun :account i javićemo vam kada ga uplatimo.'],
+        'needs-account' => ['title' => 'Vraćamo vam :amount RSD', 'body' => 'Otkazano: :what_label „:name”. Otvorite ovo obaveštenje i unesite broj računa na koji da vratimo novac.'],
+        'paid' => ['title' => 'Novac je vraćen', 'body' => ':amount RSD za :what_label „:name” uplaćeno je na račun :account.'],
+    ],
+
     'admin' => [
         'producer-pending' => ['title' => 'Novi proizvođač čeka odobrenje', 'body' => '„:producer” (:city).'],
         'membership-requested' => ['title' => 'Nova uplata za članarinu', 'body' => '„:producer” — paket :plan, :amount RSD, poziv na broj :reference.'],
         'boost-requested' => ['title' => 'Nova uplata za isticanje', 'body' => '„:producer” — :name, :amount RSD, poziv na broj :reference.'],
         'campaign-requested' => ['title' => 'Nova prijava za kampanju', 'body' => '„:producer” — :campaign, :amount RSD, poziv na broj :reference.'],
-        'cancel-requested' => ['title' => 'Zahtev za otkazivanje', 'body' => '„:producer” traži otkazivanje: :what.'],
+        'cancel-requested' => ['title' => 'Zahtev za otkazivanje', 'body' => '„:producer” traži otkazivanje: :what_label „:name”.'],
         'review-pending' => ['title' => 'Novi utisak čeka odobrenje', 'body' => 'O proizvođaču „:producer”, ocena :rating/5.'],
         'report-opened' => ['title' => 'Nova prijava problema', 'body' => ':subject — :reason.'],
         'change-requested' => ['title' => 'Zahtev za izmenu naziva', 'body' => '„:current” želi da se zove „:requested”.'],
+        'refund-account' => ['title' => 'Račun za povraćaj', 'body' => '„:producer” čeka povraćaj :amount RSD na račun :account.'],
     ],
 ];

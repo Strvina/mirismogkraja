@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
-use App\Notifications\SiteNotification;
+use App\Services\CancellationService;
+use App\Services\FoundingProducerService;
 use App\Services\SubscriptionService;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
@@ -15,36 +16,58 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Monetisation in the admin panel (task 20.9): the plans and their prices,
- * and the payments waiting to be confirmed.
+ * Memberships in the admin panel (task 20.9): on the settings tab, the plans,
+ * the bank details printed on every slip and the founding places; on the
+ * others, the payments by status.
  *
  * Confirming is a human step by design - the money arrives on a bank slip,
  * so somebody has to look at the statement and say it came.
  */
 class AdminMembershipController extends Controller
 {
+    private const PAYMENT_FIELDS = ['recipient', 'address', 'account', 'purpose', 'model', 'code'];
+
     public function __construct(private readonly Settings $settings) {}
 
-    public function index(Request $request): Response
+    public function index(Request $request, CancellationService $cancellations, FoundingProducerService $founding): Response
     {
         $status = $request->string('status')->toString();
 
-        if (! in_array($status, ProducerSubscription::STATUSES, true)) {
+        if ($status !== 'settings' && ! in_array($status, ProducerSubscription::STATUSES, true)) {
             $status = ProducerSubscription::STATUS_PENDING;
         }
 
-        // The list only: plans, prices and the slip's bank details have a
-        // page of their own (admin.billing), so no status tab loads them.
         return Inertia::render('admin/memberships/index', [
-            'subscriptions' => ProducerSubscription::with(['producer:id,name,slug', 'plan:id,name'])
+            'filters' => ['status' => $status],
+            'counts' => [...ProducerSubscription::countsByStatus(), 'refunds_due' => ProducerSubscription::refundDue()->count()],
+            // Only the open tab's data is loaded: the list, or the settings.
+            'settings' => $status === 'settings' ? [
+                'plans' => SubscriptionPlan::orderBy('level')->get(),
+                'featureLabels' => array_map(__(...), SubscriptionPlan::FEATURES),
+                'payment' => collect(self::PAYMENT_FIELDS)
+                    ->mapWithKeys(fn (string $key) => [$key => $this->settings->get('payment.'.$key, (string) config('platform.payment.'.$key))])
+                    ->all(),
+                'founding' => ['limit' => $founding->limit(), 'claimed' => $founding->claimed()],
+            ] : null,
+            'subscriptions' => $status === 'settings' ? null : ProducerSubscription::with(['producer:id,name,slug', 'plan:id,name'])
                 ->where('status', $status)
-                // A request to cancel is the thing to act on, so it leads.
+                // What needs acting on leads: a request to cancel, a refund to send.
                 ->orderByRaw('cancel_requested_at is null')
+                ->orderByRaw('(refund_rsd > 0 and refunded_at is null) desc')
                 ->latest()
                 ->paginate(30)
-                ->withQueryString(),
-            'filters' => ['status' => $status],
-            'counts' => ProducerSubscription::countsByStatus(),
+                ->withQueryString()
+                ->through(fn (ProducerSubscription $subscription) => [
+                    'id' => $subscription->id,
+                    'status' => $subscription->status,
+                    'reference' => $subscription->reference,
+                    'amount_rsd' => $subscription->amount_rsd,
+                    'ends_at' => $subscription->ends_at,
+                    'created_at' => $subscription->created_at,
+                    'producer' => $subscription->producer?->only(['id', 'name', 'slug']),
+                    'plan' => $subscription->plan?->only(['id', 'name']),
+                    ...$cancellations->adminFields($subscription),
+                ]),
         ]);
     }
 
@@ -53,25 +76,6 @@ class AdminMembershipController extends Controller
         abort_unless($subscription->status === ProducerSubscription::STATUS_PENDING, 422);
 
         $subscriptions->confirmPayment($subscription, $request->user()->id);
-
-        return back();
-    }
-
-    /**
-     * Cancel an unpaid request, or deactivate a running membership - at the
-     * producer's request or otherwise. The producer is told when something
-     * they had was taken away; a refund, if any, is agreed off the site.
-     */
-    public function cancel(ProducerSubscription $subscription): RedirectResponse
-    {
-        $wasActive = $subscription->status === ProducerSubscription::STATUS_ACTIVE;
-
-        $subscription->update(['status' => ProducerSubscription::STATUS_CANCELLED]);
-
-        if ($wasActive) {
-            $subscription->loadMissing(['plan', 'producer.user']);
-            $subscription->producer?->user?->notify(SiteNotification::membershipCancelled($subscription->plan?->name ?? '', route('memberships.index')));
-        }
 
         return back();
     }
@@ -114,6 +118,23 @@ class AdminMembershipController extends Controller
         ]);
 
         $plan->update($data);
+
+        return back();
+    }
+
+    /**
+     * How many founding places there are. Never fewer than already given
+     * out: a number, once handed to a producer, is theirs for good.
+     */
+    public function updateFounding(Request $request, FoundingProducerService $founding): RedirectResponse
+    {
+        $data = $request->validate([
+            'limit' => ['required', 'integer', 'min:'.$founding->claimed(), 'max:1000'],
+        ], [
+            'limit.min' => __('Već je dodeljeno :count mesta - broj ne može biti manji.', ['count' => $founding->claimed()]),
+        ]);
+
+        $this->settings->put(['founding.limit' => (string) $data['limit']]);
 
         return back();
     }

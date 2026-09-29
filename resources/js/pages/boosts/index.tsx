@@ -1,6 +1,14 @@
 import InfoHint from '@/components/info-hint';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { CancelRequest, HowItWorks, PaymentStatusBadge, type PaymentStatus } from '@/components/marketplace/payment-status';
+import {
+    CancelRequest,
+    HowItWorks,
+    linkedSlipId,
+    type PaymentStatus,
+    PaymentStatusBadge,
+    type RefundState,
+    RefundStatus,
+} from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatNumber } from '@/lib/format';
@@ -26,6 +34,7 @@ interface BoostRow {
     ends_at: string | null;
     created_at: string;
     cancel_requested_at: string | null;
+    refund: RefundState | null;
     slip: PaymentSlip | null;
     download_url: string | null;
 }
@@ -93,7 +102,7 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
     const producer = producers.find((item) => item.id === producerId) ?? producers[0] ?? null;
     const [productId, setProductId] = useState<string>('');
     const [busy, setBusy] = useState(false);
-    const [slipFor, setSlipFor] = useState<number | null>(null);
+    const [slipFor, setSlipFor] = useState<number | null>(linkedSlipId);
 
     const chosenProduct = productId || String(producer?.products[0]?.id ?? '');
 
@@ -252,7 +261,8 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                         {boosts.map((boost) => (
                             <li
                                 key={boost.id}
-                                className="border-border/70 bg-background flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4"
+                                id={`isticanje-${boost.id}`}
+                                className="border-border/70 bg-background target:ring-gold/60 flex scroll-mt-24 flex-wrap items-center justify-between gap-3 rounded-xl border p-4 target:ring-2"
                             >
                                 <span className="flex min-w-0 items-center gap-3">
                                     <span className="bg-muted grid size-9 shrink-0 place-items-center rounded-full">
@@ -272,7 +282,8 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                                 <span className="flex items-center gap-2">
                                     {boost.status === 'active' && (
                                         <CancelRequest
-                                            href={route('cancellation.boost', boost.id)}
+                                            kind="isticanje"
+                                            id={boost.id}
                                             requestedAt={boost.cancel_requested_at}
                                             what={t('isticanje „:name”', { name: boost.name })}
                                         />
@@ -284,6 +295,11 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                                         </Button>
                                     )}
                                 </span>
+                                {boost.refund && (
+                                    <div className="basis-full">
+                                        <RefundStatus kind="isticanje" id={boost.id} refund={boost.refund} />
+                                    </div>
+                                )}
                             </li>
                         ))}
                     </ul>

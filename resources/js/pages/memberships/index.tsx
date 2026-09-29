@@ -1,5 +1,5 @@
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { CancelRequest, HowItWorks } from '@/components/marketplace/payment-status';
+import { CancelRequest, HowItWorks, linkedSlipId, type RefundState, RefundStatus } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -29,6 +29,14 @@ interface ProducerMembership {
     current_plan: { id: number; name: string; level: number } | null;
     active: { id: number; ends_at: string; cancel_requested_at: string | null } | null;
     pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip; download_url: string } | null;
+    refunds: { id: number; plan: string | null; refund: RefundState }[];
+}
+
+/** The producer a notification link names (?proizvodjac=3), if it is one of theirs. */
+function linkedProducerId(producers: ProducerMembership[]): number | null {
+    const id = Number(new URLSearchParams(window.location.search).get('proizvodjac'));
+
+    return producers.some((producer) => producer.id === id) ? id : null;
 }
 
 /**
@@ -47,11 +55,15 @@ export default function Memberships({
     featureLabels: Record<string, string>;
     producers: ProducerMembership[];
 }) {
-    const [selected, setSelected] = useState<number | null>(producers[0]?.id ?? null);
+    const [selected, setSelected] = useState<number | null>(() => linkedProducerId(producers) ?? producers[0]?.id ?? null);
     // The slip opens by itself the moment a plan is chosen: that is the one
     // thing the producer has to act on, and hiding it behind a second click
     // is how a membership goes unpaid.
-    const [slipOpen, setSlipOpen] = useState(false);
+    const [slipOpen, setSlipOpen] = useState(() => {
+        const linked = linkedSlipId();
+
+        return linked !== null && producers.some((producer) => producer.pending?.id === linked);
+    });
 
     const producer = producers.find((item) => item.id === selected) ?? producers[0] ?? null;
 
@@ -120,14 +132,29 @@ export default function Memberships({
                         </div>
                     )}
 
+                    {producer?.refunds.map((item) => (
+                        <div
+                            key={item.id}
+                            id={`clanarina-${item.id}`}
+                            className="border-border/70 target:ring-gold/60 mt-8 scroll-mt-24 rounded-lg border p-4 text-sm target:ring-2"
+                        >
+                            <p className="font-medium">{t('Otkazan paket „:name”', { name: item.plan ?? '' })}</p>
+                            <RefundStatus kind="clanarina" id={item.id} refund={item.refund} />
+                        </div>
+                    ))}
+
                     {producer?.active && (
-                        <div className="border-olive/30 bg-olive-soft text-olive mt-8 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm">
+                        <div
+                            id={`clanarina-${producer.active.id}`}
+                            className="border-olive/30 bg-olive-soft text-olive target:ring-gold/60 mt-8 flex scroll-mt-24 flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm target:ring-2"
+                        >
                             <p>
                                 {t('Aktivan paket:')} <strong>{producer.current_plan?.name}</strong> —{' '}
                                 {t('važi do :date', { date: formatDate(producer.active.ends_at) })}.
                             </p>
                             <CancelRequest
-                                href={route('cancellation.membership', producer.active.id)}
+                                kind="clanarina"
+                                id={producer.active.id}
                                 requestedAt={producer.active.cancel_requested_at}
                                 what={t('paket „:name”', { name: producer.current_plan?.name ?? '' })}
                             />

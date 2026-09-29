@@ -52,7 +52,8 @@ class ProductController extends Controller
             ? $this->filtered($request)
                 ->whereIn('id', $boosts->runningIds(Boost::PRODUCT))
                 ->inRandomOrder()
-                ->limit(4)
+                // Three: one full row of the larger featured cards.
+                ->limit(3)
                 ->get()
             : collect();
 

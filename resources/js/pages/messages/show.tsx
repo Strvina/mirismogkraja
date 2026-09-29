@@ -90,7 +90,7 @@ export default function MessageThread({
     buyer,
     messages,
     isOwner,
-    blocked,
+    blockedBy,
     reportReasons,
     outcome,
     outcomeLabels,
@@ -100,7 +100,7 @@ export default function MessageThread({
     /** A simple paginator: it knows whether older messages exist, not how many. */
     messages: { data: Message[]; current_page: number; next_page_url: string | null };
     isOwner: boolean;
-    blocked: boolean;
+    blockedBy: 'producer' | 'buyer' | null;
     reportReasons: Record<string, string>;
     outcome: string | null;
     outcomeLabels: Record<string, string>;
@@ -127,7 +127,11 @@ export default function MessageThread({
     // read straight away and never lights the badge up. Inertia throttles
     // the poll by itself while the tab is in the background, and the visit
     // preserves scroll and local state, so a half-typed message survives it.
-    const poll = usePoll(3000, { only: ['messages', 'unreadMessages', 'blocked'] });
+    const poll = usePoll(3000, { only: ['messages', 'unreadMessages', 'blockedBy'] });
+
+    const blocked = blockedBy !== null;
+    // Only the side that closed the conversation can open it again.
+    const blockedByMe = blockedBy === (isOwner ? 'producer' : 'buyer');
 
     const toggleBlock = () => {
         if (
@@ -135,9 +139,7 @@ export default function MessageThread({
             confirm(
                 t(
                     'Blokirati razgovor sa korisnikom :name? Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.',
-                    {
-                        name: buyer.name,
-                    },
+                    { name: isOwner ? buyer.name : producer.name },
                 ),
             )
         ) {
@@ -339,16 +341,20 @@ export default function MessageThread({
                         )}
                     </div>
 
-                    {/* The producer's defence against a buyer who will not
-                        stop: refuse their messages, or report them. */}
-                    {isOwner && (
-                        <div className="flex shrink-0 items-center gap-1">
+                    {/* Either side's defence against the other: close the
+                        conversation, or report them to us. */}
+                    <div className="flex shrink-0 items-center gap-1">
+                        {(!blocked || blockedByMe) && (
                             <Button variant="ghost" size="sm" onClick={toggleBlock}>
-                                {blocked ? 'Odblokiraj' : 'Blokiraj'}
+                                {blocked ? t('Odblokiraj') : t('Blokiraj')}
                             </Button>
+                        )}
+                        {isOwner ? (
                             <ReportButton type="user" id={buyer.id} reasons={reportReasons} />
-                        </div>
-                    )}
+                        ) : (
+                            <ReportButton type="household" id={producer.id} reasons={reportReasons} />
+                        )}
+                    </div>
                 </header>
 
                 {/* The producer's own note on how the inquiry ended. Optional,
@@ -482,11 +488,13 @@ export default function MessageThread({
                 {blocked ? (
                     <p className="border-border/70 bg-muted/50 text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-sm">
                         <Ban className="size-4 shrink-0" aria-hidden />
-                        {isOwner
+                        {blockedByMe
                             ? t('Blokirali ste ovaj razgovor — ni vi ni :name ne možete da šaljete poruke. Odblokirajte ga da biste nastavili.', {
-                                  name: buyer.name,
+                                  name: isOwner ? buyer.name : producer.name,
                               })
-                            : t('Proizvođač je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.')}
+                            : isOwner
+                              ? t('Kupac je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.')
+                              : t('Proizvođač je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.')}
                     </p>
                 ) : (
                     <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">

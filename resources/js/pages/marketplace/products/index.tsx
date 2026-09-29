@@ -109,7 +109,7 @@ export default function ProductsIndex({
                                 </>
                             }
                         >
-                            <div className="grid grid-cols-2 gap-5 xl:grid-cols-4">
+                            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                                 {featured.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
                                 ))}
@@ -121,7 +121,7 @@ export default function ProductsIndex({
                         <p className="text-muted-foreground py-16 text-center text-sm">{t('Nema proizvoda za odabrane filtere.')}</p>
                     ) : (
                         <>
-                            <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
                                 {products.data.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} />
                                 ))}

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class NotificationController extends Controller
 {
@@ -32,13 +33,18 @@ class NotificationController extends Controller
      * about, so the bell empties itself by being used rather than needing a
      * separate "mark as read" step.
      */
-    public function open(Request $request, string $notification): RedirectResponse
+    public function open(Request $request, string $notification): RedirectResponse|SymfonyResponse
     {
         $record = $request->user()->notifications()->findOrFail($notification);
 
         $record->markAsRead();
 
-        return redirect($record->data['url'] ?? route('notifications.index'));
+        $url = $record->data['url'] ?? route('notifications.index');
+
+        // A link to one row (#isticanje-12) needs a real page load: a
+        // redirect followed by XHR drops the fragment, and with it the
+        // scroll to that row.
+        return str_contains($url, '#') ? Inertia::location($url) : redirect($url);
     }
 
     /** One UPDATE, rather than loading every unread row to save it back. */
