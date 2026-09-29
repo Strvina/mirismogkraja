@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Producer;
 use App\Models\Report;
 use App\Models\Review;
+use App\Services\SubscriptionService;
 use App\Support\PageMeta;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,21 +21,29 @@ class ProducerController extends Controller
      * their card shows (task 13): rating, review count and the latest few
      * reviews with their authors.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, SubscriptionService $subscriptions): Response
     {
-        $producers = Producer::published()
-            // What the card shows, not the story and contact details behind it.
-            ->select(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods'])
-            ->when($request->string('city')->toString(), fn ($query, $city) => $query->where('city', $city))
-            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
-            ->withCount([
-                'reviews' => fn ($query) => $query->approved(),
-                'products' => fn ($query) => $query->where('status', 'active'),
-            ])
-            ->with(['reviews' => fn ($query) => $query->approved()->latest()->limit(2)->with('user:id,name,avatar_path')])
+        $city = $request->string('city')->toString();
+
+        $producers = $this->cards($city)
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
+
+        // Paid placement lives in its own labelled row above the directory,
+        // never mixed into it: the list below stays alphabetical for
+        // everyone, and a visitor can always tell what was paid for. The
+        // row is drawn at random from the paying producers on each visit,
+        // so no single one holds the top for good (task 20.2).
+        $featured = $producers->onFirstPage()
+            ? $this->cards($city)
+                ->whereIn('id', $subscriptions->producerIdsWith('featured_section'))
+                ->inRandomOrder()
+                ->limit(3)
+                ->get()
+            : collect();
+
+        $subscriptions->markPremium($producers->getCollection()->concat($featured));
 
         $cities = Producer::published()
             ->whereNotNull('city')
@@ -43,16 +53,36 @@ class ProducerController extends Controller
 
         return Inertia::render('marketplace/producers/index', [
             'producers' => $producers,
+            'featured' => $featured,
             'cities' => $cities,
             'filters' => ['city' => $request->string('city')->toString() ?: null],
         ]);
     }
 
     /**
+     * Published producers with everything their card shows - and not the
+     * story and contact details behind it.
+     *
+     * @return Builder<Producer>
+     */
+    private function cards(string $city): Builder
+    {
+        return Producer::published()
+            ->select(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods'])
+            ->when($city, fn ($query) => $query->where('city', $city))
+            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
+            ->withCount([
+                'reviews' => fn ($query) => $query->approved(),
+                'products' => fn ($query) => $query->where('status', 'active'),
+            ])
+            ->with(['reviews' => fn ($query) => $query->approved()->latest()->limit(2)->with('user:id,name,avatar_path')]);
+    }
+
+    /**
      * Show a producer's public page. Only 'active' producers (approved by
      * an admin, task 2.6) are publicly visible - pending/blocked ones 404.
      */
-    public function show(Producer $producer): Response
+    public function show(Producer $producer, SubscriptionService $subscriptions): Response
     {
         if ($producer->status !== 'active') {
             throw new NotFoundHttpException;
@@ -73,6 +103,7 @@ class ProducerController extends Controller
                 $producer->cover_image_path ?? $producer->logo_path,
                 'profile',
             ),
+            'isPremium' => $subscriptions->hasFeature($producer, 'premium_badge'),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'products' => $producer->products()
                 ->where('status', 'active')

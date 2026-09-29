@@ -8,7 +8,11 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { BadgeCheck, Ban, Check, Pencil, RotateCcw } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
-type AdminProducer = Producer & { user: { id: number; name: string; email: string }; products_count: number };
+type AdminProducer = Producer & {
+    user: { id: number; name: string; email: string };
+    products_count: number;
+    current_membership: { plan: { id: number; name: string; level: number } | null } | null;
+};
 
 const statusLabels: Record<Producer['status'], string> = {
     pending: 'Na čekanju',
@@ -144,6 +148,11 @@ export default function AdminProducersIndex({
                                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusClasses[producer.status]}`}>
                                         {statusLabels[producer.status]}
                                     </span>
+                                    {producer.current_membership?.plan && (
+                                        <span className="border-gold/40 text-gold rounded-full border px-2 py-0.5 text-xs font-medium">
+                                            {producer.current_membership.plan.name}
+                                        </span>
+                                    )}
                                 </div>
                                 <p className="text-muted-foreground mt-1 text-xs break-words">
                                     {producer.user.name} · {producer.user.email} · {producer.products_count} proizvoda

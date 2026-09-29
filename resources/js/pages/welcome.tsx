@@ -74,11 +74,13 @@ function Section({
 }
 
 export default function Welcome({
+    featuredProducers,
     newProducers,
     popularProducers,
     popularProducts,
     categories,
 }: {
+    featuredProducers: HomeProducer[];
     newProducers: HomeProducer[];
     popularProducers: HomeProducer[];
     popularProducts: HomeProduct[];
@@ -186,6 +188,22 @@ export default function Welcome({
                         ))}
                     </div>
                 </section>
+
+                {featuredProducers.length > 0 && (
+                    <Section
+                        eyebrow="Istaknuto"
+                        title="Istaknuti proizvođači"
+                        lead="Proizvođači koji su se predstavili na početnoj strani."
+                        moreHref={route('marketplace.producers.index')}
+                        moreLabel="Svi proizvođači"
+                    >
+                        <CardSlider label="Istaknuti proizvođači">
+                            {featuredProducers.map((producer) => (
+                                <HomeProducerCard key={producer.id} producer={producer} featured />
+                            ))}
+                        </CardSlider>
+                    </Section>
+                )}
 
                 {newProducers.length > 0 && (
                     <Section
