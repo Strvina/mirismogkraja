@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
+import { shrinkImage } from '@/lib/shrink-image';
 import { mobileNumberForApps, trackContact } from '@/lib/statistics';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -358,7 +359,10 @@ export default function ProducerShow({
                                 id="review-image"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    setImage(file ? await shrinkImage(file) : null);
+                                }}
                                 className="border-input bg-background w-full max-w-xs rounded-md border px-3 py-2 text-sm"
                             />
                         </div>

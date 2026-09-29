@@ -1,11 +1,13 @@
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 import ProducerForm from './producer-form';
 
 interface GalleryImage {
@@ -24,6 +26,9 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
         images: [],
         captions: [],
     });
+    const [preparing, setPreparing] = useState(false);
+    // Per-file errors arrive as images.0, images.1, ...; the first says enough.
+    const imageError = errors.images ?? Object.entries(errors).find(([key]) => key.startsWith('images.'))?.[1];
 
     const uploadImages: FormEventHandler = (e) => {
         e.preventDefault();
@@ -81,9 +86,14 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                             type="file"
                             accept="image/*"
                             multiple
-                            onChange={(e) => setData('images', Array.from(e.target.files ?? []))}
+                            onChange={async (e) => {
+                                const files = Array.from(e.target.files ?? []);
+                                setPreparing(true);
+                                setData('images', await shrinkImages(files));
+                                setPreparing(false);
+                            }}
                         />
-                        {errors.images && <p className="text-destructive text-sm">{errors.images}</p>}
+                        <InputError message={imageError} />
                     </div>
 
                     {data.images.map((file, index) => (
@@ -101,7 +111,7 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                         />
                     ))}
 
-                    <Button disabled={processing || data.images.length === 0}>Otpremi</Button>
+                    <Button disabled={processing || preparing || data.images.length === 0}>{preparing ? 'Pripremam…' : 'Otpremi'}</Button>
                 </form>
             </section>
         </MarketplaceLayout>
