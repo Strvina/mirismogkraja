@@ -1,10 +1,11 @@
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
+import { HowItWorks } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Check, ReceiptText } from 'lucide-react';
+import { CalendarCheck, Check, MousePointerClick, ReceiptText } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Članarina', href: '/clanarina' }];
@@ -72,6 +73,24 @@ export default function Memberships({
             <p className="text-muted-foreground mt-3 max-w-xl leading-7">
                 Vrelina juga ne uzima procenat od vaše prodaje — sav novac od prodatog ostaje vama. Platforma se izdržava od godišnje članarine.
             </p>
+
+            <div className="mt-8">
+                <HowItWorks
+                    steps={[
+                        {
+                            icon: MousePointerClick,
+                            title: 'Izaberite paket',
+                            text: 'Viši paket donosi oznaku Premium, istaknuto mesto i statistiku.',
+                        },
+                        { icon: ReceiptText, title: 'Uplatite', text: 'Uplatnica sa QR kodom se otvara odmah — platite u banci ili aplikaciji.' },
+                        {
+                            icon: CalendarCheck,
+                            title: 'Važi godinu dana',
+                            text: 'Aktiviramo čim uplata stigne. Dve nedelje pred istek podsetićemo vas; profil ostaje na sajtu i posle.',
+                        },
+                    ]}
+                />
+            </div>
 
             {producers.length === 0 ? (
                 <p className="text-muted-foreground mt-8 text-sm">Članarina se odnosi na stranicu proizvođača, a vi je još nemate.</p>
