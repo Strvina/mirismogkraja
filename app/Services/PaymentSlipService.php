@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\ProducerSubscription;
+use App\Contracts\Payable;
 use App\Support\Settings;
 
 /**
- * The details a producer needs to pay a membership, in the shape a Serbian
- * payment slip and a bank application expect (task 20.1).
+ * The details a producer needs to pay for something - a membership, a boost
+ * - in the shape a Serbian payment slip and a bank application expect
+ * (task 20.1).
  *
  * The QR payload follows the NBS IPS QR specification, which is what every
  * banking app in Serbia scans: fields separated by '|', a fixed header, the
@@ -28,21 +29,21 @@ class PaymentSlipService
     /**
      * @return array<string, string>
      */
-    public function detailsFor(ProducerSubscription $subscription): array
+    public function detailsFor(Payable $payable): array
     {
-        $subscription->loadMissing(['plan', 'producer.user']);
+        $payable->paymentProducer()->loadMissing('user');
 
         return [
             'recipient' => $this->setting('recipient'),
             'recipient_address' => $this->setting('address'),
             'account' => $this->setting('account'),
-            'purpose' => $this->purposeFor($subscription),
+            'purpose' => $this->purposeFor($payable),
             'payment_code' => $this->setting('code'),
             'model' => $this->setting('model'),
-            'reference' => $subscription->reference,
-            'amount' => number_format($subscription->amount_rsd, 2, ',', '.'),
-            'payer' => $this->payerFor($subscription),
-            'qr' => $this->qrPayload($subscription),
+            'reference' => $payable->paymentReference(),
+            'amount' => number_format($payable->paymentAmount(), 2, ',', '.'),
+            'payer' => $this->payerFor($payable),
+            'qr' => $this->qrPayload($payable),
         ];
     }
 
@@ -51,9 +52,9 @@ class PaymentSlipService
      * must not have to type is in here: account, amount, reference and
      * purpose.
      */
-    public function qrPayload(ProducerSubscription $subscription): string
+    public function qrPayload(Payable $payable): string
     {
-        $subscription->loadMissing(['producer.user']);
+        $payable->paymentProducer()->loadMissing('user');
         $address = $this->setting('address');
 
         $fields = [
@@ -62,29 +63,31 @@ class PaymentSlipService
             'C:1',
             'R:'.$this->accountDigits($this->setting('account')),
             'N:'.$this->clean($this->setting('recipient').($address ? "\n".$address : '')),
-            'I:RSD'.number_format($subscription->amount_rsd, 2, ',', ''),
-            'P:'.$this->clean($this->payerFor($subscription)),
+            'I:RSD'.number_format($payable->paymentAmount(), 2, ',', ''),
+            'P:'.$this->clean($this->payerFor($payable)),
             'SF:'.$this->setting('code'),
-            'S:'.$this->clean($this->purposeFor($subscription)),
-            'RO:'.$this->setting('model').str_replace('-', '', $subscription->reference),
+            'S:'.$this->clean($this->purposeFor($payable)),
+            'RO:'.$this->setting('model').str_replace('-', '', $payable->paymentReference()),
         ];
 
         return implode('|', $fields);
     }
 
     /** The person paying, not the business they registered. */
-    private function payerFor(ProducerSubscription $subscription): string
+    private function payerFor(Payable $payable): string
     {
-        return $subscription->producer->user?->name ?? $subscription->producer->name;
+        $producer = $payable->paymentProducer();
+
+        return $producer->user?->name ?? $producer->name;
     }
 
     /**
-     * Names the producer the membership is for, so the payee can tell two
+     * What the money is for, naming the producer, so the payee can tell two
      * slips from the same person apart.
      */
-    private function purposeFor(ProducerSubscription $subscription): string
+    private function purposeFor(Payable $payable): string
     {
-        return $this->setting('purpose').' - '.$subscription->producer->name;
+        return ($payable->paymentPurpose() ?? $this->setting('purpose')).' - '.$payable->paymentProducer()->name;
     }
 
     private function setting(string $key): string

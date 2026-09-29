@@ -1,11 +1,14 @@
 <?php
 
+/*
+ * Defaults for what the owner edits in the admin panel. The values in use
+ * are settings (App\Support\Settings); these only apply until the owner has
+ * saved their own, so a fresh install still prints a complete slip.
+ */
 return [
     /*
-     * Where a producer's membership payment goes. Memberships are paid by
-     * bank slip, so these details end up printed on a piece of paper - they
-     * belong in configuration the owner can change per environment, not in a
-     * component.
+     * Where payments by bank slip go - printed on every slip and built into
+     * its QR code.
      */
     'payment' => [
         'recipient' => env('PLATFORM_PAYMENT_RECIPIENT', 'Vrelina juga'),
@@ -18,5 +21,14 @@ return [
          * which is what a membership is.
          */
         'code' => env('PLATFORM_PAYMENT_CODE', '221'),
+    ],
+
+    /*
+     * Paid boosts (task 20.2), in whole dinars and days.
+     */
+    'boost' => [
+        'profile_price' => 1000,
+        'product_price' => 800,
+        'days' => 7,
     ],
 ];
