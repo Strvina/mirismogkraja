@@ -34,16 +34,13 @@ class ProducerMessagePolicy
     }
 
     /**
-     * Writing into a thread: whoever may read it, except a buyer the
-     * producer has blocked. The thread stays readable to them - blocking
-     * stops what comes next, it does not take back what was said.
+     * Writing into a thread: whoever may read it, unless the producer has
+     * blocked it. A block closes the conversation both ways - a producer who
+     * could still write to someone who cannot answer would be one-sided -
+     * and the history stays readable to both.
      */
     public function send(User $user, Producer $producer, User $buyer): bool
     {
-        if (! $this->viewThread($user, $producer, $buyer)) {
-            return false;
-        }
-
-        return $producer->user_id === $user->id || ! $producer->hasBlocked($buyer);
+        return $this->viewThread($user, $producer, $buyer) && ! $producer->hasBlocked($buyer);
     }
 }

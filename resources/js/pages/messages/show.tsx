@@ -1,3 +1,4 @@
+import InfoHint from '@/components/info-hint';
 import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -5,7 +6,7 @@ import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
-import { ImageOff, SendHorizontal, TriangleAlert } from 'lucide-react';
+import { Ban, Check, ImageOff, SendHorizontal, TriangleAlert } from 'lucide-react';
 import { FormEventHandler, KeyboardEventHandler, useLayoutEffect, useRef, useState } from 'react';
 
 interface Message {
@@ -128,7 +129,12 @@ export default function MessageThread({
     const poll = usePoll(3000, { only: ['messages', 'unreadMessages', 'blocked'] });
 
     const toggleBlock = () => {
-        if (blocked || confirm(`Blokirati poruke od korisnika ${buyer.name}? Neće moći da vam piše dok ga ne odblokirate.`)) {
+        if (
+            blocked ||
+            confirm(
+                `Blokirati razgovor sa korisnikom ${buyer.name}? Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.`,
+            )
+        ) {
             router.patch(route('messages.block', [producer.id, buyer.id]), {}, { preserveScroll: true });
         }
     };
@@ -331,27 +337,6 @@ export default function MessageThread({
                         stop: refuse their messages, or report them. */}
                     {isOwner && (
                         <div className="flex shrink-0 items-center gap-1">
-                            {/* The producer's own record of how this ended. */}
-                            <select
-                                aria-label="Ishod upita (samo za vašu evidenciju)"
-                                title="Samo za vašu evidenciju"
-                                value={outcome ?? ''}
-                                onChange={(e) =>
-                                    router.patch(
-                                        route('messages.outcome', [producer.id, buyer.id]),
-                                        { status: e.target.value || null },
-                                        { preserveScroll: true },
-                                    )
-                                }
-                                className="border-input bg-background h-8 rounded-md border px-2 text-xs"
-                            >
-                                <option value="">Ishod…</option>
-                                {Object.entries(outcomeLabels).map(([value, label]) => (
-                                    <option key={value} value={value}>
-                                        {label}
-                                    </option>
-                                ))}
-                            </select>
                             <Button variant="ghost" size="sm" onClick={toggleBlock}>
                                 {blocked ? 'Odblokiraj' : 'Blokiraj'}
                             </Button>
@@ -359,6 +344,53 @@ export default function MessageThread({
                         </div>
                     )}
                 </header>
+
+                {/* The producer's own note on how the inquiry ended. Optional,
+                    invisible to the buyer, and explained right where it is. */}
+                {isOwner && (
+                    <div className="border-border/70 bg-muted/30 flex flex-wrap items-center gap-2 border-b px-4 py-2 text-xs">
+                        <span className="text-muted-foreground flex items-center gap-1 font-medium">
+                            Ishod upita
+                            <InfoHint label="Šta je ishod upita?" title="Ishod upita — samo za evidenciju">
+                                <p>
+                                    Ovde možete, ako želite, da označite kako se razgovor završio: da ste se čuli sa kupcem, da je kupovina
+                                    realizovana, ili da je otkazana.
+                                </p>
+                                <p>Nije obavezno i ne utiče ni na šta — ni na vaš profil, ni na ocene, ni na cenu. Kupac ovo ne vidi.</p>
+                                <p>
+                                    Plaćanje i dostavu dogovarate direktno sa kupcem, pa sajt ne može da zna da li je nešto prodato. Vaša oznaka nam
+                                    pomaže da vidimo koliko se preko sajta zaista proda i šta se najviše traži.
+                                </p>
+                            </InfoHint>
+                        </span>
+                        {Object.entries(outcomeLabels).map(([value, label]) => {
+                            const active = outcome === value;
+
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    aria-pressed={active}
+                                    onClick={() =>
+                                        // Clicking the chosen one again clears it.
+                                        router.patch(
+                                            route('messages.outcome', [producer.id, buyer.id]),
+                                            { status: active ? null : value },
+                                            { preserveScroll: true, only: ['outcome'] },
+                                        )
+                                    }
+                                    className={cn(
+                                        'rounded-full border px-2.5 py-1 transition-colors',
+                                        active ? 'border-olive bg-olive-soft text-olive font-semibold' : 'border-border/70 hover:bg-muted',
+                                    )}
+                                >
+                                    {active && <Check className="mr-1 inline size-3" aria-hidden />}
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 <div ref={scrollRef} onScroll={onPanelScroll} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
                     {/* Older messages live above, as in any chat. */}
@@ -437,15 +469,16 @@ export default function MessageThread({
                     ))}
                 </div>
 
-                {blocked && (
-                    <p className="border-border/70 bg-muted/50 text-muted-foreground border-t px-4 py-2 text-xs">
+                {/* A block closes the conversation both ways; the history
+                    stays readable. */}
+                {blocked ? (
+                    <p className="border-border/70 bg-muted/50 text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-sm">
+                        <Ban className="size-4 shrink-0" aria-hidden />
                         {isOwner
-                            ? `Blokirali ste poruke od korisnika ${buyer.name}. Vi i dalje možete da mu pišete.`
-                            : 'Proizvođač trenutno ne prima vaše poruke.'}
+                            ? `Blokirali ste ovaj razgovor — ni vi ni ${buyer.name} ne možete da šaljete poruke. Odblokirajte ga da biste nastavili.`
+                            : 'Proizvođač je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.'}
                     </p>
-                )}
-
-                {!(blocked && !isOwner) && (
+                ) : (
                     <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
                         <textarea
                             ref={composerRef}
