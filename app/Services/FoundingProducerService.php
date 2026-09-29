@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Producer;
+use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -18,13 +19,22 @@ class FoundingProducerService
     public const LIMIT = 100;
 
     /**
+     * What a place in the hundred comes with besides the number: a year of
+     * this plan, free. Premium rather than Basic, so a founding producer
+     * sees the statistics and the featured row for themselves - which is
+     * what gives them a reason to keep paying once the year is up.
+     */
+    public const PLAN = 'premium';
+
+    public function __construct(private readonly SubscriptionService $subscriptions) {}
+
+    /**
      * Give this producer the next free number, if any are left and it has
-     * none already. Returns the number it now holds, or null if the hundred
-     * are gone.
+     * none already, together with the founding year of membership. Returns
+     * the number it now holds, or null if the hundred are gone.
      *
-     * Reading the highest number and writing the next one has to be one
-     * step, or two admins approving at the same moment could both be handed
-     * the same place - the unique index would then reject one of the saves.
+     * Approving the same producer again - after a block, say - hands out
+     * nothing new: the number and the year belong to the first approval.
      */
     public function claimNumberFor(Producer $producer): ?int
     {
@@ -32,6 +42,22 @@ class FoundingProducerService
             return $producer->founding_number;
         }
 
+        $number = $this->takeNextNumber($producer);
+
+        if ($number !== null && $plan = SubscriptionPlan::where('slug', self::PLAN)->first()) {
+            $this->subscriptions->grant($producer, $plan);
+        }
+
+        return $number;
+    }
+
+    /**
+     * Reading the highest number and writing the next one has to be one
+     * step, or two admins approving at the same moment could both be handed
+     * the same place - the unique index would then reject one of the saves.
+     */
+    private function takeNextNumber(Producer $producer): ?int
+    {
         return DB::transaction(function () use ($producer) {
             $taken = Producer::withTrashed()
                 ->lockForUpdate()
