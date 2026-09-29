@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WeeklyPickController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/clanarine/{subscription}/otkazi', [AdminMembershipController::class, 'cancel'])->name('memberships.cancel');
     Route::put('/paketi/{plan}', [AdminMembershipController::class, 'updatePlan'])->name('plans.update');
     Route::put('/uplatnica', [AdminMembershipController::class, 'updatePayment'])->name('payment.update');
+
+    Route::get('/nedelja', [WeeklyPickController::class, 'index'])->name('weekly-picks.index');
+    Route::post('/nedelja', [WeeklyPickController::class, 'store'])->name('weekly-picks.store');
+    Route::delete('/nedelja/{pick}', [WeeklyPickController::class, 'destroy'])->name('weekly-picks.destroy');
 
     Route::get('/prijave', [ReportController::class, 'index'])->name('reports.index');
     Route::patch('/prijave/{report}', [ReportController::class, 'update'])->name('reports.update');

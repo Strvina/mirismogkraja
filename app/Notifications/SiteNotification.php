@@ -115,6 +115,16 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function weeklyPick(string $producerName, string $weekStarting, string $url): self
+    {
+        return new self(
+            'weekly-pick',
+            'Proizvođač nedelje',
+            "„{$producerName}” je proizvođač nedelje od {$weekStarting} i biće istaknut na početnoj strani.",
+            $url,
+        );
+    }
+
     public static function productPublished(string $producerName, string $productName, string $url): self
     {
         return new self(

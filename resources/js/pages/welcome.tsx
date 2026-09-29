@@ -74,12 +74,14 @@ function Section({
 }
 
 export default function Welcome({
+    weeklyPick,
     featuredProducers,
     newProducers,
     popularProducers,
     popularProducts,
     categories,
 }: {
+    weeklyPick: { producer: HomeProducer; product: HomeProduct | null } | null;
     featuredProducers: HomeProducer[];
     newProducers: HomeProducer[];
     popularProducers: HomeProducer[];
@@ -188,6 +190,22 @@ export default function Welcome({
                         ))}
                     </div>
                 </section>
+
+                {weeklyPick && (
+                    <Section
+                        eyebrow="Proizvođač nedelje"
+                        title={weeklyPick.producer.name}
+                        lead="Svake nedelje predstavljamo jedno domaćinstvo i ono što kod njih ne treba propustiti."
+                        moreHref={route('marketplace.producers.show', weeklyPick.producer.slug)}
+                        moreLabel="Upoznajte ih"
+                        className="bg-cream-deep"
+                    >
+                        <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl">
+                            <HomeProducerCard producer={weeklyPick.producer} />
+                            {weeklyPick.product && <HomeProductCard product={weeklyPick.product} />}
+                        </div>
+                    </Section>
+                )}
 
                 {featuredProducers.length > 0 && (
                     <Section
