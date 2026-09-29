@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Boost;
+use App\Models\CampaignParticipant;
 use App\Models\ProducerSubscription;
 
 /**
@@ -28,6 +29,7 @@ class PaymentReference
         } while (
             ProducerSubscription::where('reference', $reference)->exists()
             || Boost::where('reference', $reference)->exists()
+            || CampaignParticipant::where('reference', $reference)->exists()
         );
 
         return $reference;

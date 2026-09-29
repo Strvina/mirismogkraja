@@ -74,6 +74,9 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('boosts.index')}>Isticanje</Link>
                                     </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('campaigns.index')}>Kampanje</Link>
+                                    </Button>
                                     <Button variant="destructive" size="sm" onClick={() => destroy(producer)}>
                                         Obriši
                                     </Button>

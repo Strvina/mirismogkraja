@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BoostController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\MembershipController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,4 +14,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/isticanje', [BoostController::class, 'index'])->name('boosts.index');
     Route::post('/isticanje', [BoostController::class, 'store'])->name('boosts.store');
     Route::get('/isticanje/{boost}/uplatnica.pdf', [BoostController::class, 'slip'])->name('boosts.slip');
+
+    // Seasonal campaigns (task 20.3), paid by the same kind of slip.
+    Route::get('/kampanje', [CampaignController::class, 'index'])->name('campaigns.index');
+    Route::post('/kampanje/{campaign}/prijava', [CampaignController::class, 'join'])->name('campaigns.join');
+    Route::get('/kampanje/uplatnica/{participant}.pdf', [CampaignController::class, 'slip'])->name('campaigns.slip');
 });

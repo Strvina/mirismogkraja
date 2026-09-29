@@ -125,6 +125,16 @@ class SiteNotification extends Notification
         );
     }
 
+    public static function campaignJoined(string $campaignName, string $url): self
+    {
+        return new self(
+            'campaign.joined',
+            'Učestvujete u kampanji',
+            "Uplata je primljena - vaš profil je na stranici kampanje „{$campaignName}”.",
+            $url,
+        );
+    }
+
     public static function weeklyPick(string $producerName, string $weekStarting, string $url): self
     {
         return new self(

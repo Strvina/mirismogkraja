@@ -143,6 +143,24 @@ class Producer extends Model
         $query->where($query->qualifyColumn('status'), 'active');
     }
 
+    /**
+     * Everything the directory card shows - and not the story and contact
+     * details behind it: rating, counts and the two latest reviews.
+     *
+     * @param  Builder<Producer>  $query
+     */
+    public function scopeWithCardData(Builder $query): void
+    {
+        $query
+            ->select($query->qualifyColumns(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods']))
+            ->withAvg(['reviews' => fn ($reviews) => $reviews->approved()], 'rating')
+            ->withCount([
+                'reviews' => fn ($reviews) => $reviews->approved(),
+                'products' => fn ($products) => $products->where('status', 'active'),
+            ])
+            ->with(['reviews' => fn ($reviews) => $reviews->approved()->latest()->limit(2)->with('user:id,name,avatar_path')]);
+    }
+
     public function isVerified(): bool
     {
         return $this->verified_at !== null;

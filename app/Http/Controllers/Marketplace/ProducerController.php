@@ -84,22 +84,16 @@ class ProducerController extends Controller
     }
 
     /**
-     * Published producers with everything their card shows - and not the
-     * story and contact details behind it.
+     * Published producers, in the city if one is chosen, with what their
+     * card shows.
      *
      * @return Builder<Producer>
      */
     private function cards(string $city): Builder
     {
         return Producer::published()
-            ->select(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods'])
-            ->when($city, fn ($query) => $query->where('city', $city))
-            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
-            ->withCount([
-                'reviews' => fn ($query) => $query->approved(),
-                'products' => fn ($query) => $query->where('status', 'active'),
-            ])
-            ->with(['reviews' => fn ($query) => $query->approved()->latest()->limit(2)->with('user:id,name,avatar_path')]);
+            ->withCardData()
+            ->when($city, fn ($query) => $query->where('city', $city));
     }
 
     /**
