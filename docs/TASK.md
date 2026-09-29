@@ -23,8 +23,8 @@ Prođi kroz postojeći kod (modeli, migracije, kontroleri, rute, Blade/Livewire/
 - [x] 17. Upiti za kupovinu (bez plaćanja na platformi) — sada direktan upit sa stranice proizvoda
 - [~] 18. Redizajn korpe (OTKAZANO: korpa je uklonjena, vidi "Model platforme" ispod)
 - [x] 19. Provera linkova/dugmadi (uklonjeni placeholder social linkovi, footer prebačen na Inertia navigaciju)
-- [~] 20. Monetizacija — urađeno: 20.1 (članarine, uplatnica, obaveštenja pred istek), 20.4 (Prvih 100), 20.5 (praćenje), 20.9 delimično (paketi, cene, potvrda uplata, prihod). Ostaju 20.2 (plaćena isticanja), 20.3 (sezonske kampanje), 20.6 (statistika za Premium/Pro), 20.7 (proizvođač nedelje), 20.8 (regionalno isticanje).
-- [x] 21. Dodatne preporuke — urađeno sve osim mape proizvođača (traži da se prvo reši kako koordinate ulaze u bazu: `lat`/`lng` kolone postoje ali ih ništa ne popunjava).
+- [x] 20. Monetizacija — 20.1 (članarine, uplatnica sa QR/PDF, obaveštenja pred istek; pogodnosti paketa: Premium oznaka, istaknuti red, početna za Pro), 20.2 (plaćeno isticanje profila/proizvoda, rotacija), 20.3 (sezonske kampanje), 20.4 (Prvih 100 + godina Premium-a besplatno), 20.5 (praćenje), 20.6 (statistika), 20.7 (proizvođač nedelje), 20.8 (regionalno isticanje kroz filter grada), 20.9 (potvrda uplata, cene, prihod po kategoriji na evidenciji).
+- [x] 21. Dodatne preporuke — sve, uključujući mapu proizvođača (Leaflet/OpenStreetMap, tačku bira proizvođač) i blokiranje kupca u porukama.
 - [ ] 22. Google prijava
 
 ## Model platforme (odluka vlasnika, nadjačava zadatke 9, 17 i 18)
