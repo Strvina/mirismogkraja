@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureUserIsNotBlocked;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SecurityHeaders;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -22,7 +23,16 @@ return Application::configure(basePath: dirname(__DIR__))
         // served from the same origin as everything else.
         $middleware->append(SecurityHeaders::class);
 
+        // A beacon cannot carry a CSRF token, and this route only counts.
+        $middleware->validateCsrfTokens(except: ['statistika/*']);
+
+        // Holds nothing but "sr", "en" or "ru", and is read before the
+        // session exists - there is nothing in it to protect.
+        $middleware->encryptCookies(except: [SetLocale::COOKIE]);
+
         $middleware->web(append: [
+            // Before the shared props, which are written in the language.
+            SetLocale::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             EnsureUserIsNotBlocked::class,

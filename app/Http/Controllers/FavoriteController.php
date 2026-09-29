@@ -34,13 +34,12 @@ class FavoriteController extends Controller
         return Inertia::render('favorites/index', [
             'producers' => Producer::query()
                 ->join('favorites', $savedBy('household', 'households'))
-                ->where('households.status', 'active')
+                ->published()
                 ->orderByDesc('favorites.created_at')
                 ->get(['households.id', 'households.name', 'households.slug', 'households.city']),
             'products' => Product::query()
                 ->join('favorites', $savedBy('product', 'products'))
-                ->where('products.status', 'active')
-                ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
+                ->published()
                 ->orderByDesc('favorites.created_at')
                 ->get(['products.id', 'products.name', 'products.slug', 'products.price', 'products.unit']),
         ]);
@@ -57,10 +56,8 @@ class FavoriteController extends Controller
         ]);
 
         $favoritable = $data['favoritable_type'] === 'household'
-            ? Producer::query()->where('status', 'active')->findOrFail($data['favoritable_id'])
-            : Product::query()->where('status', 'active')
-                ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
-                ->findOrFail($data['favoritable_id']);
+            ? Producer::published()->findOrFail($data['favoritable_id'])
+            : Product::published()->findOrFail($data['favoritable_id']);
 
         $favorite = $request->user()->favorites()
             ->where('favoritable_type', $data['favoritable_type'])

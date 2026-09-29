@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
+import { t } from '@/lib/i18n';
 import { type Category } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
@@ -19,40 +20,40 @@ export default function AdminCategoriesIndex({ categories }: { categories: Admin
     };
 
     const destroy = (category: Category) => {
-        if (confirm(`Obrisati kategoriju "${category.name}"?`)) {
+        if (confirm(t('Obrisati kategoriju „:name”?', { name: category.name }))) {
             router.delete(route('admin.categories.destroy', category.id), { preserveScroll: true });
         }
     };
 
     return (
-        <AdminLayout title="Kategorije">
-            <Head title="Kategorije" />
+        <AdminLayout title={t('Kategorije')}>
+            <Head title={t('Kategorije')} />
 
             <div className="flex flex-col gap-4">
                 <form onSubmit={submit} className="flex max-w-md flex-col gap-1">
                     <div className="flex items-end gap-2">
                         <div className="flex-1">
                             <Input
-                                aria-label="Naziv nove kategorije"
-                                placeholder="Nova kategorija"
+                                aria-label={t('Naziv nove kategorije')}
+                                placeholder={t('Nova kategorija')}
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
                             />
                         </div>
                         <select
-                            aria-label="Nadređena kategorija"
+                            aria-label={t('Nadređena kategorija')}
                             className="border-input bg-background rounded-md border px-3 py-2 text-sm"
                             value={data.parent_id}
                             onChange={(e) => setData('parent_id', e.target.value)}
                         >
-                            <option value="">Bez roditelja</option>
+                            <option value="">{t('Bez roditelja')}</option>
                             {categories.map((c) => (
                                 <option key={c.id} value={c.id}>
                                     {c.name}
                                 </option>
                             ))}
                         </select>
-                        <Button disabled={processing}>Dodaj</Button>
+                        <Button disabled={processing}>{t('Dodaj')}</Button>
                     </div>
                     <InputError message={errors.name ?? errors.parent_id} />
                 </form>
@@ -70,7 +71,7 @@ export default function AdminCategoriesIndex({ categories }: { categories: Admin
                                 </p>
                             </div>
                             <Button variant="destructive" size="sm" onClick={() => destroy(category)}>
-                                Obriši
+                                {t('Obriši')}
                             </Button>
                         </div>
                     ))}

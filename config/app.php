@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    'timezone' => env('APP_TIMEZONE', 'Europe/Belgrade'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,9 +78,16 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    'locale' => env('APP_LOCALE', 'sr'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    /*
+    | The languages the site is written in. Serbian is the source: the words
+    | in the code are Serbian, and lang/en.json and lang/ru.json translate
+    | them. See App\Http\Middleware\SetLocale for how one is chosen.
+    */
+    'supported_locales' => ['sr', 'en', 'ru'],
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

@@ -1,11 +1,13 @@
-import { type Paginated } from '@/components/marketplace/pagination';
+import InfoHint from '@/components/info-hint';
+import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
-import { ImageOff, SendHorizontal, TriangleAlert } from 'lucide-react';
+import { Ban, Check, ImageOff, SendHorizontal, TriangleAlert } from 'lucide-react';
 import { FormEventHandler, KeyboardEventHandler, useLayoutEffect, useRef, useState } from 'react';
 
 interface Message {
@@ -88,11 +90,20 @@ export default function MessageThread({
     buyer,
     messages,
     isOwner,
+    blocked,
+    reportReasons,
+    outcome,
+    outcomeLabels,
 }: {
     producer: { id: number; name: string; slug: string; logo_path: string | null };
     buyer: { id: number; name: string; avatar_path: string | null };
-    messages: Paginated<Message>;
+    /** A simple paginator: it knows whether older messages exist, not how many. */
+    messages: { data: Message[]; current_page: number; next_page_url: string | null };
     isOwner: boolean;
+    blocked: boolean;
+    reportReasons: Record<string, string>;
+    outcome: string | null;
+    outcomeLabels: Record<string, string>;
 }) {
     const { auth } = usePage<SharedData>().props;
     const [body, setBody] = useState('');
@@ -116,7 +127,23 @@ export default function MessageThread({
     // read straight away and never lights the badge up. Inertia throttles
     // the poll by itself while the tab is in the background, and the visit
     // preserves scroll and local state, so a half-typed message survives it.
-    const poll = usePoll(3000, { only: ['messages', 'unreadMessages'] });
+    const poll = usePoll(3000, { only: ['messages', 'unreadMessages', 'blocked'] });
+
+    const toggleBlock = () => {
+        if (
+            blocked ||
+            confirm(
+                t(
+                    'Blokirati razgovor sa korisnikom :name? Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.',
+                    {
+                        name: buyer.name,
+                    },
+                ),
+            )
+        ) {
+            router.patch(route('messages.block', [producer.id, buyer.id]), {}, { preserveScroll: true });
+        }
+    };
 
     // The seller's side addresses a specific buyer; the buyer's side doesn't
     // need to say who they are.
@@ -124,11 +151,11 @@ export default function MessageThread({
 
     const breadcrumbs: BreadcrumbItem[] = isOwner
         ? [
-              { title: 'Moje poruke', href: '/poruke' },
+              { title: t('Moje poruke'), href: '/poruke' },
               { title: buyer.name, href: '#' },
           ]
         : [
-              { title: 'Moje poruke', href: '/poruke' },
+              { title: t('Moje poruke'), href: '/poruke' },
               { title: producer.name, href: '#' },
           ];
 
@@ -137,7 +164,7 @@ export default function MessageThread({
     const newestId = messages.data[messages.data.length - 1]?.id ?? 0;
     // The paginator walks backwards through the history, so its "next" link
     // is the older part of the conversation.
-    const olderPage = messages.links[messages.links.length - 1]?.url ?? null;
+    const olderPage = messages.next_page_url;
 
     const shownPage = useRef(messages.current_page);
 
@@ -289,7 +316,7 @@ export default function MessageThread({
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Poruke — ${title}`} />
+            <Head title={`${t('Poruke')} — ${title}`} />
 
             <div className="border-border/70 bg-background mx-auto flex h-[calc(100svh-15rem)] max-h-[44rem] min-h-[26rem] w-full max-w-2xl flex-col overflow-hidden rounded-lg border">
                 <header className="border-border/70 flex items-center gap-3 border-b px-4 py-3">
@@ -300,18 +327,78 @@ export default function MessageThread({
                             {title.charAt(0).toUpperCase()}
                         </span>
                     )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <h1 className="truncate font-serif text-lg leading-tight">{title}</h1>
                         {!isOwner && (
                             <Link
                                 href={route('marketplace.producers.show', producer.slug)}
                                 className="text-muted-foreground hover:text-foreground text-xs transition-colors"
                             >
-                                Otvori profil proizvođača
+                                {t('Otvori profil proizvođača')}
                             </Link>
                         )}
                     </div>
+
+                    {/* The producer's defence against a buyer who will not
+                        stop: refuse their messages, or report them. */}
+                    {isOwner && (
+                        <div className="flex shrink-0 items-center gap-1">
+                            <Button variant="ghost" size="sm" onClick={toggleBlock}>
+                                {blocked ? 'Odblokiraj' : 'Blokiraj'}
+                            </Button>
+                            <ReportButton type="user" id={buyer.id} reasons={reportReasons} />
+                        </div>
+                    )}
                 </header>
+
+                {/* The producer's own note on how the inquiry ended. Optional,
+                    invisible to the buyer, and explained right where it is. */}
+                {isOwner && (
+                    <div className="border-border/70 bg-muted/30 flex flex-wrap items-center gap-2 border-b px-4 py-2 text-xs">
+                        <span className="text-muted-foreground flex items-center gap-1 font-medium">
+                            {t('Ishod upita')}
+                            <InfoHint label={t('Šta je ishod upita?')} title={t('Ishod upita — samo za evidenciju')}>
+                                <p>
+                                    {t(
+                                        'Ovde možete, ako želite, da označite kako se razgovor završio: da ste se čuli sa kupcem, da je kupovina realizovana, ili da je otkazana.',
+                                    )}
+                                </p>
+                                <p>{t('Nije obavezno i ne utiče ni na šta — ni na vaš profil, ni na ocene, ni na cenu. Kupac ovo ne vidi.')}</p>
+                                <p>
+                                    {t(
+                                        'Plaćanje i dostavu dogovarate direktno sa kupcem, pa sajt ne može da zna da li je nešto prodato. Vaša oznaka nam pomaže da vidimo koliko se preko sajta zaista proda i šta se najviše traži.',
+                                    )}
+                                </p>
+                            </InfoHint>
+                        </span>
+                        {Object.entries(outcomeLabels).map(([value, label]) => {
+                            const active = outcome === value;
+
+                            return (
+                                <button
+                                    key={value}
+                                    type="button"
+                                    aria-pressed={active}
+                                    onClick={() =>
+                                        // Clicking the chosen one again clears it.
+                                        router.patch(
+                                            route('messages.outcome', [producer.id, buyer.id]),
+                                            { status: active ? null : value },
+                                            { preserveScroll: true, only: ['outcome'] },
+                                        )
+                                    }
+                                    className={cn(
+                                        'rounded-full border px-2.5 py-1 transition-colors',
+                                        active ? 'border-olive bg-olive-soft text-olive font-semibold' : 'border-border/70 hover:bg-muted',
+                                    )}
+                                >
+                                    {active && <Check className="mr-1 inline size-3" aria-hidden />}
+                                    {label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 <div ref={scrollRef} onScroll={onPanelScroll} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
                     {/* Older messages live above, as in any chat. */}
@@ -323,14 +410,14 @@ export default function MessageThread({
                                 only={['messages']}
                                 className="border-border/70 hover:bg-muted rounded-full border px-3 py-1 text-xs transition-colors"
                             >
-                                Starije poruke
+                                {t('Starije poruke')}
                             </Link>
                         </div>
                     )}
 
-                    {messages.total === 0 ? (
+                    {messages.data.length === 0 && messages.current_page === 1 ? (
                         <p className="text-muted-foreground py-8 text-center text-sm">
-                            Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.
+                            {t('Još nema poruka. Napišite prvu — pitajte za dostupnost, količine ili dostavu.')}
                         </p>
                     ) : (
                         messages.data.map((message) => (
@@ -367,17 +454,17 @@ export default function MessageThread({
                                     <p className="mt-1.5 flex flex-wrap items-center gap-2 text-[0.65rem]">
                                         <span className="text-destructive flex items-center gap-1">
                                             <TriangleAlert className="size-3" />
-                                            Nije poslato
+                                            {t('Nije poslato')}
                                         </span>
                                         <button type="button" onClick={() => retry(message)} className="underline underline-offset-2">
-                                            Pokušaj ponovo
+                                            {t('Pokušaj ponovo')}
                                         </button>
                                         <button
                                             type="button"
                                             onClick={() => discard(message)}
                                             className="text-muted-foreground underline underline-offset-2"
                                         >
-                                            Odbaci
+                                            {t('Odbaci')}
                                         </button>
                                     </p>
                                 ) : (
@@ -390,26 +477,39 @@ export default function MessageThread({
                     ))}
                 </div>
 
-                <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
-                    <textarea
-                        ref={composerRef}
-                        value={body}
-                        onChange={(event) => {
-                            setBody(event.target.value);
-                            event.target.style.height = 'auto';
-                            event.target.style.height = `${Math.min(event.target.scrollHeight, MAX_COMPOSER_HEIGHT_PX)}px`;
-                        }}
-                        onKeyDown={onComposerKeyDown}
-                        rows={1}
-                        maxLength={2000}
-                        placeholder="Napišite poruku..."
-                        aria-label="Poruka"
-                        className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
-                    />
-                    <Button type="submit" size="icon" disabled={!body.trim()} aria-label="Pošalji poruku" className="size-11 shrink-0">
-                        <SendHorizontal className="size-4" />
-                    </Button>
-                </form>
+                {/* A block closes the conversation both ways; the history
+                    stays readable. */}
+                {blocked ? (
+                    <p className="border-border/70 bg-muted/50 text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-sm">
+                        <Ban className="size-4 shrink-0" aria-hidden />
+                        {isOwner
+                            ? t('Blokirali ste ovaj razgovor — ni vi ni :name ne možete da šaljete poruke. Odblokirajte ga da biste nastavili.', {
+                                  name: buyer.name,
+                              })
+                            : t('Proizvođač je zatvorio ovaj razgovor. Poruke se više ne mogu slati, ali prepiska ostaje ovde.')}
+                    </p>
+                ) : (
+                    <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
+                        <textarea
+                            ref={composerRef}
+                            value={body}
+                            onChange={(event) => {
+                                setBody(event.target.value);
+                                event.target.style.height = 'auto';
+                                event.target.style.height = `${Math.min(event.target.scrollHeight, MAX_COMPOSER_HEIGHT_PX)}px`;
+                            }}
+                            onKeyDown={onComposerKeyDown}
+                            rows={1}
+                            maxLength={2000}
+                            placeholder={t('Napišite poruku...')}
+                            aria-label={t('Poruka')}
+                            className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
+                        />
+                        <Button type="submit" size="icon" disabled={!body.trim()} aria-label={t('Pošalji poruku')} className="size-11 shrink-0">
+                            <SendHorizontal className="size-4" />
+                        </Button>
+                    </form>
+                )}
             </div>
         </MarketplaceLayout>
     );

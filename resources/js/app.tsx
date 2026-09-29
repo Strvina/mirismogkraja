@@ -5,6 +5,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
 import { initializeTheme } from './hooks/use-appearance';
+import { loadLocale } from './lib/i18n';
 import { revalidateOnHistoryNavigation } from './lib/revalidate-on-history-navigation';
 
 declare global {
@@ -19,7 +20,10 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
 
-        root.render(<App {...props} />);
+        // The words first, so the first paint is already in the reader's
+        // language. A change of language is a full page load (see
+        // LocaleController), so this runs once per language.
+        loadLocale(props.initialPage.props.locale as string).then(() => root.render(<App {...props} />));
     },
     progress: {
         // Matches the brand primary (terracotta-red, see docs/design-tokens.md)

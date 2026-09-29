@@ -1,4 +1,6 @@
-import { DELIVERY_METHOD_LABELS } from '@/lib/delivery';
+import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
+import { deliveryMethodLabel } from '@/lib/delivery';
+import { t } from '@/lib/i18n';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BadgeCheck, MapPin, Star, Truck } from 'lucide-react';
@@ -7,6 +9,7 @@ export interface ProducerCardProducer extends Producer {
     reviews_avg_rating: number | null;
     reviews_count: number;
     products_count: number;
+    is_premium?: boolean;
     reviews: {
         id: number;
         rating: number;
@@ -18,7 +21,7 @@ export interface ProducerCardProducer extends Producer {
 
 function Avatar({ name, path, className = 'size-8' }: { name: string; path: string | null; className?: string }) {
     if (path) {
-        return <img src={`/storage/${path}`} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
+        return <img loading="lazy" src={`/storage/${path}`} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
     }
 
     return (
@@ -30,7 +33,7 @@ function Avatar({ name, path, className = 'size-8' }: { name: string; path: stri
 
 function Rating({ value, count }: { value: number | null; count: number }) {
     if (!value) {
-        return <span className="text-muted-foreground text-xs">Još nema utisaka</span>;
+        return <span className="text-muted-foreground text-xs">{t('Još nema utisaka')}</span>;
     }
 
     return (
@@ -47,7 +50,7 @@ function Rating({ value, count }: { value: number | null; count: number }) {
  * producer's avatar overlapping it, their tagline, rating and location, and
  * a couple of recent reviews so the card carries some social proof.
  */
-export default function ProducerCard({ producer }: { producer: ProducerCardProducer }) {
+export default function ProducerCard({ producer, featured = false }: { producer: ProducerCardProducer; featured?: boolean }) {
     const href = route('marketplace.producers.show', producer.slug);
 
     return (
@@ -61,11 +64,12 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                 )}
+                {featured && <FeaturedLabel className="absolute top-3 left-3" />}
             </Link>
 
             <div className="flex flex-1 flex-col p-5">
                 <div className="-mt-11 mb-3 flex items-end justify-between gap-3">
-                    <span className="ring-background rounded-full ring-4">
+                    <span className="ring-background relative z-10 rounded-full ring-4">
                         <Avatar name={producer.name} path={producer.logo_path} className="size-14" />
                     </span>
                     <Rating value={producer.reviews_avg_rating} count={producer.reviews_count} />
@@ -73,7 +77,8 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
 
                 <h2 className="flex flex-wrap items-center gap-1.5 font-serif text-2xl leading-tight">
                     <Link href={href}>{producer.name}</Link>
-                    {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label="Provereni proizvođač" />}
+                    {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label={t('Provereni proizvođač')} />}
+                    {producer.is_premium && <PremiumBadge />}
                 </h2>
 
                 <div className="text-muted-foreground mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
@@ -93,7 +98,7 @@ export default function ProducerCard({ producer }: { producer: ProducerCardProdu
                 {producer.delivery_methods && producer.delivery_methods.length > 0 && (
                     <p className="text-muted-foreground mt-3 flex items-start gap-1.5 text-xs">
                         <Truck className="mt-0.5 size-3.5 shrink-0" />
-                        <span>{producer.delivery_methods.map((method) => DELIVERY_METHOD_LABELS[method] ?? method).join(' · ')}</span>
+                        <span>{producer.delivery_methods.map(deliveryMethodLabel).join(' · ')}</span>
                     </p>
                 )}
 

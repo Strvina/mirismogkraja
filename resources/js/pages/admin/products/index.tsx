@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatPrice } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { type Category, type Product } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
@@ -11,9 +12,9 @@ import { useState } from 'react';
 type AdminProduct = Product & { producer: { id: number; name: string } | null; category: { id: number; name: string } | null };
 
 const statusLabels: Record<string, string> = {
-    draft: 'Nacrt',
-    active: 'Aktivan',
-    archived: 'Arhiviran',
+    draft: tx('Nacrt'),
+    active: tx('Aktivan'),
+    archived: tx('Arhiviran'),
 };
 
 const selectClasses =
@@ -53,29 +54,31 @@ export default function AdminProductsIndex({
     };
 
     const bulkDelete = () => {
-        if (confirm(`Obrisati ${selected.length} proizvoda? Ova radnja se ne može poništiti.`)) {
+        if (confirm(t('Obrisati izabrane proizvode (:count)? Ova radnja se ne može poništiti.', { count: selected.length }))) {
             runBulk({ action: 'delete' });
         }
     };
 
     return (
-        <AdminLayout title="Proizvodi">
-            <Head title="Proizvodi — Admin" />
+        <AdminLayout title={t('Proizvodi')}>
+            <Head title={t('Proizvodi — Admin')} />
 
             <div className="flex flex-wrap gap-3">
                 <Input
+                    aria-label={t('Pretraga proizvoda po nazivu')}
                     defaultValue={filters.search ?? ''}
-                    placeholder="Pretraga po nazivu"
+                    placeholder={t('Pretraga po nazivu')}
                     className="max-w-xs"
                     onBlur={(e) => filter({ search: e.target.value || undefined })}
                 />
 
                 <select
+                    aria-label={t('Filtriraj po proizvođaču')}
                     className={selectClasses}
                     value={filters.producer_id ?? ''}
                     onChange={(e) => filter({ producer_id: e.target.value || undefined })}
                 >
-                    <option value="">Svi proizvođači</option>
+                    <option value="">{t('Svi proizvođači')}</option>
                     {producers.map((producer) => (
                         <option key={producer.id} value={producer.id}>
                             {producer.name}
@@ -83,11 +86,16 @@ export default function AdminProductsIndex({
                     ))}
                 </select>
 
-                <select className={selectClasses} value={filters.status ?? ''} onChange={(e) => filter({ status: e.target.value || undefined })}>
-                    <option value="">Svi statusi</option>
+                <select
+                    aria-label={t('Filtriraj po statusu')}
+                    className={selectClasses}
+                    value={filters.status ?? ''}
+                    onChange={(e) => filter({ status: e.target.value || undefined })}
+                >
+                    <option value="">{t('Svi statusi')}</option>
                     {statuses.map((status) => (
                         <option key={status} value={status}>
-                            {statusLabels[status]}
+                            {t(statusLabels[status])}
                         </option>
                     ))}
                 </select>
@@ -98,24 +106,26 @@ export default function AdminProductsIndex({
                     <span className="text-olive font-medium">Izabrano: {selected.length}</span>
 
                     <select
+                        aria-label={t('Promeni status izabranih proizvoda')}
                         className={selectClasses}
                         defaultValue=""
                         onChange={(e) => e.target.value && runBulk({ action: 'status', status: e.target.value })}
                     >
-                        <option value="">Promeni status…</option>
+                        <option value="">{t('Promeni status…')}</option>
                         {statuses.map((status) => (
                             <option key={status} value={status}>
-                                {statusLabels[status]}
+                                {t(statusLabels[status])}
                             </option>
                         ))}
                     </select>
 
                     <select
+                        aria-label={t('Promeni kategoriju izabranih proizvoda')}
                         className={selectClasses}
                         defaultValue=""
                         onChange={(e) => e.target.value && runBulk({ action: 'category', category_id: e.target.value })}
                     >
-                        <option value="">Promeni kategoriju…</option>
+                        <option value="">{t('Promeni kategoriju…')}</option>
                         {categories.map((category) => (
                             <option key={category.id} value={category.id}>
                                 {category.name}
@@ -125,11 +135,11 @@ export default function AdminProductsIndex({
 
                     <Button variant="destructive" size="sm" onClick={bulkDelete}>
                         <Trash2 className="size-4" />
-                        Obriši izabrane
+                        {t('Obriši izabrane')}
                     </Button>
 
                     <button type="button" onClick={() => setSelected([])} className="text-muted-foreground hover:text-foreground underline">
-                        Poništi izbor
+                        {t('Poništi izbor')}
                     </button>
                 </div>
             )}
@@ -139,12 +149,18 @@ export default function AdminProductsIndex({
                     <thead className="bg-muted/50 text-muted-foreground text-left text-xs">
                         <tr>
                             <th className="w-10 p-3">
-                                <input type="checkbox" aria-label="Izaberi sve" checked={allOnPageSelected} onChange={toggleAll} className="size-4" />
+                                <input
+                                    type="checkbox"
+                                    aria-label={t('Izaberi sve')}
+                                    checked={allOnPageSelected}
+                                    onChange={toggleAll}
+                                    className="size-4"
+                                />
                             </th>
-                            <th className="p-3 font-medium">Proizvod</th>
-                            <th className="p-3 font-medium">Proizvođač</th>
-                            <th className="p-3 font-medium">Cena</th>
-                            <th className="p-3 font-medium">Status</th>
+                            <th className="p-3 font-medium">{t('Proizvod')}</th>
+                            <th className="p-3 font-medium">{t('Proizvođač')}</th>
+                            <th className="p-3 font-medium">{t('Cena')}</th>
+                            <th className="p-3 font-medium">{t('Status')}</th>
                             <th className="w-12 p-3" />
                         </tr>
                     </thead>
@@ -164,19 +180,21 @@ export default function AdminProductsIndex({
                                     <p className="font-medium break-words">{product.name}</p>
                                     <p className="text-muted-foreground text-xs">{product.category?.name}</p>
                                 </td>
-                                <td className="text-muted-foreground p-3 break-words">{product.producer?.name ?? 'Arhiviran proizvođač'}</td>
+                                <td className="text-muted-foreground p-3 break-words">{product.producer?.name ?? t('Arhiviran proizvođač')}</td>
                                 <td className="p-3 whitespace-nowrap">{formatPrice(product.price)}</td>
                                 <td className="p-3">
-                                    <span className="bg-muted rounded-full px-2 py-1 text-xs whitespace-nowrap">{statusLabels[product.status]}</span>
+                                    <span className="bg-muted rounded-full px-2 py-1 text-xs whitespace-nowrap">
+                                        {t(statusLabels[product.status])}
+                                    </span>
                                 </td>
                                 <td className="p-3">
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        aria-label={`Obriši ${product.name}`}
+                                        aria-label={t('Obriši :name', { name: product.name })}
                                         className="text-muted-foreground hover:text-destructive"
                                         onClick={() => {
-                                            if (confirm(`Obrisati "${product.name}"?`)) {
+                                            if (confirm(t('Obrisati „:name”?', { name: product.name }))) {
                                                 router.delete(route('admin.products.destroy', product.id), { preserveScroll: true });
                                             }
                                         }}
@@ -189,7 +207,7 @@ export default function AdminProductsIndex({
                     </tbody>
                 </table>
 
-                {products.data.length === 0 && <p className="text-muted-foreground p-8 text-center text-sm">Nema proizvoda za ove filtere.</p>}
+                {products.data.length === 0 && <p className="text-muted-foreground p-8 text-center text-sm">{t('Nema proizvoda za ove filtere.')}</p>}
             </div>
 
             <Pagination meta={products} />

@@ -12,10 +12,26 @@ use Inertia\Response;
 
 class UserController extends Controller
 {
-    public function index(): Response
+    /**
+     * Paged and searchable. Every account at once, with every column, grew
+     * with the user base on every visit - and sent phone numbers and home
+     * addresses the page never shows.
+     */
+    public function index(Request $request): Response
     {
+        $search = $request->string('search')->trim()->toString();
+
         return Inertia::render('admin/users/index', [
-            'users' => User::with('roles:id,name')->orderBy('name')->get(),
+            'users' => User::query()
+                ->select(['id', 'name', 'email', 'blocked_at'])
+                ->with('roles:id,name')
+                ->when($search, fn ($query) => $query->where(fn ($inner) => $inner
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")))
+                ->orderBy('name')
+                ->paginate(50)
+                ->withQueryString(),
+            'filters' => ['search' => $search ?: null],
         ]);
     }
 
@@ -27,7 +43,7 @@ class UserController extends Controller
         ]);
 
         if ($user->is($request->user()) && ! in_array('admin', $data['roles'], true)) {
-            throw ValidationException::withMessages(['roles' => 'Ne možeš sebi ukloniti admin rolu.']);
+            throw ValidationException::withMessages(['roles' => __('Ne možeš sebi ukloniti admin rolu.')]);
         }
 
         $user->syncRoles($data['roles']);
@@ -38,7 +54,7 @@ class UserController extends Controller
     public function toggleBlock(Request $request, User $user): RedirectResponse
     {
         if ($user->is($request->user())) {
-            throw ValidationException::withMessages(['user' => 'Ne možeš blokirati sopstveni nalog.']);
+            throw ValidationException::withMessages(['user' => __('Ne možeš blokirati sopstveni nalog.')]);
         }
 
         $user->update(['blocked_at' => $user->isBlocked() ? null : now()]);

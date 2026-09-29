@@ -22,7 +22,7 @@ class ReviewController extends Controller
     {
         $status = $request->string('status')->toString();
 
-        if (! in_array($status, [Review::STATUS_PENDING, Review::STATUS_APPROVED, Review::STATUS_REJECTED], true)) {
+        if (! in_array($status, Review::STATUSES, true)) {
             $status = Review::STATUS_PENDING;
         }
 
@@ -30,13 +30,11 @@ class ReviewController extends Controller
             'reviews' => Review::with(['user:id,name', 'producer:id,name,slug'])
                 ->where('status', $status)
                 ->orderByDesc('created_at')
-                ->get(),
+                // The published tab only ever grows.
+                ->paginate(30)
+                ->withQueryString(),
             'filters' => ['status' => $status],
-            'counts' => [
-                Review::STATUS_PENDING => Review::where('status', Review::STATUS_PENDING)->count(),
-                Review::STATUS_APPROVED => Review::where('status', Review::STATUS_APPROVED)->count(),
-                Review::STATUS_REJECTED => Review::where('status', Review::STATUS_REJECTED)->count(),
-            ],
+            'counts' => Review::countsByStatus(),
         ]);
     }
 

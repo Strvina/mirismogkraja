@@ -3,13 +3,21 @@
 namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
+use App\Models\Boost;
 use App\Models\Producer;
 use App\Models\Report;
 use App\Models\Review;
+use App\Services\BoostService;
+use App\Services\ProducerStatistics;
+use App\Services\SubscriptionService;
+use App\Support\PageMeta;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+use function Illuminate\Support\defer;
 
 class ProducerController extends Controller
 {
@@ -18,23 +26,34 @@ class ProducerController extends Controller
      * their card shows (task 13): rating, review count and the latest few
      * reviews with their authors.
      */
-    public function index(Request $request): Response
+    public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
     {
-        $producers = Producer::query()
-            ->where('status', 'active')
-            ->when($request->string('city')->toString(), fn ($query, $city) => $query->where('city', $city))
-            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
-            ->withCount([
-                'reviews' => fn ($query) => $query->approved(),
-                'products' => fn ($query) => $query->where('status', 'active'),
-            ])
-            ->with(['reviews' => fn ($query) => $query->approved()->latest()->limit(2)->with('user:id,name,avatar_path')])
+        $city = $request->string('city')->toString();
+
+        $producers = $this->cards($city)
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
 
-        $cities = Producer::query()
-            ->where('status', 'active')
+        // Paid placement lives in its own labelled row above the directory,
+        // never mixed into it: the list below stays alphabetical for
+        // everyone, and a visitor can always tell what was paid for. The
+        // row is drawn at random from the paying producers on each visit,
+        // so no single one holds the top for good (task 20.2). Premium and
+        // Pro members are in it for their whole membership; anyone else for
+        // the days of a boost they paid for. Filtered by city, it is the
+        // regional placement of task 20.8.
+        $featured = $producers->onFirstPage()
+            ? $this->cards($city)
+                ->whereIn('id', $subscriptions->producerIdsWith('featured_section')->concat($boosts->runningIds(Boost::PROFILE))->unique()->values())
+                ->inRandomOrder()
+                ->limit(3)
+                ->get()
+            : collect();
+
+        $subscriptions->markPremium($producers->getCollection()->concat($featured));
+
+        $cities = Producer::published()
             ->whereNotNull('city')
             ->distinct()
             ->orderBy('city')
@@ -42,27 +61,76 @@ class ProducerController extends Controller
 
         return Inertia::render('marketplace/producers/index', [
             'producers' => $producers,
+            'featured' => $featured,
+            // Every published producer that marked a point, within the city
+            // filter. Only sent when the visitor opens the map, as a partial
+            // reload - the list itself never pays for it.
+            'mapPoints' => Inertia::optional(fn () => Producer::published()
+                ->whereNotNull('lat')
+                ->whereNotNull('lng')
+                ->when($city, fn ($query) => $query->where('city', $city))
+                ->get(['id', 'name', 'slug', 'city', 'lat', 'lng'])
+                ->map(fn (Producer $producer) => [
+                    'id' => $producer->id,
+                    'name' => $producer->name,
+                    'subtitle' => $producer->city,
+                    'href' => route('marketplace.producers.show', $producer->slug),
+                    'lat' => (float) $producer->lat,
+                    'lng' => (float) $producer->lng,
+                ])),
             'cities' => $cities,
             'filters' => ['city' => $request->string('city')->toString() ?: null],
         ]);
     }
 
     /**
+     * Published producers, in the city if one is chosen, with what their
+     * card shows.
+     *
+     * @return Builder<Producer>
+     */
+    private function cards(string $city): Builder
+    {
+        return Producer::published()
+            ->withCardData()
+            ->when($city, fn ($query) => $query->where('city', $city));
+    }
+
+    /**
      * Show a producer's public page. Only 'active' producers (approved by
      * an admin, task 2.6) are publicly visible - pending/blocked ones 404.
      */
-    public function show(Producer $producer): Response
+    public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics): Response
     {
         if ($producer->status !== 'active') {
             throw new NotFoundHttpException;
         }
 
-        $user = request()->user();
+        // After the response is sent, so a visitor never waits on a counter.
+        defer(fn () => $statistics->record($request, $producer, ProducerStatistics::PROFILE_VIEW));
+
+        $user = $request->user();
 
         return Inertia::render('marketplace/producers/show', [
-            'producer' => $producer,
+            // What the page prints. Not the owner's account id, the stored
+            // coordinates or the moderation fields.
+            'producer' => $producer->only([
+                'id', 'name', 'slug', 'description', 'story', 'address', 'city', 'phone', 'contact_email',
+                'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at', 'lat', 'lng',
+            ]),
+            'meta' => PageMeta::make(
+                $producer->city ? "{$producer->name} - {$producer->city}" : $producer->name,
+                $producer->description,
+                $producer->cover_image_path ?? $producer->logo_path,
+                'profile',
+            ),
+            'isPremium' => $subscriptions->hasFeature($producer, 'premium_badge'),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
-            'products' => $producer->products()->where('status', 'active')->with('images')->get(),
+            'products' => $producer->products()
+                ->where('status', 'active')
+                ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit'])
+                ->with('images:id,product_id,path,order')
+                ->get(),
             // Ordered and stamped by when they were written, not by when a
             // moderator got to them: the date on a review is the day its
             // author had the experience.
@@ -93,7 +161,7 @@ class ProducerController extends Controller
             // Reporting is for signed-in visitors only, so a complaint has
             // someone behind it.
             'canReport' => $user !== null && $producer->user_id !== $user->id,
-            'reportReasons' => Report::REASONS,
+            'reportReasons' => array_map(__(...), Report::REASONS),
             'isFavorited' => $user?->favorites()
                 ->where('favoritable_type', 'household')
                 ->where('favoritable_id', $producer->id)

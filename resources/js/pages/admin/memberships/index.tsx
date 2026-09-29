@@ -1,25 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import PaidItemActions, { CancelRequestedBadge } from '@/components/admin/paid-item-actions';
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import AdminLayout from '@/layouts/admin-layout';
-import { formatRelativeTime } from '@/lib/format';
+import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Check, X } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 
 type Status = 'pending_payment' | 'active' | 'expired' | 'cancelled';
-
-interface Plan {
-    id: number;
-    name: string;
-    description: string | null;
-    price_rsd: number;
-    duration_days: number;
-    features: string[] | null;
-    is_active: boolean;
-    level: number;
-}
 
 interface Subscription {
     id: number;
@@ -28,199 +15,48 @@ interface Subscription {
     amount_rsd: number;
     ends_at: string | null;
     created_at: string;
+    cancel_requested_at: string | null;
     producer: { id: number; name: string; slug: string } | null;
     plan: { id: number; name: string } | null;
 }
 
 const TABS: { status: Status; label: string }[] = [
-    { status: 'pending_payment', label: 'Čekaju uplatu' },
-    { status: 'active', label: 'Aktivne' },
-    { status: 'expired', label: 'Istekle' },
-    { status: 'cancelled', label: 'Otkazane' },
+    { status: 'pending_payment', label: tx('Čekaju uplatu') },
+    { status: 'active', label: tx('Aktivne') },
+    { status: 'expired', label: tx('Istekle') },
+    { status: 'cancelled', label: tx('Otkazane') },
 ];
 
-const dinars = new Intl.NumberFormat('sr-RS');
-
-function PlanForm({ plan, featureLabels }: { plan: Plan; featureLabels: Record<string, string> }) {
-    const { data, setData, put, processing } = useForm({
-        name: plan.name,
-        description: plan.description ?? '',
-        price_rsd: plan.price_rsd,
-        duration_days: plan.duration_days,
-        is_active: plan.is_active,
-        features: plan.features ?? [],
-    });
-
-    const toggle = (feature: string, checked: boolean) =>
-        setData('features', checked ? [...data.features, feature] : data.features.filter((item) => item !== feature));
-
-    const submit: FormEventHandler = (event) => {
-        event.preventDefault();
-        put(route('admin.plans.update', plan.id), { preserveScroll: true });
-    };
-
-    return (
-        <form onSubmit={submit} className="grid gap-3 rounded-xl border p-4">
-            <div className="grid gap-2 sm:grid-cols-2">
-                <div className="grid gap-1.5">
-                    <Label htmlFor={`name-${plan.id}`}>Naziv</Label>
-                    <Input id={`name-${plan.id}`} value={data.name} onChange={(event) => setData('name', event.target.value)} />
-                </div>
-                <div className="grid gap-1.5">
-                    <Label htmlFor={`price-${plan.id}`}>Cena (RSD / godišnje)</Label>
-                    <Input
-                        id={`price-${plan.id}`}
-                        type="number"
-                        min={0}
-                        value={data.price_rsd}
-                        onChange={(event) => setData('price_rsd', Number(event.target.value))}
-                    />
-                </div>
-            </div>
-
-            <div className="grid gap-1.5">
-                <Label htmlFor={`description-${plan.id}`}>Opis</Label>
-                <textarea
-                    id={`description-${plan.id}`}
-                    value={data.description}
-                    onChange={(event) => setData('description', event.target.value)}
-                    className="border-input bg-background min-h-20 rounded-md border px-3 py-2 text-sm"
-                />
-            </div>
-
-            <fieldset className="grid gap-2">
-                <legend className="text-sm font-medium">Šta paket nosi</legend>
-                {Object.entries(featureLabels).map(([key, label]) => (
-                    <label key={key} className="flex cursor-pointer items-center gap-2.5 text-sm">
-                        <input
-                            type="checkbox"
-                            className="border-input text-primary size-4 rounded border"
-                            checked={data.features.includes(key)}
-                            onChange={(event) => toggle(key, event.target.checked)}
-                        />
-                        {label}
-                    </label>
-                ))}
-            </fieldset>
-
-            <label className="flex cursor-pointer items-center gap-2.5 text-sm">
-                <input
-                    type="checkbox"
-                    className="border-input text-primary size-4 rounded border"
-                    checked={data.is_active}
-                    onChange={(event) => setData('is_active', event.target.checked)}
-                />
-                Paket je u ponudi
-            </label>
-
-            <Button size="sm" disabled={processing} className="w-fit">
-                Sačuvaj paket
-            </Button>
-        </form>
-    );
-}
-
 /**
- * Monetisation in the panel (task 20.9). Confirming a payment is a human
- * step on purpose: the money comes in on a bank slip, so someone has to see
- * the statement and say it arrived.
+ * The membership queue (task 20.9). Confirming a payment is a human step on
+ * purpose: the money comes in on a bank slip, so someone has to see the
+ * statement and say it arrived. Plans and prices live on the billing page.
  */
-interface PaymentDetails {
-    recipient: string;
-    address: string;
-    account: string;
-    purpose: string;
-    model: string;
-    code: string;
-}
-
-/**
- * The bank details printed on every payment slip. Edited here rather than in
- * a deployment file: they are not secret, not per-environment, and changing
- * a bank account should not need a developer.
- */
-function PaymentForm({ payment }: { payment: PaymentDetails }) {
-    const { data, setData, put, processing, errors, recentlySuccessful } = useForm({ ...payment });
-
-    const submit: FormEventHandler = (event) => {
-        event.preventDefault();
-        put(route('admin.payment.update'), { preserveScroll: true });
-    };
-
-    const fields: { key: keyof PaymentDetails; label: string; hint?: string }[] = [
-        { key: 'recipient', label: 'Primalac' },
-        { key: 'address', label: 'Adresa primaoca' },
-        { key: 'account', label: 'Račun primaoca', hint: 'U obliku 000-0000000000000-00' },
-        { key: 'purpose', label: 'Svrha uplate', hint: 'Naziv proizvođača se dodaje automatski' },
-        { key: 'model', label: 'Model' },
-        { key: 'code', label: 'Šifra plaćanja' },
-    ];
-
-    return (
-        <form onSubmit={submit} className="mt-4 grid gap-3 rounded-xl border p-4 sm:grid-cols-2">
-            {fields.map((field) => (
-                <div key={field.key} className="grid gap-1.5">
-                    <Label htmlFor={`payment-${field.key}`}>{field.label}</Label>
-                    <Input id={`payment-${field.key}`} value={data[field.key]} onChange={(event) => setData(field.key, event.target.value)} />
-                    {field.hint && <p className="text-muted-foreground text-xs">{field.hint}</p>}
-                    {errors[field.key] && <p className="text-destructive text-xs">{errors[field.key]}</p>}
-                </div>
-            ))}
-
-            <div className="flex items-center gap-3 sm:col-span-2">
-                <Button size="sm" disabled={processing}>
-                    Sačuvaj podatke za uplatu
-                </Button>
-                {recentlySuccessful && <span className="text-olive text-sm">Sačuvano</span>}
-            </div>
-        </form>
-    );
-}
-
 export default function AdminMemberships({
-    plans,
-    featureLabels,
     subscriptions,
     filters,
     counts,
-    revenue,
-    payment,
 }: {
-    plans: Plan[];
-    featureLabels: Record<string, string>;
-    subscriptions: Subscription[];
+    subscriptions: Paginated<Subscription>;
     filters: { status: Status };
     counts: Record<Status, number>;
-    revenue: { plan: string; count: number; total: number }[];
-    payment: PaymentDetails;
 }) {
-    const [editingPlans, setEditingPlans] = useState(false);
-
     const confirm = (subscription: Subscription) => router.patch(route('admin.memberships.confirm', subscription.id), {}, { preserveScroll: true });
-
     const cancel = (subscription: Subscription) => router.patch(route('admin.memberships.cancel', subscription.id), {}, { preserveScroll: true });
 
-    const earned = revenue.reduce((sum, row) => sum + row.total, 0);
-
     return (
-        <AdminLayout title="Članarine">
-            <Head title="Članarine" />
+        <AdminLayout title={t('Članarine')}>
+            <Head title={t('Članarine')} />
 
-            <div className="grid gap-4 sm:grid-cols-3">
-                <div className="rounded-xl border p-4">
-                    <p className="text-muted-foreground text-sm">Ukupno naplaćeno</p>
-                    <p className="mt-1 font-serif text-2xl">{dinars.format(earned)} RSD</p>
-                </div>
-                {revenue.map((row) => (
-                    <div key={row.plan} className="rounded-xl border p-4">
-                        <p className="text-muted-foreground text-sm">{row.plan}</p>
-                        <p className="mt-1 font-serif text-2xl">{dinars.format(row.total)} RSD</p>
-                        <p className="text-muted-foreground text-xs">{row.count} uplata</p>
-                    </div>
-                ))}
-            </div>
+            <p className="text-muted-foreground -mt-4 mb-6 text-sm">
+                Paketi, cene i podaci za uplatnicu su na stranici{' '}
+                <Link href={route('admin.billing.index')} className="underline">
+                    {t('Naplata')}
+                </Link>
+                .
+            </p>
 
-            <div className="border-border/70 mt-8 flex flex-wrap gap-1 border-b pb-3">
+            <div className="border-border/70 flex flex-wrap gap-1 border-b pb-3">
                 {TABS.map((tab) => (
                     <Link
                         key={tab.status}
@@ -231,7 +67,7 @@ export default function AdminMemberships({
                             filters.status === tab.status ? 'bg-olive-soft text-olive' : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
-                        {tab.label}
+                        {t(tab.label)}
                         <span
                             className={cn(
                                 'rounded-full px-1.5 py-0.5 text-[0.65rem] tabular-nums',
@@ -246,74 +82,37 @@ export default function AdminMemberships({
                 ))}
             </div>
 
-            {subscriptions.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">Ovde nema ničega.</p>
+            {subscriptions.data.length === 0 ? (
+                <p className="text-muted-foreground mt-6 text-sm">{t('Ovde nema ničega.')}</p>
             ) : (
                 <div className="mt-6 space-y-3">
-                    {subscriptions.map((subscription) => (
+                    {subscriptions.data.map((subscription) => (
                         <div key={subscription.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
-                                <p className="font-medium">
-                                    {subscription.producer?.name ?? 'Obrisan proizvođač'} · {subscription.plan?.name}
+                                <p className="flex flex-wrap items-center gap-2 font-medium">
+                                    {subscription.producer?.name ?? t('Obrisan proizvođač')} · {subscription.plan?.name}
+                                    {subscription.status === 'active' && <CancelRequestedBadge at={subscription.cancel_requested_at} />}
                                 </p>
                                 <p className="text-muted-foreground mt-1 text-sm">
-                                    Poziv na broj <span className="text-foreground font-medium">{subscription.reference}</span> ·{' '}
-                                    {dinars.format(subscription.amount_rsd)} RSD · zatraženo {formatRelativeTime(subscription.created_at)}
-                                    {subscription.ends_at && ` · važi do ${new Date(subscription.ends_at).toLocaleDateString('sr-RS')}`}
+                                    {t('Poziv na broj')} <span className="text-foreground font-medium">{subscription.reference}</span> ·{' '}
+                                    {formatNumber(subscription.amount_rsd)} RSD ·{' '}
+                                    {t('zatraženo :when', { when: formatRelativeTime(subscription.created_at) })}
+                                    {subscription.ends_at && ` · ${t('važi do :date', { date: formatDate(subscription.ends_at) })}`}
                                 </p>
                             </div>
 
-                            {subscription.status === 'pending_payment' && (
-                                <div className="flex shrink-0 flex-wrap gap-2">
-                                    <Button size="sm" onClick={() => confirm(subscription)}>
-                                        <Check className="size-4" />
-                                        Uplata primljena
-                                    </Button>
-                                    <Button variant="outline" size="sm" onClick={() => cancel(subscription)}>
-                                        <X className="size-4" />
-                                        Otkaži
-                                    </Button>
-                                </div>
-                            )}
+                            <PaidItemActions
+                                status={subscription.status}
+                                what={t('članarinu za :name', { name: subscription.producer?.name ?? '' })}
+                                onConfirm={() => confirm(subscription)}
+                                onCancel={() => cancel(subscription)}
+                            />
                         </div>
                     ))}
                 </div>
             )}
 
-            <section className="mt-12">
-                <h2 className="font-serif text-2xl">Podaci za uplatnicu</h2>
-                <p className="text-muted-foreground mt-1 text-sm">Ovo se štampa na svakoj uplatnici i ugrađuje u QR kod.</p>
-                <PaymentForm payment={payment} />
-            </section>
-
-            <section className="mt-12">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h2 className="font-serif text-2xl">Paketi i cene</h2>
-                    <Button variant="outline" size="sm" onClick={() => setEditingPlans((value) => !value)}>
-                        {editingPlans ? 'Sakrij' : 'Izmeni pakete'}
-                    </Button>
-                </div>
-
-                {editingPlans ? (
-                    <div className="mt-4 grid gap-4 lg:grid-cols-3">
-                        {plans.map((plan) => (
-                            <PlanForm key={plan.id} plan={plan} featureLabels={featureLabels} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                        {plans.map((plan) => (
-                            <div key={plan.id} className="rounded-xl border p-4">
-                                <p className="font-serif text-xl">{plan.name}</p>
-                                <p className="mt-1 font-serif text-2xl">{dinars.format(plan.price_rsd)} RSD</p>
-                                <p className="text-muted-foreground mt-1 text-xs">
-                                    {plan.duration_days} dana · {plan.is_active ? 'u ponudi' : 'povučen'}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
+            <Pagination meta={subscriptions} />
         </AdminLayout>
     );
 }

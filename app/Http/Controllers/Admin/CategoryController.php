@@ -47,7 +47,7 @@ class CategoryController extends Controller
 
         if ($inUse > 0) {
             throw ValidationException::withMessages([
-                'category' => "Kategorija „{$category->name}” ima proizvoda ({$inUse}). Prebacite ih u drugu kategoriju pa je obrišite.",
+                'category' => __('Kategorija „:name” ima proizvoda (:count). Prebacite ih u drugu kategoriju pa je obrišite.', ['name' => $category->name, 'count' => $inUse]),
             ]);
         }
 

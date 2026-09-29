@@ -1,20 +1,31 @@
+import { FeaturedLabel } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { Heart, ImageOff } from 'lucide-react';
 
-export interface ProductCardProduct extends Product {
+/** What the catalog sends per card - not the whole product row. */
+export type ProductCardProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'stock_quantity' | 'images'> & {
     producer?: { id: number; name: string; city: string | null };
     is_favorited?: boolean;
-}
+};
 
 /**
  * The product tile used across the catalog (task 11): image with a hover
  * zoom, a favourite toggle pinned in the corner, and the price set in the
  * landing page's type scale.
  */
-export default function ProductCard({ product, canFavorite }: { product: ProductCardProduct; canFavorite: boolean }) {
+export default function ProductCard({
+    product,
+    canFavorite,
+    featured = false,
+}: {
+    product: ProductCardProduct;
+    canFavorite: boolean;
+    featured?: boolean;
+}) {
     const image = product.images?.[0];
     const outOfStock = product.stock_quantity === 0;
 
@@ -50,7 +61,7 @@ export default function ProductCard({ product, canFavorite }: { product: Product
                     <button
                         type="button"
                         onClick={toggleFavorite}
-                        aria-label={product.is_favorited ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'}
+                        aria-label={product.is_favorited ? t('Ukloni iz omiljenih') : t('Dodaj u omiljene')}
                         aria-pressed={product.is_favorited}
                         className="bg-background/85 hover:bg-background absolute top-3 right-3 grid size-9 place-items-center rounded-full shadow-sm backdrop-blur transition-colors"
                     >
@@ -58,9 +69,11 @@ export default function ProductCard({ product, canFavorite }: { product: Product
                     </button>
                 )}
 
+                {featured && <FeaturedLabel className="absolute top-3 left-3" />}
+
                 {outOfStock && (
                     <span className="bg-charcoal/85 text-primary-foreground absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase">
-                        Nema na stanju
+                        {t('Nema na stanju')}
                     </span>
                 )}
             </div>

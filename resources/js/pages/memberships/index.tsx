@@ -1,13 +1,16 @@
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
+import { CancelRequest, HowItWorks } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatDate, formatNumber } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Check, ReceiptText } from 'lucide-react';
+import { CalendarCheck, Check, MousePointerClick, ReceiptText } from 'lucide-react';
 import { useState } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Članarina', href: '/clanarina' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Članarina'), href: '/clanarina' }];
 
 interface Plan {
     id: number;
@@ -24,11 +27,9 @@ interface ProducerMembership {
     name: string;
     status: string;
     current_plan: { id: number; name: string; level: number } | null;
-    active: { id: number; ends_at: string } | null;
+    active: { id: number; ends_at: string; cancel_requested_at: string | null } | null;
     pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip; download_url: string } | null;
 }
-
-const dinars = new Intl.NumberFormat('sr-RS');
 
 /**
  * Memberships from the producer's side (task 20.1).
@@ -66,15 +67,39 @@ export default function Memberships({
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Članarina" />
+            <Head title={t('Članarina')} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">Članarina</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">{t('Članarina')}</h1>
             <p className="text-muted-foreground mt-3 max-w-xl leading-7">
-                Vrelina juga ne uzima procenat od vaše prodaje — sav novac od prodatog ostaje vama. Platforma se izdržava od godišnje članarine.
+                {t(
+                    'Vrelina juga ne uzima procenat od vaše prodaje — sav novac od prodatog ostaje vama. Platforma se izdržava od godišnje članarine.',
+                )}
             </p>
 
+            <div className="mt-8">
+                <HowItWorks
+                    steps={[
+                        {
+                            icon: MousePointerClick,
+                            title: t('Izaberite paket'),
+                            text: t('Viši paket donosi oznaku Premium, istaknuto mesto i statistiku.'),
+                        },
+                        {
+                            icon: ReceiptText,
+                            title: t('Uplatite'),
+                            text: t('Uplatnica sa QR kodom se otvara odmah — platite u banci ili aplikaciji.'),
+                        },
+                        {
+                            icon: CalendarCheck,
+                            title: t('Važi godinu dana'),
+                            text: t('Aktiviramo čim uplata stigne. Dve nedelje pred istek podsetićemo vas; profil ostaje na sajtu i posle.'),
+                        },
+                    ]}
+                />
+            </div>
+
             {producers.length === 0 ? (
-                <p className="text-muted-foreground mt-8 text-sm">Članarina se odnosi na stranicu proizvođača, a vi je još nemate.</p>
+                <p className="text-muted-foreground mt-8 text-sm">{t('Članarina se odnosi na stranicu proizvođača, a vi je još nemate.')}</p>
             ) : (
                 <>
                     {producers.length > 1 && (
@@ -96,26 +121,33 @@ export default function Memberships({
                     )}
 
                     {producer?.active && (
-                        <p className="border-olive/30 bg-olive-soft text-olive mt-8 rounded-lg border p-4 text-sm">
-                            Aktivan paket: <strong>{producer.current_plan?.name}</strong> — važi do{' '}
-                            {new Date(producer.active.ends_at).toLocaleDateString('sr-RS')}.
-                        </p>
+                        <div className="border-olive/30 bg-olive-soft text-olive mt-8 flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm">
+                            <p>
+                                {t('Aktivan paket:')} <strong>{producer.current_plan?.name}</strong> —{' '}
+                                {t('važi do :date', { date: formatDate(producer.active.ends_at) })}.
+                            </p>
+                            <CancelRequest
+                                href={route('cancellation.membership', producer.active.id)}
+                                requestedAt={producer.active.cancel_requested_at}
+                                what={t('paket „:name”', { name: producer.current_plan?.name ?? '' })}
+                            />
+                        </div>
                     )}
 
                     {producer?.pending && (
                         <section className="border-gold/50 bg-cream-deep mt-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border p-5">
                             <div className="min-w-0">
-                                <h2 className="font-serif text-2xl">Čeka se uplata</h2>
+                                <h2 className="font-serif text-2xl">{t('Čeka se uplata')}</h2>
                                 <p className="text-muted-foreground mt-1 text-sm">
-                                    Paket „{producer.pending.plan}” — poziv na broj{' '}
-                                    <span className="text-foreground font-medium">{producer.pending.slip.reference}</span>, iznos{' '}
+                                    {t('Paket „:name”', { name: producer.pending.plan })} — {t('poziv na broj')}{' '}
+                                    <span className="text-foreground font-medium">{producer.pending.slip.reference}</span>, {t('iznos')}{' '}
                                     {producer.pending.slip.amount} RSD.
                                 </p>
                             </div>
 
                             <Button onClick={() => setSlipOpen(true)}>
                                 <ReceiptText className="size-4" />
-                                Otvori uplatnicu
+                                {t('Otvori uplatnicu')}
                             </Button>
                         </section>
                     )}
@@ -134,10 +166,11 @@ export default function Memberships({
                                 >
                                     <h2 className="font-serif text-2xl">{plan.name}</h2>
                                     <p className="mt-1 font-serif text-3xl">
-                                        {dinars.format(plan.price_rsd)} <span className="text-muted-foreground font-sans text-sm">RSD / god</span>
+                                        {formatNumber(plan.price_rsd)}{' '}
+                                        <span className="text-muted-foreground font-sans text-sm">{t('RSD / god')}</span>
                                     </p>
 
-                                    {plan.description && <p className="text-muted-foreground mt-3 text-sm leading-6">{plan.description}</p>}
+                                    {plan.description && <p className="text-muted-foreground mt-3 text-sm leading-6">{t(plan.description)}</p>}
 
                                     {plan.features && plan.features.length > 0 && (
                                         <ul className="mt-4 space-y-2 text-sm">
@@ -152,10 +185,10 @@ export default function Memberships({
 
                                     <div className="mt-auto pt-5">
                                         {isCurrent ? (
-                                            <p className="text-olive text-sm font-medium">Trenutno aktivan</p>
+                                            <p className="text-olive text-sm font-medium">{t('Trenutno aktivan')}</p>
                                         ) : (
                                             <Button variant={plan.level > 0 ? 'default' : 'outline'} onClick={() => choose(plan.id)}>
-                                                {producer?.active ? 'Pređi na ovaj paket' : 'Izaberi paket'}
+                                                {producer?.active ? t('Pređi na ovaj paket') : t('Izaberi paket')}
                                             </Button>
                                         )}
                                     </div>
@@ -165,8 +198,9 @@ export default function Memberships({
                     </div>
 
                     <p className="text-muted-foreground mt-8 max-w-xl text-sm leading-6">
-                        Kada članarina istekne, vaša stranica ostaje na sajtu i zadržava sve što ste uneli — gubite samo dodatne pogodnosti paketa dok
-                        ne obnovite.
+                        {t(
+                            'Kada članarina istekne, vaša stranica ostaje na sajtu i zadržava sve što ste uneli — gubite samo dodatne pogodnosti paketa dok ne obnovite.',
+                        )}
                     </p>
                 </>
             )}

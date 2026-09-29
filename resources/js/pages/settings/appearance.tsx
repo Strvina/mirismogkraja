@@ -6,10 +6,11 @@ import { type BreadcrumbItem } from '@/types';
 
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { t, tx } from '@/lib/i18n';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Izgled',
+        title: tx('Izgled'),
         href: '/settings/appearance',
     },
 ];
@@ -17,11 +18,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function Appearance() {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Izgled" />
+            <Head title={t('Izgled')} />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Izgled" description="Izaberite svetlu ili tamnu temu" />
+                    <HeadingSmall title={t('Izgled')} description={t('Izaberite svetlu ili tamnu temu')} />
                     <AppearanceTabs />
                 </div>
             </SettingsLayout>

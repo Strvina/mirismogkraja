@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
+import { t } from '@/lib/i18n';
 
 export default function ConfirmPassword() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -23,21 +24,18 @@ export default function ConfirmPassword() {
     };
 
     return (
-        <AuthLayout
-            title="Confirm your password"
-            description="This is a secure area of the application. Please confirm your password before continuing."
-        >
-            <Head title="Confirm password" />
+        <AuthLayout title={t('Potvrdite lozinku')} description={t('Ovo je zaštićen deo sajta. Potvrdite lozinku da biste nastavili.')}>
+            <Head title={t('Potvrda lozinke')} />
 
             <form onSubmit={submit}>
                 <div className="space-y-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{t('Lozinka')}</Label>
                         <Input
                             id="password"
                             type="password"
                             name="password"
-                            placeholder="Password"
+                            placeholder={t('Lozinka')}
                             autoComplete="current-password"
                             value={data.password}
                             autoFocus
@@ -50,7 +48,7 @@ export default function ConfirmPassword() {
                     <div className="flex items-center">
                         <Button className="w-full" disabled={processing}>
                             {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                            Confirm password
+                            {t('Potvrdi lozinku')}
                         </Button>
                     </div>
                 </div>

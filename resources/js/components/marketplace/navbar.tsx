@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -7,6 +8,7 @@ import { Heart, Package, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import AccountMenu from './account-menu';
 import Brand from './brand';
+import LanguageSwitcher from './language-switcher';
 import MenuIcon from './menu-icon';
 import MessagesLink from './messages-link';
 import NotificationsBell from './notifications-bell';
@@ -33,8 +35,8 @@ export default function Navbar() {
     const [guestMenuOpen, setGuestMenuOpen] = useState(false);
 
     const sections = [
-        { href: route('marketplace.producers.index'), paths: ['/proizvodjaci', '/proizvodjac'], label: 'Proizvođači', icon: Sprout },
-        { href: route('marketplace.products.index'), paths: ['/proizvodi', '/proizvod'], label: 'Proizvodi', icon: Package },
+        { href: route('marketplace.producers.index'), paths: ['/proizvodjaci', '/proizvodjac'], label: t('Proizvođači'), icon: Sprout },
+        { href: route('marketplace.products.index'), paths: ['/proizvodi', '/proizvod'], label: t('Proizvodi'), icon: Package },
     ];
 
     // The active section is derived from the current URL, never remembered
@@ -52,7 +54,7 @@ export default function Navbar() {
             <div className="mx-auto flex h-16 max-w-[1380px] items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
                 <Brand />
 
-                <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm md:flex" aria-label="Glavna navigacija">
+                <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm md:flex" aria-label={t('Glavna navigacija')}>
                     {sections.map((section) => {
                         const active = isActive(section.paths);
 
@@ -86,6 +88,7 @@ export default function Navbar() {
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2 sm:gap-3">
+                    <LanguageSwitcher />
                     {auth.user ? (
                         <>
                             <div className="mr-1 hidden items-center gap-4 md:flex">
@@ -93,7 +96,7 @@ export default function Navbar() {
                                 <NotificationsBell className="text-foreground/70 hover:text-foreground" />
                                 <Link
                                     href={route('favorites.index')}
-                                    aria-label="Sačuvano"
+                                    aria-label={t('Sačuvano')}
                                     aria-current={isActive(['/omiljeni']) ? 'page' : undefined}
                                     className="text-foreground/70 hover:text-foreground transition-colors"
                                 >
@@ -108,7 +111,7 @@ export default function Navbar() {
                         <>
                             <DropdownMenu open={guestMenuOpen} onOpenChange={setGuestMenuOpen}>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon" className="md:hidden" aria-label="Meni">
+                                    <Button variant="outline" size="icon" className="md:hidden" aria-label={t('Meni')}>
                                         <MenuIcon open={guestMenuOpen} />
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -124,22 +127,22 @@ export default function Navbar() {
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
                                         <Link href={route('login')} className="cursor-pointer py-2">
-                                            Prijava
+                                            {t('Prijava')}
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
                                         <Link href={route('register')} className="cursor-pointer py-2 font-medium">
-                                            Otvori nalog
+                                            {t('Otvori nalog')}
                                         </Link>
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
 
                             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-                                <Link href={route('login')}>Prijava</Link>
+                                <Link href={route('login')}>{t('Prijava')}</Link>
                             </Button>
                             <Button asChild size="sm" className="hidden sm:inline-flex">
-                                <Link href={route('register')}>Otvori nalog</Link>
+                                <Link href={route('register')}>{t('Otvori nalog')}</Link>
                             </Button>
                         </>
                     )}

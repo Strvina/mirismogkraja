@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ProducerChangeRequest extends Model
 {
+    use CountsByStatus;
+
     public const STATUS_PENDING = 'pending';
 
     public const STATUS_APPROVED = 'approved';

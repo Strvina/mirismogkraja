@@ -7,13 +7,16 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\FoundingProducerService;
+use App\Services\SubscriptionService;
+use App\Support\NotificationText;
 use Database\Seeders\RolesSeeder;
+use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * Tasks 20.4 and 20.5 - the two parts of the monetisation plan that involve
- * no money: the founding hundred, and following a producer.
+ * no money: the founding producers, and following a producer.
  */
 class FoundingAndFollowTest extends TestCase
 {
@@ -76,18 +79,48 @@ class FoundingAndFollowTest extends TestCase
         $this->assertSame($number, $producer->refresh()->founding_number);
     }
 
-    public function test_no_places_are_handed_out_past_the_hundred(): void
+    public function test_no_places_are_handed_out_past_the_limit(): void
     {
+        $this->seed(SubscriptionPlansSeeder::class);
         $admin = $this->admin();
 
-        // Standing in for the first hundred without creating a hundred rows.
-        Producer::factory()->active()->create(['founding_number' => FoundingProducerService::LIMIT]);
+        // Standing in for every place taken, without creating a row for each.
+        Producer::factory()->active()->create(['founding_number' => app(FoundingProducerService::class)->limit()]);
 
         $late = Producer::factory()->create(['status' => 'pending']);
         $this->approve($admin, $late);
 
         $this->assertNull($late->refresh()->founding_number);
         $this->assertSame(0, app(FoundingProducerService::class)->remaining());
+        $this->assertSame(0, $late->subscriptions()->count());
+    }
+
+    /**
+     * A place comes with a free year of Premium - recorded as an ordinary
+     * membership at 0 RSD, and handed out once, on the first approval.
+     */
+    public function test_a_founding_place_comes_with_a_free_year_of_premium(): void
+    {
+        $this->seed(SubscriptionPlansSeeder::class);
+        $admin = $this->admin();
+        $producer = Producer::factory()->create(['status' => 'pending']);
+
+        $this->approve($admin, $producer);
+
+        $membership = $producer->subscriptions()->sole();
+        $this->assertTrue($membership->isActive());
+        $this->assertSame('premium', $membership->plan->slug);
+        $this->assertSame(0, $membership->amount_rsd);
+        $this->assertTrue($membership->ends_at->between(now()->addDays(364), now()->addDays(366)));
+        $this->assertTrue(app(SubscriptionService::class)->hasFeature($producer, 'statistics'));
+
+        // Blocked and approved again: still the one year, not a second.
+        $this->actingAs($admin)->patch(route('admin.producers.status', $producer), ['status' => 'blocked']);
+        $this->approve($admin, $producer);
+        $this->assertSame(1, $producer->subscriptions()->count());
+
+        // A gift is not revenue.
+        $this->actingAs($admin)->get(route('admin.dashboard'))->assertInertia(fn ($page) => $page->where('revenue.0.total', 0));
     }
 
     public function test_the_public_roll_lists_them_in_order(): void
@@ -142,7 +175,7 @@ class FoundingAndFollowTest extends TestCase
 
         $notification = $follower->notifications()->sole();
         $this->assertSame('product.published', $notification->data['type']);
-        $this->assertStringContainsString('Mladi sir', $notification->data['body']);
+        $this->assertStringContainsString('Mladi sir', NotificationText::for($notification->data)['body']);
     }
 
     /** A draft is nobody's news. */

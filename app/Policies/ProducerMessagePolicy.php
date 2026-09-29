@@ -32,4 +32,15 @@ class ProducerMessagePolicy
         // A conversation that already exists stays readable either way.
         return $producer->status === 'active' || ProducerMessage::thread($producer, $buyer)->exists();
     }
+
+    /**
+     * Writing into a thread: whoever may read it, unless the producer has
+     * blocked it. A block closes the conversation both ways - a producer who
+     * could still write to someone who cannot answer would be one-sided -
+     * and the history stays readable to both.
+     */
+    public function send(User $user, Producer $producer, User $buyer): bool
+    {
+        return $this->viewThread($user, $producer, $buyer) && ! $producer->hasBlocked($buyer);
+    }
 }

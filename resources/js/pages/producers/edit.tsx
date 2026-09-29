@@ -1,11 +1,14 @@
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { t } from '@/lib/i18n';
+import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 import ProducerForm from './producer-form';
 
 interface GalleryImage {
@@ -16,7 +19,7 @@ interface GalleryImage {
 
 export default function ProducersEdit({ producer, gallery }: { producer: Producer; gallery: GalleryImage[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Moji proizvođači', href: '/moji-proizvodjaci' },
+        { title: t('Moji proizvođači'), href: '/moji-proizvodjaci' },
         { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
     ];
 
@@ -24,6 +27,9 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
         images: [],
         captions: [],
     });
+    const [preparing, setPreparing] = useState(false);
+    // Per-file errors arrive as images.0, images.1, ...; the first says enough.
+    const imageError = errors.images ?? Object.entries(errors).find(([key]) => key.startsWith('images.'))?.[1];
 
     const uploadImages: FormEventHandler = (e) => {
         e.preventDefault();
@@ -35,24 +41,24 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
     };
 
     const removeImage = (image: GalleryImage) => {
-        if (confirm('Obrisati ovu sliku iz galerije?')) {
+        if (confirm(t('Obrisati ovu sliku iz galerije?'))) {
             router.delete(route('producers.images.destroy', [producer.id, image.id]), { preserveScroll: true });
         }
     };
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Izmena — ${producer.name}`} />
+            <Head title={`${t('Izmena')} — ${producer.name}`} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">Izmena proizvođača</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">{t('Izmena proizvođača')}</h1>
 
             <div className="mt-8">
-                <ProducerForm producer={producer} action={route('producers.update', producer.id)} method="put" submitLabel="Sačuvaj izmene" />
+                <ProducerForm producer={producer} action={route('producers.update', producer.id)} method="put" submitLabel={t('Sačuvaj izmene')} />
             </div>
 
             <section className="mt-16 max-w-xl">
-                <h2 className="font-serif text-2xl">Galerija</h2>
-                <p className="text-muted-foreground mt-2 text-sm">Slike domaćinstva i proizvodnje koje se prikazuju na vašem profilu.</p>
+                <h2 className="font-serif text-2xl">{t('Galerija')}</h2>
+                <p className="text-muted-foreground mt-2 text-sm">{t('Slike domaćinstva i proizvodnje koje se prikazuju na vašem profilu.')}</p>
 
                 {gallery.length > 0 && (
                     <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -62,7 +68,7 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                                 <button
                                     type="button"
                                     onClick={() => removeImage(image)}
-                                    aria-label="Obriši sliku"
+                                    aria-label={t('Obriši sliku')}
                                     className="bg-background/90 text-destructive hover:bg-background absolute top-2 right-2 grid size-8 place-items-center rounded-full shadow-sm transition-colors"
                                 >
                                     <Trash2 className="size-4" />
@@ -75,15 +81,20 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
 
                 <form onSubmit={uploadImages} className="mt-6 space-y-3">
                     <div className="grid gap-2">
-                        <Label htmlFor="gallery-images">Dodaj slike</Label>
+                        <Label htmlFor="gallery-images">{t('Dodaj slike')}</Label>
                         <Input
                             id="gallery-images"
                             type="file"
                             accept="image/*"
                             multiple
-                            onChange={(e) => setData('images', Array.from(e.target.files ?? []))}
+                            onChange={async (e) => {
+                                const files = Array.from(e.target.files ?? []);
+                                setPreparing(true);
+                                setData('images', await shrinkImages(files));
+                                setPreparing(false);
+                            }}
                         />
-                        {errors.images && <p className="text-destructive text-sm">{errors.images}</p>}
+                        <InputError message={imageError} />
                     </div>
 
                     {data.images.map((file, index) => (
@@ -91,8 +102,8 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                             key={file.name + index}
                             value={data.captions[index] ?? ''}
                             maxLength={255}
-                            placeholder={`Opis za "${file.name}" (opciono)`}
-                            aria-label={`Opis slike ${index + 1}`}
+                            placeholder={t('Opis za „:name” (opciono)', { name: file.name })}
+                            aria-label={t('Opis slike :number', { number: index + 1 })}
                             onChange={(e) => {
                                 const captions = [...data.captions];
                                 captions[index] = e.target.value;
@@ -101,7 +112,7 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                         />
                     ))}
 
-                    <Button disabled={processing || data.images.length === 0}>Otpremi</Button>
+                    <Button disabled={processing || preparing || data.images.length === 0}>{preparing ? 'Pripremam…' : 'Otpremi'}</Button>
                 </form>
             </section>
         </MarketplaceLayout>

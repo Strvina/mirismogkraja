@@ -24,7 +24,7 @@ class ProductImageController extends Controller
             'images' => ['required', 'array', 'max:'.max(0, self::MAX_IMAGES - $product->images()->count())],
             'images.*' => ['image', 'max:4096'],
         ], [
-            'images.max' => 'Proizvod može imati najviše '.self::MAX_IMAGES.' fotografija.',
+            'images.max' => __('Proizvod može imati najviše :max fotografija.', ['max' => self::MAX_IMAGES]),
         ]);
 
         $nextOrder = ($product->images()->max('order') ?? -1) + 1;

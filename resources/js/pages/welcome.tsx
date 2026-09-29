@@ -7,6 +7,7 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Leaf, Sprout } from 'lucide-react';
 import { type ReactNode } from 'react';
 
+import { t } from '@/lib/i18n';
 import heroImage from '../assets/hero-ajvar.jpg';
 import cheeseImage from '../assets/producer-cheese.jpg';
 import honeyImage from '../assets/producer-honey.jpg';
@@ -74,11 +75,17 @@ function Section({
 }
 
 export default function Welcome({
+    campaigns,
+    weeklyPick,
+    featuredProducers,
     newProducers,
     popularProducers,
     popularProducts,
     categories,
 }: {
+    campaigns: { id: number; name: string; slug: string; description: string | null; ends_on: string }[];
+    weeklyPick: { producer: HomeProducer; product: HomeProduct | null } | null;
+    featuredProducers: HomeProducer[];
     newProducers: HomeProducer[];
     popularProducers: HomeProducer[];
     popularProducts: HomeProduct[];
@@ -88,15 +95,15 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="Vrelina juga | Domaći proizvođači sa juga Srbije">
-                <meta name="description" content="Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije." />
+            <Head title={t('Vrelina juga | Domaći proizvođači sa juga Srbije')}>
+                <meta name="description" content={t('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije.')} />
             </Head>
 
             <MarketplaceLayout fullBleed>
                 <section className="relative flex min-h-[620px] items-end overflow-hidden sm:min-h-[700px] lg:min-h-[min(820px,86vh)]">
                     <img
                         src={heroImage}
-                        alt="Priprema domaćeg ajvara u tradicionalnoj kuhinji"
+                        alt={t('Priprema domaćeg ajvara u tradicionalnoj kuhinji')}
                         width={1600}
                         height={1056}
                         className="image-warm absolute inset-0 size-full object-cover object-[64%_center]"
@@ -105,17 +112,19 @@ export default function Welcome({
                     <div className="text-primary-foreground relative mx-auto w-full max-w-[1380px] px-5 pt-20 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
                         <div className="reveal-up max-w-3xl">
                             <p className="text-primary-foreground/80 mb-5 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] uppercase">
-                                <span className="bg-gold h-px w-9" /> Iz srca juga Srbije
+                                <span className="bg-gold h-px w-9" /> {t('Iz srca juga Srbije')}
                             </p>
-                            <h1 className="max-w-2xl font-serif text-6xl leading-[0.97] font-medium sm:text-7xl lg:text-[6.6rem]">Vrelina juga.</h1>
+                            <h1 className="max-w-2xl font-serif text-6xl leading-[0.97] font-medium sm:text-7xl lg:text-[6.6rem]">
+                                {t('Vrelina juga.')}
+                            </h1>
                             <p className="text-primary-foreground/85 mt-7 max-w-xl text-base leading-7 sm:text-lg">
-                                Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju.
+                                {t('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju.')}
                             </p>
 
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                                 <Button asChild variant="cream" size="xl">
                                     <Link href={route('marketplace.producers.index')}>
-                                        Pronađi domaće <ArrowRight />
+                                        {t('Pronađi domaće')} <ArrowRight />
                                     </Link>
                                 </Button>
 
@@ -124,11 +133,11 @@ export default function Welcome({
                                     leaving an impression. */}
                                 {auth.user ? (
                                     <Button asChild variant="outlineLight" size="xl">
-                                        <Link href={route('producers.create')}>Predstavi svoje proizvode</Link>
+                                        <Link href={route('producers.create')}>{t('Predstavi svoje proizvode')}</Link>
                                     </Button>
                                 ) : (
                                     <Button asChild variant="outlineLight" size="xl">
-                                        <Link href={route('register')}>Otvori besplatan nalog</Link>
+                                        <Link href={route('register')}>{t('Otvori besplatan nalog')}</Link>
                                     </Button>
                                 )}
                             </div>
@@ -137,7 +146,7 @@ export default function Welcome({
                                 <p className="text-primary-foreground/75 mt-5 max-w-md text-sm leading-6">
                                     Nalog vam treba da sačuvate omiljene proizvođače, pišete im i ostavite utisak. Proizvođač ste?{' '}
                                     <Link href={route('register')} className="decoration-gold/70 font-semibold underline underline-offset-4">
-                                        I vi počinjete odavde.
+                                        {t('I vi počinjete odavde.')}
                                     </Link>
                                 </p>
                             )}
@@ -145,7 +154,7 @@ export default function Welcome({
 
                         <div className="text-primary-foreground/70 mt-14 flex items-center gap-4 text-xs tracking-[0.13em] uppercase">
                             <Leaf className="text-gold size-4" />
-                            <span>Od ljudi koje možete da upoznate</span>
+                            <span>{t('Od ljudi koje možete da upoznate')}</span>
                         </div>
                     </div>
                 </section>
@@ -153,14 +162,14 @@ export default function Welcome({
                 <section id="kategorije" className="mx-auto max-w-[1380px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
                     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
                         <div>
-                            <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">Istražite ukuse</p>
-                            <h2 className="font-serif text-4xl sm:text-5xl">Šta tražite?</h2>
+                            <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{t('Istražite ukuse')}</p>
+                            <h2 className="font-serif text-4xl sm:text-5xl">{t('Šta tražite?')}</h2>
                         </div>
                         <Link
                             href={route('marketplace.products.index')}
                             className="border-foreground/30 flex items-center gap-2 border-b pb-1 text-sm font-semibold"
                         >
-                            Svi proizvodi <ArrowRight className="size-4" />
+                            {t('Svi proizvodi')} <ArrowRight className="size-4" />
                         </Link>
                     </div>
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
@@ -180,24 +189,80 @@ export default function Welcome({
                                 />
                                 <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent_68%)]" />
                                 <h3 className="text-primary-foreground absolute inset-x-4 bottom-4 font-serif text-lg leading-tight">
-                                    {category.name}
+                                    {t(category.name)}
                                 </h3>
                             </Link>
                         ))}
                     </div>
                 </section>
 
+                {/* Seasonal campaigns under way (task 20.3). */}
+                {campaigns.length > 0 && (
+                    <section aria-label={t('Kampanje')} className="bg-primary text-primary-foreground">
+                        <div className="mx-auto flex max-w-[1380px] flex-col gap-3 px-5 py-6 sm:px-8 lg:px-12">
+                            {campaigns.map((campaign) => (
+                                <Link
+                                    key={campaign.id}
+                                    href={route('campaigns.show', campaign.slug)}
+                                    className="group flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1"
+                                >
+                                    <span>
+                                        <span className="text-xs font-semibold tracking-[0.16em] uppercase opacity-80">{t('Kampanja')}</span>{' '}
+                                        <span className="font-serif text-2xl">{campaign.name}</span>
+                                    </span>
+                                    <span className="flex items-center gap-2 text-sm font-semibold group-hover:underline">
+                                        {t('Pogledaj proizvođače')} <ArrowRight className="size-4" />
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {weeklyPick && (
+                    <Section
+                        eyebrow={t('Proizvođač nedelje')}
+                        title={weeklyPick.producer.name}
+                        lead={t('Svake nedelje predstavljamo jedno domaćinstvo i ono što kod njih ne treba propustiti.')}
+                        moreHref={route('marketplace.producers.show', weeklyPick.producer.slug)}
+                        moreLabel={t('Upoznajte ih')}
+                        className="bg-cream-deep"
+                    >
+                        <div className="grid gap-6 sm:grid-cols-2 lg:max-w-4xl">
+                            <HomeProducerCard producer={weeklyPick.producer} />
+                            {weeklyPick.product && <HomeProductCard product={weeklyPick.product} />}
+                        </div>
+                    </Section>
+                )}
+
+                {featuredProducers.length > 0 && (
+                    <Section
+                        eyebrow={t('Istaknuto')}
+                        title={t('Istaknuti proizvođači')}
+                        lead={t('Proizvođači sa Pro članstvom, koji su izabrali da se predstave ovde. Mesta se smenjuju pri svakoj poseti.')}
+                        moreHref={route('marketplace.producers.index')}
+                        moreLabel={t('Svi proizvođači')}
+                        className="bg-gold/5 border-gold/30 border-y"
+                    >
+                        <CardSlider label={t('Istaknuti proizvođači')}>
+                            {featuredProducers.map((producer) => (
+                                <HomeProducerCard key={producer.id} producer={producer} featured />
+                            ))}
+                        </CardSlider>
+                    </Section>
+                )}
+
                 {newProducers.length > 0 && (
                     <Section
                         id="proizvodjaci"
-                        eyebrow="Tek su nam se pridružili"
-                        title="Novi proizvođači"
-                        lead="Domaćinstva koja su nedavno otvorila svoju stranicu — pogledajte šta nude."
+                        eyebrow={t('Tek su nam se pridružili')}
+                        title={t('Novi proizvođači')}
+                        lead={t('Domaćinstva koja su nedavno otvorila svoju stranicu — pogledajte šta nude.')}
                         moreHref={route('marketplace.producers.index')}
-                        moreLabel="Svi proizvođači"
+                        moreLabel={t('Svi proizvođači')}
                         className="bg-cream-deep"
                     >
-                        <CardSlider label="Novi proizvođači">
+                        <CardSlider label={t('Novi proizvođači')}>
                             {newProducers.map((producer) => (
                                 <HomeProducerCard key={producer.id} producer={producer} />
                             ))}
@@ -207,13 +272,13 @@ export default function Welcome({
 
                 {popularProducers.length > 0 && (
                     <Section
-                        eyebrow="Kod njih se najviše navraća"
-                        title="Omiljeni proizvođači"
-                        lead="Oni koje su posetioci najčešće sačuvali i o kojima su ostavili najviše utisaka."
+                        eyebrow={t('Kod njih se najviše navraća')}
+                        title={t('Omiljeni proizvođači')}
+                        lead={t('Oni koje su posetioci najčešće sačuvali i o kojima su ostavili najviše utisaka.')}
                         moreHref={route('marketplace.producers.index')}
-                        moreLabel="Svi proizvođači"
+                        moreLabel={t('Svi proizvođači')}
                     >
-                        <CardSlider label="Omiljeni proizvođači">
+                        <CardSlider label={t('Omiljeni proizvođači')}>
                             {popularProducers.map((producer) => (
                                 <HomeProducerCard key={producer.id} producer={producer} />
                             ))}
@@ -224,14 +289,14 @@ export default function Welcome({
                 {popularProducts.length > 0 && (
                     <Section
                         id="proizvodi"
-                        eyebrow="Odabrano za vas"
-                        title="Najtraženiji proizvodi"
-                        lead="Proizvodi koje posetioci najčešće čuvaju i o kojima najviše pitaju."
+                        eyebrow={t('Odabrano za vas')}
+                        title={t('Najtraženiji proizvodi')}
+                        lead={t('Proizvodi koje posetioci najčešće čuvaju i o kojima najviše pitaju.')}
                         moreHref={route('marketplace.products.index')}
-                        moreLabel="Svi proizvodi"
+                        moreLabel={t('Svi proizvodi')}
                         className="bg-cream-deep"
                     >
-                        <CardSlider label="Najtraženiji proizvodi" itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]">
+                        <CardSlider label={t('Najtraženiji proizvodi')} itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]">
                             {popularProducts.map((product) => (
                                 <HomeProductCard key={product.id} product={product} />
                             ))}
@@ -247,32 +312,33 @@ export default function Welcome({
                         <div className="border-gold absolute -top-4 -left-4 hidden h-24 w-24 border-t border-l lg:block" />
                         <img
                             src={storyImage}
-                            alt="Dve generacije zajedno pripremaju domaću hranu"
+                            alt={t('Dve generacije zajedno pripremaju domaću hranu')}
                             width={1200}
                             height={912}
                             loading="lazy"
                             className="image-warm aspect-[5/4] w-full rounded-md object-cover"
                         />
                         <p className="bg-background/95 absolute bottom-4 left-4 px-4 py-3 font-serif text-sm italic shadow-sm">
-                            Znanje koje se prenosi rukama.
+                            {t('Znanje koje se prenosi rukama.')}
                         </p>
                     </div>
                     <div className="lg:pr-8">
-                        <p className="text-primary mb-4 text-xs font-semibold tracking-[0.16em] uppercase">Kako to ide</p>
-                        <h2 className="font-serif text-4xl leading-[1.08] sm:text-5xl lg:text-6xl">Iza svakog proizvoda stoje ljudi.</h2>
+                        <p className="text-primary mb-4 text-xs font-semibold tracking-[0.16em] uppercase">{t('Kako to ide')}</p>
+                        <h2 className="font-serif text-4xl leading-[1.08] sm:text-5xl lg:text-6xl">{t('Iza svakog proizvoda stoje ljudi.')}</h2>
                         <p className="text-muted-foreground mt-7 text-lg leading-8">
-                            Pronađete proizvod, otvorite stranicu proizvođača i pišete mu direktno. Oko količine, cene i dostave dogovarate se sami —
-                            mi smo tu samo da vas spojimo.
+                            {t(
+                                'Pronađete proizvod, otvorite stranicu proizvođača i pišete mu direktno. Oko količine, cene i dostave dogovarate se sami — mi smo tu samo da vas spojimo.',
+                            )}
                         </p>
                         <div className="bg-border my-8 h-px w-full" />
                         <div className="grid grid-cols-2 gap-6 text-sm leading-6">
                             <p>
-                                <strong className="text-foreground mb-1 block font-serif text-lg">Sa juga Srbije</strong>
-                                <span className="text-muted-foreground">Sastojci poznatog porekla i ukusi vezani za podneblje.</span>
+                                <strong className="text-foreground mb-1 block font-serif text-lg">{t('Sa juga Srbije')}</strong>
+                                <span className="text-muted-foreground">{t('Sastojci poznatog porekla i ukusi vezani za podneblje.')}</span>
                             </p>
                             <p>
-                                <strong className="text-foreground mb-1 block font-serif text-lg">Svojim rukama</strong>
-                                <span className="text-muted-foreground">Mala proizvodnja, zanatsko umeće i vreme kao sastojak.</span>
+                                <strong className="text-foreground mb-1 block font-serif text-lg">{t('Svojim rukama')}</strong>
+                                <span className="text-muted-foreground">{t('Mala proizvodnja, zanatsko umeće i vreme kao sastojak.')}</span>
                             </p>
                         </div>
                     </div>
@@ -286,13 +352,13 @@ export default function Welcome({
                     <div className="bg-primary-foreground/10 absolute inset-y-0 right-[8%] w-px" />
                     <div className="relative mx-auto max-w-3xl">
                         <Sprout className="text-gold mx-auto mb-6 size-8" />
-                        <h2 className="font-serif text-4xl sm:text-6xl">Jeste li proizvođač?</h2>
+                        <h2 className="font-serif text-4xl sm:text-6xl">{t('Jeste li proizvođač?')}</h2>
                         <p className="text-primary-foreground/78 mx-auto mt-5 max-w-xl leading-7">
-                            Otvorite svoju stranicu, postavite proizvode i primajte poruke ljudi koji traže domaće.
+                            {t('Otvorite svoju stranicu, postavite proizvode i primajte poruke ljudi koji traže domaće.')}
                         </p>
                         <Button asChild variant="cream" size="xl" className="mt-8">
                             <Link href={auth.user ? route('producers.create') : route('register')}>
-                                Predstavi svoje proizvode <ArrowRight />
+                                {t('Predstavi svoje proizvode')} <ArrowRight />
                             </Link>
                         </Button>
                     </div>

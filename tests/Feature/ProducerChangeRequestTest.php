@@ -156,7 +156,7 @@ class ProducerChangeRequestTest extends TestCase
 
         $this->actingAs($this->admin())->get(route('admin.change-requests.index'))->assertInertia(
             fn ($page) => $page->where('filters.status', ProducerChangeRequest::STATUS_PENDING)
-                ->has('requests', 1)
+                ->has('requests.data', 1)
                 ->where('counts.pending', 1)
         );
     }

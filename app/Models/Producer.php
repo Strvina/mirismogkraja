@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Database\Factories\ProducerFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -95,19 +97,68 @@ class Producer extends Model
         return $this->hasMany(ProducerMessage::class, 'household_id');
     }
 
-    /**
-     * Saved by buyers. Counted as the popularity signal on the homepage -
-     * it's a deliberate action by a signed-in person, unlike a page view.
-     */
+    /** Memberships, paid and pending (task 20.1). */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(ProducerSubscription::class, 'household_id');
+    }
+
+    /**
+     * The membership in force right now, if any - the one running longest
+     * when a renewal has already been paid. Loaded in one query for a whole
+     * list, which is how the admin panel shows every producer's plan.
+     */
+    public function currentMembership(): HasOne
+    {
+        return $this->hasOne(ProducerSubscription::class, 'household_id')
+            ->ofMany(['ends_at' => 'max'], fn ($query) => $query->active());
+    }
+
+    /** Buyers this producer no longer takes messages from. */
+    public function blockedBuyers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'conversation_blocks', 'household_id', 'buyer_id');
+    }
+
+    public function hasBlocked(User $buyer): bool
+    {
+        return $this->blockedBuyers()->whereKey($buyer->id)->exists();
     }
 
     /** People who asked to hear when this producer lists something new. */
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'producer_follows', 'household_id', 'user_id');
+    }
+
+    /**
+     * Approved by an admin and so visible to the public (task 2.6). Every
+     * public query starts here, so a pending or blocked producer cannot leak
+     * through one that forgot to ask.
+     *
+     * @param  Builder<Producer>  $query
+     */
+    public function scopePublished(Builder $query): void
+    {
+        $query->where($query->qualifyColumn('status'), 'active');
+    }
+
+    /**
+     * Everything the directory card shows - and not the story and contact
+     * details behind it: rating, counts and the two latest reviews.
+     *
+     * @param  Builder<Producer>  $query
+     */
+    public function scopeWithCardData(Builder $query): void
+    {
+        $query
+            ->select($query->qualifyColumns(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods']))
+            ->withAvg(['reviews' => fn ($reviews) => $reviews->approved()], 'rating')
+            ->withCount([
+                'reviews' => fn ($reviews) => $reviews->approved(),
+                'products' => fn ($products) => $products->where('status', 'active'),
+            ])
+            ->with(['reviews' => fn ($reviews) => $reviews->approved()->latest()->limit(2)->with('user:id,name,avatar_path')]);
     }
 
     public function isVerified(): bool
@@ -120,6 +171,10 @@ class Producer extends Model
         return $this->founding_number !== null;
     }
 
+    /**
+     * Saved by buyers. Counted as the popularity signal on the homepage -
+     * it's a deliberate action by a signed-in person, unlike a page view.
+     */
     public function favorites(): MorphMany
     {
         return $this->morphMany(Favorite::class, 'favoritable');

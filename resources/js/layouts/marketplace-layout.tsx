@@ -1,5 +1,6 @@
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
+import { t } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
@@ -31,15 +32,15 @@ export default function MarketplaceLayout({
             ) : (
                 <main className="mx-auto w-full max-w-[1380px] flex-1 px-5 py-12 sm:px-8 lg:px-12">
                     {breadcrumbs && breadcrumbs.length > 0 && (
-                        <nav aria-label="Putanja" className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
+                        <nav aria-label={t('Putanja')} className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
                             {breadcrumbs.map((crumb, index) => (
                                 <span key={crumb.href} className="flex items-center gap-1.5">
                                     {index > 0 && <ChevronRight className="size-3.5 opacity-50" />}
                                     {index === breadcrumbs.length - 1 ? (
-                                        <span className="text-foreground font-medium">{crumb.title}</span>
+                                        <span className="text-foreground font-medium">{t(crumb.title)}</span>
                                     ) : (
                                         <Link href={crumb.href} className="hover:text-foreground transition-colors">
-                                            {crumb.title}
+                                            {t(crumb.title)}
                                         </Link>
                                     )}
                                 </span>

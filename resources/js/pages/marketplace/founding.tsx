@@ -1,4 +1,5 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { t } from '@/lib/i18n';
 import { Head, Link } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 
@@ -21,25 +22,27 @@ interface FoundingProducer {
 export default function Founding({ producers, claimed, limit }: { producers: FoundingProducer[]; claimed: number; limit: number }) {
     return (
         <MarketplaceLayout>
-            <Head title="Prvih 100 proizvođača | Vrelina juga">
-                <meta name="description" content="Proizvođači koji su prvi poverovali u domaću proizvodnju na Vrelini juga." />
+            <Head title={`${t('Prvih :count proizvođača', { count: limit })} | Vrelina juga`}>
+                <meta name="description" content={t('Proizvođači koji su prvi poverovali u domaću proizvodnju na Vrelini juga.')} />
             </Head>
 
-            <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">Prvi koji su verovali</p>
-            <h1 className="font-serif text-4xl sm:text-5xl">Prvih 100 proizvođača</h1>
+            <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{t('Prvi koji su verovali')}</p>
+            <h1 className="font-serif text-4xl sm:text-5xl">{t('Prvih :count proizvođača', { count: limit })}</h1>
             <p className="text-muted-foreground mt-4 max-w-xl leading-7">
-                Ljudi koji su izneli svoje proizvode pre nego što ih je iko tražio. Njihov redni broj ostaje uz njih zauvek.
+                {t(
+                    'Ljudi koji su izneli svoje proizvode pre nego što ih je iko tražio. Njihov redni broj ostaje uz njih zauvek, a prva godina Premium članstva je na nas.',
+                )}
             </p>
 
             <p className="border-border/70 mt-6 inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm">
                 <span className="font-serif text-xl">
                     {claimed} / {limit}
                 </span>
-                <span className="text-muted-foreground">mesta zauzeto</span>
+                <span className="text-muted-foreground">{t('mesta zauzeto')}</span>
             </p>
 
             {producers.length === 0 ? (
-                <p className="text-muted-foreground mt-10 text-sm">Još nijedno mesto nije zauzeto. Vaše može biti prvo.</p>
+                <p className="text-muted-foreground mt-10 text-sm">{t('Još nijedno mesto nije zauzeto. Vaše može biti prvo.')}</p>
             ) : (
                 <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {producers.map((producer) => (
@@ -49,7 +52,12 @@ export default function Founding({ producers, claimed, limit }: { producers: Fou
                                 className="group border-border/70 hover:border-border flex h-full gap-4 rounded-lg border p-4 transition-shadow hover:shadow-lg"
                             >
                                 {producer.logo_path ? (
-                                    <img src={`/storage/${producer.logo_path}`} alt="" className="size-14 shrink-0 rounded-full object-cover" />
+                                    <img
+                                        loading="lazy"
+                                        src={`/storage/${producer.logo_path}`}
+                                        alt=""
+                                        className="size-14 shrink-0 rounded-full object-cover"
+                                    />
                                 ) : (
                                     <span className="bg-olive-soft text-olive grid size-14 shrink-0 place-items-center rounded-full font-serif text-xl">
                                         {producer.name.charAt(0).toUpperCase()}

@@ -10,10 +10,11 @@ import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t, tx } from '@/lib/i18n';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Lozinka',
+        title: tx('Lozinka'),
         href: '/settings/password',
     },
 ];
@@ -50,15 +51,15 @@ export default function Password() {
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Lozinka" />
+            <Head title={t('Lozinka')} />
 
             <SettingsLayout>
                 <div className="space-y-6">
-                    <HeadingSmall title="Izmena lozinke" description="Koristite dugu, nasumičnu lozinku da bi nalog ostao bezbedan" />
+                    <HeadingSmall title={t('Izmena lozinke')} description={t('Koristite dugu, nasumičnu lozinku da bi nalog ostao bezbedan')} />
 
                     <form onSubmit={updatePassword} className="space-y-6">
                         <div className="grid gap-2">
-                            <Label htmlFor="current_password">Trenutna lozinka</Label>
+                            <Label htmlFor="current_password">{t('Trenutna lozinka')}</Label>
 
                             <Input
                                 id="current_password"
@@ -68,14 +69,14 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="current-password"
-                                placeholder="Trenutna lozinka"
+                                placeholder={t('Trenutna lozinka')}
                             />
 
                             <InputError message={errors.current_password} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="password">Nova lozinka</Label>
+                            <Label htmlFor="password">{t('Nova lozinka')}</Label>
 
                             <Input
                                 id="password"
@@ -85,14 +86,14 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="new-password"
-                                placeholder="Nova lozinka"
+                                placeholder={t('Nova lozinka')}
                             />
 
                             <InputError message={errors.password} />
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="password_confirmation">Potvrda nove lozinke</Label>
+                            <Label htmlFor="password_confirmation">{t('Potvrda nove lozinke')}</Label>
 
                             <Input
                                 id="password_confirmation"
@@ -101,14 +102,14 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="new-password"
-                                placeholder="Potvrda nove lozinke"
+                                placeholder={t('Potvrda nove lozinke')}
                             />
 
                             <InputError message={errors.password_confirmation} />
                         </div>
 
                         <div className="flex items-center gap-4">
-                            <Button disabled={processing}>Sačuvaj lozinku</Button>
+                            <Button disabled={processing}>{t('Sačuvaj lozinku')}</Button>
 
                             <Transition
                                 show={recentlySuccessful}
@@ -117,7 +118,7 @@ export default function Password() {
                                 leave="transition ease-in-out"
                                 leaveTo="opacity-0"
                             >
-                                <p className="text-sm text-neutral-600">Sačuvano</p>
+                                <p className="text-sm text-neutral-600">{t('Sačuvano')}</p>
                             </Transition>
                         </div>
                     </form>

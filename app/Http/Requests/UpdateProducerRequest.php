@@ -11,4 +11,10 @@ class UpdateProducerRequest extends StoreProducerRequest
     {
         return $this->user()->can('update', $this->route('producer'));
     }
+
+    /** Products are added on their own page once the producer exists. */
+    protected function productRules(): array
+    {
+        return [];
+    }
 }

@@ -1,5 +1,8 @@
 import FavoriteButton from '@/components/favorite-button';
+import InfoHint from '@/components/info-hint';
+import { PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import { PremiumBadge } from '@/components/marketplace/plan-badges';
 import ReportButton from '@/components/marketplace/report-button';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
@@ -7,6 +10,9 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
+import { t } from '@/lib/i18n';
+import { shrinkImage } from '@/lib/shrink-image';
+import { mobileNumberForApps, trackContact } from '@/lib/statistics';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { BadgeCheck, Bell, BellRing, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
@@ -18,6 +24,7 @@ export default function ProducerShow({
     products,
     reviews,
     averageRating,
+    isPremium,
     canReview,
     myPendingReview,
     canMessage,
@@ -28,11 +35,12 @@ export default function ProducerShow({
     reportReasons,
     isFavorited,
 }: {
-    producer: Producer;
+    producer: Omit<Producer, 'user_id' | 'status' | 'created_at' | 'updated_at'>;
     gallery: { id: number; path: string; caption: string | null }[];
-    products: Product[];
+    products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
+    isPremium: boolean;
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
     canMessage: boolean;
@@ -48,6 +56,14 @@ export default function ProducerShow({
     const [comment, setComment] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [phoneShown, setPhoneShown] = useState(false);
+    // Opened on request: Leaflet and the map tiles are only fetched for a
+    // visitor who asks to see them.
+    const [mapShown, setMapShown] = useState(false);
+    const point =
+        producer.lat && producer.lng ? { id: producer.id, name: producer.name, lat: Number(producer.lat), lng: Number(producer.lng) } : null;
+    // Viber and WhatsApp open a chat with a mobile number, so they are only
+    // offered when the number is one.
+    const mobile = producer.phone ? mobileNumberForApps(producer.phone) : null;
 
     const submitReview: FormEventHandler = (e) => {
         e.preventDefault();
@@ -86,12 +102,32 @@ export default function ProducerShow({
                         {producer.name}
                         {producer.verified_at && (
                             <span
-                                title="Identitet proizvođača je proveren"
+                                title={t('Identitet proizvođača je proveren')}
                                 className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
                             >
                                 <BadgeCheck className="size-3.5" />
-                                Provereno
+                                {t('Provereno')}
                             </span>
+                        )}
+                        {isPremium && <PremiumBadge className="py-1" />}
+                        {(producer.verified_at || isPremium || producer.founding_number !== null) && (
+                            <InfoHint label={t('Šta znače oznake?')} title={t('Oznake na profilu')}>
+                                {producer.verified_at && (
+                                    <p>
+                                        <strong>{t('Provereno')}</strong> {t('— proverili smo ko stoji iza ovog proizvođača.')}
+                                    </p>
+                                )}
+                                {isPremium && (
+                                    <p>
+                                        <strong>Premium</strong> {t('— proizvođač ima plaćeno Premium ili Pro članstvo na sajtu.')}
+                                    </p>
+                                )}
+                                {producer.founding_number !== null && (
+                                    <p>
+                                        <strong>{t('Osnivač')}</strong> — jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.
+                                    </p>
+                                )}
+                            </InfoHint>
                         )}
                     </h1>
                     <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
@@ -138,7 +174,7 @@ export default function ProducerShow({
                         <Button asChild variant="outline" size="sm">
                             <Link href={route('messages.show', producer.slug)}>
                                 <MessageCircle className="size-4" />
-                                Pošalji poruku
+                                {t('Pošalji poruku')}
                             </Link>
                         </Button>
                     )}
@@ -155,32 +191,91 @@ export default function ProducerShow({
                 <div className="border-border/70 mt-6 grid gap-4 rounded-lg border p-5 text-sm sm:grid-cols-3">
                     {producer.phone && (
                         <div className="min-w-0">
-                            <p className="text-muted-foreground text-xs">Telefon</p>
+                            <p className="text-muted-foreground text-xs">{t('Telefon')}</p>
                             {phoneShown ? (
-                                <a href={`tel:${producer.phone}`} className="font-medium break-words">
-                                    {producer.phone}
-                                </a>
+                                <>
+                                    <a href={`tel:${producer.phone}`} className="font-medium break-words">
+                                        {producer.phone}
+                                    </a>
+                                    {mobile && (
+                                        <span className="mt-1 flex gap-3 text-xs">
+                                            <a
+                                                href={`viber://chat?number=%2B${mobile}`}
+                                                onClick={() => trackContact(producer.id, 'viber_click')}
+                                                className="text-primary font-semibold underline"
+                                            >
+                                                Viber
+                                            </a>
+                                            <a
+                                                href={`https://wa.me/${mobile}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                onClick={() => trackContact(producer.id, 'whatsapp_click')}
+                                                className="text-primary font-semibold underline"
+                                            >
+                                                WhatsApp
+                                            </a>
+                                        </span>
+                                    )}
+                                </>
                             ) : (
-                                <button type="button" onClick={() => setPhoneShown(true)} className="text-primary font-medium underline">
-                                    Prikaži broj
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPhoneShown(true);
+                                        trackContact(producer.id, 'phone_reveal');
+                                    }}
+                                    className="text-primary font-medium underline"
+                                >
+                                    {t('Prikaži broj')}
                                 </button>
                             )}
                         </div>
                     )}
                     {producer.contact_email && (
                         <div className="min-w-0">
-                            <p className="text-muted-foreground text-xs">Email</p>
-                            <a href={`mailto:${producer.contact_email}`} className="font-medium break-all">
+                            <p className="text-muted-foreground text-xs">{t('Email')}</p>
+                            <a
+                                href={`mailto:${producer.contact_email}`}
+                                onClick={() => trackContact(producer.id, 'email_click')}
+                                className="font-medium break-all"
+                            >
                                 {producer.contact_email}
                             </a>
                         </div>
                     )}
                     {producer.address && (
                         <div className="min-w-0">
-                            <p className="text-muted-foreground text-xs">Adresa</p>
+                            <p className="text-muted-foreground text-xs">{t('Adresa')}</p>
                             <p className="font-medium break-words">{producer.address}</p>
                         </div>
                     )}
+                </div>
+            )}
+
+            {point && (
+                <div className="mt-4">
+                    <div className="flex flex-wrap items-center gap-4 text-sm">
+                        <button
+                            type="button"
+                            onClick={() => setMapShown(!mapShown)}
+                            aria-expanded={mapShown}
+                            className="text-primary font-medium underline"
+                        >
+                            {mapShown ? t('Sakrij mapu') : t('Prikaži na mapi')}
+                        </button>
+                        {/* Directions are what a buyer on their way needs, and
+                            every phone already has Google Maps. */}
+                        <a
+                            href={`https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-muted-foreground underline"
+                        >
+                            {t('Otvori u Google mapama')}
+                        </a>
+                    </div>
+                    {mapShown && <PointsMap points={[point]} className="mt-3 h-64 max-w-2xl" />}
                 </div>
             )}
 
@@ -190,7 +285,7 @@ export default function ProducerShow({
                 <div className="mt-6 flex flex-wrap items-center gap-2">
                     <span className="text-muted-foreground flex items-center gap-1.5 text-sm">
                         <Truck className="size-4" />
-                        Način dostave:
+                        {t('Način dostave:')}
                     </span>
                     {producer.delivery_methods.map((method) => (
                         <span key={method} className="bg-olive-soft text-olive rounded-full px-3 py-1 text-xs font-medium">
@@ -202,14 +297,14 @@ export default function ProducerShow({
 
             {producer.story && (
                 <section className="mt-12 max-w-2xl">
-                    <h2 className="font-serif text-2xl">Kako nastaje</h2>
+                    <h2 className="font-serif text-2xl">{t('Kako nastaje')}</h2>
                     <p className="text-muted-foreground mt-3 leading-7 break-words whitespace-pre-line">{producer.story}</p>
                 </section>
             )}
 
             {gallery.length > 0 && (
                 <section className="mt-12">
-                    <h2 className="font-serif text-2xl">Galerija</h2>
+                    <h2 className="font-serif text-2xl">{t('Galerija')}</h2>
                     <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                         {gallery.map((image) => (
                             <figure key={image.id} className="group">
@@ -229,9 +324,9 @@ export default function ProducerShow({
             )}
 
             <section className="mt-12">
-                <h2 className="font-serif text-2xl">Proizvodi</h2>
+                <h2 className="font-serif text-2xl">{t('Proizvodi')}</h2>
                 {products.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">Ovaj proizvođač još nema objavljene proizvode.</p>
+                    <p className="text-muted-foreground mt-2 text-sm">{t('Ovaj proizvođač još nema objavljene proizvode.')}</p>
                 ) : (
                     <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
                         {products.map((product) => (
@@ -239,6 +334,7 @@ export default function ProducerShow({
                                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
                                     {product.images?.[0] && (
                                         <img
+                                            loading="lazy"
                                             src={`/storage/${product.images[0].path}`}
                                             alt={product.name}
                                             className="image-warm size-full object-cover transition group-hover:scale-105"
@@ -254,7 +350,7 @@ export default function ProducerShow({
             </section>
 
             <section className="mt-12 max-w-2xl">
-                <h2 className="font-serif text-2xl">Utisci kupaca</h2>
+                <h2 className="font-serif text-2xl">{t('Utisci kupaca')}</h2>
 
                 {/* The author's own review, still with a moderator, sits
                     where it will live once published - same card, same
@@ -266,7 +362,7 @@ export default function ProducerShow({
                 )}
 
                 {reviews.total === 0 ? (
-                    !myPendingReview && <p className="text-muted-foreground mt-2 text-sm">Još niko nije ostavio utisak o ovom proizvođaču.</p>
+                    !myPendingReview && <p className="text-muted-foreground mt-2 text-sm">{t('Još niko nije ostavio utisak o ovom proizvođaču.')}</p>
                 ) : (
                     <div className="mt-4 space-y-4">
                         {reviews.data.map((review) => (
@@ -279,14 +375,14 @@ export default function ProducerShow({
                 {canReview && (
                     <form onSubmit={submitReview} className="border-border/70 mt-6 space-y-3 rounded-lg border p-5">
                         <div>
-                            <h3 className="font-serif text-xl">Ostavi utisak</h3>
+                            <h3 className="font-serif text-xl">{t('Ostavi utisak')}</h3>
                             <p className="text-muted-foreground mt-1 text-sm">
-                                Utisak može da ostavi neko sa kim se proizvođač već dopisivao. Objavljujemo ga pošto ga pregledamo.
+                                {t('Utisak može da ostavi neko sa kim se proizvođač već dopisivao. Objavljujemo ga pošto ga pregledamo.')}
                             </p>
                         </div>
                         <div className="grid gap-1.5">
                             <label htmlFor="review-rating" className="text-muted-foreground text-xs">
-                                Vaša ocena
+                                {t('Vaša ocena')}
                             </label>
                             <select
                                 id="review-rating"
@@ -304,31 +400,34 @@ export default function ProducerShow({
                         <textarea
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
-                            placeholder="Kako je prošlo? Napišite par rečenica..."
-                            aria-label="Vaš utisak"
+                            placeholder={t('Kako je prošlo? Napišite par rečenica...')}
+                            aria-label={t('Vaš utisak')}
                             className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                         />
                         <div className="grid gap-1.5">
                             <label htmlFor="review-image" className="text-muted-foreground text-xs">
-                                Slika onoga što ste dobili (nije obavezno)
+                                {t('Slika onoga što ste dobili (nije obavezno)')}
                             </label>
                             <input
                                 id="review-image"
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    setImage(file ? await shrinkImage(file) : null);
+                                }}
                                 className="border-input bg-background w-full max-w-xs rounded-md border px-3 py-2 text-sm"
                             />
                         </div>
-                        <Button>Pošalji utisak</Button>
+                        <Button>{t('Pošalji utisak')}</Button>
                     </form>
                 )}
 
                 {!canReview && !myPendingReview && (
                     <p className="text-muted-foreground mt-6 text-sm">
                         {auth.user
-                            ? 'Utisak možete ostaviti kada vam se proizvođač javi na vašu poruku.'
-                            : 'Utiske ostavljaju prijavljeni korisnici koji su se dopisivali sa proizvođačem.'}
+                            ? t('Utisak možete ostaviti kada vam se proizvođač javi na vašu poruku.')
+                            : t('Utiske ostavljaju prijavljeni korisnici koji su se dopisivali sa proizvođačem.')}
                     </p>
                 )}
             </section>

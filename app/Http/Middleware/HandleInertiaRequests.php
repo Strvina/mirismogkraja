@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ProducerMessage;
+use App\Support\NotificationText;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
@@ -19,16 +20,6 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
-    public function version(Request $request): ?string
-    {
-        return parent::version($request);
-    }
-
-    /**
      * Define the props that are shared by default.
      *
      * @see https://inertiajs.com/shared-data
@@ -37,9 +28,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return array_merge(parent::share($request), [
+        return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // Which language the page is in; the client loads its words.
+            'locale' => app()->getLocale(),
             'auth' => [
                 // Roles come along so the header can offer the admin panel
                 // link without every page having to pass them.
@@ -66,12 +59,11 @@ class HandleInertiaRequests extends Middleware
                 ->get()
                 ->map(fn ($notification) => [
                     'id' => $notification->id,
-                    'title' => $notification->data['title'] ?? '',
-                    'body' => $notification->data['body'] ?? null,
+                    ...NotificationText::for($notification->data),
                     'read' => $notification->read_at !== null,
                     'created_at' => $notification->created_at,
                 ])),
-        ]);
+        ];
     }
 
     /**

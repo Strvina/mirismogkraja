@@ -7,6 +7,7 @@ use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Tests\TestCase;
 
@@ -291,5 +292,30 @@ class ProducerMessagingTest extends TestCase
 
         // Reading it through the poll counts as reading it.
         $this->assertNotNull($reply->refresh()->read_at);
+    }
+
+    /**
+     * The poll runs every three seconds for as long as a thread is open, so
+     * it must not count the whole thread or look up what it did not ask for.
+     */
+    public function test_the_poll_runs_no_count_and_nothing_it_did_not_ask_for(): void
+    {
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+        $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Pitanje']);
+
+        DB::enableQueryLog();
+
+        $this->actingAs($producer->user)->withHeaders([
+            'X-Inertia' => 'true',
+            'X-Inertia-Version' => Inertia::getVersion(),
+            'X-Inertia-Partial-Component' => 'messages/show',
+            'X-Inertia-Partial-Data' => 'messages,unreadMessages,blocked',
+        ])->get(route('messages.thread', [$producer->id, $buyer->id]))->assertOk();
+
+        $sql = collect(DB::getQueryLog())->pluck('query')->implode("\n");
+        $this->assertStringNotContainsString('inquiry_outcomes', $sql);
+        // The header badge's count is expected; a count of the thread is not.
+        $this->assertDoesNotMatchRegularExpression('/count\(\*\) as aggregate from "producer_messages" where "household_id" = \? and "buyer_id" = \?/', $sql);
     }
 }

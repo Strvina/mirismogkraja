@@ -10,6 +10,7 @@ use App\Models\User;
 use Database\Seeders\CategoriesSeeder;
 use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\RolesSeeder;
+use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,6 +23,21 @@ class DemoContentSeederTest extends TestCase
         $this->seed(RolesSeeder::class);
         $this->seed(CategoriesSeeder::class);
         $this->seed(DemoContentSeeder::class);
+    }
+
+    /** Every paid feature has something to show on a fresh install. */
+    public function test_seeder_fills_every_paid_feature(): void
+    {
+        $this->seed([RolesSeeder::class, CategoriesSeeder::class, SubscriptionPlansSeeder::class, DemoContentSeeder::class]);
+
+        $this->get('/')->assertInertia(fn ($page) => $page
+            ->has('weeklyPick.producer')
+            ->has('campaigns', 1)
+            ->has('featuredProducers', 1));
+        $this->get(route('marketplace.producers.index'))->assertInertia(fn ($page) => $page->where('featured', fn ($featured) => count($featured) >= 1));
+        $this->get(route('marketplace.products.index'))->assertInertia(fn ($page) => $page->has('featured', 1));
+        $this->assertSame(3, Producer::whereNotNull('founding_number')->count());
+        $this->assertSame(6, Producer::whereNotNull('lat')->count());
     }
 
     /**

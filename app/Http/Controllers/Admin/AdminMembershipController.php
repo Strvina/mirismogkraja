@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
+use App\Notifications\SiteNotification;
 use App\Services\SubscriptionService;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
@@ -32,37 +33,18 @@ class AdminMembershipController extends Controller
             $status = ProducerSubscription::STATUS_PENDING;
         }
 
+        // The list only: plans, prices and the slip's bank details have a
+        // page of their own (admin.billing), so no status tab loads them.
         return Inertia::render('admin/memberships/index', [
-            'plans' => SubscriptionPlan::orderBy('level')->get(),
-            'featureLabels' => SubscriptionPlan::FEATURES,
             'subscriptions' => ProducerSubscription::with(['producer:id,name,slug', 'plan:id,name'])
                 ->where('status', $status)
+                // A request to cancel is the thing to act on, so it leads.
+                ->orderByRaw('cancel_requested_at is null')
                 ->latest()
-                ->get(),
+                ->paginate(30)
+                ->withQueryString(),
             'filters' => ['status' => $status],
-            'counts' => collect(ProducerSubscription::STATUSES)
-                ->mapWithKeys(fn (string $value) => [$value => ProducerSubscription::where('status', $value)->count()])
-                ->all(),
-            // What the platform has actually been paid, by plan. Only
-            // confirmed money counts.
-            // Printed on every slip, so the owner edits it here rather
-            // than in a deployment file.
-            'payment' => collect(['recipient', 'address', 'account', 'purpose', 'model', 'code'])
-                ->mapWithKeys(fn (string $key) => [
-                    $key => $this->settings->get('payment.'.$key, (string) config('platform.payment.'.$key)),
-                ])
-                ->all(),
-            'revenue' => ProducerSubscription::query()
-                ->whereNotNull('confirmed_at')
-                ->selectRaw('subscription_plan_id, count(*) as count, sum(amount_rsd) as total')
-                ->groupBy('subscription_plan_id')
-                ->with('plan:id,name')
-                ->get()
-                ->map(fn ($row) => [
-                    'plan' => $row->plan?->name ?? '—',
-                    'count' => (int) $row->count,
-                    'total' => (int) $row->total,
-                ]),
+            'counts' => ProducerSubscription::countsByStatus(),
         ]);
     }
 
@@ -75,9 +57,21 @@ class AdminMembershipController extends Controller
         return back();
     }
 
+    /**
+     * Cancel an unpaid request, or deactivate a running membership - at the
+     * producer's request or otherwise. The producer is told when something
+     * they had was taken away; a refund, if any, is agreed off the site.
+     */
     public function cancel(ProducerSubscription $subscription): RedirectResponse
     {
+        $wasActive = $subscription->status === ProducerSubscription::STATUS_ACTIVE;
+
         $subscription->update(['status' => ProducerSubscription::STATUS_CANCELLED]);
+
+        if ($wasActive) {
+            $subscription->loadMissing(['plan', 'producer.user']);
+            $subscription->producer?->user?->notify(SiteNotification::membershipCancelled($subscription->plan?->name ?? '', route('memberships.index')));
+        }
 
         return back();
     }

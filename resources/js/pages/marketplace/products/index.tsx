@@ -1,7 +1,9 @@
+import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { t } from '@/lib/i18n';
 import { type Category, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
 
@@ -10,6 +12,7 @@ const selectClasses =
 
 export default function ProductsIndex({
     products,
+    featured,
     categories,
     producers,
     cities,
@@ -19,6 +22,7 @@ export default function ProductsIndex({
     perPageOptions,
 }: {
     products: Paginated<ProductCardProduct>;
+    featured: ProductCardProduct[];
     categories: Category[];
     producers: { id: number; name: string }[];
     cities: string[];
@@ -41,10 +45,10 @@ export default function ProductsIndex({
 
     return (
         <MarketplaceLayout>
-            <Head title="Proizvodi | Vrelina juga" />
+            <Head title={t('Proizvodi | Vrelina juga')} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">Proizvodi</h1>
-            <p className="text-muted-foreground mt-3 max-w-lg leading-7">Domaći proizvodi, direktno od ljudi koji ih prave.</p>
+            <h1 className="font-serif text-4xl sm:text-5xl">{t('Proizvodi')}</h1>
+            <p className="text-muted-foreground mt-3 max-w-lg leading-7">{t('Domaći proizvodi, direktno od ljudi koji ih prave.')}</p>
 
             <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:gap-12">
                 <ProductFilters
@@ -60,12 +64,14 @@ export default function ProductsIndex({
                 <div className="flex-1">
                     <div className="border-border/70 mb-6 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
                         <p className="text-muted-foreground text-sm">
-                            {products.total === 0 ? 'Nema proizvoda' : `Prikazano ${products.from}–${products.to} od ${products.total}`}
+                            {products.total === 0
+                                ? t('Nema proizvoda')
+                                : t('Prikazano :from–:to od :total', { from: products.from, to: products.to, total: products.total })}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-3">
                             <label className="flex items-center gap-2 text-sm">
-                                <span className="text-muted-foreground">Po strani:</span>
+                                <span className="text-muted-foreground">{t('Po strani:')}</span>
                                 <select className={selectClasses} value={perPage} onChange={(e) => update({ per_page: Number(e.target.value) })}>
                                     {perPageOptions.map((option) => (
                                         <option key={option} value={option}>
@@ -76,22 +82,43 @@ export default function ProductsIndex({
                             </label>
 
                             <label className="flex items-center gap-2 text-sm">
-                                <span className="text-muted-foreground">Sortiraj:</span>
+                                <span className="text-muted-foreground">{t('Sortiraj:')}</span>
                                 <select
                                     className={selectClasses}
                                     value={filters.sort ?? ''}
                                     onChange={(e) => update({ sort: e.target.value || undefined })}
                                 >
-                                    <option value="">Najnovije</option>
-                                    <option value="price_asc">Cena: niža prvo</option>
-                                    <option value="price_desc">Cena: viša prvo</option>
+                                    <option value="">{t('Najnovije')}</option>
+                                    <option value="price_asc">{t('Cena: niža prvo')}</option>
+                                    <option value="price_desc">{t('Cena: viša prvo')}</option>
                                 </select>
                             </label>
                         </div>
                     </div>
 
+                    {featured.length > 0 && (
+                        <FeaturedSection
+                            className=""
+                            title={t('Istaknuti proizvodi')}
+                            listLabel={t('Svi proizvodi')}
+                            explanation={
+                                <>
+                                    <p>{t('Proizvođači su platili da ovi proizvodi budu istaknuti nekoliko dana.')}</p>
+                                    <p>{t('Prikazuju se samo oni koji odgovaraju vašim filterima, a mesta se smenjuju pri svakoj poseti.')}</p>
+                                    <p>{t('Rezultati ispod su isti za sve i nisu uređeni po tome ko plaća.')}</p>
+                                </>
+                            }
+                        >
+                            <div className="grid grid-cols-2 gap-5 xl:grid-cols-4">
+                                {featured.map((product) => (
+                                    <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
+                                ))}
+                            </div>
+                        </FeaturedSection>
+                    )}
+
                     {products.data.length === 0 ? (
-                        <p className="text-muted-foreground py-16 text-center text-sm">Nema proizvoda za odabrane filtere.</p>
+                        <p className="text-muted-foreground py-16 text-center text-sm">{t('Nema proizvoda za odabrane filtere.')}</p>
                     ) : (
                         <>
                             <div className="grid grid-cols-2 gap-5 xl:grid-cols-3">

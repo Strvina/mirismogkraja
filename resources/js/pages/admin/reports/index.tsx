@@ -1,6 +1,8 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Head, Link, router } from '@inertiajs/react';
 import { Check, X } from 'lucide-react';
@@ -18,9 +20,9 @@ interface Report {
 }
 
 const TABS: { status: Status; label: string }[] = [
-    { status: 'open', label: 'Nove prijave' },
-    { status: 'reviewed', label: 'Rešene' },
-    { status: 'dismissed', label: 'Odbačene' },
+    { status: 'open', label: tx('Nove prijave') },
+    { status: 'reviewed', label: tx('Rešene') },
+    { status: 'dismissed', label: tx('Odbačene') },
 ];
 
 /**
@@ -33,7 +35,7 @@ export default function AdminReports({
     filters,
     counts,
 }: {
-    reports: Report[];
+    reports: Paginated<Report>;
     filters: { status: Status };
     counts: Record<Status, number>;
 }) {
@@ -41,8 +43,8 @@ export default function AdminReports({
         router.patch(route('admin.reports.update', report.id), { status }, { preserveScroll: true });
 
     return (
-        <AdminLayout title="Prijave">
-            <Head title="Prijave" />
+        <AdminLayout title={t('Prijave')}>
+            <Head title={t('Prijave')} />
 
             <div className="border-border/70 flex flex-wrap gap-1 border-b pb-3">
                 {TABS.map((tab) => (
@@ -55,7 +57,7 @@ export default function AdminReports({
                             filters.status === tab.status ? 'bg-olive-soft text-olive' : 'text-muted-foreground hover:bg-muted',
                         )}
                     >
-                        {tab.label}
+                        {t(tab.label)}
                         <span
                             className={cn(
                                 'rounded-full px-1.5 py-0.5 text-[0.65rem] tabular-nums',
@@ -68,11 +70,13 @@ export default function AdminReports({
                 ))}
             </div>
 
-            {reports.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">{filters.status === 'open' ? 'Nema novih prijava.' : 'Ovde još nema ničega.'}</p>
+            {reports.data.length === 0 ? (
+                <p className="text-muted-foreground mt-6 text-sm">
+                    {filters.status === 'open' ? t('Nema novih prijava.') : t('Ovde još nema ničega.')}
+                </p>
             ) : (
                 <div className="mt-6 space-y-3">
-                    {reports.map((report) => (
+                    {reports.data.map((report) => (
                         <div key={report.id} className="flex flex-wrap items-start justify-between gap-4 rounded-xl border p-4">
                             <div className="min-w-0 flex-1">
                                 <p className="text-muted-foreground text-xs">
@@ -84,7 +88,8 @@ export default function AdminReports({
                                     ) : (
                                         report.subject.name
                                     )}{' '}
-                                    · prijavio {report.reporter?.name ?? 'obrisan nalog'} · {formatRelativeTime(report.created_at)}
+                                    · {t('prijavio :name', { name: report.reporter?.name ?? t('obrisan nalog') })} ·{' '}
+                                    {formatRelativeTime(report.created_at)}
                                 </p>
 
                                 <p className="mt-1.5 text-sm font-medium">{report.reason}</p>
@@ -95,11 +100,11 @@ export default function AdminReports({
                                 <div className="flex shrink-0 flex-wrap gap-2">
                                     <Button size="sm" onClick={() => decide(report, 'reviewed')}>
                                         <Check className="size-4" />
-                                        Rešeno
+                                        {t('Rešeno')}
                                     </Button>
                                     <Button variant="outline" size="sm" onClick={() => decide(report, 'dismissed')}>
                                         <X className="size-4" />
-                                        Odbaci
+                                        {t('Odbaci')}
                                     </Button>
                                 </div>
                             )}
@@ -107,6 +112,8 @@ export default function AdminReports({
                     ))}
                 </div>
             )}
+
+            <Pagination meta={reports} />
         </AdminLayout>
     );
 }

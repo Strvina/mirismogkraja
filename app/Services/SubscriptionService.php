@@ -6,6 +6,8 @@ use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Notifications\SiteNotification;
+use App\Support\Admins;
+use App\Support\PaymentReference;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -41,7 +43,47 @@ class SubscriptionService
 
     public function hasFeature(Producer $producer, string $feature): bool
     {
-        return (bool) $this->planFor($producer)?->has($feature);
+        return $this->producerIdsWith($feature)->contains($producer->id);
+    }
+
+    /**
+     * Every producer whose current membership includes a feature - what a
+     * listing needs to badge or feature a whole page of cards at once,
+     * instead of asking producer by producer.
+     *
+     * Two small queries: the plans (a handful of rows, whose features are a
+     * JSON list and so are read in PHP rather than matched in SQL that
+     * differs between MySQL and SQLite), then the active memberships on
+     * them.
+     *
+     * @return Collection<int, int>
+     */
+    public function producerIdsWith(string $feature): Collection
+    {
+        return ProducerSubscription::query()
+            ->active()
+            ->whereIn('subscription_plan_id', SubscriptionPlan::query()
+                ->get(['id', 'features'])
+                ->filter(fn (SubscriptionPlan $plan) => $plan->has($feature))
+                ->modelKeys())
+            ->distinct()
+            ->pluck('household_id');
+    }
+
+    /**
+     * Flag each producer that carries the premium badge, for the card that
+     * shows them. Set as an attribute on the loaded models only - these are
+     * read for display, never saved back.
+     *
+     * @param  iterable<Producer>  $producers
+     */
+    public function markPremium(iterable $producers): void
+    {
+        $premium = $this->producerIdsWith('premium_badge');
+
+        foreach ($producers as $producer) {
+            $producer->setAttribute('is_premium', $premium->contains($producer->id));
+        }
     }
 
     /** The cheapest active plan - what everyone gets without paying. */
@@ -61,20 +103,53 @@ class SubscriptionService
             ->where('status', ProducerSubscription::STATUS_PENDING)
             ->delete();
 
-        return $producer->subscriptions()->create([
+        $subscription = $producer->subscriptions()->create([
             'subscription_plan_id' => $plan->id,
             'status' => ProducerSubscription::STATUS_PENDING,
-            'reference' => ProducerSubscription::newReference(),
+            'reference' => PaymentReference::generate(),
             'amount_rsd' => $plan->price_rsd,
         ]);
+
+        $producer->user?->notify(SiteNotification::membershipRequested($plan->name, $plan->price_rsd, $subscription->reference, route('memberships.index')));
+        Admins::notify(SiteNotification::forAdmins('membership-requested', [
+            'producer' => $producer->name,
+            'plan' => $plan->name,
+            'amount' => number_format($plan->price_rsd, 0, ',', '.'),
+            'reference' => $subscription->reference,
+        ], route('admin.memberships.index')));
+
+        return $subscription;
+    }
+
+    /**
+     * A membership nobody pays for - the founding producers's first year
+     * (task 20.4). Recorded like any other, at 0 RSD, so it shows in the
+     * admin panel, runs out on its own date and sends the same reminders;
+     * nothing about it is special-cased later.
+     */
+    public function grant(Producer $producer, SubscriptionPlan $plan): ProducerSubscription
+    {
+        $subscription = $producer->subscriptions()->create([
+            'subscription_plan_id' => $plan->id,
+            'status' => ProducerSubscription::STATUS_PENDING,
+            'reference' => PaymentReference::generate(),
+            'amount_rsd' => 0,
+        ]);
+
+        // Quietly: the founding notification says what this is, and a
+        // second "membership activated" beside it would only repeat it.
+        return $this->confirmPayment($subscription, null, notify: false);
     }
 
     /**
      * The money arrived. A renewal starts where the current membership ends,
      * not today, so paying early never costs the producer the days they have
      * already paid for.
+     *
+     * $confirmedBy is the admin who saw the payment; null when there was no
+     * payment to see.
      */
-    public function confirmPayment(ProducerSubscription $subscription, int $confirmedBy): ProducerSubscription
+    public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy, bool $notify = true): ProducerSubscription
     {
         $subscription->loadMissing(['plan', 'producer']);
 
@@ -94,11 +169,13 @@ class SubscriptionService
             'expiry_warned_at' => null,
         ]);
 
-        $subscription->producer->user?->notify(SiteNotification::membershipActivated(
-            $subscription->plan->name,
-            $subscription->ends_at->translatedFormat('j. F Y.'),
-            route('memberships.index'),
-        ));
+        if ($notify) {
+            $subscription->producer->user?->notify(SiteNotification::membershipActivated(
+                $subscription->plan->name,
+                $subscription->ends_at,
+                route('memberships.index'),
+            ));
+        }
 
         return $subscription;
     }
@@ -130,7 +207,7 @@ class SubscriptionService
         foreach ($ending as $subscription) {
             $subscription->producer->user?->notify(SiteNotification::membershipEnding(
                 $subscription->plan->name,
-                $subscription->ends_at->translatedFormat('j. F Y.'),
+                $subscription->ends_at,
                 route('memberships.index'),
             ));
 

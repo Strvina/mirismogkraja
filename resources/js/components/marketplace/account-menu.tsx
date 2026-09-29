@@ -1,8 +1,22 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { t } from '@/lib/i18n';
 import { type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { Bell, ChevronDown, Heart, LayoutDashboard, LogOut, MessageCircle, Package, Sprout, UserRound, Wallet } from 'lucide-react';
+import {
+    Bell,
+    CalendarHeart,
+    ChevronDown,
+    Heart,
+    LayoutDashboard,
+    LogOut,
+    Megaphone,
+    MessageCircle,
+    Package,
+    Sprout,
+    UserRound,
+    Wallet,
+} from 'lucide-react';
 import { useState } from 'react';
 import MenuIcon from './menu-icon';
 
@@ -24,23 +38,32 @@ export default function AccountMenu({ user }: { user: User }) {
     const [open, setOpen] = useState(false);
 
     const isAdmin = user.roles?.some((role) => role.name === 'admin') ?? false;
+    const isSeller = user.roles?.some((role) => role.name === 'seller') ?? false;
 
     const browseLinks: MenuLink[] = [
-        { href: route('marketplace.producers.index'), label: 'Proizvođači', icon: Sprout, mobileOnly: true },
-        { href: route('marketplace.products.index'), label: 'Proizvodi', icon: Package, mobileOnly: true },
+        { href: route('marketplace.producers.index'), label: t('Proizvođači'), icon: Sprout, mobileOnly: true },
+        { href: route('marketplace.products.index'), label: t('Proizvodi'), icon: Package, mobileOnly: true },
     ];
 
     const accountLinks: MenuLink[] = [
-        { href: route('messages.index'), label: 'Poruke', icon: MessageCircle, badge: unreadMessages },
-        { href: route('notifications.index'), label: 'Obaveštenja', icon: Bell, badge: unreadNotifications },
-        { href: route('favorites.index'), label: 'Omiljeni', icon: Heart },
-        { href: route('producers.index'), label: 'Moji proizvođači', icon: Sprout },
-        { href: route('memberships.index'), label: 'Članarina', icon: Wallet },
-        { href: route('profile.edit'), label: 'Moj nalog', icon: UserRound },
+        { href: route('messages.index'), label: t('Poruke'), icon: MessageCircle, badge: unreadMessages },
+        { href: route('notifications.index'), label: t('Obaveštenja'), icon: Bell, badge: unreadNotifications },
+        { href: route('favorites.index'), label: t('Omiljeni'), icon: Heart },
+        { href: route('producers.index'), label: t('Moji proizvođači'), icon: Sprout },
+        // What a seller pays for; a buyer without a producer has nothing
+        // to see on these pages, so they are not offered.
+        ...(isSeller
+            ? [
+                  { href: route('memberships.index'), label: t('Članarina'), icon: Wallet },
+                  { href: route('boosts.index'), label: t('Isticanje'), icon: Megaphone },
+                  { href: route('campaigns.index'), label: t('Kampanje'), icon: CalendarHeart },
+              ]
+            : []),
+        { href: route('profile.edit'), label: t('Moj nalog'), icon: UserRound },
     ];
 
     if (isAdmin) {
-        accountLinks.push({ href: route('admin.dashboard'), label: 'Admin panel', icon: LayoutDashboard });
+        accountLinks.push({ href: route('admin.dashboard'), label: t('Admin panel'), icon: LayoutDashboard });
     }
 
     const renderLink = (link: MenuLink) => (
@@ -69,7 +92,7 @@ export default function AccountMenu({ user }: { user: User }) {
                     <span className="hidden max-w-24 truncate md:inline">{user.name.split(' ')[0]}</span>
                     <ChevronDown className={`hidden size-3.5 transition-transform duration-300 md:inline ${open ? 'rotate-180' : ''}`} />
                     {unreadMessages + unreadNotifications > 0 && <span className="bg-primary size-1.5 rounded-full md:hidden" aria-hidden />}
-                    <span className="sr-only">Meni</span>
+                    <span className="sr-only">{t('Meni')}</span>
                 </Button>
             </DropdownMenuTrigger>
 
@@ -102,7 +125,7 @@ export default function AccountMenu({ user }: { user: User }) {
                 <DropdownMenuItem asChild>
                     <Link href={route('logout')} method="post" as="button" className="text-destructive w-full cursor-pointer gap-2.5 py-2">
                         <LogOut className="size-4" />
-                        Odjava
+                        {t('Odjava')}
                     </Link>
                 </DropdownMenuItem>
             </DropdownMenuContent>

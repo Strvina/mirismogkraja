@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InquiryOutcome;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
+use App\Models\Report;
 use App\Models\User;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,6 +32,7 @@ class ProducerMessageController extends Controller
 
         abort_unless($product->isPubliclyVisible(), 404);
         abort_if($product->producer->user_id === $request->user()->id, 403);
+        abort_if($product->producer->hasBlocked($request->user()), 403);
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
@@ -60,13 +64,24 @@ class ProducerMessageController extends Controller
             fn ($query) => $query->where(fn ($inner) => $inner
                 ->where('buyer_id', $user->id)
                 ->orWhereIn('household_id', $ownedProducerIds))
-        )->map(function (array $thread) use ($ownedProducerIds) {
+        );
+
+        // The producer's own note on each of their threads, in one query.
+        $outcomes = InquiryOutcome::query()
+            ->whereIn('household_id', $ownedProducerIds)
+            ->get(['household_id', 'buyer_id', 'status'])
+            ->mapWithKeys(fn (InquiryOutcome $outcome) => [$outcome->household_id.'-'.$outcome->buyer_id => $outcome->status]);
+
+        $threads = $threads->map(function (array $thread) use ($ownedProducerIds, $outcomes) {
             $message = $thread['message'];
             $asProducer = $ownedProducerIds->contains($message->household_id);
+            $key = $message->household_id.'-'.$message->buyer_id;
 
             return [
-                'key' => $message->household_id.'-'.$message->buyer_id,
+                'key' => $key,
                 'as_producer' => $asProducer,
+                // Only the producer sees it; it is their own record.
+                'outcome' => $asProducer && isset($outcomes[$key]) ? __(InquiryOutcome::STATUSES[$outcomes[$key]] ?? '') : null,
                 'title' => $asProducer ? $message->buyer->name : $message->producer->name,
                 'subtitle' => $asProducer ? $message->producer->name : null,
                 'avatar_path' => $asProducer ? $message->buyer->avatar_path : $message->producer->logo_path,
@@ -105,13 +120,28 @@ class ProducerMessageController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
             'buyer' => $buyer->only(['id', 'name', 'avatar_path']),
             'isOwner' => $producer->user_id === $request->user()->id,
+            // Both sides see it: the producer to undo it, and both so the
+            // missing message box explains itself.
+            'blocked' => $producer->hasBlocked($buyer),
+            // The producer's own note on how this inquiry ended.
+            // A closure, like the other props the three-second poll does
+            // not ask for, so polling never runs its query.
+            'outcome' => fn () => $producer->user_id === $request->user()->id
+                ? InquiryOutcome::where('household_id', $producer->id)->where('buyer_id', $buyer->id)->value('status')
+                : null,
+            'outcomeLabels' => array_map(__(...), InquiryOutcome::STATUSES),
+            'reportReasons' => array_map(__(...), Report::REASONS),
             // Newest first so opening a thread lands on the latest reply;
             // the page is flipped back to chronological order below, and
             // "older messages" therefore means the next page.
             'messages' => tap(ProducerMessage::thread($producer, $buyer)
                 ->with(['sender:id,name,avatar_path', 'product:id,name,slug,price,unit', 'product.images'])
                 ->latest('id')
-                ->paginate(50)
+                // Simple pagination: the page only needs to know whether
+                // there are older messages, and the thread is re-read every
+                // three seconds while open - a COUNT each time would be
+                // waste.
+                ->simplePaginate(50)
                 ->withQueryString()
                 ->through(fn (ProducerMessage $message) => [
                     'id' => $message->id,
@@ -129,7 +159,7 @@ class ProducerMessageController extends Controller
                         'unit' => $message->product->unit,
                         'image' => $message->product->images->first()?->path,
                     ],
-                ]), fn (LengthAwarePaginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
+                ]), fn (Paginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
         ]);
     }
 
@@ -137,7 +167,7 @@ class ProducerMessageController extends Controller
     {
         $buyer ??= $request->user();
 
-        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
+        $this->authorize('send', [ProducerMessage::class, $producer, $buyer]);
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
@@ -147,6 +177,52 @@ class ProducerMessageController extends Controller
             'sender_id' => $request->user()->id,
             'body' => $data['body'],
         ]);
+
+        return back();
+    }
+
+    /**
+     * The producer notes how an inquiry ended - for their own record, and
+     * the admin's unverified picture of what sells. Empty clears it.
+     */
+    public function setOutcome(Request $request, Producer $producer, User $buyer): RedirectResponse
+    {
+        $this->authorize('update', $producer);
+        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
+
+        $data = $request->validate(['status' => ['nullable', Rule::in(array_keys(InquiryOutcome::STATUSES))]]);
+
+        $thread = InquiryOutcome::where('household_id', $producer->id)->where('buyer_id', $buyer->id);
+
+        if (empty($data['status'])) {
+            $thread->delete();
+
+            return back();
+        }
+
+        InquiryOutcome::upsert([[
+            'household_id' => $producer->id,
+            'buyer_id' => $buyer->id,
+            'status' => $data['status'],
+            // What the conversation was opened about, if it came from a
+            // product page.
+            'product_id' => ProducerMessage::thread($producer, $buyer)->whereNotNull('product_id')->oldest('id')->value('product_id'),
+            'updated_at' => now(),
+        ]], ['household_id', 'buyer_id'], ['status', 'product_id', 'updated_at']);
+
+        return back();
+    }
+
+    /**
+     * The producer stops, or resumes, taking messages from this buyer. Only
+     * for a conversation the buyer started - there is nobody else to block.
+     */
+    public function toggleBlock(Request $request, Producer $producer, User $buyer): RedirectResponse
+    {
+        $this->authorize('update', $producer);
+        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
+
+        $producer->blockedBuyers()->toggle($buyer->id);
 
         return back();
     }

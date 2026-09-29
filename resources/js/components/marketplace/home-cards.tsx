@@ -1,4 +1,6 @@
+import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
+import { t } from '@/lib/i18n';
 import { Link } from '@inertiajs/react';
 import { ImageOff, MapPin, Star } from 'lucide-react';
 
@@ -14,6 +16,7 @@ export interface HomeProducer {
     reviews_count: number;
     rating: number | null;
     tags: string[];
+    is_premium: boolean;
 }
 
 export interface HomeProduct {
@@ -32,7 +35,7 @@ export interface HomeProduct {
  * carries the same facts: who, where, how much they offer and how they're
  * rated.
  */
-export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
+export function HomeProducerCard({ producer, featured = false }: { producer: HomeProducer; featured?: boolean }) {
     const href = route('marketplace.producers.show', producer.slug);
 
     return (
@@ -50,13 +53,14 @@ export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
                         <ImageOff className="size-7" />
                     </span>
                 )}
+                {featured && <FeaturedLabel className="absolute top-3 left-3" />}
             </Link>
 
             <div className="flex flex-1 flex-col p-5">
                 <div className="-mt-11 mb-3 flex items-end justify-between gap-3">
-                    <span className="ring-background rounded-full ring-4">
+                    <span className="ring-background relative z-10 rounded-full ring-4">
                         {producer.logo_path ? (
-                            <img src={`/storage/${producer.logo_path}`} alt="" className="size-14 rounded-full object-cover" />
+                            <img loading="lazy" src={`/storage/${producer.logo_path}`} alt="" className="size-14 rounded-full object-cover" />
                         ) : (
                             <span className="bg-olive-soft text-olive grid size-14 place-items-center rounded-full font-serif text-xl">
                                 {producer.name.charAt(0).toUpperCase()}
@@ -71,12 +75,13 @@ export function HomeProducerCard({ producer }: { producer: HomeProducer }) {
                             <span className="text-muted-foreground text-xs">({producer.reviews_count})</span>
                         </span>
                     ) : (
-                        <span className="text-muted-foreground text-xs">Još nema utisaka</span>
+                        <span className="text-muted-foreground text-xs">{t('Još nema utisaka')}</span>
                     )}
                 </div>
 
-                <h3 className="font-serif text-2xl leading-tight">
+                <h3 className="flex flex-wrap items-center gap-2 font-serif text-2xl leading-tight">
                     <Link href={href}>{producer.name}</Link>
+                    {producer.is_premium && <PremiumBadge />}
                 </h3>
 
                 <div className="text-muted-foreground mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">

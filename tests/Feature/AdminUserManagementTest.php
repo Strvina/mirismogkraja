@@ -19,6 +19,25 @@ class AdminUserManagementTest extends TestCase
         return $admin;
     }
 
+    /**
+     * Paged and searchable, and only what the row prints - not the phone
+     * numbers and addresses behind it.
+     */
+    public function test_the_list_is_searchable_and_carries_no_contact_details()
+    {
+        $this->seed(RolesSeeder::class);
+        $admin = $this->admin();
+        User::factory()->create(['name' => 'Milica Nikolić', 'phone' => '0601234567']);
+        User::factory()->count(3)->create();
+
+        $this->actingAs($admin)->get(route('admin.users.index', ['search' => 'Milica']))->assertInertia(
+            fn ($page) => $page->has('users.data', 1)
+                ->where('users.data.0.name', 'Milica Nikolić')
+                ->missing('users.data.0.phone')
+                ->where('filters.search', 'Milica')
+        );
+    }
+
     public function test_non_admin_cannot_access_user_management()
     {
         $this->seed(RolesSeeder::class);

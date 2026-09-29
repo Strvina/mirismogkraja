@@ -1,12 +1,16 @@
 import InputError from '@/components/input-error';
+import { LocationPicker } from '@/components/marketplace/map';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { t, tx } from '@/lib/i18n';
+import { shrinkImage } from '@/lib/shrink-image';
 import { cn } from '@/lib/utils';
-import { type Producer } from '@/types';
+import { type Category, type Producer } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { Check, X } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
+import ProducerProductsStep, { type DraftProduct } from './producer-products-step';
 
 type ProducerFormData = {
     name: string;
@@ -19,20 +23,45 @@ type ProducerFormData = {
     delivery_methods: string[];
     cover_image: File | null;
     logo: File | null;
+    /** Empty until a point is chosen on the map; sent as null then. */
+    lat: string;
+    lng: string;
+    /** Only when signing up: the first products, created with the producer. */
+    products: DraftProduct[];
 };
 
-/** The three steps of the sign-up wizard, in order. */
+/** The steps of the sign-up wizard, in order. */
 const STEPS = [
-    { title: 'Ko ste', hint: 'Naziv pod kojim vas kupci prepoznaju i gde vas mogu naći.' },
-    { title: 'Kako vas dobijaju', hint: 'Kontakt i načini na koje roba stiže do kupca.' },
-    { title: 'Kako se predstavljate', hint: 'Slike i priča — ovo je ono što kupca zadrži na stranici.' },
+    { title: tx('Ko ste'), hint: tx('Naziv pod kojim vas kupci prepoznaju i gde vas mogu naći.') },
+    { title: tx('Kako vas dobijaju'), hint: tx('Kontakt i načini na koje roba stiže do kupca.') },
+    { title: tx('Kako se predstavljate'), hint: tx('Slike i priča — ovo je ono što kupca zadrži na stranici.') },
+    {
+        title: tx('Proizvodi'),
+        hint: tx('Dodajte nekoliko proizvoda odmah — biće vidljivi kupcima čim odobrimo vaš profil. Nije obavezno; možete i kasnije.'),
+    },
 ];
+
+/** Which step each field is on, so an error sends the producer back to it. */
+const FIELD_STEP: Record<string, number> = {
+    name: 0,
+    city: 0,
+    address: 0,
+    lat: 0,
+    lng: 0,
+    phone: 1,
+    contact_email: 1,
+    delivery_methods: 1,
+    cover_image: 2,
+    logo: 2,
+    description: 2,
+    story: 2,
+};
 
 /** Keys must match Producer::DELIVERY_METHODS. */
 const deliveryMethods = {
-    licna_dostava: 'Lična dostava',
-    kurirska_sluzba: 'Kurirska služba',
-    preuzimanje: 'Lično preuzimanje',
+    licna_dostava: tx('Lična dostava'),
+    kurirska_sluzba: tx('Kurirska služba'),
+    preuzimanje: tx('Lično preuzimanje'),
 };
 
 function ImageField({
@@ -53,7 +82,16 @@ function ImageField({
             <Label htmlFor={id}>{label}</Label>
             <div className="flex items-center gap-4">
                 {preview && <img src={preview} alt="" className="size-16 rounded-md object-cover" />}
-                <Input id={id} type="file" accept="image/*" className="w-full max-w-xs" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
+                <Input
+                    id={id}
+                    type="file"
+                    accept="image/*"
+                    className="w-full max-w-xs"
+                    onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        onChange(file ? await shrinkImage(file) : null);
+                    }}
+                />
             </div>
             <InputError message={error} />
         </div>
@@ -78,6 +116,7 @@ export default function ProducerForm({
     method,
     submitLabel,
     wizard = false,
+    categories = [],
 }: {
     producer?: Producer;
     action: string;
@@ -85,6 +124,8 @@ export default function ProducerForm({
     submitLabel: string;
     /** Step through the form instead of showing it all at once. */
     wizard?: boolean;
+    /** For the products step of the wizard. */
+    categories?: Category[];
 }) {
     const { data, setData, post, put, processing, errors } = useForm<ProducerFormData>({
         name: producer?.name ?? '',
@@ -97,7 +138,14 @@ export default function ProducerForm({
         delivery_methods: producer?.delivery_methods ?? [],
         cover_image: null,
         logo: null,
+        lat: producer?.lat ? String(Number(producer.lat)) : '',
+        lng: producer?.lng ? String(Number(producer.lng)) : '',
+        products: [],
     });
+
+    const location = data.lat && data.lng ? { lat: Number(data.lat), lng: Number(data.lng) } : null;
+    const setLocation = (point: { lat: number; lng: number } | null) =>
+        setData((current) => ({ ...current, lat: point ? String(point.lat) : '', lng: point ? String(point.lng) : '' }));
 
     const [customMethod, setCustomMethod] = useState('');
     const [step, setStep] = useState(0);
@@ -141,27 +189,52 @@ export default function ProducerForm({
         }
 
         const submitFn = method === 'post' ? post : put;
-        submitFn(action, { forceFormData: true });
+        submitFn(action, {
+            forceFormData: true,
+            // An error on a field from an earlier step is invisible from the
+            // last one, so the wizard goes back to the first step that has one.
+            onError: (failed) => {
+                if (wizard) {
+                    const steps = Object.keys(failed).map((field) => (field.startsWith('products') ? STEPS.length - 1 : (FIELD_STEP[field] ?? 0)));
+                    setStep(Math.min(...steps));
+                }
+            },
+        });
     };
 
     const basics = (
         <>
             <div className="grid gap-2">
-                <Label htmlFor="name">Naziv proizvođača</Label>
+                <Label htmlFor="name">{t('Naziv proizvođača')}</Label>
                 <Input id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} required />
                 <InputError message={errors.name} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="city">Grad</Label>
+                <Label htmlFor="city">{t('Grad')}</Label>
                 <Input id="city" value={data.city} onChange={(e) => setData('city', e.target.value)} />
                 <InputError message={errors.city} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="address">Adresa</Label>
+                <Label htmlFor="address">{t('Adresa')}</Label>
                 <Input id="address" value={data.address} onChange={(e) => setData('address', e.target.value)} />
                 <InputError message={errors.address} />
+            </div>
+
+            <div className="grid gap-2">
+                <p className="text-sm font-medium">{t('Lokacija na mapi (opciono)')}</p>
+                <p className="text-muted-foreground text-xs">
+                    Kliknite na mapu da označite gde ste — kupci će vas videti na mapi proizvođača. Ne mora biti tačna kućna adresa; dovoljno je selo
+                    ili deo grada.
+                </p>
+                <LocationPicker value={location} onChange={setLocation} />
+                {location && (
+                    <button type="button" onClick={() => setLocation(null)} className="text-muted-foreground w-fit text-xs underline">
+                        {t('Ukloni lokaciju')}
+                    </button>
+                )}
+                <InputError message={errors.lat ?? errors.lng} />
             </div>
         </>
     );
@@ -169,20 +242,20 @@ export default function ProducerForm({
     const contact = (
         <>
             <div className="grid gap-2">
-                <Label htmlFor="phone">Telefon za kontakt</Label>
-                <Input id="phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder="+381 6x xxx xxxx" />
+                <Label htmlFor="phone">{t('Telefon za kontakt')}</Label>
+                <Input id="phone" value={data.phone} onChange={(e) => setData('phone', e.target.value)} placeholder={t('+381 6x xxx xxxx')} />
                 <InputError message={errors.phone} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="contact_email">Email za kontakt</Label>
+                <Label htmlFor="contact_email">{t('Email za kontakt')}</Label>
                 <Input id="contact_email" type="email" value={data.contact_email} onChange={(e) => setData('contact_email', e.target.value)} />
                 <InputError message={errors.contact_email} />
             </div>
 
             <fieldset className="grid gap-2">
-                <legend className="mb-2 text-sm font-medium">Način dostave</legend>
-                <p className="text-muted-foreground -mt-1 mb-1 text-xs">Izaberite sve načine na koje kupci mogu da preuzmu robu.</p>
+                <legend className="mb-2 text-sm font-medium">{t('Način dostave')}</legend>
+                <p className="text-muted-foreground -mt-1 mb-1 text-xs">{t('Izaberite sve načine na koje kupci mogu da preuzmu robu.')}</p>
                 {Object.entries(deliveryMethods).map(([key, label]) => (
                     <label key={key} className="flex cursor-pointer items-center gap-2.5 text-sm">
                         <input
@@ -191,7 +264,7 @@ export default function ProducerForm({
                             checked={data.delivery_methods.includes(key)}
                             onChange={(e) => toggleDeliveryMethod(key, e.target.checked)}
                         />
-                        {label}
+                        {t(label)}
                     </label>
                 ))}
 
@@ -219,12 +292,12 @@ export default function ProducerForm({
                                 addCustomMethod();
                             }
                         }}
-                        placeholder="Npr. dostava autobusom"
+                        placeholder={t('Npr. dostava autobusom')}
                         maxLength={60}
-                        aria-label="Svoj način dostave"
+                        aria-label={t('Svoj način dostave')}
                     />
                     <Button type="button" variant="outline" onClick={addCustomMethod} disabled={!customMethod.trim()}>
-                        Dodaj
+                        {t('Dodaj')}
                     </Button>
                 </div>
 
@@ -237,7 +310,7 @@ export default function ProducerForm({
         <>
             <ImageField
                 id="cover_image"
-                label="Naslovna slika"
+                label={t('Naslovna slika')}
                 preview={coverPreview}
                 error={errors.cover_image}
                 onChange={(file) => {
@@ -248,7 +321,7 @@ export default function ProducerForm({
 
             <ImageField
                 id="logo"
-                label="Logo"
+                label={t('Logo')}
                 preview={logoPreview}
                 error={errors.logo}
                 onChange={(file) => {
@@ -258,7 +331,7 @@ export default function ProducerForm({
             />
 
             <div className="grid gap-2">
-                <Label htmlFor="description">Opis</Label>
+                <Label htmlFor="description">{t('Opis')}</Label>
                 <textarea
                     id="description"
                     className="border-input bg-background min-h-32 rounded-md border px-3 py-2 text-sm"
@@ -269,8 +342,8 @@ export default function ProducerForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="story">Priča o nastanku proizvoda</Label>
-                <p className="text-muted-foreground -mt-1 text-xs">Kako nastaje ono što prodajete — tok proizvodnje, tradicija, sezona.</p>
+                <Label htmlFor="story">{t('Priča o nastanku proizvoda')}</Label>
+                <p className="text-muted-foreground -mt-1 text-xs">{t('Kako nastaje ono što prodajete — tok proizvodnje, tradicija, sezona.')}</p>
                 <textarea
                     id="story"
                     className="border-input bg-background min-h-32 rounded-md border px-3 py-2 text-sm"
@@ -282,7 +355,16 @@ export default function ProducerForm({
         </>
     );
 
-    const groups = [basics, contact, presentation];
+    const products = (
+        <ProducerProductsStep
+            products={data.products}
+            categories={categories}
+            errors={errors as Record<string, string | undefined>}
+            onChange={(next) => setData('products', next)}
+        />
+    );
+
+    const groups = [basics, contact, presentation, products];
 
     if (!wizard) {
         return (
@@ -299,7 +381,7 @@ export default function ProducerForm({
 
     return (
         <form onSubmit={submit} className="max-w-xl space-y-6">
-            <ol className="flex flex-wrap items-center gap-2 text-xs" aria-label="Koraci">
+            <ol className="flex flex-wrap items-center gap-2 text-xs" aria-label={t('Koraci')}>
                 {STEPS.map((item, index) => (
                     <li key={item.title} className="flex items-center gap-2">
                         <span
@@ -313,20 +395,20 @@ export default function ProducerForm({
                         >
                             {index < step ? <Check className="size-3.5" /> : index + 1}
                         </span>
-                        <span className={cn(index === step ? 'text-foreground font-medium' : 'text-muted-foreground')}>{item.title}</span>
+                        <span className={cn(index === step ? 'text-foreground font-medium' : 'text-muted-foreground')}>{t(item.title)}</span>
                         {index < STEPS.length - 1 && <span className="bg-border h-px w-5" aria-hidden />}
                     </li>
                 ))}
             </ol>
 
-            <p className="text-muted-foreground text-sm">{STEPS[step].hint}</p>
+            <p className="text-muted-foreground text-sm">{t(STEPS[step].hint)}</p>
 
             <div className="space-y-6">{groups[step]}</div>
 
             <div className="flex flex-wrap items-center gap-2">
                 {step > 0 && (
                     <Button type="button" variant="outline" onClick={() => setStep(step - 1)}>
-                        Nazad
+                        {t('Nazad')}
                     </Button>
                 )}
 
@@ -341,13 +423,11 @@ export default function ProducerForm({
                     </Button>
                 ) : (
                     <Button key="next" type="button" onClick={() => setStep(step + 1)} disabled={step === 0 && !canLeaveFirstStep}>
-                        Dalje
+                        {t('Dalje')}
                     </Button>
                 )}
 
-                <span className="text-muted-foreground text-xs">
-                    Korak {step + 1} od {STEPS.length}
-                </span>
+                <span className="text-muted-foreground text-xs">{t('Korak :current od :total', { current: step + 1, total: STEPS.length })}</span>
             </div>
         </form>
     );

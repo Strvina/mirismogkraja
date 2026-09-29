@@ -98,7 +98,7 @@ class MembershipTest extends TestCase
         $subscription = ProducerSubscription::sole();
         $this->assertSame(ProducerSubscription::STATUS_ACTIVE, $subscription->status);
         $this->assertTrue($subscription->ends_at->isFuture());
-        $this->assertSame('membership.activated', $producer->user->notifications()->latest()->first()->data['type']);
+        $this->assertContains('membership.activated', $producer->user->notifications()->get()->pluck('data.type'));
 
         // The plan's features now apply.
         $this->assertTrue(app(SubscriptionService::class)->hasFeature($producer->refresh(), 'statistics'));
@@ -153,12 +153,12 @@ class MembershipTest extends TestCase
 
         $this->artisan('memberships:process-expiries')->assertSuccessful();
 
-        $this->assertSame('membership.ending', $producer->user->notifications()->latest()->first()->data['type']);
+        $this->assertContains('membership.ending', $producer->user->notifications()->get()->pluck('data.type'));
         $this->assertNotNull($subscription->refresh()->expiry_warned_at);
 
         // Running it again the next day must not repeat the warning.
         $this->artisan('memberships:process-expiries');
-        $this->assertSame(1, $producer->user->notifications()->count());
+        $this->assertSame(1, $producer->user->notifications()->get()->where('data.type', 'membership.ending')->count());
     }
 
     public function test_an_ended_membership_closes_and_the_profile_stays_online(): void
@@ -174,7 +174,7 @@ class MembershipTest extends TestCase
         $this->artisan('memberships:process-expiries');
 
         $this->assertSame(ProducerSubscription::STATUS_EXPIRED, $subscription->refresh()->status);
-        $this->assertSame('membership.expired', $producer->user->notifications()->latest()->first()->data['type']);
+        $this->assertContains('membership.expired', $producer->user->notifications()->get()->pluck('data.type'));
 
         // Back to the free floor, but still listed and still visible.
         $subscriptions = app(SubscriptionService::class);

@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AdminBillingController;
+use App\Http\Controllers\Admin\AdminBoostController;
+use App\Http\Controllers\Admin\AdminCampaignController;
 use App\Http\Controllers\Admin\AdminMembershipController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -10,6 +13,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WeeklyPickController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -36,8 +40,26 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/clanarine', [AdminMembershipController::class, 'index'])->name('memberships.index');
     Route::patch('/clanarine/{subscription}/potvrdi', [AdminMembershipController::class, 'confirm'])->name('memberships.confirm');
     Route::patch('/clanarine/{subscription}/otkazi', [AdminMembershipController::class, 'cancel'])->name('memberships.cancel');
+    // Prices, plans and the slip's details, on a page of their own.
+    Route::get('/naplata', [AdminBillingController::class, 'index'])->name('billing.index');
+    Route::put('/naplata/osnivaci', [AdminBillingController::class, 'updateFounding'])->name('billing.founding');
     Route::put('/paketi/{plan}', [AdminMembershipController::class, 'updatePlan'])->name('plans.update');
     Route::put('/uplatnica', [AdminMembershipController::class, 'updatePayment'])->name('payment.update');
+
+    Route::get('/isticanja', [AdminBoostController::class, 'index'])->name('boosts.index');
+    Route::patch('/isticanja/{boost}/potvrdi', [AdminBoostController::class, 'confirm'])->name('boosts.confirm');
+    Route::patch('/isticanja/{boost}/otkazi', [AdminBoostController::class, 'cancel'])->name('boosts.cancel');
+    Route::put('/isticanja/cene', [AdminBoostController::class, 'updateTerms'])->name('boosts.terms');
+
+    Route::get('/kampanje', [AdminCampaignController::class, 'index'])->name('campaigns.index');
+    Route::post('/kampanje', [AdminCampaignController::class, 'store'])->name('campaigns.store');
+    Route::put('/kampanje/{campaign}', [AdminCampaignController::class, 'update'])->name('campaigns.update');
+    Route::patch('/kampanje/prijave/{participant}/potvrdi', [AdminCampaignController::class, 'confirm'])->name('campaigns.confirm');
+    Route::patch('/kampanje/prijave/{participant}/otkazi', [AdminCampaignController::class, 'cancel'])->name('campaigns.cancel');
+
+    Route::get('/nedelja', [WeeklyPickController::class, 'index'])->name('weekly-picks.index');
+    Route::post('/nedelja', [WeeklyPickController::class, 'store'])->name('weekly-picks.store');
+    Route::delete('/nedelja/{pick}', [WeeklyPickController::class, 'destroy'])->name('weekly-picks.destroy');
 
     Route::get('/prijave', [ReportController::class, 'index'])->name('reports.index');
     Route::patch('/prijave/{report}', [ReportController::class, 'update'])->name('reports.update');

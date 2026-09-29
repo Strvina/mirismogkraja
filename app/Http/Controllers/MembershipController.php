@@ -26,14 +26,14 @@ class MembershipController extends Controller
 
         return Inertia::render('memberships/index', [
             'plans' => SubscriptionPlan::where('is_active', true)->orderBy('level')->get(),
-            'featureLabels' => SubscriptionPlan::FEATURES,
+            'featureLabels' => array_map(__(...), SubscriptionPlan::FEATURES),
             'producers' => $producers->map(fn (Producer $producer) => [
                 'id' => $producer->id,
                 'name' => $producer->name,
                 'status' => $producer->status,
                 'current_plan' => $subscriptions->planFor($producer)?->only(['id', 'name', 'level']),
                 'active' => $producer->subscriptions->first(fn (ProducerSubscription $subscription) => $subscription->isActive())
-                    ?->only(['id', 'ends_at']),
+                    ?->only(['id', 'ends_at', 'cancel_requested_at']),
                 'pending' => $this->pendingSlip($producer, $slips),
             ]),
         ]);
@@ -102,6 +102,6 @@ class MembershipController extends Controller
 
         $subscriptions->request($producer, $plan);
 
-        return back()->with('status', 'Zabeležili smo izbor paketa. Uplatite iznos i mi ćemo aktivirati članarinu.');
+        return back()->with('status', __('Zabeležili smo izbor paketa. Uplatite iznos i mi ćemo aktivirati članarinu.'));
     }
 }

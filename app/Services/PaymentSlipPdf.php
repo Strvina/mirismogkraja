@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\ProducerSubscription;
+use App\Contracts\Payable;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Endroid\QrCode\Encoding\Encoding;
@@ -25,9 +25,9 @@ class PaymentSlipPdf
 {
     public function __construct(private readonly PaymentSlipService $slips) {}
 
-    public function render(ProducerSubscription $subscription): string
+    public function render(Payable $payable): string
     {
-        $slip = $this->slips->detailsFor($subscription);
+        $slip = $this->slips->detailsFor($payable);
 
         $html = view('pdf.payment-slip', [
             'slip' => $slip,
@@ -49,9 +49,9 @@ class PaymentSlipPdf
         return $dompdf->output();
     }
 
-    public function filenameFor(ProducerSubscription $subscription): string
+    public function filenameFor(Payable $payable): string
     {
-        return 'uplatnica-'.$subscription->reference.'.pdf';
+        return 'uplatnica-'.$payable->paymentReference().'.pdf';
     }
 
     /**

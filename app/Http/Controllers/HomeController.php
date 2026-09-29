@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Campaign;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Models\WeeklyPick;
+use App\Services\SubscriptionService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -22,31 +25,56 @@ class HomeController extends Controller
      * orders to rank by, by design, and page views aren't tracked, so nothing
      * here is invented.
      */
-    public function __invoke(): Response
+    public function __invoke(SubscriptionService $subscriptions): Response
     {
+        // The homepage slot is what the top plan pays for (task 20.1). It
+        // is its own labelled section, drawn at random from the paying
+        // producers on every visit so none of them owns it.
+        $featuredProducers = $this->publishedProducers()
+            ->whereIn('id', $subscriptions->producerIdsWith('homepage'))
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        $newProducers = $this->publishedProducers()->latest()->take(10)->get();
+
+        // A producer nobody has saved or reviewed yet isn't popular, so the
+        // section stays empty rather than padding itself with the newest
+        // rows over again.
+        $popularProducers = $this->publishedProducers()
+            ->orderByRaw('(favorites_count + reviews_count) desc')
+            ->orderByDesc('reviews_avg_rating')
+            ->take(10)
+            ->get()
+            ->filter(fn (Producer $producer) => $producer->favorites_count + $producer->reviews_count > 0)
+            ->values();
+
+        // "Proizvođač nedelje" (task 20.7), chosen by an admin. Only shown
+        // while the producer - and the product, if one was picked - is
+        // still public.
+        $pick = WeeklyPick::current()->first();
+        $weeklyProducer = $pick ? $this->publishedProducers()->find($pick->household_id) : null;
+        $weeklyProduct = $weeklyProducer && $pick->product_id
+            ? $this->productCards()->find($pick->product_id)
+            : null;
+
+        $everyone = $featuredProducers->concat($newProducers)->concat($popularProducers)->concat(array_filter([$weeklyProducer]));
+        $tags = $this->categoryTags($everyone->pluck('id')->unique());
+        $subscriptions->markPremium($everyone);
+
         return Inertia::render('welcome', [
-            'newProducers' => $this->mapProducers(
-                $this->activeProducers()->latest()->take(10)->get()
-            ),
-
-            // A producer nobody has saved or reviewed yet isn't popular, so
-            // the section stays empty rather than padding itself with the
-            // newest rows over again.
-            'popularProducers' => $this->mapProducers(
-                $this->activeProducers()
-                    ->orderByRaw('(favorites_count + reviews_count) desc')
-                    ->orderByDesc('reviews_avg_rating')
-                    ->take(10)
-                    ->get()
-                    ->filter(fn (Producer $producer) => $producer->favorites_count + $producer->reviews_count > 0)
-                    ->values()
-            ),
-
+            // Seasonal campaigns under way, announced at the top of the page.
+            'campaigns' => Campaign::running()->orderBy('ends_on')->get(['id', 'name', 'slug', 'description', 'ends_on']),
+            'weeklyPick' => $weeklyProducer ? [
+                'producer' => $this->mapProducers(collect([$weeklyProducer]), $tags)->first(),
+                'product' => $weeklyProduct ? $this->mapProduct($weeklyProduct) : null,
+            ] : null,
+            'featuredProducers' => $this->mapProducers($featuredProducers, $tags),
+            'newProducers' => $this->mapProducers($newProducers, $tags),
+            'popularProducers' => $this->mapProducers($popularProducers, $tags),
             'popularProducts' => $this->mapProducts(),
-
             'categories' => Category::query()
-                ->whereHas('products', fn ($query) => $query->where('status', 'active')
-                    ->whereHas('producer', fn ($producerQuery) => $producerQuery->where('status', 'active')))
+                ->whereHas('products', fn ($query) => $query->published())
                 ->orderBy('name')
                 ->take(6)
                 ->get(['id', 'name']),
@@ -54,30 +82,54 @@ class HomeController extends Controller
     }
 
     /**
-     * Active producers with everything a card shows. The two counts double
-     * as the popularity score, so the ordering happens in the database
-     * instead of over a fully hydrated collection.
+     * Published producers with everything a card shows. The two counts
+     * double as the popularity score, so the ordering happens in the
+     * database instead of over a fully hydrated collection.
      *
      * @return Builder<Producer>
      */
-    private function activeProducers(): Builder
+    private function publishedProducers(): Builder
     {
-        return Producer::query()
-            ->where('status', 'active')
+        return Producer::published()
+            ->select(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'created_at'])
             ->withCount([
                 'favorites',
                 'reviews' => fn ($query) => $query->approved(),
                 'products' => fn ($query) => $query->where('status', 'active'),
             ])
-            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
-            ->with(['products' => fn ($query) => $query->where('status', 'active')->with('category:id,name')]);
+            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating');
+    }
+
+    /**
+     * Up to two category names per producer, for the tags on its card.
+     *
+     * Read as distinct (producer, category) pairs in one query. It used to
+     * load every active product of every producer on the page, with its
+     * category, only to keep two names.
+     *
+     * @param  Collection<int, int>  $producerIds
+     * @return Collection<int, Collection<int, string>>
+     */
+    private function categoryTags(Collection $producerIds): Collection
+    {
+        return Product::query()
+            ->where('products.status', 'active')
+            ->whereIn('household_id', $producerIds)
+            ->join('categories', 'categories.id', '=', 'products.category_id')
+            ->distinct()
+            ->orderBy('categories.name')
+            ->toBase()
+            ->get(['products.household_id', 'categories.name'])
+            ->groupBy('household_id')
+            ->map(fn (Collection $rows) => $rows->pluck('name')->take(2)->values());
     }
 
     /**
      * @param  Collection<int, Producer>  $producers
+     * @param  Collection<int, Collection<int, string>>  $tags
      * @return Collection<int, array<string, mixed>>
      */
-    private function mapProducers(Collection $producers): Collection
+    private function mapProducers(Collection $producers, Collection $tags): Collection
     {
         return $producers->map(fn (Producer $producer) => [
             'id' => $producer->id,
@@ -90,12 +142,8 @@ class HomeController extends Controller
             'products_count' => $producer->products_count,
             'reviews_count' => $producer->reviews_count,
             'rating' => $producer->reviews_avg_rating ? round($producer->reviews_avg_rating, 1) : null,
-            'tags' => $producer->products
-                ->pluck('category.name')
-                ->filter()
-                ->unique()
-                ->take(2)
-                ->values(),
+            'tags' => $tags->get($producer->id, collect()),
+            'is_premium' => (bool) $producer->is_premium,
         ]);
     }
 
@@ -104,28 +152,43 @@ class HomeController extends Controller
      */
     private function mapProducts(): Collection
     {
-        return Product::query()
-            ->where('status', 'active')
-            ->whereHas('producer', fn ($query) => $query->where('status', 'active'))
-            ->with(['producer:id,name,slug,city', 'images'])
+        return $this->productCards()
             ->withCount(['favorites', 'inquiries'])
             ->orderByDesc('favorites_count')
             ->orderByDesc('inquiries_count')
             ->latest()
             ->take(10)
             ->get()
-            ->map(fn (Product $product) => [
-                'id' => $product->id,
-                'name' => $product->name,
-                'slug' => $product->slug,
-                'price' => $product->price,
-                'unit' => $product->unit,
-                'image' => $product->images->first()?->path,
-                'producer' => [
-                    'name' => $product->producer->name,
-                    'slug' => $product->producer->slug,
-                    'city' => $product->producer->city,
-                ],
-            ]);
+            ->map(fn (Product $product) => $this->mapProduct($product));
+    }
+
+    /**
+     * Published products with what a product card shows.
+     *
+     * @return Builder<Product>
+     */
+    private function productCards(): Builder
+    {
+        return Product::published()
+            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'created_at'])
+            ->with(['producer:id,name,slug,city', 'images:id,product_id,path,order']);
+    }
+
+    /** @return array<string, mixed> */
+    private function mapProduct(Product $product): array
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'slug' => $product->slug,
+            'price' => $product->price,
+            'unit' => $product->unit,
+            'image' => $product->images->first()?->path,
+            'producer' => [
+                'name' => $product->producer->name,
+                'slug' => $product->producer->slug,
+                'city' => $product->producer->city,
+            ],
+        ];
     }
 }

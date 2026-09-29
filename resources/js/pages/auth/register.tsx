@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
+import { t } from '@/lib/i18n';
 
 interface RegisterForm extends Record<string, string> {
     name: string;
@@ -32,12 +33,12 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
-            <Head title="Register" />
+        <AuthLayout title={t('Napravite nalog')} description={t('Unesite podatke da biste napravili nalog')}>
+            <Head title={t('Registracija')} />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name">{t('Ime')}</Label>
                         <Input
                             id="name"
                             type="text"
@@ -48,13 +49,13 @@ export default function Register() {
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                             disabled={processing}
-                            placeholder="Full name"
+                            placeholder={t('Ime i prezime')}
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="email">{t('Email adresa')}</Label>
                         <Input
                             id="email"
                             type="email"
@@ -64,13 +65,13 @@ export default function Register() {
                             value={data.email}
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={processing}
-                            placeholder="email@example.com"
+                            placeholder={t('email@example.com')}
                         />
                         <InputError message={errors.email} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{t('Lozinka')}</Label>
                         <Input
                             id="password"
                             type="password"
@@ -80,13 +81,13 @@ export default function Register() {
                             value={data.password}
                             onChange={(e) => setData('password', e.target.value)}
                             disabled={processing}
-                            placeholder="Password"
+                            placeholder={t('Lozinka')}
                         />
                         <InputError message={errors.password} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm password</Label>
+                        <Label htmlFor="password_confirmation">{t('Potvrda lozinke')}</Label>
                         <Input
                             id="password_confirmation"
                             type="password"
@@ -96,21 +97,21 @@ export default function Register() {
                             value={data.password_confirmation}
                             onChange={(e) => setData('password_confirmation', e.target.value)}
                             disabled={processing}
-                            placeholder="Confirm password"
+                            placeholder={t('Potvrda lozinke')}
                         />
                         <InputError message={errors.password_confirmation} />
                     </div>
 
                     <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
                         {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Create account
+                        {t('Napravi nalog')}
                     </Button>
                 </div>
 
                 <div className="text-muted-foreground text-center text-sm">
-                    Already have an account?{' '}
+                    {t('Već imate nalog?')}{' '}
                     <TextLink href={route('login')} tabIndex={6}>
-                        Log in
+                        {t('Prijavite se')}
                     </TextLink>
                 </div>
             </form>

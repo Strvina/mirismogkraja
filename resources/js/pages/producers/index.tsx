@@ -1,15 +1,16 @@
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Clock } from 'lucide-react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Moji proizvođači', href: '/moji-proizvodjaci' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji proizvođači'), href: '/moji-proizvodjaci' }];
 
 const statusLabels: Record<Producer['status'], string> = {
-    pending: 'Na čekanju odobrenja',
-    active: 'Aktivno',
-    blocked: 'Blokirano',
+    pending: tx('Na čekanju odobrenja'),
+    active: tx('Aktivno'),
+    blocked: tx('Blokirano'),
 };
 
 interface PendingChange {
@@ -21,25 +22,25 @@ interface PendingChange {
 
 export default function ProducersIndex({ producers, pendingChanges }: { producers: Producer[]; pendingChanges: PendingChange[] }) {
     const destroy = (producer: Producer) => {
-        if (confirm(`Obrisati proizvođača "${producer.name}"?`)) {
+        if (confirm(t('Obrisati proizvođača „:name”?', { name: producer.name }))) {
             router.delete(route('producers.destroy', producer.id));
         }
     };
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Moji proizvođači" />
+            <Head title={t('Moji proizvođači')} />
 
             <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
-                    <h1 className="font-serif text-4xl sm:text-5xl">Moji proizvođači</h1>
+                    <h1 className="font-serif text-4xl sm:text-5xl">{t('Moji proizvođači')}</h1>
                     <Button asChild>
-                        <Link href={route('producers.create')}>Novi proizvođač</Link>
+                        <Link href={route('producers.create')}>{t('Novi proizvođač')}</Link>
                     </Button>
                 </div>
 
                 {producers.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">Još uvek nemaš registrovanog proizvođača.</p>
+                    <p className="text-muted-foreground text-sm">{t('Još uvek nemaš registrovanog proizvođača.')}</p>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {producers.map((producer) => (
@@ -49,7 +50,7 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                                 )}
                                 <div className="flex items-start justify-between">
                                     <h2 className="font-serif text-lg">{producer.name}</h2>
-                                    <span className="bg-muted rounded-full px-2 py-1 text-xs">{statusLabels[producer.status]}</span>
+                                    <span className="bg-muted rounded-full px-2 py-1 text-xs">{t(statusLabels[producer.status])}</span>
                                 </div>
                                 {producer.city && <p className="text-muted-foreground mt-1 text-sm">{producer.city}</p>}
 
@@ -64,12 +65,24 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                                             Novi naziv „{change.requested_value}” čeka odobrenje. Do tada ostaje dosadašnji.
                                         </p>
                                     ))}
-                                <div className="mt-4 flex gap-2">
+                                <div className="mt-4 flex flex-wrap gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link href={route('producers.edit', producer.id)}>Izmeni</Link>
+                                        <Link href={route('producers.edit', producer.id)}>{t('Izmeni')}</Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('producers.products.index', producer.id)}>{t('Proizvodi')}</Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('producers.statistics', producer.id)}>{t('Statistika')}</Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('boosts.index')}>{t('Isticanje')}</Link>
+                                    </Button>
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={route('campaigns.index')}>{t('Kampanje')}</Link>
                                     </Button>
                                     <Button variant="destructive" size="sm" onClick={() => destroy(producer)}>
-                                        Obriši
+                                        {t('Obriši')}
                                     </Button>
                                 </div>
                             </div>

@@ -75,7 +75,7 @@ class ProfileController extends Controller
         // admin panel with no way back in through the interface.
         if ($user->hasRole('admin') && User::role('admin')->count() === 1) {
             throw ValidationException::withMessages([
-                'password' => 'Vaš nalog je jedini administrator, pa ne može biti obrisan.',
+                'password' => __('Vaš nalog je jedini administrator, pa ne može biti obrisan.'),
             ]);
         }
 

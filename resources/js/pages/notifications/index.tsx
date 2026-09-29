@@ -2,11 +2,12 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
+import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Obaveštenja', href: '/obavestenja' }];
+const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Obaveštenja'), href: '/obavestenja' }];
 
 interface Notification {
     id: string;
@@ -22,21 +23,21 @@ export default function NotificationsIndex({ notifications }: { notifications: P
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title="Obaveštenja" />
+            <Head title={t('Obaveštenja')} />
 
             <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="font-serif text-4xl sm:text-5xl">Obaveštenja</h1>
+                <h1 className="font-serif text-4xl sm:text-5xl">{t('Obaveštenja')}</h1>
 
                 {unread > 0 && (
                     <Button variant="outline" size="sm" onClick={() => router.post(route('notifications.read-all'), {}, { preserveScroll: true })}>
-                        Označi sve kao pročitano
+                        {t('Označi sve kao pročitano')}
                     </Button>
                 )}
             </div>
 
             {notifications.total === 0 ? (
                 <p className="text-muted-foreground mt-8 text-sm">
-                    Ovde ćemo vas obavestiti o novim porukama, utiscima i odlukama o vašem proizvođaču.
+                    {t('Ovde ćemo vas obavestiti o novim porukama, utiscima i odlukama o vašem proizvođaču.')}
                 </p>
             ) : (
                 <div className="border-border/70 mt-8 max-w-2xl divide-y rounded-lg border">
