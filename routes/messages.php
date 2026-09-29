@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
     // sides together; the old address still leads there.
     Route::redirect('/poruke-proizvodjaca', '/poruke')->name('messages.inbox');
     Route::get('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'show'])->name('messages.thread');
+    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/blokada', [ProducerMessageController::class, 'toggleBlock'])->name('messages.block');
     Route::post('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')
         ->name('messages.thread.store');

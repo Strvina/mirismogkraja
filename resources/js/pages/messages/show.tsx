@@ -1,4 +1,5 @@
 import { type Paginated } from '@/components/marketplace/pagination';
+import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
@@ -88,11 +89,15 @@ export default function MessageThread({
     buyer,
     messages,
     isOwner,
+    blocked,
+    reportReasons,
 }: {
     producer: { id: number; name: string; slug: string; logo_path: string | null };
     buyer: { id: number; name: string; avatar_path: string | null };
     messages: Paginated<Message>;
     isOwner: boolean;
+    blocked: boolean;
+    reportReasons: Record<string, string>;
 }) {
     const { auth } = usePage<SharedData>().props;
     const [body, setBody] = useState('');
@@ -116,7 +121,13 @@ export default function MessageThread({
     // read straight away and never lights the badge up. Inertia throttles
     // the poll by itself while the tab is in the background, and the visit
     // preserves scroll and local state, so a half-typed message survives it.
-    const poll = usePoll(3000, { only: ['messages', 'unreadMessages'] });
+    const poll = usePoll(3000, { only: ['messages', 'unreadMessages', 'blocked'] });
+
+    const toggleBlock = () => {
+        if (blocked || confirm(`Blokirati poruke od korisnika ${buyer.name}? Neće moći da vam piše dok ga ne odblokirate.`)) {
+            router.patch(route('messages.block', [producer.id, buyer.id]), {}, { preserveScroll: true });
+        }
+    };
 
     // The seller's side addresses a specific buyer; the buyer's side doesn't
     // need to say who they are.
@@ -300,7 +311,7 @@ export default function MessageThread({
                             {title.charAt(0).toUpperCase()}
                         </span>
                     )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                         <h1 className="truncate font-serif text-lg leading-tight">{title}</h1>
                         {!isOwner && (
                             <Link
@@ -311,6 +322,17 @@ export default function MessageThread({
                             </Link>
                         )}
                     </div>
+
+                    {/* The producer's defence against a buyer who will not
+                        stop: refuse their messages, or report them. */}
+                    {isOwner && (
+                        <div className="flex shrink-0 items-center gap-1">
+                            <Button variant="ghost" size="sm" onClick={toggleBlock}>
+                                {blocked ? 'Odblokiraj' : 'Blokiraj'}
+                            </Button>
+                            <ReportButton type="user" id={buyer.id} reasons={reportReasons} />
+                        </div>
+                    )}
                 </header>
 
                 <div ref={scrollRef} onScroll={onPanelScroll} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
@@ -390,26 +412,36 @@ export default function MessageThread({
                     ))}
                 </div>
 
-                <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
-                    <textarea
-                        ref={composerRef}
-                        value={body}
-                        onChange={(event) => {
-                            setBody(event.target.value);
-                            event.target.style.height = 'auto';
-                            event.target.style.height = `${Math.min(event.target.scrollHeight, MAX_COMPOSER_HEIGHT_PX)}px`;
-                        }}
-                        onKeyDown={onComposerKeyDown}
-                        rows={1}
-                        maxLength={2000}
-                        placeholder="Napišite poruku..."
-                        aria-label="Poruka"
-                        className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
-                    />
-                    <Button type="submit" size="icon" disabled={!body.trim()} aria-label="Pošalji poruku" className="size-11 shrink-0">
-                        <SendHorizontal className="size-4" />
-                    </Button>
-                </form>
+                {blocked && (
+                    <p className="border-border/70 bg-muted/50 text-muted-foreground border-t px-4 py-2 text-xs">
+                        {isOwner
+                            ? `Blokirali ste poruke od korisnika ${buyer.name}. Vi i dalje možete da mu pišete.`
+                            : 'Proizvođač trenutno ne prima vaše poruke.'}
+                    </p>
+                )}
+
+                {!(blocked && !isOwner) && (
+                    <form onSubmit={send} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
+                        <textarea
+                            ref={composerRef}
+                            value={body}
+                            onChange={(event) => {
+                                setBody(event.target.value);
+                                event.target.style.height = 'auto';
+                                event.target.style.height = `${Math.min(event.target.scrollHeight, MAX_COMPOSER_HEIGHT_PX)}px`;
+                            }}
+                            onKeyDown={onComposerKeyDown}
+                            rows={1}
+                            maxLength={2000}
+                            placeholder="Napišite poruku..."
+                            aria-label="Poruka"
+                            className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
+                        />
+                        <Button type="submit" size="icon" disabled={!body.trim()} aria-label="Pošalji poruku" className="size-11 shrink-0">
+                            <SendHorizontal className="size-4" />
+                        </Button>
+                    </form>
+                )}
             </div>
         </MarketplaceLayout>
     );
