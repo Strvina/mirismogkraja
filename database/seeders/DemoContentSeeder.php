@@ -2,14 +2,23 @@
 
 namespace Database\Seeders;
 
+use App\Models\Campaign;
+use App\Models\CampaignParticipant;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Review;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Models\WeeklyPick;
 use App\Notifications\SiteNotification;
+use App\Services\BoostService;
+use App\Services\FoundingProducerService;
+use App\Services\SubscriptionService;
+use App\Support\PaymentReference;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -31,13 +40,13 @@ class DemoContentSeeder extends Seeder
      * @var list<array<string, mixed>>
      */
     private const PRODUCERS = [
-        ['name' => 'Domaćinstvo Nićić', 'owner' => 'Dragan Nićić', 'email' => 'nicic@example.com', 'city' => 'Leskovac', 'delivery' => ['licna_dostava', 'preuzimanje'], 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
-        ['name' => 'Mlekara Zapis', 'owner' => 'Vesna Zapis', 'email' => 'zapis@example.com', 'city' => 'Zlatibor', 'delivery' => ['kurirska_sluzba'], 'categories' => ['Mlečni proizvodi', 'Jaja']],
-        ['name' => 'Pčelinjak Medovina', 'owner' => 'Slobodan Ilić', 'email' => 'medovina@example.com', 'city' => 'Niš', 'delivery' => ['kurirska_sluzba', 'preuzimanje'], 'categories' => ['Med i pčelinji proizvodi', 'Ostalo']],
+        ['name' => 'Domaćinstvo Nićić', 'owner' => 'Dragan Nićić', 'email' => 'nicic@example.com', 'city' => 'Leskovac', 'lat' => 42.9981, 'lng' => 21.9461, 'delivery' => ['licna_dostava', 'preuzimanje'], 'categories' => ['Meso i suhomesnato', 'Rakija i vino']],
+        ['name' => 'Mlekara Zapis', 'owner' => 'Vesna Zapis', 'email' => 'zapis@example.com', 'city' => 'Zlatibor', 'lat' => 43.7291, 'lng' => 19.6982, 'delivery' => ['kurirska_sluzba'], 'categories' => ['Mlečni proizvodi', 'Jaja']],
+        ['name' => 'Pčelinjak Medovina', 'owner' => 'Slobodan Ilić', 'email' => 'medovina@example.com', 'city' => 'Niš', 'lat' => 43.3209, 'lng' => 21.8958, 'delivery' => ['kurirska_sluzba', 'preuzimanje'], 'categories' => ['Med i pčelinji proizvodi', 'Ostalo']],
         // One producer with wording of their own, to exercise custom methods.
-        ['name' => 'Voćarstvo Južni Sad', 'owner' => 'Zoran Stanković', 'email' => 'juznisad@example.com', 'city' => 'Aleksinac', 'delivery' => ['preuzimanje', 'Dostava autobusom na liniji Niš–Beograd'], 'categories' => ['Voće', 'Rakija i vino']],
-        ['name' => 'Bašta Ivanovića', 'owner' => 'Snežana Ivanović', 'email' => 'basta@example.com', 'city' => 'Vranje', 'delivery' => ['licna_dostava'], 'categories' => ['Povrće', 'Žitarice']],
-        ['name' => 'Salaš Kraljević', 'owner' => 'Đorđe Kraljević', 'email' => 'salas@example.com', 'city' => 'Novi Sad', 'delivery' => ['licna_dostava', 'kurirska_sluzba', 'preuzimanje'], 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
+        ['name' => 'Voćarstvo Južni Sad', 'owner' => 'Zoran Stanković', 'email' => 'juznisad@example.com', 'city' => 'Aleksinac', 'lat' => 43.5417, 'lng' => 21.7078, 'delivery' => ['preuzimanje', 'Dostava autobusom na liniji Niš–Beograd'], 'categories' => ['Voće', 'Rakija i vino']],
+        ['name' => 'Bašta Ivanovića', 'owner' => 'Snežana Ivanović', 'email' => 'basta@example.com', 'city' => 'Vranje', 'lat' => 42.5514, 'lng' => 21.9003, 'delivery' => ['licna_dostava'], 'categories' => ['Povrće', 'Žitarice']],
+        ['name' => 'Salaš Kraljević', 'owner' => 'Đorđe Kraljević', 'email' => 'salas@example.com', 'city' => 'Novi Sad', 'lat' => 45.2671, 'lng' => 19.8335, 'delivery' => ['licna_dostava', 'kurirska_sluzba', 'preuzimanje'], 'categories' => ['Žitarice', 'Jaja', 'Meso i suhomesnato']],
     ];
 
     /**
@@ -80,6 +89,108 @@ class DemoContentSeeder extends Seeder
         $this->seedConversations($producers, $buyers);
         $this->seedReviews($producers, $buyers);
         $this->seedNotifications($producers);
+        $this->seedMonetisation($producers);
+        $this->seedStatistics($producers);
+    }
+
+    /**
+     * Something in every paid feature, so each one can be seen working: the
+     * first three are founding producers (and so on a free Premium year), one
+     * pays for Pro, one profile and one product are boosted, there is a
+     * producer of the week and a campaign under way - and one payment of
+     * each kind waits, so the admin dashboard has something to do.
+     *
+     * @param  list<Producer>  $producers
+     */
+    private function seedMonetisation(array $producers): void
+    {
+        $admin = User::where('email', 'admin@gmail.com')->firstOrFail();
+        $founding = app(FoundingProducerService::class);
+        $subscriptions = app(SubscriptionService::class);
+        $boosts = app(BoostService::class);
+
+        foreach (array_slice($producers, 0, 3) as $producer) {
+            $founding->claimNumberFor($producer);
+        }
+
+        $pro = SubscriptionPlan::where('slug', 'pro')->first();
+        if ($pro) {
+            $subscriptions->confirmPayment($subscriptions->request($producers[3], $pro), $admin->id);
+            $subscriptions->request($producers[5], $pro);
+        }
+
+        $boosts->confirm($boosts->request($producers[4], $producers[4]), $admin->id);
+        $boosted = $producers[5]->products()->where('status', 'active')->first();
+        if ($boosted) {
+            $boosts->confirm($boosts->request($producers[5], $boosted), $admin->id);
+        }
+        $boosts->request($producers[1], $producers[1]);
+
+        WeeklyPick::create([
+            'household_id' => $producers[1]->id,
+            'product_id' => $producers[1]->products()->where('status', 'active')->value('id'),
+            'starts_on' => WeeklyPick::weekOf()->toDateString(),
+            'created_by' => $admin->id,
+        ]);
+
+        $campaign = Campaign::create([
+            'name' => 'Ajvar sezona',
+            'slug' => 'ajvar-sezona',
+            'description' => 'Paprika je stigla na pijace, a ajvar se peče po dvorištima. Proizvođači koji ga prave po starom receptu.',
+            'starts_on' => today()->subWeek(),
+            'ends_on' => today()->addWeeks(3),
+            'price_rsd' => 2490,
+            'is_active' => true,
+        ]);
+
+        foreach ([$producers[0], $producers[4]] as $producer) {
+            CampaignParticipant::create([
+                'campaign_id' => $campaign->id,
+                'household_id' => $producer->id,
+                'status' => CampaignParticipant::STATUS_ACTIVE,
+                'reference' => PaymentReference::generate(),
+                'amount_rsd' => $campaign->price_rsd,
+                'confirmed_by' => $admin->id,
+                'confirmed_at' => now(),
+            ]);
+        }
+
+        CampaignParticipant::create([
+            'campaign_id' => $campaign->id,
+            'household_id' => $producers[3]->id,
+            'status' => CampaignParticipant::STATUS_PENDING,
+            'reference' => PaymentReference::generate(),
+            'amount_rsd' => $campaign->price_rsd,
+        ]);
+    }
+
+    /**
+     * Thirty days of views and contact clicks, so the statistics page has a
+     * chart to draw. Written as the daily counters the site itself keeps.
+     *
+     * @param  list<Producer>  $producers
+     */
+    private function seedStatistics(array $producers): void
+    {
+        $rows = [];
+
+        foreach ($producers as $producer) {
+            $products = $producer->products()->where('status', 'active')->pluck('id');
+
+            foreach (range(0, 29) as $daysAgo) {
+                $date = today()->subDays($daysAgo)->toDateString();
+                $rows[] = ['household_id' => $producer->id, 'product_id' => 0, 'event' => 'profile_view', 'date' => $date, 'hits' => fake()->numberBetween(3, 25)];
+                $rows[] = ['household_id' => $producer->id, 'product_id' => 0, 'event' => 'phone_reveal', 'date' => $date, 'hits' => fake()->numberBetween(0, 3)];
+
+                foreach ($products as $productId) {
+                    $rows[] = ['household_id' => $producer->id, 'product_id' => $productId, 'event' => 'product_view', 'date' => $date, 'hits' => fake()->numberBetween(1, 12)];
+                }
+            }
+        }
+
+        foreach (array_chunk($rows, 500) as $chunk) {
+            DB::table('producer_stats')->insert($chunk);
+        }
     }
 
     /**
@@ -144,6 +255,9 @@ class DemoContentSeeder extends Seeder
             $producer = Producer::factory()->for($user)->active()->create([
                 'name' => $entry['name'],
                 'city' => $entry['city'],
+                // Near the town centre - a demo point on the producer map.
+                'lat' => $entry['lat'],
+                'lng' => $entry['lng'],
                 'delivery_methods' => $entry['delivery'],
                 'phone' => '+381 6'.fake()->numberBetween(1, 9).' '.fake()->numerify('### ####'),
                 'contact_email' => $entry['email'],
