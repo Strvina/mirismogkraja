@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { shrinkImage } from '@/lib/shrink-image';
 import { cn } from '@/lib/utils';
 import { type Producer } from '@/types';
 import { useForm } from '@inertiajs/react';
@@ -53,7 +54,16 @@ function ImageField({
             <Label htmlFor={id}>{label}</Label>
             <div className="flex items-center gap-4">
                 {preview && <img src={preview} alt="" className="size-16 rounded-md object-cover" />}
-                <Input id={id} type="file" accept="image/*" className="w-full max-w-xs" onChange={(e) => onChange(e.target.files?.[0] ?? null)} />
+                <Input
+                    id={id}
+                    type="file"
+                    accept="image/*"
+                    className="w-full max-w-xs"
+                    onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        onChange(file ? await shrinkImage(file) : null);
+                    }}
+                />
             </div>
             <InputError message={error} />
         </div>

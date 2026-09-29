@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { shrinkImage } from '@/lib/shrink-image';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -46,16 +47,18 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         patch(route('profile.update'));
     };
 
-    const onAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] ?? null;
+    const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const picked = e.target.files?.[0] ?? null;
 
-        if (!file) {
+        if (!picked) {
             return;
         }
 
-        setAvatarPreview(URL.createObjectURL(file));
+        setAvatarPreview(URL.createObjectURL(picked));
         setAvatarError(null);
         setAvatarProcessing(true);
+
+        const file = await shrinkImage(picked);
 
         // Pass the file directly instead of staging it in useForm's state -
         // that state update is async, so posting right after setData() in

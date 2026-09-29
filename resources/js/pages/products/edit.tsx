@@ -1,13 +1,24 @@
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Category, type Producer, type Product } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 import ProductForm from './product-form';
 
 function ImagesManager({ producer, product }: { producer: Producer; product: Product }) {
-    const { data, setData, post, processing, reset } = useForm<{ images: File[] }>({ images: [] });
+    const { data, setData, post, processing, reset, errors } = useForm<{ images: File[] }>({ images: [] });
+    const [preparing, setPreparing] = useState(false);
+    // Per-file errors arrive as images.0, images.1, ...; the first says enough.
+    const error = errors.images ?? Object.entries(errors).find(([key]) => key.startsWith('images.'))?.[1];
+
+    const pick = async (files: File[]) => {
+        setPreparing(true);
+        setData('images', await shrinkImages(files));
+        setPreparing(false);
+    };
 
     const upload: FormEventHandler = (e) => {
         e.preventDefault();
@@ -53,9 +64,18 @@ function ImagesManager({ producer, product }: { producer: Producer; product: Pro
                 </div>
             )}
 
-            <form onSubmit={upload} className="flex items-center gap-3">
-                <Input type="file" accept="image/*" multiple onChange={(e) => setData('images', Array.from(e.target.files ?? []))} />
-                <Button disabled={processing || data.images.length === 0}>Dodaj slike</Button>
+            <form onSubmit={upload} className="space-y-1">
+                <div className="flex items-center gap-3">
+                    <Input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        aria-label="Slike proizvoda"
+                        onChange={(e) => pick(Array.from(e.target.files ?? []))}
+                    />
+                    <Button disabled={processing || preparing || data.images.length === 0}>{preparing ? 'Pripremam…' : 'Dodaj slike'}</Button>
+                </div>
+                <InputError message={error} />
             </form>
         </div>
     );
