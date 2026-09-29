@@ -99,7 +99,7 @@ class BoostTest extends TestCase
         $boost->refresh();
         $this->assertSame(Boost::STATUS_ACTIVE, $boost->status);
         $this->assertTrue($boost->ends_at->between(now()->addDays(7)->subMinute(), now()->addDays(7)->addMinute()));
-        $this->assertSame('boost.activated', $producer->user->notifications()->sole()->data['type']);
+        $this->assertContains('boost.activated', $producer->user->notifications()->get()->pluck('data.type'));
 
         $this->get(route('marketplace.producers.index'))->assertInertia(fn ($page) => $page->where('featured.0.id', $producer->id));
         // Regional: it shows in its own city, not in another.

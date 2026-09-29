@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Models\Producer;
+use App\Notifications\SiteNotification;
 use App\Services\PaymentSlipPdf;
 use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
+use App\Support\Admins;
 use App\Support\PageMeta;
 use App\Support\PaymentReference;
 use Illuminate\Http\RedirectResponse;
@@ -98,7 +100,16 @@ class CampaignController extends Controller
                 'amount_rsd' => $campaign->price_rsd,
                 'confirmed_by' => null,
                 'confirmed_at' => null,
+                'cancel_requested_at' => null,
             ])->save();
+
+            $request->user()->notify(SiteNotification::campaignRequested($campaign->name, $place->amount_rsd, $place->reference, route('campaigns.index')));
+            Admins::notify(SiteNotification::forAdmins('campaign-requested', [
+                'producer' => $producer->name,
+                'campaign' => $campaign->name,
+                'amount' => number_format($place->amount_rsd, 0, ',', '.'),
+                'reference' => $place->reference,
+            ], route('admin.campaigns.index')));
         }
 
         return back()->with('status', 'Prijava je zabeležena. Uplatite iznos i mi ćemo vas uključiti u kampanju.');

@@ -132,6 +132,12 @@ class DemoContentSeeder extends Seeder
             'starts_on' => WeeklyPick::weekOf()->toDateString(),
             'created_by' => $admin->id,
         ]);
+        // What the admin page would have sent, so the bell matches the data.
+        $producers[1]->user->notify(SiteNotification::weeklyPick(
+            $producers[1]->name,
+            WeeklyPick::weekOf(),
+            route('marketplace.producers.show', $producers[1]->slug),
+        ));
 
         $campaign = Campaign::create([
             'name' => 'Ajvar sezona',
@@ -153,6 +159,8 @@ class DemoContentSeeder extends Seeder
                 'confirmed_by' => $admin->id,
                 'confirmed_at' => now(),
             ]);
+
+            $producer->user->notify(SiteNotification::campaignJoined($campaign->name, route('campaigns.show', $campaign->slug)));
         }
 
         CampaignParticipant::create([

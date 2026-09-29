@@ -93,10 +93,7 @@ class AdminCampaignController extends Controller
 
         if ($wasActive) {
             $participant->loadMissing(['campaign', 'producer.user']);
-            $participant->producer?->user?->notify(SiteNotification::paidItemCancelled(
-                'Učešće u kampanji '.$participant->campaign->name,
-                route('campaigns.index'),
-            ));
+            $participant->producer?->user?->notify(SiteNotification::campaignCancelled($participant->campaign->name, route('campaigns.index')));
         }
 
         return back();

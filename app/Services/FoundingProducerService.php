@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Producer;
 use App\Models\SubscriptionPlan;
+use App\Notifications\SiteNotification;
 use App\Support\Settings;
 use Illuminate\Support\Facades\DB;
 
@@ -57,7 +58,14 @@ class FoundingProducerService
         $number = $this->takeNextNumber($producer);
 
         if ($number !== null && $plan = SubscriptionPlan::where('slug', self::PLAN)->first()) {
-            $this->subscriptions->grant($producer, $plan);
+            $membership = $this->subscriptions->grant($producer, $plan);
+
+            $producer->user?->notify(SiteNotification::foundingGranted(
+                $producer->name,
+                $number,
+                $membership->ends_at,
+                route('marketplace.founding'),
+            ));
         }
 
         return $number;

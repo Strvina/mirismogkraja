@@ -86,7 +86,7 @@ class CampaignTest extends TestCase
         $this->actingAs($this->admin())->patch(route('admin.campaigns.confirm', $place))->assertRedirect();
 
         $this->get(route('campaigns.show', $campaign->slug))->assertInertia(fn ($page) => $page->where('producers.0.name', 'Ajvar kod Mile'));
-        $this->assertSame('campaign.joined', $producer->user->notifications()->sole()->data['type']);
+        $this->assertContains('campaign.joined', $producer->user->notifications()->get()->pluck('data.type'));
 
         $this->actingAs($producer->user)->post(route('campaigns.join', $campaign), ['producer_id' => $producer->id])
             ->assertSessionHasErrors('producer_id');
