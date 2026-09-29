@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Lang;
  * SiteNotification), so the same row reads in Serbian to one person and in
  * English to another. Rows written before that kept the words themselves,
  * and are shown as they were.
+ *
+ * Params whose name ends in "_on" are dates and those ending in "_label" are
+ * translation keys, so both read in the reader's language too.
  */
 class NotificationText
 {
@@ -27,9 +30,11 @@ class NotificationText
 
         $key = 'notifications.'.($data['type'] ?? '');
         $params = collect($data['params'] ?? [])
-            ->map(fn ($value, string $name) => str_ends_with($name, '_on')
-                ? Carbon::parse($value)->translatedFormat(__('notifications.date_format'))
-                : $value)
+            ->map(fn ($value, string $name) => match (true) {
+                str_ends_with($name, '_on') => Carbon::parse($value)->translatedFormat(__('notifications.date_format')),
+                str_ends_with($name, '_label') => __((string) $value),
+                default => $value,
+            })
             ->all();
 
         return [

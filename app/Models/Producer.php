@@ -114,15 +114,25 @@ class Producer extends Model
             ->ofMany(['ends_at' => 'max'], fn ($query) => $query->active());
     }
 
-    /** Buyers this producer no longer takes messages from. */
+    /**
+     * Buyers whose conversation with this producer is closed. Either side
+     * can close it; blocked_by says which, since only that side may reopen it.
+     */
     public function blockedBuyers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'conversation_blocks', 'household_id', 'buyer_id');
+        return $this->belongsToMany(User::class, 'conversation_blocks', 'household_id', 'buyer_id')->withPivot('blocked_by');
     }
 
+    /** Whether the conversation with this buyer is closed, by either side. */
     public function hasBlocked(User $buyer): bool
     {
         return $this->blockedBuyers()->whereKey($buyer->id)->exists();
+    }
+
+    /** Who closed the conversation with this buyer: 'producer', 'buyer' or nobody. */
+    public function blockedBy(User $buyer): ?string
+    {
+        return $this->blockedBuyers()->whereKey($buyer->id)->value('blocked_by');
     }
 
     /** People who asked to hear when this producer lists something new. */

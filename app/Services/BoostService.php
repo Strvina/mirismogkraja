@@ -7,6 +7,7 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Notifications\SiteNotification;
 use App\Support\Admins;
+use App\Support\PaidItems;
 use App\Support\PaymentReference;
 use App\Support\Settings;
 use Illuminate\Support\Carbon;
@@ -68,13 +69,13 @@ class BoostService
             'days' => $terms['days'],
         ]);
 
-        $producer->user?->notify(SiteNotification::boostRequested($target->name, $boost->amount_rsd, $boost->reference, route('boosts.index')));
+        $producer->user?->notify(SiteNotification::boostRequested($target->name, $boost->amount_rsd, $boost->reference, PaidItems::slipUrl($boost)));
         Admins::notify(SiteNotification::forAdmins('boost-requested', [
             'producer' => $producer->name,
             'name' => $target->name,
             'amount' => number_format($boost->amount_rsd, 0, ',', '.'),
             'reference' => $boost->reference,
-        ], route('admin.boosts.index')));
+        ], PaidItems::adminUrl($boost)));
 
         return $boost;
     }
@@ -106,7 +107,7 @@ class BoostService
         $boost->producer->user?->notify(SiteNotification::boostActivated(
             $boost->boostable?->name ?? $boost->producer->name,
             $boost->ends_at,
-            route('boosts.index'),
+            PaidItems::url($boost),
         ));
 
         return $boost;
@@ -140,7 +141,7 @@ class BoostService
             ->get();
 
         foreach ($ending as $boost) {
-            $boost->producer?->user?->notify(SiteNotification::boostEnding($boost->boostable?->name ?? '', $boost->ends_at, route('boosts.index')));
+            $boost->producer?->user?->notify(SiteNotification::boostEnding($boost->boostable?->name ?? '', $boost->ends_at, PaidItems::url($boost)));
             $boost->update(['ending_warned_at' => now()]);
         }
 
@@ -162,7 +163,7 @@ class BoostService
 
         foreach ($ended as $boost) {
             $boost->update(['status' => Boost::STATUS_EXPIRED]);
-            $boost->producer?->user?->notify(SiteNotification::boostExpired($boost->boostable?->name ?? '', route('boosts.index')));
+            $boost->producer?->user?->notify(SiteNotification::boostExpired($boost->boostable?->name ?? '', PaidItems::url($boost)));
         }
 
         return $ended->count();

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Contracts\Payable;
 use App\Models\Concerns\CountsByStatus;
+use App\Models\Concerns\HasRefund;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  */
 class Boost extends Model implements Payable
 {
-    use CountsByStatus;
+    use CountsByStatus, HasRefund;
 
     public const STATUS_PENDING = 'pending_payment';
 

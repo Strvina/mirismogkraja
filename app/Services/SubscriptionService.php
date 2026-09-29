@@ -7,6 +7,7 @@ use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Notifications\SiteNotification;
 use App\Support\Admins;
+use App\Support\PaidItems;
 use App\Support\PaymentReference;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -110,13 +111,13 @@ class SubscriptionService
             'amount_rsd' => $plan->price_rsd,
         ]);
 
-        $producer->user?->notify(SiteNotification::membershipRequested($plan->name, $plan->price_rsd, $subscription->reference, route('memberships.index')));
+        $producer->user?->notify(SiteNotification::membershipRequested($plan->name, $plan->price_rsd, $subscription->reference, PaidItems::slipUrl($subscription)));
         Admins::notify(SiteNotification::forAdmins('membership-requested', [
             'producer' => $producer->name,
             'plan' => $plan->name,
             'amount' => number_format($plan->price_rsd, 0, ',', '.'),
             'reference' => $subscription->reference,
-        ], route('admin.memberships.index')));
+        ], PaidItems::adminUrl($subscription)));
 
         return $subscription;
     }
@@ -173,7 +174,7 @@ class SubscriptionService
             $subscription->producer->user?->notify(SiteNotification::membershipActivated(
                 $subscription->plan->name,
                 $subscription->ends_at,
-                route('memberships.index'),
+                PaidItems::url($subscription),
             ));
         }
 
@@ -208,7 +209,7 @@ class SubscriptionService
             $subscription->producer->user?->notify(SiteNotification::membershipEnding(
                 $subscription->plan->name,
                 $subscription->ends_at,
-                route('memberships.index'),
+                PaidItems::url($subscription),
             ));
 
             $subscription->update(['expiry_warned_at' => now()]);
@@ -231,7 +232,7 @@ class SubscriptionService
 
             $subscription->producer->user?->notify(SiteNotification::membershipExpired(
                 $subscription->plan->name,
-                route('memberships.index'),
+                PaidItems::url($subscription),
             ));
         }
 

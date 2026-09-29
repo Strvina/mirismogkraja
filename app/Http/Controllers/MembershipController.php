@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
+use App\Services\CancellationService;
 use App\Services\PaymentSlipPdf;
 use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
@@ -35,6 +36,17 @@ class MembershipController extends Controller
                 'active' => $producer->subscriptions->first(fn (ProducerSubscription $subscription) => $subscription->isActive())
                     ?->only(['id', 'ends_at', 'cancel_requested_at']),
                 'pending' => $this->pendingSlip($producer, $slips),
+                // Money coming back on a cancelled membership, until a while
+                // after it was sent.
+                'refunds' => $producer->subscriptions
+                    ->filter(fn (ProducerSubscription $subscription) => $subscription->refund_rsd > 0
+                        && ($subscription->refunded_at === null || $subscription->refunded_at->gt(now()->subDays(60))))
+                    ->map(fn (ProducerSubscription $subscription) => [
+                        'id' => $subscription->id,
+                        'plan' => $subscription->plan?->name,
+                        'refund' => CancellationService::refundState($subscription),
+                    ])
+                    ->values(),
             ]),
         ]);
     }

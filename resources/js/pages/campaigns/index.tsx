@@ -1,6 +1,7 @@
+import heroImage from '@/assets/hero-ajvar.jpg';
 import InputError from '@/components/input-error';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { CancelRequest, HowItWorks, PaymentStatusBadge } from '@/components/marketplace/payment-status';
+import { CancelRequest, HowItWorks, linkedSlipId, PaymentStatusBadge, type RefundState, RefundStatus } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -29,6 +30,7 @@ interface Place {
     status: 'pending_payment' | 'active' | 'cancelled';
     amount_rsd: number;
     cancel_requested_at: string | null;
+    refund: RefundState | null;
     slip: PaymentSlip | null;
     download_url: string | null;
 }
@@ -70,7 +72,7 @@ export default function Campaigns({
 }) {
     const errors = usePage<{ errors: Record<string, string> }>().props.errors;
     const [producerId, setProducerId] = useState(producers[0] ? String(producers[0].id) : '');
-    const [slipFor, setSlipFor] = useState<number | null>(null);
+    const [slipFor, setSlipFor] = useState<number | null>(linkedSlipId);
 
     const placeOf = (campaign: Campaign) =>
         places.find((place) => place.campaign_id === campaign.id && String(place.household_id) === producerId && place.status !== 'cancelled');
@@ -162,10 +164,19 @@ export default function Campaigns({
                                         key={campaign.id}
                                         className="border-border/70 bg-background flex flex-col overflow-hidden rounded-2xl border"
                                     >
-                                        <div className="bg-primary text-primary-foreground px-5 py-4">
-                                            <p className="text-xs font-semibold tracking-[0.14em] uppercase opacity-85">{timing(campaign)}</p>
+                                        {/* The season's photograph under the name, like the
+                                            campaign's own page - calm, not a red block. */}
+                                        <div className="bg-charcoal relative isolate overflow-hidden px-5 py-5 text-white">
+                                            <img
+                                                src={heroImage}
+                                                alt=""
+                                                loading="lazy"
+                                                className="image-warm absolute inset-0 -z-10 size-full object-cover object-[70%_60%] opacity-60"
+                                            />
+                                            <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_88%,transparent),color-mix(in_oklab,var(--charcoal)_45%,transparent))]" />
+                                            <p className="text-gold text-xs font-semibold tracking-[0.14em] uppercase">{timing(campaign)}</p>
                                             <h2 className="mt-1 font-serif text-2xl break-words">{campaign.name}</h2>
-                                            <p className="mt-1 text-sm opacity-85">
+                                            <p className="mt-1 text-sm text-white/80">
                                                 {longDay(campaign.starts_on)} – {longDay(campaign.ends_on)}
                                             </p>
                                         </div>
@@ -190,7 +201,7 @@ export default function Campaigns({
                                                     <span className="flex items-center gap-2">
                                                         <PaymentStatusBadge
                                                             status={place.status}
-                                                            label={place.status === 'active' ? 'Učestvujete' : undefined}
+                                                            label={place.status === 'active' ? t('Učestvujete') : undefined}
                                                         />
                                                         {place.slip && (
                                                             <Button variant="outline" size="sm" onClick={() => setSlipFor(place.id)}>
@@ -224,7 +235,8 @@ export default function Campaigns({
                         {places.map((place) => (
                             <li
                                 key={place.id}
-                                className="border-border/70 bg-background flex flex-wrap items-center justify-between gap-3 rounded-xl border p-4 text-sm"
+                                id={`kampanja-${place.id}`}
+                                className="border-border/70 bg-background target:ring-gold/60 flex scroll-mt-24 flex-wrap items-center justify-between gap-3 rounded-xl border p-4 text-sm target:ring-2"
                             >
                                 <span className="min-w-0 break-words">
                                     <span className="font-medium">{place.campaign}</span>
@@ -235,7 +247,8 @@ export default function Campaigns({
                                 <span className="flex items-center gap-2">
                                     {place.status === 'active' && (
                                         <CancelRequest
-                                            href={route('cancellation.campaign', place.id)}
+                                            kind="kampanja"
+                                            id={place.id}
                                             requestedAt={place.cancel_requested_at}
                                             what={t('učešće u kampanji „:name”', { name: place.campaign })}
                                         />
@@ -247,6 +260,11 @@ export default function Campaigns({
                                         </Button>
                                     )}
                                 </span>
+                                {place.refund && (
+                                    <div className="basis-full">
+                                        <RefundStatus kind="kampanja" id={place.id} refund={place.refund} />
+                                    </div>
+                                )}
                             </li>
                         ))}
                     </ul>

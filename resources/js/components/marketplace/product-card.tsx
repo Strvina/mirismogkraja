@@ -41,7 +41,10 @@ export default function ProductCard({
     return (
         <Link
             href={route('marketplace.products.show', product.slug)}
-            className="group border-border/70 hover:border-border bg-background flex flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg"
+            className={cn(
+                'group bg-background flex flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg',
+                featured ? 'border-gold/60 ring-gold/25 ring-1' : 'border-border/70 hover:border-border',
+            )}
         >
             <div className="bg-muted relative aspect-square overflow-hidden">
                 {image ? (
@@ -78,16 +81,16 @@ export default function ProductCard({
                 )}
             </div>
 
-            <div className="flex flex-1 flex-col p-4">
+            <div className={cn('flex flex-1 flex-col', featured ? 'p-4' : 'p-3')}>
                 {product.producer?.city && (
                     <p className="text-primary text-[0.65rem] font-semibold tracking-[0.12em] uppercase">{product.producer.city}</p>
                 )}
 
-                <h3 className="mt-1 font-serif text-lg leading-snug">{product.name}</h3>
+                <h3 className={cn('mt-1 font-serif leading-snug', featured ? 'text-xl' : 'text-base')}>{product.name}</h3>
 
                 {product.producer && <p className="text-muted-foreground mt-1 text-xs">{product.producer.name}</p>}
 
-                <p className="mt-auto pt-4 font-serif text-xl">
+                <p className={cn('mt-auto font-serif', featured ? 'pt-4 text-xl' : 'pt-3 text-lg')}>
                     {formatPrice(product.price)}
                     <span className="text-muted-foreground ml-1 font-sans text-xs">/ {product.unit}</span>
                 </p>

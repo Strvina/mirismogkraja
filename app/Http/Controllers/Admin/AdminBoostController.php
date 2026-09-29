@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Boost;
-use App\Notifications\SiteNotification;
 use App\Services\BoostService;
+use App\Services\CancellationService;
 use App\Support\Settings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -13,32 +13,38 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Paid boosts in the admin panel (task 20.2): the prices, and the payments
- * waiting to be confirmed. Confirming is a person looking at the bank
- * statement, as with memberships.
+ * Paid boosts in the admin panel (task 20.2): the prices on a settings tab,
+ * and the payments by status on the others. Confirming is a person looking
+ * at the bank statement, as with memberships.
  */
 class AdminBoostController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, BoostService $boosts, CancellationService $cancellations): Response
     {
         $status = $request->string('status')->toString();
 
-        if (! in_array($status, Boost::STATUSES, true)) {
+        if ($status !== 'settings' && ! in_array($status, Boost::STATUSES, true)) {
             $status = Boost::STATUS_PENDING;
         }
 
         return Inertia::render('admin/boosts/index', [
-            'boosts' => Boost::query()
+            'filters' => ['status' => $status],
+            'counts' => [...Boost::countsByStatus(), 'refunds_due' => Boost::refundDue()->count()],
+            // Only the open tab's data is loaded: the list, or the prices.
+            'terms' => $status === 'settings' ? $boosts->terms() : null,
+            'boosts' => $status === 'settings' ? null : Boost::query()
                 ->with(['producer:id,name,slug', 'boostable'])
                 ->where('status', $status)
+                // What needs acting on leads: a request to cancel, a refund to send.
                 ->orderByRaw('cancel_requested_at is null')
+                ->orderByRaw('(refund_rsd > 0 and refunded_at is null) desc')
                 ->latest()
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (Boost $boost) => [
                     'id' => $boost->id,
                     'kind' => $boost->isProduct() ? 'product' : 'profile',
-                    'name' => $boost->boostable?->name ?? 'Obrisano',
+                    'name' => $boost->boostable?->name ?? __('Obrisano'),
                     'producer' => $boost->producer?->only(['id', 'name', 'slug']),
                     'status' => $boost->status,
                     'reference' => $boost->reference,
@@ -46,10 +52,8 @@ class AdminBoostController extends Controller
                     'days' => $boost->days,
                     'ends_at' => $boost->ends_at,
                     'created_at' => $boost->created_at,
-                    'cancel_requested_at' => $boost->cancel_requested_at,
+                    ...$cancellations->adminFields($boost),
                 ]),
-            'filters' => ['status' => $status],
-            'counts' => Boost::countsByStatus(),
         ]);
     }
 
@@ -58,21 +62,6 @@ class AdminBoostController extends Controller
         abort_unless($boost->status === Boost::STATUS_PENDING, 422);
 
         $boosts->confirm($boost, $request->user()->id);
-
-        return back();
-    }
-
-    /** Cancel an unpaid request, or deactivate a running boost; see AdminMembershipController::cancel(). */
-    public function cancel(Boost $boost): RedirectResponse
-    {
-        $wasActive = $boost->status === Boost::STATUS_ACTIVE;
-
-        $boost->update(['status' => Boost::STATUS_CANCELLED]);
-
-        if ($wasActive) {
-            $boost->loadMissing(['producer.user', 'boostable']);
-            $boost->producer?->user?->notify(SiteNotification::boostCancelled($boost->boostable?->name ?? '', route('boosts.index')));
-        }
 
         return back();
     }

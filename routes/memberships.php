@@ -4,6 +4,7 @@ use App\Http\Controllers\BoostController;
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CancellationRequestController;
 use App\Http\Controllers\MembershipController;
+use App\Support\PaidItems;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function () {
@@ -21,8 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/kampanje/{campaign}/prijava', [CampaignController::class, 'join'])->name('campaigns.join');
     Route::get('/kampanje/uplatnica/{participant}.pdf', [CampaignController::class, 'slip'])->name('campaigns.slip');
 
-    // Asking for something paid for to be stopped; an admin decides.
-    Route::post('/otkazivanje/clanarina/{subscription}', [CancellationRequestController::class, 'membership'])->name('cancellation.membership');
-    Route::post('/otkazivanje/isticanje/{boost}', [CancellationRequestController::class, 'boost'])->name('cancellation.boost');
-    Route::post('/otkazivanje/kampanja/{participant}', [CancellationRequestController::class, 'campaign'])->name('cancellation.campaign');
+    // Asking for something paid for to be stopped, and where a refund goes;
+    // an admin decides. {kind} is clanarina, isticanje or kampanja.
+    Route::post('/otkazivanje/{kind}/{id}', [CancellationRequestController::class, 'store'])
+        ->whereIn('kind', array_keys(PaidItems::KINDS))->whereNumber('id')->name('cancellation.request');
+    Route::put('/povracaj/{kind}/{id}/racun', [CancellationRequestController::class, 'refundAccount'])
+        ->whereIn('kind', array_keys(PaidItems::KINDS))->whereNumber('id')->name('refunds.account');
 });

@@ -1,6 +1,7 @@
 import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BadgeCheck, MapPin, Star, Truck } from 'lucide-react';
@@ -54,7 +55,12 @@ export default function ProducerCard({ producer, featured = false }: { producer:
     const href = route('marketplace.producers.show', producer.slug);
 
     return (
-        <article className="group border-border/70 hover:border-border flex flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg">
+        <article
+            className={cn(
+                'group bg-background flex flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg',
+                featured ? 'border-gold/60 ring-gold/25 ring-1' : 'border-border/70 hover:border-border',
+            )}
+        >
             <Link href={href} className="bg-muted relative block aspect-[16/9] overflow-hidden">
                 {producer.cover_image_path && (
                     <img
@@ -67,15 +73,15 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                 {featured && <FeaturedLabel className="absolute top-3 left-3" />}
             </Link>
 
-            <div className="flex flex-1 flex-col p-5">
-                <div className="-mt-11 mb-3 flex items-end justify-between gap-3">
+            <div className={cn('flex flex-1 flex-col', featured ? 'p-5' : 'p-4')}>
+                <div className={cn('mb-3 flex items-end justify-between gap-3', featured ? '-mt-11' : '-mt-9')}>
                     <span className="ring-background relative z-10 rounded-full ring-4">
-                        <Avatar name={producer.name} path={producer.logo_path} className="size-14" />
+                        <Avatar name={producer.name} path={producer.logo_path} className={featured ? 'size-14' : 'size-11'} />
                     </span>
                     <Rating value={producer.reviews_avg_rating} count={producer.reviews_count} />
                 </div>
 
-                <h2 className="flex flex-wrap items-center gap-1.5 font-serif text-2xl leading-tight">
+                <h2 className={cn('flex flex-wrap items-center gap-1.5 font-serif leading-tight', featured ? 'text-2xl' : 'text-xl')}>
                     <Link href={href}>{producer.name}</Link>
                     {producer.verified_at && <BadgeCheck className="text-olive size-4 shrink-0" aria-label={t('Provereni proizvođač')} />}
                     {producer.is_premium && <PremiumBadge />}
@@ -88,9 +94,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                             {producer.city}
                         </span>
                     )}
-                    <span>
-                        {producer.products_count} {producer.products_count === 1 ? 'proizvod' : 'proizvoda'}
-                    </span>
+                    <span>{producer.products_count === 1 ? t('1 proizvod') : t(':count proizvoda', { count: producer.products_count })}</span>
                 </div>
 
                 {producer.description && <p className="text-muted-foreground mt-3 line-clamp-2 text-sm leading-6">{producer.description}</p>}
@@ -104,13 +108,14 @@ export default function ProducerCard({ producer, featured = false }: { producer:
 
                 {producer.reviews.length > 0 && (
                     <div className="border-border/70 mt-4 space-y-3 border-t pt-4">
-                        {producer.reviews.map((review) => (
+                        {/* One review on a regular card keeps the grid tight. */}
+                        {producer.reviews.slice(0, featured ? 2 : 1).map((review) => (
                             <div key={review.id} className="flex gap-2.5">
                                 <Avatar name={review.user.name} path={review.user.avatar_path} />
                                 <div className="min-w-0">
                                     <p className="flex items-center gap-2 text-xs font-medium">
                                         {review.user.name}
-                                        <span className="text-gold" aria-label={`Ocena ${review.rating} od 5`}>
+                                        <span className="text-gold" aria-label={t('Ocena :rating od 5', { rating: review.rating })}>
                                             {'★'.repeat(review.rating)}
                                         </span>
                                     </p>
