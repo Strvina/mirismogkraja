@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthRedirectService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -27,26 +27,34 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Handle an incoming authentication request.
+     *
+     * A full page load afterwards, not an Inertia visit: the route list the
+     * browser's route() uses is written into the page once, per user (an
+     * admin's includes the admin panel, a visitor's does not - see
+     * config/ziggy.php). Kept from the login page, an admin would be left
+     * with the visitor's list and every admin page calling route() would
+     * fail.
      */
-    public function store(LoginRequest $request, AuthRedirectService $redirects): RedirectResponse
+    public function store(LoginRequest $request, AuthRedirectService $redirects): SymfonyResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return redirect()->intended($redirects->homeFor($request->user()));
+        return Inertia::location(redirect()->intended($redirects->homeFor($request->user())));
     }
 
     /**
-     * Destroy an authenticated session.
+     * Destroy an authenticated session. A full page load for the same reason
+     * as logging in: the admin's route list goes with the session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): SymfonyResponse
     {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return Inertia::location(url('/'));
     }
 }
