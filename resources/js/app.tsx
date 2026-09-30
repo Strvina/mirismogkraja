@@ -4,6 +4,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { route as routeFn } from 'ziggy-js';
+import ConfirmHost from './components/confirm-host';
 import { initializeTheme } from './hooks/use-appearance';
 import { loadLocale } from './lib/i18n';
 import { revalidateOnHistoryNavigation } from './lib/revalidate-on-history-navigation';
@@ -23,12 +24,19 @@ createInertiaApp({
         // The words first, so the first paint is already in the reader's
         // language. A change of language is a full page load (see
         // LocaleController), so this runs once per language.
-        loadLocale(props.initialPage.props.locale as string).then(() => root.render(<App {...props} />));
+        loadLocale(props.initialPage.props.locale as string).then(() =>
+            root.render(
+                <>
+                    <App {...props} />
+                    <ConfirmHost />
+                </>,
+            ),
+        );
     },
     progress: {
-        // Matches the brand primary (terracotta-red, see docs/design-tokens.md)
-        // instead of the starter kit's generic gray.
-        color: '#8a3324',
+        // Matches the brand primary (brick red) instead of the starter
+        // kit's generic gray.
+        color: '#94412f',
     },
 });
 

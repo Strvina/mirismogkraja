@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { ask } from '@/lib/confirm';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -21,8 +22,14 @@ interface PendingChange {
 }
 
 export default function ProducersIndex({ producers, pendingChanges }: { producers: Producer[]; pendingChanges: PendingChange[] }) {
-    const destroy = (producer: Producer) => {
-        if (confirm(t('Obrisati proizvođača „:name”?', { name: producer.name }))) {
+    const destroy = async (producer: Producer) => {
+        if (
+            await ask({
+                title: t('Obrisati proizvođača „:name”?', { name: producer.name }),
+                description: t('Stranica proizvođača i njegovi proizvodi više neće biti vidljivi na sajtu.'),
+                tone: 'danger',
+            })
+        ) {
             router.delete(route('producers.destroy', producer.id));
         }
     };

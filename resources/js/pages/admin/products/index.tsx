@@ -2,6 +2,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
+import { ask } from '@/lib/confirm';
 import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type Category, type Product } from '@/types';
@@ -53,8 +54,14 @@ export default function AdminProductsIndex({
         router.post(route('admin.products.bulk'), { ids: selected, ...payload }, { preserveScroll: true, onSuccess: () => setSelected([]) });
     };
 
-    const bulkDelete = () => {
-        if (confirm(t('Obrisati izabrane proizvode (:count)? Ova radnja se ne može poništiti.', { count: selected.length }))) {
+    const bulkDelete = async () => {
+        if (
+            await ask({
+                title: t('Obrisati izabrane proizvode (:count)?', { count: selected.length }),
+                description: t('Ova radnja se ne može poništiti.'),
+                tone: 'danger',
+            })
+        ) {
             runBulk({ action: 'delete' });
         }
     };
@@ -193,8 +200,14 @@ export default function AdminProductsIndex({
                                         size="icon"
                                         aria-label={t('Obriši :name', { name: product.name })}
                                         className="text-muted-foreground hover:text-destructive"
-                                        onClick={() => {
-                                            if (confirm(t('Obrisati „:name”?', { name: product.name }))) {
+                                        onClick={async () => {
+                                            if (
+                                                await ask({
+                                                    title: t('Obrisati „:name”?', { name: product.name }),
+                                                    description: t('Ova radnja se ne može poništiti.'),
+                                                    tone: 'danger',
+                                                })
+                                            ) {
                                                 router.delete(route('admin.products.destroy', product.id), { preserveScroll: true });
                                             }
                                         }}

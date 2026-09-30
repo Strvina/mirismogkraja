@@ -3,6 +3,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
+import { ask } from '@/lib/confirm';
 import { intlLocale, t } from '@/lib/i18n';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
@@ -57,8 +58,15 @@ export default function AdminWeeklyPicks({
         post(route('admin.weekly-picks.store'), { preserveScroll: true, onSuccess: () => reset() });
     };
 
-    const remove = (pick: Pick) => {
-        if (confirm(t('Ukloniti ovaj izbor?'))) {
+    const remove = async (pick: Pick) => {
+        if (
+            await ask({
+                title: t('Ukloniti ovaj izbor?'),
+                description: t('Proizvođač više neće biti istaknut na početnoj strani za tu nedelju.'),
+                confirmLabel: t('Ukloni'),
+                tone: 'danger',
+            })
+        ) {
             router.delete(route('admin.weekly-picks.destroy', pick.id), { preserveScroll: true });
         }
     };

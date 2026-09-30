@@ -21,6 +21,12 @@ export default [
             'react/react-in-jsx-scope': 'off',
             'react/prop-types': 'off',
             'react/no-unescaped-entities': 'off',
+            // The browser's own boxes can't be styled or translated.
+            'no-restricted-globals': [
+                'error',
+                { name: 'confirm', message: "Use ask() from '@/lib/confirm'." },
+                { name: 'alert', message: 'Show the message on the page instead.' },
+            ],
         },
         settings: {
             react: {

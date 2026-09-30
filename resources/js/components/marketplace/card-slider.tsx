@@ -8,9 +8,9 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
  *
  * It's the browser's own overflow scrolling rather than a carousel library:
  * touch dragging, trackpads, keyboard and screen readers all work by default,
- * and the arrows are a convenience layered on top for mouse users. They hide
- * themselves when everything already fits, so a section with two cards doesn't
- * pretend to be a carousel.
+ * and the arrows are a convenience layered on top for mouse users. They are
+ * always there, so every slider on the site looks the same; when everything
+ * already fits they are simply both disabled.
  */
 export default function CardSlider({
     children,
@@ -53,32 +53,28 @@ export default function CardSlider({
         }
     };
 
-    const hasArrows = !(atStart && atEnd);
-
     return (
         <div className="relative">
-            {hasArrows && (
-                <div className="mb-4 flex justify-end gap-2">
-                    <button
-                        type="button"
-                        onClick={() => scrollBy(-1)}
-                        disabled={atStart}
-                        aria-label={t(':label: prethodni', { label })}
-                        className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
-                    >
-                        <ChevronLeft className="size-4" />
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => scrollBy(1)}
-                        disabled={atEnd}
-                        aria-label={t(':label: sledeći', { label })}
-                        className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
-                    >
-                        <ChevronRight className="size-4" />
-                    </button>
-                </div>
-            )}
+            <div className="mb-4 flex justify-end gap-2">
+                <button
+                    type="button"
+                    onClick={() => scrollBy(-1)}
+                    disabled={atStart}
+                    aria-label={t(':label: prethodni', { label })}
+                    className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
+                >
+                    <ChevronLeft className="size-4" />
+                </button>
+                <button
+                    type="button"
+                    onClick={() => scrollBy(1)}
+                    disabled={atEnd}
+                    aria-label={t(':label: sledeći', { label })}
+                    className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
+                >
+                    <ChevronRight className="size-4" />
+                </button>
+            </div>
 
             <div
                 ref={trackRef}
