@@ -32,7 +32,7 @@ export default function CompactSelect({
     const current = options.find((option) => option.value === value) ?? options[0];
 
     return (
-        <DropdownMenu modal={false}>
+        <DropdownMenu>
             <DropdownMenuTrigger
                 id={id}
                 aria-label={label}
