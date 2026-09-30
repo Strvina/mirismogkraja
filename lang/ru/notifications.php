@@ -67,7 +67,7 @@ return [
         'campaign-requested' => ['title' => 'Новая заявка на кампанию', 'body' => '«:producer» — :campaign, :amount RSD, номер платежа :reference.'],
         'cancel-requested' => ['title' => 'Запрос на отмену', 'body' => '«:producer» просит отменить: :what_label «:name».'],
         'review-pending' => ['title' => 'Новый отзыв ждёт одобрения', 'body' => 'О «:producer», оценка :rating/5.'],
-        'report-opened' => ['title' => 'Новая жалоба', 'body' => ':subject — :reason.'],
+        'report-opened' => ['title' => 'Новая жалоба', 'body' => ':subject — :reason_label.'],
         'change-requested' => ['title' => 'Запрос на изменение названия', 'body' => '«:current» хочет называться «:requested».'],
         'refund-account' => ['title' => 'Счёт для возврата', 'body' => '«:producer» ждёт возврата :amount RSD на счёт :account.'],
     ],

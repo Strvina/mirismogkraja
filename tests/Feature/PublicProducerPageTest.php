@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\Producer;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,9 +35,16 @@ class PublicProducerPageTest extends TestCase
             fn ($page) => $page->has('gallery', 1)
                 ->where('gallery.0.caption', 'Dvorište')
                 ->where('producer.story', 'Sve počinje u sezoni.')
-                ->where('producer.phone', '+381 60 123 4567')
+                ->where('producer.has_phone', true)
+                ->missing('producer.phone')
+                ->missing('phone')
                 ->where('producer.contact_email', 'kontakt@example.com')
         );
+
+        // The number itself comes only when asked for, by a partial reload.
+        $this->withHeaders(['X-Inertia' => 'true', 'X-Inertia-Partial-Component' => 'marketplace/producers/show', 'X-Inertia-Partial-Data' => 'phone', 'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request())])
+            ->get(route('marketplace.producers.show', $producer->slug))
+            ->assertJsonPath('props.phone', '+381 60 123 4567');
     }
 
     public function test_the_owner_is_not_offered_to_message_themselves()

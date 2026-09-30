@@ -115,10 +115,17 @@ class ProducerController extends Controller
         return Inertia::render('marketplace/producers/show', [
             // What the page prints. Not the owner's account id, the stored
             // coordinates or the moderation fields.
-            'producer' => $producer->only([
-                'id', 'name', 'slug', 'description', 'story', 'address', 'city', 'phone', 'contact_email',
-                'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at', 'lat', 'lng',
-            ]),
+            'producer' => [
+                ...$producer->only([
+                    'id', 'name', 'slug', 'description', 'story', 'address', 'city', 'contact_email',
+                    'delivery_methods', 'cover_image_path', 'logo_path', 'founding_number', 'verified_at', 'lat', 'lng',
+                ]),
+                'has_phone' => filled($producer->phone),
+            ],
+            // The number itself only when a visitor clicks "Prikaži broj" (a
+            // partial reload asks for it), as the privacy page promises -
+            // not in every page's HTML for every crawler to collect.
+            'phone' => Inertia::optional(fn () => $producer->phone),
             'meta' => PageMeta::make(
                 $producer->city ? "{$producer->name} - {$producer->city}" : $producer->name,
                 $producer->description,

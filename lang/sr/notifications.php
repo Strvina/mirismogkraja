@@ -71,7 +71,7 @@ return [
         'campaign-requested' => ['title' => 'Nova prijava za kampanju', 'body' => '„:producer” — :campaign, :amount RSD, poziv na broj :reference.'],
         'cancel-requested' => ['title' => 'Zahtev za otkazivanje', 'body' => '„:producer” traži otkazivanje: :what_label „:name”.'],
         'review-pending' => ['title' => 'Novi utisak čeka odobrenje', 'body' => 'O proizvođaču „:producer”, ocena :rating/5.'],
-        'report-opened' => ['title' => 'Nova prijava problema', 'body' => ':subject — :reason.'],
+        'report-opened' => ['title' => 'Nova prijava problema', 'body' => ':subject — :reason_label.'],
         'change-requested' => ['title' => 'Zahtev za izmenu naziva', 'body' => '„:current” želi da se zove „:requested”.'],
         'refund-account' => ['title' => 'Račun za povraćaj', 'body' => '„:producer” čeka povraćaj :amount RSD na račun :account.'],
     ],

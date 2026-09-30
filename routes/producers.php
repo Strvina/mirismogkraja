@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->prefix('moji-proizvodjaci')->name('producers.')->group(function () {
     Route::get('/', [ProducerController::class, 'index'])->name('index');
     Route::get('/novo', [ProducerController::class, 'create'])->name('create');
-    Route::post('/', [ProducerController::class, 'store'])->name('store');
+    // Uploads photos and notifies the admins: a few a minute is plenty.
+    Route::post('/', [ProducerController::class, 'store'])->middleware('throttle:5,1')->name('store');
     Route::get('/{producer}/izmena', [ProducerController::class, 'edit'])->name('edit');
     Route::get('/{producer}/statistika', [ProducerStatisticsController::class, 'show'])->name('statistics');
     Route::put('/{producer}', [ProducerController::class, 'update'])->name('update');

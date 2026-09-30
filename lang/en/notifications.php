@@ -67,7 +67,7 @@ return [
         'campaign-requested' => ['title' => 'New campaign sign-up', 'body' => '“:producer” — :campaign, :amount RSD, reference :reference.'],
         'cancel-requested' => ['title' => 'Cancellation request', 'body' => '“:producer” asks to cancel: :what_label “:name”.'],
         'review-pending' => ['title' => 'New review awaiting approval', 'body' => 'About “:producer”, rating :rating/5.'],
-        'report-opened' => ['title' => 'New problem report', 'body' => ':subject — :reason.'],
+        'report-opened' => ['title' => 'New problem report', 'body' => ':subject — :reason_label.'],
         'change-requested' => ['title' => 'Name change request', 'body' => '“:current” wants to be called “:requested”.'],
         'refund-account' => ['title' => 'Refund account', 'body' => '“:producer” is waiting for a refund of :amount RSD to account :account.'],
     ],

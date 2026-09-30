@@ -79,9 +79,12 @@ class BoostController extends Controller
             ? $producer->products()->where('status', 'active')->findOrFail($data['product_id'])
             : $producer;
 
-        $boosts->request($producer, $target);
+        $boost = $boosts->request($producer, $target);
 
-        return back()->with('status', __('Isticanje je zabeleženo. Uplatite iznos i mi ćemo ga aktivirati.'));
+        // Back with the slip named, so the page opens that one - which may
+        // be an earlier, still unpaid request for the same thing.
+        return to_route('boosts.index', ['uplatnica' => $boost->id])
+            ->with('status', __('Isticanje je zabeleženo. Uplatite iznos i mi ćemo ga aktivirati.'));
     }
 
     public function slip(Boost $boost, PaymentSlipPdf $pdf): HttpResponse

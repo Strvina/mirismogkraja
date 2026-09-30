@@ -95,14 +95,20 @@ class SubscriptionService
 
     /**
      * Record that a producer wants a plan and give them something to write on
-     * the slip. An unpaid request for the same producer is replaced rather
-     * than stacked, so the queue holds one line per producer.
+     * the slip. One unpaid request per producer: the same plan again hands
+     * back the same slip (its reference may already be on a payment); a
+     * different plan replaces it.
      */
     public function request(Producer $producer, SubscriptionPlan $plan): ProducerSubscription
     {
-        $producer->subscriptions()
-            ->where('status', ProducerSubscription::STATUS_PENDING)
-            ->delete();
+        $pending = $producer->subscriptions()->where('status', ProducerSubscription::STATUS_PENDING)->get();
+        $same = $pending->firstWhere('subscription_plan_id', $plan->id);
+
+        if ($same) {
+            return $same;
+        }
+
+        $producer->subscriptions()->whereKey($pending->modelKeys())->delete();
 
         $subscription = $producer->subscriptions()->create([
             'subscription_plan_id' => $plan->id,

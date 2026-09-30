@@ -44,7 +44,12 @@ export default function PaymentSlipDialog({
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }) {
-    const [qrImage, setQrImage] = useState<string | null>(null);
+    // The drawn code remembers which payload it was drawn from: the dialog
+    // can stay mounted while the slip changes (another plan, another
+    // producer), and a code for the previous slip would pay the wrong
+    // amount against the wrong reference.
+    const [drawn, setDrawn] = useState<{ payload: string; image: string } | null>(null);
+    const qrImage = drawn?.payload === slip.qr ? drawn.image : null;
     const [copied, setCopied] = useState<string | null>(null);
 
     // Loaded only when the slip is opened, so the QR library stays out of
@@ -55,12 +60,13 @@ export default function PaymentSlipDialog({
         }
 
         let cancelled = false;
+        const payload = slip.qr;
 
         import('qrcode')
-            .then((qrcode) => qrcode.toDataURL(slip.qr, { errorCorrectionLevel: 'M', margin: 1, width: 320 }))
-            .then((url) => {
+            .then((qrcode) => qrcode.toDataURL(payload, { errorCorrectionLevel: 'M', margin: 1, width: 320 }))
+            .then((image) => {
                 if (!cancelled) {
-                    setQrImage(url);
+                    setDrawn({ payload, image });
                 }
             })
             .catch(() => {

@@ -14,22 +14,27 @@ const POLL_MS = 20_000;
  * The bell and its dropdown.
  *
  * Only the unread count travels with every page; the notifications
- * themselves are an optional prop, fetched in one small partial reload the
- * first time the bell is opened. A list that nobody looks at should not be
- * built on every request of every page.
+ * themselves are an optional prop, fetched in one small partial reload when
+ * the bell is opened. A list that nobody looks at should not be built on
+ * every request of every page.
+ *
+ * It is fetched again on a later opening only if the unread count has moved
+ * since - otherwise a notification that arrived meanwhile would raise the
+ * badge but be missing from the list.
  */
 export default function NotificationsBell({ className = '' }: { className?: string }) {
     const { unreadNotifications, recentNotifications } = usePage<SharedData>().props;
-    const [loaded, setLoaded] = useState(false);
+    // The unread count the list was last fetched at; null until first opened.
+    const [loadedAt, setLoadedAt] = useState<number | null>(null);
 
     usePoll(POLL_MS, { only: ['unreadNotifications'] });
 
     const load = (open: boolean) => {
-        if (!open || loaded) {
+        if (!open || loadedAt === unreadNotifications) {
             return;
         }
 
-        setLoaded(true);
+        setLoadedAt(unreadNotifications);
         router.reload({ only: ['recentNotifications'] });
     };
 

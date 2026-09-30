@@ -8,6 +8,9 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProducerRequest extends FormRequest
 {
+    /** Digits, a leading +, and the usual separators - "+381 64 123 4567", "011/123-456". */
+    public const PHONE_RULE = 'regex:/^\+?[0-9][0-9 ()\/.-]{4,28}$/';
+
     /** Shared with the admin's edit form, which writes the same column. */
     public const DESCRIPTION_MAX = 5000;
 
@@ -42,7 +45,7 @@ class StoreProducerRequest extends FormRequest
             'story' => ['nullable', 'string', 'max:10000'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', self::PHONE_RULE],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'delivery_methods' => ['nullable', 'array'],
             // Either one of Producer::DELIVERY_METHODS' keys or a producer's own wording.
