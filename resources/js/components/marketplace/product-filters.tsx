@@ -1,3 +1,4 @@
+import CompactSelect from '@/components/marketplace/compact-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,13 +27,10 @@ interface Props {
     onReset: () => void;
 }
 
-const selectClasses =
-    'border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-10 w-full rounded-md border px-3 text-sm shadow-xs transition focus-visible:ring-[3px] focus-visible:outline-none';
-
 /**
- * Catalog filter panel (task 12). Sits in a sidebar on desktop and collapses
- * behind a toggle on mobile, using the same inputs and type scale as the
- * rest of the site rather than bare unstyled selects.
+ * Catalog filter panel (task 12). Sits in a sidebar on desktop; on a phone it
+ * folds behind a button and opens as a compact two-column panel, with lists
+ * that stay small instead of taking over the screen.
  */
 export default function ProductFilters({ filters, categories, producers, cities, priceBounds, onChange, onReset }: Props) {
     const [open, setOpen] = useState(false);
@@ -46,13 +44,14 @@ export default function ProductFilters({ filters, categories, producers, cities,
             <div className="flex items-center justify-between lg:hidden">
                 <Button variant="outline" size="sm" onClick={() => setOpen((value) => !value)}>
                     <SlidersHorizontal className="size-4" />
-                    Filteri{activeCount > 0 && ` (${activeCount})`}
+                    {t('Filteri')}
+                    {activeCount > 0 && ` (${activeCount})`}
                 </Button>
             </div>
 
             <div className={`${open ? 'mt-4 block' : 'hidden'} lg:mt-0 lg:block`}>
-                <div className="border-border/70 space-y-5 rounded-lg border p-5">
-                    <div className="flex items-center justify-between">
+                <div className="border-border/70 grid gap-4 rounded-lg border p-4 sm:grid-cols-2 lg:grid-cols-1 lg:gap-5 lg:p-5">
+                    <div className="flex items-center justify-between sm:col-span-2 lg:col-span-1">
                         <p className="font-serif text-lg">{t('Filteri')}</p>
                         {activeCount > 0 && (
                             <button
@@ -68,54 +67,42 @@ export default function ProductFilters({ filters, categories, producers, cities,
 
                     <div className="grid gap-2">
                         <Label htmlFor="filter-category">{t('Kategorija')}</Label>
-                        <select
+                        <CompactSelect
                             id="filter-category"
-                            className={selectClasses}
+                            className="w-full"
                             value={filters.category_id ?? ''}
-                            onChange={(e) => onChange({ category_id: e.target.value || undefined })}
-                        >
-                            <option value="">{t('Sve kategorije')}</option>
-                            {categories.map((category) => (
-                                <option key={category.id} value={category.id}>
-                                    {t(category.name)}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(value) => onChange({ category_id: value || undefined })}
+                            options={[
+                                { value: '', label: t('Sve kategorije') },
+                                ...categories.map((category) => ({ value: String(category.id), label: t(category.name) })),
+                            ]}
+                        />
                     </div>
 
                     <div className="grid gap-2">
                         <Label htmlFor="filter-producer">{t('Proizvođač')}</Label>
-                        <select
+                        <CompactSelect
                             id="filter-producer"
-                            className={selectClasses}
+                            className="w-full"
                             value={filters.producer_id ?? ''}
-                            onChange={(e) => onChange({ producer_id: e.target.value || undefined })}
-                        >
-                            <option value="">{t('Svi proizvođači')}</option>
-                            {producers.map((producer) => (
-                                <option key={producer.id} value={producer.id}>
-                                    {producer.name}
-                                </option>
-                            ))}
-                        </select>
+                            onChange={(value) => onChange({ producer_id: value || undefined })}
+                            options={[
+                                { value: '', label: t('Svi proizvođači') },
+                                ...producers.map((producer) => ({ value: String(producer.id), label: producer.name })),
+                            ]}
+                        />
                     </div>
 
                     {cities.length > 0 && (
                         <div className="grid gap-2">
                             <Label htmlFor="filter-city">{t('Mesto')}</Label>
-                            <select
+                            <CompactSelect
                                 id="filter-city"
-                                className={selectClasses}
+                                className="w-full"
                                 value={filters.city ?? ''}
-                                onChange={(e) => onChange({ city: e.target.value || undefined })}
-                            >
-                                <option value="">{t('Cela Srbija')}</option>
-                                {cities.map((city) => (
-                                    <option key={city} value={city}>
-                                        {city}
-                                    </option>
-                                ))}
-                            </select>
+                                onChange={(value) => onChange({ city: value || undefined })}
+                                options={[{ value: '', label: t('Cela Srbija') }, ...cities.map((city) => ({ value: city, label: city }))]}
+                            />
                         </div>
                     )}
 
@@ -146,7 +133,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
                         </div>
                     </div>
 
-                    <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+                    <label className="flex cursor-pointer items-center gap-2.5 self-end text-sm sm:pb-2 lg:self-auto lg:pb-0">
                         <input
                             type="checkbox"
                             className="border-input text-primary focus-visible:ring-ring/50 size-4 rounded border focus-visible:ring-[3px]"

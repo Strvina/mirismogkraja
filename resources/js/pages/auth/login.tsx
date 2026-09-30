@@ -40,8 +40,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
         <AuthLayout title={t('Prijavite se na nalog')} description={t('Unesite email i lozinku da biste se prijavili')}>
             <Head title={t('Prijava')} />
 
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="flex flex-col gap-5" onSubmit={submit}>
+                <div className="grid gap-4">
                     <div className="grid gap-2">
                         <Label htmlFor="email">{t('Email adresa')}</Label>
                         <Input

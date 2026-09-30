@@ -1,4 +1,4 @@
-import PaidItemActions, { CancelRequestedBadge, type PaidItemFields, RefundLine, TARGET_ROW } from '@/components/admin/paid-item-actions';
+import PaidItemActions, { type PaidItemFields, PaidItemRow } from '@/components/admin/paid-item-actions';
 import SettingsPanel from '@/components/admin/settings-panel';
 import StatusTabs from '@/components/admin/status-tabs';
 import InputError from '@/components/input-error';
@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
@@ -209,30 +208,29 @@ export default function AdminCampaigns({
                 ) : (
                     <div className="mt-6 space-y-3">
                         {places.data.map((place) => (
-                            <div key={place.id} id={place.anchor} className={cn('rounded-xl border p-4', TARGET_ROW)}>
-                                <div className="flex flex-wrap items-start justify-between gap-4">
-                                    <div className="min-w-0 flex-1">
-                                        <p className="flex flex-wrap items-center gap-2 font-medium break-words">
-                                            {place.producer?.name ?? t('Obrisan proizvođač')} · {place.campaign?.name}
-                                            {place.status === 'active' && <CancelRequestedBadge at={place.cancel_requested_at} />}
-                                        </p>
-                                        <p className="text-muted-foreground mt-1 text-sm">
-                                            {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span> ·{' '}
-                                            {formatNumber(place.amount_rsd)} RSD ·{' '}
-                                            {t('zatraženo :when', { when: formatRelativeTime(place.created_at) })}
-                                            {place.campaign && ` · ${formatDate(place.campaign.starts_on)} – ${formatDate(place.campaign.ends_on)}`}
-                                        </p>
-                                    </div>
-                                    {filters.status !== 'ended' && (
+                            <PaidItemRow
+                                key={place.id}
+                                item={place}
+                                title={place.producer?.name ?? t('Obrisan proizvođač')}
+                                subtitle={place.campaign?.name}
+                                facts={[
+                                    <>
+                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{place.reference}</span>
+                                    </>,
+                                    <span className="text-foreground font-medium">{formatNumber(place.amount_rsd)} RSD</span>,
+                                    t('zatraženo :when', { when: formatRelativeTime(place.created_at) }),
+                                    ...(place.campaign ? [`${formatDate(place.campaign.starts_on)} – ${formatDate(place.campaign.ends_on)}`] : []),
+                                ]}
+                                actions={
+                                    filters.status !== 'ended' && (
                                         <PaidItemActions
                                             item={place}
                                             what={t('učešće „:name” u kampanji', { name: place.producer?.name ?? '' })}
                                             onConfirm={() => confirm(place)}
                                         />
-                                    )}
-                                </div>
-                                <RefundLine item={place} />
-                            </div>
+                                    )
+                                }
+                            />
                         ))}
                     </div>
                 ))}

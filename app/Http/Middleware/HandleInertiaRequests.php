@@ -55,7 +55,8 @@ class HandleInertiaRequests extends Middleware
             'recentNotifications' => Inertia::optional(fn () => $request->user()
                 ?->notifications()
                 ->latest()
-                ->limit(8)
+                // The newest few; the rest are one click away on the full page.
+                ->limit(5)
                 ->get()
                 ->map(fn ($notification) => [
                     'id' => $notification->id,

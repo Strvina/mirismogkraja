@@ -38,6 +38,23 @@ class AdminUserManagementTest extends TestCase
         );
     }
 
+    /** Tabs by role and by block, each with its count. */
+    public function test_the_list_is_grouped_by_role_and_block()
+    {
+        $this->seed(RolesSeeder::class);
+        $admin = $this->admin();
+        User::factory()->create()->assignRole('seller');
+        User::factory()->create(['blocked_at' => now()]);
+
+        $this->actingAs($admin)->get(route('admin.users.index', ['group' => 'sellers']))->assertInertia(
+            fn ($page) => $page->has('users.data', 1)
+                ->where('counts', ['all' => 3, 'sellers' => 1, 'admins' => 1, 'blocked' => 1])
+                ->where('filters.group', 'sellers')
+        );
+        $this->actingAs($admin)->get(route('admin.users.index', ['group' => 'blocked']))
+            ->assertInertia(fn ($page) => $page->has('users.data', 1)->whereNot('users.data.0.blocked_at', null));
+    }
+
     public function test_non_admin_cannot_access_user_management()
     {
         $this->seed(RolesSeeder::class);

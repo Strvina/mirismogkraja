@@ -35,8 +35,8 @@ export default function Register() {
     return (
         <AuthLayout title={t('Napravite nalog')} description={t('Unesite podatke da biste napravili nalog')}>
             <Head title={t('Registracija')} />
-            <form className="flex flex-col gap-6" onSubmit={submit}>
-                <div className="grid gap-6">
+            <form className="flex flex-col gap-5" onSubmit={submit}>
+                <div className="grid gap-4">
                     <div className="grid gap-2">
                         <Label htmlFor="name">{t('Ime')}</Label>
                         <Input

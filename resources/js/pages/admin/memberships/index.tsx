@@ -1,4 +1,4 @@
-import PaidItemActions, { CancelRequestedBadge, type PaidItemFields, RefundLine, TARGET_ROW } from '@/components/admin/paid-item-actions';
+import PaidItemActions, { type PaidItemFields, PaidItemRow } from '@/components/admin/paid-item-actions';
 import SettingsPanel, { Saved } from '@/components/admin/settings-panel';
 import StatusTabs from '@/components/admin/status-tabs';
 import InputError from '@/components/input-error';
@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
@@ -299,29 +298,27 @@ export default function AdminMemberships({
                 ) : (
                     <div className="mt-6 space-y-3">
                         {subscriptions.data.map((subscription) => (
-                            <div key={subscription.id} id={subscription.anchor} className={cn('rounded-xl border p-4', TARGET_ROW)}>
-                                <div className="flex flex-wrap items-start justify-between gap-4">
-                                    <div className="min-w-0 flex-1">
-                                        <p className="flex flex-wrap items-center gap-2 font-medium">
-                                            {subscription.producer?.name ?? t('Obrisan proizvođač')} · {subscription.plan?.name}
-                                            {subscription.status === 'active' && <CancelRequestedBadge at={subscription.cancel_requested_at} />}
-                                        </p>
-                                        <p className="text-muted-foreground mt-1 text-sm">
-                                            {t('Poziv na broj')} <span className="text-foreground font-medium">{subscription.reference}</span> ·{' '}
-                                            {formatNumber(subscription.amount_rsd)} RSD ·{' '}
-                                            {t('zatraženo :when', { when: formatRelativeTime(subscription.created_at) })}
-                                            {subscription.ends_at && ` · ${t('važi do :date', { date: formatDate(subscription.ends_at) })}`}
-                                        </p>
-                                    </div>
-
+                            <PaidItemRow
+                                key={subscription.id}
+                                item={subscription}
+                                title={subscription.producer?.name ?? t('Obrisan proizvođač')}
+                                subtitle={t('Paket „:name”', { name: subscription.plan?.name ?? '' })}
+                                facts={[
+                                    <>
+                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{subscription.reference}</span>
+                                    </>,
+                                    <span className="text-foreground font-medium">{formatNumber(subscription.amount_rsd)} RSD</span>,
+                                    t('zatraženo :when', { when: formatRelativeTime(subscription.created_at) }),
+                                    ...(subscription.ends_at ? [t('važi do :date', { date: formatDate(subscription.ends_at) })] : []),
+                                ]}
+                                actions={
                                     <PaidItemActions
                                         item={subscription}
                                         what={t('članarinu za :name', { name: subscription.producer?.name ?? '' })}
                                         onConfirm={() => confirm(subscription)}
                                     />
-                                </div>
-                                <RefundLine item={subscription} />
-                            </div>
+                                }
+                            />
                         ))}
                     </div>
                 ))}
