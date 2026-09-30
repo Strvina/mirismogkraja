@@ -34,8 +34,11 @@ export default function ProducerShow({
     canReport,
     reportReasons,
     isFavorited,
+    phone,
 }: {
-    producer: Omit<Producer, 'user_id' | 'status' | 'created_at' | 'updated_at'>;
+    producer: Omit<Producer, 'user_id' | 'status' | 'created_at' | 'updated_at' | 'phone'> & { has_phone: boolean };
+    /** Only after "Prikaži broj": fetched by a partial reload, never in the page's HTML. */
+    phone?: string | null;
     gallery: { id: number; path: string; caption: string | null }[];
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     reviews: Paginated<ReviewWithAuthor>;
@@ -55,7 +58,7 @@ export default function ProducerShow({
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
     const [image, setImage] = useState<File | null>(null);
-    const [phoneShown, setPhoneShown] = useState(false);
+    const [loadingPhone, setLoadingPhone] = useState(false);
     // Opened on request: Leaflet and the map tiles are only fetched for a
     // visitor who asks to see them.
     const [mapShown, setMapShown] = useState(false);
@@ -63,7 +66,12 @@ export default function ProducerShow({
         producer.lat && producer.lng ? { id: producer.id, name: producer.name, lat: Number(producer.lat), lng: Number(producer.lng) } : null;
     // Viber and WhatsApp open a chat with a mobile number, so they are only
     // offered when the number is one.
-    const mobile = producer.phone ? mobileNumberForApps(producer.phone) : null;
+    const mobile = phone ? mobileNumberForApps(phone) : null;
+
+    const revealPhone = () => {
+        trackContact(producer.id, 'phone_reveal');
+        router.reload({ only: ['phone'], onStart: () => setLoadingPhone(true), onFinish: () => setLoadingPhone(false) });
+    };
 
     const submitReview: FormEventHandler = (e) => {
         e.preventDefault();
@@ -187,15 +195,15 @@ export default function ProducerShow({
                 <ShareButtons url={typeof window === 'undefined' ? '' : window.location.href} title={producer.name} />
             </div>
 
-            {(producer.phone || producer.contact_email || producer.address) && (
+            {(producer.has_phone || producer.contact_email || producer.address) && (
                 <div className="border-border/70 mt-6 grid gap-4 rounded-lg border p-5 text-sm sm:grid-cols-3">
-                    {producer.phone && (
+                    {producer.has_phone && (
                         <div className="min-w-0">
                             <p className="text-muted-foreground text-xs">{t('Telefon')}</p>
-                            {phoneShown ? (
+                            {phone ? (
                                 <>
-                                    <a href={`tel:${producer.phone}`} className="font-medium break-words">
-                                        {producer.phone}
+                                    <a href={`tel:${phone}`} className="font-medium break-words">
+                                        {phone}
                                     </a>
                                     {mobile && (
                                         <span className="mt-1 flex gap-3 text-xs">
@@ -221,13 +229,11 @@ export default function ProducerShow({
                             ) : (
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        setPhoneShown(true);
-                                        trackContact(producer.id, 'phone_reveal');
-                                    }}
-                                    className="text-primary font-medium underline"
+                                    onClick={revealPhone}
+                                    disabled={loadingPhone}
+                                    className="text-primary font-medium underline disabled:opacity-60"
                                 >
-                                    {t('Prikaži broj')}
+                                    {loadingPhone ? t('Učitavanje…') : t('Prikaži broj')}
                                 </button>
                             )}
                         </div>

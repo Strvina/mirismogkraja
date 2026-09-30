@@ -173,15 +173,9 @@ export default function Welcome({
                             {t('Svi proizvodi')} <ArrowRight className="size-4" />
                         </Link>
                     </div>
-                    {/* On a phone the categories are one row that scrolls sideways,
-                        with the same arrows as every other slider; from a
-                        tablet up, a grid. */}
-                    <CardSlider
-                        label={t('Šta tražite?')}
-                        itemClassName="w-[40vw] sm:w-[30vw] md:w-auto"
-                        trackClassName="gap-3 md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-6"
-                        arrowsClassName="md:hidden"
-                    >
+                    {/* One row that scrolls sideways at every width, with the
+                        same arrows as every other slider. */}
+                    <CardSlider label={t('Šta tražite?')} itemClassName="w-[40vw] sm:w-[30vw] md:w-[220px] lg:w-[210px]" trackClassName="gap-3">
                         {categories.map((category, index) => (
                             <Link
                                 key={category.id}
@@ -226,14 +220,9 @@ export default function Welcome({
                         moreLabel={t('Upoznajte ih')}
                         className="bg-cream-deep"
                     >
-                        {/* The producer and their product side by side; on a phone,
-                            one card at a time with the other a swipe away. */}
-                        <CardSlider
-                            label={t('Proizvođač nedelje')}
-                            itemClassName="w-[80vw] sm:w-auto"
-                            trackClassName="gap-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible lg:max-w-4xl"
-                            arrowsClassName="sm:hidden"
-                        >
+                        {/* The producer and their product, on the same slider as
+                            everything else - arrows included. */}
+                        <CardSlider label={t('Proizvođač nedelje')} itemClassName="w-[80vw] sm:w-[400px] lg:w-[440px]">
                             {[
                                 <HomeProducerCard key="producer" producer={weeklyPick.producer} />,
                                 ...(weeklyPick.product ? [<HomeProductCard key="product" product={weeklyPick.product} />] : []),

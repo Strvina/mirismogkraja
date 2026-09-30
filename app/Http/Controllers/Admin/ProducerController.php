@@ -104,7 +104,7 @@ class ProducerController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', StoreProducerRequest::PHONE_RULE],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'description' => ['nullable', 'string', 'max:'.StoreProducerRequest::DESCRIPTION_MAX],
         ]);

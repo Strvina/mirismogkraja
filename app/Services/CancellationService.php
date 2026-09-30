@@ -90,6 +90,10 @@ class CancellationService
      */
     public function setRefundAccount(ProducerSubscription|Boost|CampaignParticipant $item, string $account): void
     {
+        if ($item->refund_account === $account) {
+            return;
+        }
+
         $item->forceFill(['refund_account' => $account])->save();
 
         if ($item->refund_rsd > 0 && $item->refunded_at === null) {

@@ -44,20 +44,24 @@ class BoostService
     }
 
     /**
-     * Ask to boost a producer's profile or one of their products. An unpaid
-     * request for the same thing is replaced, so the queue holds one line
-     * per boosted thing.
+     * Ask to boost a producer's profile or one of their products. Asking
+     * again while unpaid hands back the same slip: its reference may already
+     * be on a payment on its way, so it is never replaced.
      */
     public function request(Producer $producer, Producer|Product $target): Boost
     {
         $terms = $this->terms();
         $type = $target instanceof Product ? Boost::PRODUCT : Boost::PROFILE;
 
-        Boost::query()
+        $pending = Boost::query()
             ->where('boostable_type', $type)
             ->where('boostable_id', $target->id)
             ->where('status', Boost::STATUS_PENDING)
-            ->delete();
+            ->first();
+
+        if ($pending) {
+            return $pending;
+        }
 
         $boost = Boost::create([
             'household_id' => $producer->id,

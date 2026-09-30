@@ -16,10 +16,11 @@ Route::middleware('auth')->group(function () {
     // suite could not catch this because Laravel's test client hands the
     // file to the request directly instead of going through PHP's parser.
     Route::post('settings/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
-    Route::delete('settings/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Both check the current password: limited like the login form.
+    Route::delete('settings/profile', [ProfileController::class, 'destroy'])->middleware('throttle:6,1')->name('profile.destroy');
 
     Route::get('settings/password', [PasswordController::class, 'edit'])->name('password.edit');
-    Route::put('settings/password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('settings/password', [PasswordController::class, 'update'])->middleware('throttle:6,1')->name('password.update');
 
     Route::get('settings/appearance', function () {
         return Inertia::render('settings/appearance');

@@ -79,19 +79,23 @@ class HandleInertiaRequests extends Middleware
             return 0;
         }
 
-        // One query, not two: the producers this user owns are matched
-        // through an EXISTS subquery rather than being pulled out first. This
-        // runs on every request of every signed-in visitor.
-        return ProducerMessage::query()
-            ->where('sender_id', '!=', $user->id)
+        // Two indexed counts rather than one query with an OR: this runs on
+        // every page of every signed-in visitor, and "buyer is me OR the
+        // producer is mine" cannot use an index, so it scanned every unread
+        // message on the site. The halves never overlap - nobody writes to
+        // their own producer.
+        $asBuyer = ProducerMessage::query()
+            ->where('buyer_id', $user->id)
             ->whereNull('read_at')
-            ->where(fn ($query) => $query
-                ->where('buyer_id', $user->id)
-                ->orWhereExists(fn ($producers) => $producers
-                    ->from('households')
-                    ->whereColumn('households.id', 'producer_messages.household_id')
-                    ->where('households.user_id', $user->id)
-                    ->whereNull('households.deleted_at')))
+            ->where('sender_id', '!=', $user->id)
             ->count();
+
+        $asSeller = ProducerMessage::query()
+            ->whereIn('household_id', $user->producers()->select('id'))
+            ->whereNull('read_at')
+            ->where('sender_id', '!=', $user->id)
+            ->count();
+
+        return $asBuyer + $asSeller;
     }
 }

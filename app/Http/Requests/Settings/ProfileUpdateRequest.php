@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Settings;
 
+use App\Http\Requests\StoreProducerRequest;
 use App\Models\User;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,7 +29,7 @@ class ProfileUpdateRequest extends FormRequest
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
 
-            'phone' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', StoreProducerRequest::PHONE_RULE],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
         ];

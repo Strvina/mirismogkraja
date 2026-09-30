@@ -118,8 +118,9 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                 preserveScroll: true,
                 onStart: () => setBusy(true),
                 onFinish: () => setBusy(false),
-                // The newest boost is first in the list the page reloads with.
-                onSuccess: (page) => setSlipFor((page.props.boosts as BoostRow[])[0]?.id ?? null),
+                // The server names the slip to open - a new one, or the
+                // earlier unpaid request for the same thing.
+                onSuccess: (page) => setSlipFor(Number(new URL(page.url, window.location.origin).searchParams.get('uplatnica')) || null),
             },
         );
     };
