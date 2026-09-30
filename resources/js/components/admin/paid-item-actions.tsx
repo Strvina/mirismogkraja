@@ -5,9 +5,10 @@ import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/compone
 import { Input } from '@/components/ui/input';
 import { formatDate, formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { router, useForm } from '@inertiajs/react';
 import { Banknote, Check, Power, X } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, type ReactNode, useState } from 'react';
 
 /** What every admin row of something paid for by slip carries (CancellationService::adminFields). */
 export interface PaidItemFields {
@@ -194,6 +195,47 @@ export function RefundLine({ item }: { item: PaidItemFields }) {
                 <Check className="size-4" />
                 {t('Novac je vraćen')}
             </Button>
+        </div>
+    );
+}
+
+/**
+ * One row of a paid-items queue, the same on every admin page: what it is
+ * and its facts on the left, the actions on the right. A grid, not a
+ * wrapping flex row, so a long name can never run under the buttons.
+ */
+export function PaidItemRow({
+    item,
+    title,
+    subtitle,
+    facts,
+    actions,
+}: {
+    item: PaidItemFields;
+    title: ReactNode;
+    subtitle?: ReactNode;
+    /** Short facts, shown as a row of separate items. */
+    facts: ReactNode[];
+    actions?: ReactNode;
+}) {
+    return (
+        <div id={item.anchor} className={cn('bg-background rounded-xl border p-4', TARGET_ROW)}>
+            <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:gap-6">
+                <div className="min-w-0">
+                    <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-medium break-words">
+                        {title}
+                        {item.status === 'active' && <CancelRequestedBadge at={item.cancel_requested_at} />}
+                    </p>
+                    {subtitle && <p className="text-muted-foreground mt-0.5 text-sm break-words">{subtitle}</p>}
+                    <ul className="text-muted-foreground mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                        {facts.map((fact, index) => (
+                            <li key={index}>{fact}</li>
+                        ))}
+                    </ul>
+                </div>
+                {actions && <div className="flex flex-wrap gap-2 sm:justify-end">{actions}</div>}
+            </div>
+            <RefundLine item={item} />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import PaidItemActions, { CancelRequestedBadge, type PaidItemFields, RefundLine, TARGET_ROW } from '@/components/admin/paid-item-actions';
+import PaidItemActions, { type PaidItemFields, PaidItemRow } from '@/components/admin/paid-item-actions';
 import SettingsPanel, { Saved } from '@/components/admin/settings-panel';
 import StatusTabs from '@/components/admin/status-tabs';
 import InputError from '@/components/input-error';
@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatDate, formatNumber, formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
-import { cn } from '@/lib/utils';
 import { Head, router, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
 
@@ -124,33 +123,35 @@ export default function AdminBoosts({
                 ) : (
                     <div className="mt-6 space-y-3">
                         {boosts.data.map((boost) => (
-                            <div key={boost.id} id={boost.anchor} className={cn('rounded-xl border p-4', TARGET_ROW)}>
-                                <div className="flex flex-wrap items-start justify-between gap-4">
-                                    <div className="min-w-0 flex-1">
-                                        <p className="flex flex-wrap items-center gap-2 font-medium break-words">
-                                            {boost.name}
-                                            <span className="text-muted-foreground font-normal">
-                                                · {boost.kind === 'product' ? t('proizvod') : t('profil')}
-                                            </span>
-                                            {boost.status === 'active' && <CancelRequestedBadge at={boost.cancel_requested_at} />}
-                                        </p>
-                                        <p className="text-muted-foreground mt-1 text-sm">
-                                            {boost.producer?.name ?? t('Obrisan proizvođač')} · {t('poziv na broj')}{' '}
-                                            <span className="text-foreground font-medium">{boost.reference}</span> · {formatNumber(boost.amount_rsd)}{' '}
-                                            RSD · {t(':days dana', { days: boost.days })} ·{' '}
-                                            {t('zatraženo :when', { when: formatRelativeTime(boost.created_at) })}
-                                            {boost.ends_at && ` · ${t('do :date', { date: formatDate(boost.ends_at) })}`}
-                                        </p>
-                                    </div>
-
+                            <PaidItemRow
+                                key={boost.id}
+                                item={boost}
+                                title={
+                                    <>
+                                        {boost.name}
+                                        <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs font-normal">
+                                            {boost.kind === 'product' ? t('proizvod') : t('profil')}
+                                        </span>
+                                    </>
+                                }
+                                subtitle={boost.producer?.name ?? t('Obrisan proizvođač')}
+                                facts={[
+                                    <>
+                                        {t('Poziv na broj')} <span className="text-foreground font-medium">{boost.reference}</span>
+                                    </>,
+                                    <span className="text-foreground font-medium">{formatNumber(boost.amount_rsd)} RSD</span>,
+                                    t(':days dana', { days: boost.days }),
+                                    t('zatraženo :when', { when: formatRelativeTime(boost.created_at) }),
+                                    ...(boost.ends_at ? [t('do :date', { date: formatDate(boost.ends_at) })] : []),
+                                ]}
+                                actions={
                                     <PaidItemActions
                                         item={boost}
                                         what={t('isticanje „:name”', { name: boost.name })}
                                         onConfirm={() => confirm(boost)}
                                     />
-                                </div>
-                                <RefundLine item={boost} />
-                            </div>
+                                }
+                            />
                         ))}
                     </div>
                 ))}

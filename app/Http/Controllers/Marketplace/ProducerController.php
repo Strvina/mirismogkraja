@@ -47,7 +47,8 @@ class ProducerController extends Controller
             ? $this->cards($city)
                 ->whereIn('id', $subscriptions->producerIdsWith('featured_section')->concat($boosts->runningIds(Boost::PROFILE))->unique()->values())
                 ->inRandomOrder()
-                ->limit(3)
+                // Enough to fill the slider on a wide screen.
+                ->limit(6)
                 ->get()
             : collect();
 

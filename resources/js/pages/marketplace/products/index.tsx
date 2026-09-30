@@ -1,3 +1,5 @@
+import CardSlider from '@/components/marketplace/card-slider';
+import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
@@ -6,9 +8,6 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { type Category, type SharedData } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-
-const selectClasses =
-    'border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-10 rounded-md border px-3 text-sm shadow-xs transition focus-visible:ring-[3px] focus-visible:outline-none';
 
 export default function ProductsIndex({
     products,
@@ -70,29 +69,35 @@ export default function ProductsIndex({
                         </p>
 
                         <div className="flex flex-wrap items-center gap-3">
-                            <label className="flex items-center gap-2 text-sm">
-                                <span className="text-muted-foreground">{t('Po strani:')}</span>
-                                <select className={selectClasses} value={perPage} onChange={(e) => update({ per_page: Number(e.target.value) })}>
-                                    {perPageOptions.map((option) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
+                            <span className="flex items-center gap-2 text-sm">
+                                <label htmlFor="per-page" className="text-muted-foreground">
+                                    {t('Po strani:')}
+                                </label>
+                                <CompactSelect
+                                    id="per-page"
+                                    className="w-20"
+                                    value={String(perPage)}
+                                    onChange={(value) => update({ per_page: Number(value) })}
+                                    options={perPageOptions.map((option) => ({ value: String(option), label: String(option) }))}
+                                />
+                            </span>
 
-                            <label className="flex items-center gap-2 text-sm">
-                                <span className="text-muted-foreground">{t('Sortiraj:')}</span>
-                                <select
-                                    className={selectClasses}
+                            <span className="flex items-center gap-2 text-sm">
+                                <label htmlFor="sort" className="text-muted-foreground">
+                                    {t('Sortiraj:')}
+                                </label>
+                                <CompactSelect
+                                    id="sort"
+                                    className="w-44"
                                     value={filters.sort ?? ''}
-                                    onChange={(e) => update({ sort: e.target.value || undefined })}
-                                >
-                                    <option value="">{t('Najnovije')}</option>
-                                    <option value="price_asc">{t('Cena: niža prvo')}</option>
-                                    <option value="price_desc">{t('Cena: viša prvo')}</option>
-                                </select>
-                            </label>
+                                    onChange={(value) => update({ sort: value || undefined })}
+                                    options={[
+                                        { value: '', label: t('Najnovije') },
+                                        { value: 'price_asc', label: t('Cena: niža prvo') },
+                                        { value: 'price_desc', label: t('Cena: viša prvo') },
+                                    ]}
+                                />
+                            </span>
                         </div>
                     </div>
 
@@ -109,11 +114,11 @@ export default function ProductsIndex({
                                 </>
                             }
                         >
-                            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                            <CardSlider label={t('Istaknuti proizvodi')} itemClassName="w-[72vw] sm:w-[260px] lg:w-[280px]">
                                 {featured.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
                                 ))}
-                            </div>
+                            </CardSlider>
                         </FeaturedSection>
                     )}
 

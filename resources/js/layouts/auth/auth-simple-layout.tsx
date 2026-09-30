@@ -1,6 +1,5 @@
-import AppLogoIcon from '@/components/app-logo-icon';
+import Brand from '@/components/marketplace/brand';
 import LanguageSwitcher from '@/components/marketplace/language-switcher';
-import { Link } from '@inertiajs/react';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -9,28 +8,28 @@ interface AuthLayoutProps {
     description?: string;
 }
 
+/**
+ * Login, registration and the password pages: the site's own wordmark and
+ * paper background, the form on a card - compact enough on a phone that
+ * the button is on screen without scrolling.
+ */
 export default function AuthSimpleLayout({ children, title, description }: AuthLayoutProps) {
     return (
-        <div className="bg-background relative flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-            <LanguageSwitcher className="absolute top-4 right-4" />
-            <div className="w-full max-w-sm">
-                <div className="flex flex-col gap-8">
-                    <div className="flex flex-col items-center gap-4">
-                        <Link href={route('home')} className="flex flex-col items-center gap-2 font-medium">
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
-                            </div>
-                            <span className="sr-only">{title}</span>
-                        </Link>
+        <div className="bg-background paper-grain flex min-h-svh flex-col">
+            <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+                <Brand />
+                <LanguageSwitcher />
+            </header>
 
-                        <div className="space-y-2 text-center">
-                            <h1 className="text-xl font-medium">{title}</h1>
-                            <p className="text-muted-foreground text-center text-sm">{description}</p>
-                        </div>
+            <main className="flex flex-1 items-start justify-center px-4 pt-4 pb-10 sm:items-center sm:px-6 sm:pt-0">
+                <div className="border-border/70 bg-card w-full max-w-sm rounded-2xl border p-5 shadow-[0_18px_40px_-28px_color-mix(in_oklab,var(--charcoal)_40%,transparent)] sm:p-7">
+                    <div className="mb-6 space-y-1.5 text-center">
+                        <h1 className="font-serif text-2xl">{title}</h1>
+                        <p className="text-muted-foreground text-sm">{description}</p>
                     </div>
                     {children}
                 </div>
-            </div>
+            </main>
         </div>
     );
 }

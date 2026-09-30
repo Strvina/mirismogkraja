@@ -15,6 +15,7 @@ use App\Services\SubscriptionService;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /** Prices on a settings tab of their own; stopping what was paid for, and refunds. */
@@ -165,12 +166,12 @@ class BillingAndCancellationTest extends TestCase
 
         $urls = $producer->user->notifications()->get()->pluck('data.url', 'data.type');
 
-        $this->assertSame(route('boosts.index', ['uplatnica' => $boost->id]), $urls['boost.requested']);
-        $this->assertSame(route('memberships.index', ['proizvodjac' => $producer->id, 'uplatnica' => $membership->id]), $urls['membership.requested']);
+        $this->assertSame(route('boosts.index', ['uplatnica' => $boost->id], false), $urls['boost.requested']);
+        $this->assertSame(route('memberships.index', ['proizvodjac' => $producer->id, 'uplatnica' => $membership->id], false), $urls['membership.requested']);
 
         $boosts->confirm($boost, $this->admin->id);
         $activated = $producer->user->notifications()->get()->firstWhere('data.type', 'boost.activated');
-        $this->assertSame(route('boosts.index').'#isticanje-'.$boost->id, $activated->data['url']);
+        $this->assertSame('/isticanje#isticanje-'.$boost->id, $activated->data['url']);
 
         // Opened from the bell, a link to one row is a full page load, so the fragment survives.
         $this->actingAs($producer->user)
@@ -178,6 +179,23 @@ class BillingAndCancellationTest extends TestCase
             ->get(route('notifications.open', $activated->id))
             ->assertStatus(409)
             ->assertHeader('X-Inertia-Location', route('boosts.index').'#isticanje-'.$boost->id);
+    }
+
+    /**
+     * A notification written with another host - APP_URL from a scheduled
+     * command, or an old domain - still opens on the host in use.
+     */
+    public function test_a_notification_link_opens_on_the_current_host(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $notification = $producer->user->notifications()->create([
+            'id' => (string) Str::uuid(),
+            'type' => 'legacy',
+            'data' => ['type' => 'boost.activated', 'params' => [], 'url' => 'http://some-other-host/isticanje#isticanje-2'],
+        ]);
+
+        $this->actingAs($producer->user)->get(route('notifications.open', $notification->id))
+            ->assertRedirect(url('/isticanje').'#isticanje-2');
     }
 
     /** Deactivated without an account on file: the producer is asked for one, and can give it later. */

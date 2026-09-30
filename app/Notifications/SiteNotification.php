@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Support\LocalUrl;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
@@ -31,12 +32,17 @@ class SiteNotification extends Notification
 {
     use Queueable;
 
+    private readonly ?string $url;
+
     /** @param  array<string, string|int>  $params */
     private function __construct(
         private readonly string $type,
         private readonly array $params,
-        private readonly ?string $url,
-    ) {}
+        ?string $url,
+    ) {
+        // Stored as a path, so it opens on whichever host the reader uses.
+        $this->url = $url === null ? null : LocalUrl::path($url);
+    }
 
     // ---------------------------------------------------------------- producer
 

@@ -1,3 +1,5 @@
+import CardSlider from '@/components/marketplace/card-slider';
+import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
@@ -50,19 +52,13 @@ export default function ProducersIndex({
                 </div>
 
                 {cities.length > 0 && (
-                    <select
-                        aria-label={t('Filtriraj po mestu')}
-                        className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-10 rounded-md border px-3 text-sm shadow-xs transition focus-visible:ring-[3px] focus-visible:outline-none"
+                    <CompactSelect
+                        label={t('Filtriraj po mestu')}
+                        className="w-52"
                         value={filters.city ?? ''}
-                        onChange={(e) => filterByCity(e.target.value)}
-                    >
-                        <option value="">{t('Cela Srbija')}</option>
-                        {cities.map((city) => (
-                            <option key={city} value={city}>
-                                {city}
-                            </option>
-                        ))}
-                    </select>
+                        onChange={filterByCity}
+                        options={[{ value: '', label: t('Cela Srbija') }, ...cities.map((city) => ({ value: city, label: city }))]}
+                    />
                 )}
             </div>
 
@@ -76,7 +72,9 @@ export default function ProducersIndex({
                         <p className="text-muted-foreground mt-3 text-sm">{t('Učitavam mapu…')}</p>
                     ) : mapPoints.length === 0 ? (
                         <p className="text-muted-foreground mt-3 text-sm">
-                            Još nijedan proizvođač{filters.city ? ` iz ${filters.city}` : ''} nije označio lokaciju.
+                            {filters.city
+                                ? t('Još nijedan proizvođač iz mesta :city nije označio lokaciju.', { city: filters.city })
+                                : t('Još nijedan proizvođač nije označio lokaciju.')}
                         </p>
                     ) : (
                         <PointsMap points={mapPoints} className="mt-3 h-96" />
@@ -95,11 +93,11 @@ export default function ProducersIndex({
                         </>
                     }
                 >
-                    <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                    <CardSlider label={t('Istaknuti proizvođači')} itemClassName="w-[80vw] sm:w-[340px] lg:w-[360px]">
                         {featured.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} featured />
                         ))}
-                    </div>
+                    </CardSlider>
                 </FeaturedSection>
             )}
 

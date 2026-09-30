@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\LocalUrl;
 use App\Support\NotificationText;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,7 +40,8 @@ class NotificationController extends Controller
 
         $record->markAsRead();
 
-        $url = $record->data['url'] ?? route('notifications.index');
+        // Older rows kept a full address; either way it opens on this host.
+        $url = LocalUrl::resolve($record->data['url'] ?? route('notifications.index'));
 
         // A link to one row (#isticanje-12) needs a real page load: a
         // redirect followed by XHR drops the fragment, and with it the
