@@ -2,6 +2,7 @@ import InfoHint from '@/components/info-hint';
 import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { ask } from '@/lib/confirm';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -133,15 +134,15 @@ export default function MessageThread({
     // Only the side that closed the conversation can open it again.
     const blockedByMe = blockedBy === (isOwner ? 'producer' : 'buyer');
 
-    const toggleBlock = () => {
+    const toggleBlock = async () => {
         if (
             blocked ||
-            confirm(
-                t(
-                    'Blokirati razgovor sa korisnikom :name? Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.',
-                    { name: isOwner ? buyer.name : producer.name },
-                ),
-            )
+            (await ask({
+                title: t('Blokirati razgovor sa korisnikom :name?', { name: isOwner ? buyer.name : producer.name }),
+                description: t('Nijedno od vas neće moći da šalje poruke dok ga ne odblokirate. Prepiska ostaje sačuvana.'),
+                confirmLabel: t('Blokiraj'),
+                tone: 'danger',
+            }))
         ) {
             router.patch(route('messages.block', [producer.id, buyer.id]), {}, { preserveScroll: true });
         }

@@ -1,6 +1,7 @@
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
+import { ask } from '@/lib/confirm';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -35,8 +36,8 @@ export default function AdminReviewsIndex({
     const approve = (review: Review) => router.patch(route('admin.reviews.approve', review.id), {}, { preserveScroll: true });
     const reject = (review: Review) => router.patch(route('admin.reviews.reject', review.id), {}, { preserveScroll: true });
 
-    const destroy = (review: Review) => {
-        if (confirm(t('Trajno obrisati ovaj utisak?'))) {
+    const destroy = async (review: Review) => {
+        if (await ask({ title: t('Trajno obrisati ovaj utisak?'), description: t('Ova radnja se ne može poništiti.'), tone: 'danger' })) {
             router.delete(route('admin.reviews.destroy', review.id), { preserveScroll: true });
         }
     };

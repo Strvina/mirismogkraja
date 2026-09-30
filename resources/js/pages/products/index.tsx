@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { ask } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -11,8 +12,14 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
         { title: t('Proizvodi'), href: `/moji-proizvodjaci/${producer.id}/proizvodi` },
     ];
 
-    const destroy = (product: Product) => {
-        if (confirm(t('Obrisati proizvod „:name”?', { name: product.name }))) {
+    const destroy = async (product: Product) => {
+        if (
+            await ask({
+                title: t('Obrisati proizvod „:name”?', { name: product.name }),
+                description: t('Ova radnja se ne može poništiti.'),
+                tone: 'danger',
+            })
+        ) {
             router.delete(route('producers.products.destroy', [producer.id, product.id]));
         }
     };

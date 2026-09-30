@@ -145,7 +145,7 @@ export default function Welcome({
 
                             {!auth.user && (
                                 <p className="text-primary-foreground/75 mt-5 max-w-md text-sm leading-6">
-                                    Nalog vam treba da sačuvate omiljene proizvođače, pišete im i ostavite utisak. Proizvođač ste?{' '}
+                                    {t('Nalog vam treba da sačuvate omiljene proizvođače, pišete im i ostavite utisak. Proizvođač ste?')}{' '}
                                     <Link href={route('register')} className="decoration-gold/70 font-semibold underline underline-offset-4">
                                         {t('I vi počinjete odavde.')}
                                     </Link>

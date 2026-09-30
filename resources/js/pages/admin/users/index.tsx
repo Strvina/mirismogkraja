@@ -2,6 +2,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
+import { ask } from '@/lib/confirm';
 import { formatDate } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
@@ -67,12 +68,20 @@ export default function AdminUsersIndex({
         visit({ search });
     };
 
-    const toggleRole = (user: AdminUser, role: string) => {
+    const toggleRole = async (user: AdminUser, role: string) => {
         const current = (user.roles ?? []).map((r) => r.name);
         const adding = !current.includes(role);
 
         // Making someone an admin hands them everything; say so first.
-        if (role === 'admin' && adding && !confirm(t('Dati korisniku :name pun pristup admin panelu?', { name: user.name }))) {
+        if (
+            role === 'admin' &&
+            adding &&
+            !(await ask({
+                title: t('Dati korisniku :name pun pristup admin panelu?', { name: user.name }),
+                description: t('Moći će da odobrava, menja i briše sve na sajtu.'),
+                confirmLabel: t('Dodeli'),
+            }))
+        ) {
             return;
         }
 
@@ -83,8 +92,16 @@ export default function AdminUsersIndex({
         );
     };
 
-    const toggleBlock = (user: AdminUser) => {
-        if (user.blocked_at || confirm(t('Blokirati :name? Neće moći da se prijavi dok ga ne odblokirate.', { name: user.name }))) {
+    const toggleBlock = async (user: AdminUser) => {
+        if (
+            user.blocked_at ||
+            (await ask({
+                title: t('Blokirati korisnika :name?', { name: user.name }),
+                description: t('Neće moći da se prijavi dok ga ne odblokirate.'),
+                confirmLabel: t('Blokiraj'),
+                tone: 'danger',
+            }))
+        ) {
             router.patch(route('admin.users.block', user.id), {}, { preserveScroll: true });
         }
     };

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { ask } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
 import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Producer } from '@/types';
@@ -40,8 +41,8 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
         });
     };
 
-    const removeImage = (image: GalleryImage) => {
-        if (confirm(t('Obrisati ovu sliku iz galerije?'))) {
+    const removeImage = async (image: GalleryImage) => {
+        if (await ask({ title: t('Obrisati ovu sliku iz galerije?'), description: t('Ova radnja se ne može poništiti.'), tone: 'danger' })) {
             router.delete(route('producers.images.destroy', [producer.id, image.id]), { preserveScroll: true });
         }
     };

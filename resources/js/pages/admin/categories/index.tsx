@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
+import { ask } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
 import { type Category } from '@/types';
 import { Head, router, useForm, usePage } from '@inertiajs/react';
@@ -19,8 +20,14 @@ export default function AdminCategoriesIndex({ categories }: { categories: Admin
         post(route('admin.categories.store'), { onSuccess: () => reset() });
     };
 
-    const destroy = (category: Category) => {
-        if (confirm(t('Obrisati kategoriju „:name”?', { name: category.name }))) {
+    const destroy = async (category: Category) => {
+        if (
+            await ask({
+                title: t('Obrisati kategoriju „:name”?', { name: category.name }),
+                description: t('Ova radnja se ne može poništiti.'),
+                tone: 'danger',
+            })
+        ) {
             router.delete(route('admin.categories.destroy', category.id), { preserveScroll: true });
         }
     };
