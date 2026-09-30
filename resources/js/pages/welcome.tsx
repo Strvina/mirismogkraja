@@ -174,13 +174,19 @@ export default function Welcome({
                         </Link>
                     </div>
                     {/* On a phone the categories are one row that scrolls sideways,
-                        not a wall to get past; from a tablet up, a grid. */}
-                    <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 sm:-mx-8 sm:px-8 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-6">
+                        with the same arrows as every other slider; from a
+                        tablet up, a grid. */}
+                    <CardSlider
+                        label={t('Šta tražite?')}
+                        itemClassName="w-[40vw] sm:w-[30vw] md:w-auto"
+                        trackClassName="gap-3 md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-6"
+                        arrowsClassName="md:hidden"
+                    >
                         {categories.map((category, index) => (
                             <Link
                                 key={category.id}
                                 href={route('marketplace.products.index', { category_id: category.id })}
-                                className="group bg-muted relative aspect-[4/5] w-[40vw] shrink-0 snap-start overflow-hidden rounded-md sm:w-[30vw] md:w-auto"
+                                className="group bg-muted relative block aspect-[4/5] overflow-hidden rounded-md"
                             >
                                 <img
                                     src={categoryImages[index % categoryImages.length].image}
@@ -196,7 +202,7 @@ export default function Welcome({
                                 </h3>
                             </Link>
                         ))}
-                    </div>
+                    </CardSlider>
                 </section>
 
                 {/* Seasonal campaigns under way (task 20.3): one runs wide
@@ -222,16 +228,17 @@ export default function Welcome({
                     >
                         {/* The producer and their product side by side; on a phone,
                             one card at a time with the other a swipe away. */}
-                        <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 sm:pb-0 lg:max-w-4xl">
-                            <div className="w-[80vw] shrink-0 snap-start sm:w-auto">
-                                <HomeProducerCard producer={weeklyPick.producer} />
-                            </div>
-                            {weeklyPick.product && (
-                                <div className="w-[80vw] shrink-0 snap-start sm:w-auto">
-                                    <HomeProductCard product={weeklyPick.product} />
-                                </div>
-                            )}
-                        </div>
+                        <CardSlider
+                            label={t('Proizvođač nedelje')}
+                            itemClassName="w-[80vw] sm:w-auto"
+                            trackClassName="gap-4 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible lg:max-w-4xl"
+                            arrowsClassName="sm:hidden"
+                        >
+                            {[
+                                <HomeProducerCard key="producer" producer={weeklyPick.producer} />,
+                                ...(weeklyPick.product ? [<HomeProductCard key="product" product={weeklyPick.product} />] : []),
+                            ]}
+                        </CardSlider>
                     </Section>
                 )}
 

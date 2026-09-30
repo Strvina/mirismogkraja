@@ -16,10 +16,16 @@ export default function CardSlider({
     children,
     label,
     itemClassName = 'w-[78vw] sm:w-[340px] lg:w-[360px]',
+    trackClassName,
+    arrowsClassName,
 }: {
     children: ReactNode[];
     label: string;
     itemClassName?: string;
+    /** Extra track classes, e.g. to turn it into a grid from some width up. */
+    trackClassName?: string;
+    /** Extra arrow-row classes, e.g. to hide the arrows where the track is a grid. */
+    arrowsClassName?: string;
 }) {
     const trackRef = useRef<HTMLDivElement>(null);
     const [atStart, setAtStart] = useState(true);
@@ -55,7 +61,7 @@ export default function CardSlider({
 
     return (
         <div className="relative">
-            <div className="mb-4 flex justify-end gap-2">
+            <div className={cn('mb-4 flex justify-end gap-2', arrowsClassName)}>
                 <button
                     type="button"
                     onClick={() => scrollBy(-1)}
@@ -82,7 +88,10 @@ export default function CardSlider({
                 role="region"
                 aria-label={label}
                 tabIndex={0}
-                className="-mx-1 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className={cn(
+                    '-mx-1 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+                    trackClassName,
+                )}
             >
                 {children.map((child, index) => (
                     <div key={index} className={cn('shrink-0 snap-start', itemClassName)}>

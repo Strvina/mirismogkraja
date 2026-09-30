@@ -6,7 +6,13 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-const DropdownMenu = DropdownMenuPrimitive.Root;
+/**
+ * Non-modal unless asked: a modal menu locks page scrolling, and taking the
+ * scrollbar away shifts the whole page sideways every time a menu opens.
+ */
+function DropdownMenu({ modal = false, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+    return <DropdownMenuPrimitive.Root modal={modal} {...props} />;
+}
 
 const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 
