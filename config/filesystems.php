@@ -17,6 +17,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Uploaded images
+    |--------------------------------------------------------------------------
+    |
+    | The disk every uploaded image lives on (see App\Support\Media).
+    | "public" while the site runs on one server; "s3" (with
+    | league/flysystem-aws-s3-v3 installed and the AWS_* values set) once
+    | there is more than one, so every server sees the same files.
+    |
+    */
+
+    'media' => env('MEDIA_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

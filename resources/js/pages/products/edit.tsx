@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Category, type Producer, type Product } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
@@ -39,7 +40,7 @@ function ImagesManager({ producer, product }: { producer: Producer; product: Pro
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {images.map((image) => (
                         <div key={image.id} className="relative">
-                            <img src={`/storage/${image.path}`} alt="" className="aspect-square w-full rounded-md object-cover" />
+                            <img src={thumbUrl(image.path)} alt="" className="aspect-square w-full rounded-md object-cover" />
                             {image.order === 0 ? (
                                 <span className="bg-primary text-primary-foreground absolute top-1 left-1 rounded px-1.5 py-0.5 text-[0.65rem]">
                                     {t('Glavna')}

@@ -7,9 +7,9 @@ use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Review;
+use App\Support\Media;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Records create/update/delete on the models it's registered for (task 14).
@@ -78,15 +78,15 @@ class ActivityLogObserver
     public function deleting(Model $model): void
     {
         if ($model instanceof Review) {
-            Storage::disk('public')->delete(array_filter([$model->image_path]));
+            Media::delete($model->image_path);
         }
 
         if ($model instanceof Product) {
-            Storage::disk('public')->delete($model->images()->pluck('path')->all());
+            Media::delete($model->images()->pluck('path')->all());
         }
 
         if ($model instanceof Producer && $model->isForceDeleting()) {
-            Storage::disk('public')->delete(array_filter([
+            Media::delete(array_filter([
                 $model->cover_image_path,
                 $model->logo_path,
                 ...$model->images()->pluck('path')->all(),

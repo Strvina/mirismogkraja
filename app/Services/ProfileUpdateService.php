@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Support\Media;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class ProfileUpdateService
 {
@@ -32,11 +32,9 @@ class ProfileUpdateService
      */
     public function updateAvatar(User $user, UploadedFile $avatar): void
     {
-        if ($user->avatar_path) {
-            Storage::disk('public')->delete($user->avatar_path);
-        }
+        Media::delete($user->avatar_path);
 
-        $user->avatar_path = $avatar->store('avatars', 'public');
+        $user->avatar_path = Media::store($avatar, 'avatars');
         $user->save();
     }
 }

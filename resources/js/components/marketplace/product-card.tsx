@@ -1,6 +1,7 @@
 import { FeaturedLabel } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
 import { Link, router } from '@inertiajs/react';
@@ -49,7 +50,7 @@ export default function ProductCard({
             <div className="bg-muted relative aspect-square overflow-hidden">
                 {image ? (
                     <img
-                        src={`/storage/${image.path}`}
+                        src={thumbUrl(image.path)}
                         alt={product.name}
                         loading="lazy"
                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"

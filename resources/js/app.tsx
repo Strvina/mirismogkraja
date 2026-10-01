@@ -7,6 +7,7 @@ import { route as routeFn } from 'ziggy-js';
 import ConfirmHost from './components/confirm-host';
 import { initializeTheme } from './hooks/use-appearance';
 import { loadLocale } from './lib/i18n';
+import { configureMedia, installThumbnailFallback } from './lib/media';
 import { revalidateOnHistoryNavigation } from './lib/revalidate-on-history-navigation';
 
 declare global {
@@ -20,6 +21,10 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
     setup({ el, App, props }) {
         const root = createRoot(el);
+
+        // Where images live is fixed for the deployment, so it is read once.
+        configureMedia(props.initialPage.props.media as { url: string; thumbs: boolean } | undefined);
+        installThumbnailFallback();
 
         // The words first, so the first paint is already in the reader's
         // language. A change of language is a full page load (see

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { mediaUrl, thumbUrl } from '@/lib/media';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
@@ -53,7 +54,7 @@ export default function ProductShow({
 
             <div className="grid gap-10 lg:grid-cols-2">
                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
-                    {mainImage && <img src={`/storage/${mainImage.path}`} alt={product.name} className="image-warm size-full object-cover" />}
+                    {mainImage && <img src={mediaUrl(mainImage.path)} alt={product.name} className="image-warm size-full object-cover" />}
                 </div>
 
                 <div>
@@ -111,7 +112,7 @@ export default function ProductShow({
                         {product.producer.logo_path && (
                             <img
                                 loading="lazy"
-                                src={`/storage/${product.producer.logo_path}`}
+                                src={thumbUrl(product.producer.logo_path)}
                                 alt=""
                                 className="size-10 shrink-0 rounded-full object-cover"
                             />
@@ -139,7 +140,7 @@ export default function ProductShow({
                                     {p.images?.[0] && (
                                         <img
                                             loading="lazy"
-                                            src={`/storage/${p.images[0].path}`}
+                                            src={thumbUrl(p.images[0].path)}
                                             alt={p.name}
                                             className="image-warm size-full object-cover transition group-hover:scale-105"
                                         />

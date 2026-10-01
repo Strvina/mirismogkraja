@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Support\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class ProductImageController extends Controller
 {
@@ -31,7 +31,7 @@ class ProductImageController extends Controller
 
         foreach ($request->file('images') as $file) {
             $product->images()->create([
-                'path' => $file->store('products', 'public'),
+                'path' => Media::store($file, 'products'),
                 'order' => $nextOrder++,
             ]);
         }
@@ -44,7 +44,7 @@ class ProductImageController extends Controller
         abort_unless($product->household_id === $producer->id && $image->product_id === $product->id, 404);
         $this->authorize('update', $product);
 
-        Storage::disk('public')->delete($image->path);
+        Media::delete($image->path);
         $image->delete();
 
         return back();

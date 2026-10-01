@@ -1,6 +1,7 @@
 import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -22,7 +23,7 @@ export interface ProducerCardProducer extends Producer {
 
 function Avatar({ name, path, className = 'size-8' }: { name: string; path: string | null; className?: string }) {
     if (path) {
-        return <img loading="lazy" src={`/storage/${path}`} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
+        return <img loading="lazy" src={thumbUrl(path)} alt="" className={`${className} shrink-0 rounded-full object-cover`} />;
     }
 
     return (
@@ -64,7 +65,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
             <Link href={href} className="bg-muted relative block aspect-[16/9] overflow-hidden">
                 {producer.cover_image_path && (
                     <img
-                        src={`/storage/${producer.cover_image_path}`}
+                        src={thumbUrl(producer.cover_image_path)}
                         alt=""
                         loading="lazy"
                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -122,7 +123,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                                     {review.comment && <p className="text-muted-foreground line-clamp-2 text-xs leading-5">{review.comment}</p>}
                                     {review.image_path && (
                                         <img
-                                            src={`/storage/${review.image_path}`}
+                                            src={thumbUrl(review.image_path)}
                                             alt=""
                                             loading="lazy"
                                             className="mt-1.5 size-12 rounded object-cover"

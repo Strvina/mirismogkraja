@@ -11,11 +11,19 @@ use App\Models\WeeklyPick;
 use App\Services\SubscriptionService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class HomeController extends Controller
 {
+    /**
+     * How long the popularity rankings are kept. Ranking means counting
+     * favourites and reviews for every producer and product, on the most
+     * visited page; a ranking a few minutes old is just as true.
+     */
+    private const RANKING_SECONDS = 600;
+
     /**
      * The landing page is the discovery surface: newest producers, the ones
      * people actually engage with, and the products they engage with.
@@ -39,16 +47,12 @@ class HomeController extends Controller
 
         $newProducers = $this->publishedProducers()->latest()->take(10)->get();
 
-        // A producer nobody has saved or reviewed yet isn't popular, so the
-        // section stays empty rather than padding itself with the newest
-        // rows over again.
-        $popularProducers = $this->publishedProducers()
-            ->orderByRaw('(favorites_count + reviews_count) desc')
-            ->orderByDesc('reviews_avg_rating')
-            ->take(10)
-            ->get()
-            ->filter(fn (Producer $producer) => $producer->favorites_count + $producer->reviews_count > 0)
-            ->values();
+        // Only the ranking is cached - which ids, in what order. The cards
+        // are read fresh, so a producer hidden since drops out at once.
+        $popularProducers = $this->inOrder(
+            $this->publishedProducers()->whereIn('id', $this->popularProducerIds())->get(),
+            $this->popularProducerIds(),
+        );
 
         // "Proizvođač nedelje" (task 20.7), chosen by an admin. Only shown
         // while the producer - and the product, if one was picked - is
@@ -77,11 +81,14 @@ class HomeController extends Controller
             'newProducers' => $this->mapProducers($newProducers, $tags),
             'popularProducers' => $this->mapProducers($popularProducers, $tags),
             'popularProducts' => $this->mapProducts(),
-            'categories' => Category::query()
+            // Which categories have anything in them changes rarely, and
+            // finding out means looking through the whole catalogue.
+            'categories' => Cache::remember('home:categories', self::RANKING_SECONDS, fn () => Category::query()
                 ->whereHas('products', fn ($query) => $query->published())
                 ->orderBy('name')
                 ->take(6)
-                ->get(['id', 'name']),
+                ->get(['id', 'name'])
+                ->toArray()),
         ]);
     }
 
@@ -152,17 +159,62 @@ class HomeController extends Controller
     }
 
     /**
-     * @return Collection<int, array<string, mixed>>
+     * The ten producers people engage with most. A producer nobody has
+     * saved or reviewed yet isn't popular, so the section stays empty
+     * rather than padding itself with the newest rows over again.
+     *
+     * @return list<int>
      */
-    private function mapProducts(): Collection
+    private function popularProducerIds(): array
     {
-        return $this->productCards()
+        return Cache::remember('home:popular-producers', self::RANKING_SECONDS, fn () => Producer::published()
+            ->withCount(['favorites', 'reviews' => fn ($query) => $query->approved()])
+            ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
+            ->orderByRaw('(favorites_count + reviews_count) desc')
+            ->orderByDesc('reviews_avg_rating')
+            ->take(10)
+            ->get(['id'])
+            ->filter(fn (Producer $producer) => $producer->favorites_count + $producer->reviews_count > 0)
+            ->modelKeys());
+    }
+
+    /** @return list<int> */
+    private function popularProductIds(): array
+    {
+        return Cache::remember('home:popular-products', self::RANKING_SECONDS, fn () => Product::published()
             ->withCount(['favorites', 'inquiries'])
             ->orderByDesc('favorites_count')
             ->orderByDesc('inquiries_count')
             ->latest()
             ->take(10)
-            ->get()
+            ->get(['id'])
+            ->modelKeys());
+    }
+
+    /**
+     * Rows fetched by id, put back in the ranking's order.
+     *
+     * @template T of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Collection<int, T>  $rows
+     * @param  list<int>  $ids
+     * @return Collection<int, T>
+     */
+    private function inOrder(Collection $rows, array $ids): Collection
+    {
+        $position = array_flip($ids);
+
+        return $rows->sortBy(fn ($row) => $position[$row->getKey()])->values();
+    }
+
+    /**
+     * @return Collection<int, array<string, mixed>>
+     */
+    private function mapProducts(): Collection
+    {
+        $ids = $this->popularProductIds();
+
+        return $this->inOrder($this->productCards()->whereIn('id', $ids)->get(), $ids)
             ->map(fn (Product $product) => $this->mapProduct($product));
     }
 

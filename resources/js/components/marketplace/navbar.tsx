@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, usePoll } from '@inertiajs/react';
 import { Heart, Package, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import AccountMenu from './account-menu';
@@ -29,8 +29,17 @@ import NotificationsBell from './notifications-bell';
  * own) instead; messages keep their own button there since a waiting reply is
  * the one thing people check mid-browse.
  */
+/**
+ * How often a signed-in visitor's badges re-check. One request for both
+ * counts - messages and notifications - rather than one each; Inertia
+ * slows it further on its own while the tab is in the background.
+ */
+const BADGE_POLL_MS = 30_000;
+
 export default function Navbar() {
     const { auth } = usePage<SharedData>().props;
+
+    usePoll(BADGE_POLL_MS, { only: ['unreadMessages', 'unreadNotifications'] }, { autoStart: Boolean(auth.user) });
     const { url } = usePage();
     const [guestMenuOpen, setGuestMenuOpen] = useState(false);
 

@@ -1,13 +1,15 @@
 import InfoHint from '@/components/info-hint';
 import ReportButton from '@/components/marketplace/report-button';
 import { Button } from '@/components/ui/button';
+import { useAdaptivePoll } from '@/hooks/use-adaptive-poll';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
 import { formatPrice, formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, router, usePage, usePoll } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Ban, Check, ImageOff, SendHorizontal, TriangleAlert } from 'lucide-react';
 import { FormEventHandler, KeyboardEventHandler, useLayoutEffect, useRef, useState } from 'react';
 
@@ -63,7 +65,7 @@ function ProductPreview({ product, mine }: { product: NonNullable<Message['produ
         >
             <span className={cn('size-12 shrink-0 overflow-hidden rounded', mine ? 'bg-primary-foreground/20' : 'bg-muted')}>
                 {product.image ? (
-                    <img src={`/storage/${product.image}`} alt="" loading="lazy" className="size-full object-cover" />
+                    <img src={thumbUrl(product.image)} alt="" loading="lazy" className="size-full object-cover" />
                 ) : (
                     <span className="grid size-full place-items-center opacity-40">
                         <ImageOff className="size-5" />
@@ -125,10 +127,12 @@ export default function MessageThread({
     // to refresh to see one. Only the thread and the header's badge are
     // re-requested, and opening this page is also what marks the other
     // side's messages as read - so a reply that arrives while it's open is
-    // read straight away and never lights the badge up. Inertia throttles
-    // the poll by itself while the tab is in the background, and the visit
-    // preserves scroll and local state, so a half-typed message survives it.
-    const poll = usePoll(3000, { only: ['messages', 'unreadMessages', 'blockedBy'] });
+    // read straight away and never lights the badge up. Every 3 seconds
+    // while messages are coming, slowing to 20 when the conversation goes
+    // quiet (see useAdaptivePoll); the newest message's id is what counts
+    // as something happening. The visit preserves scroll and local state,
+    // so a half-typed message survives it.
+    const poll = useAdaptivePoll(['messages', 'unreadMessages', 'blockedBy'], messages.data[0]?.id);
 
     const blocked = blockedBy !== null;
     // Only the side that closed the conversation can open it again.
@@ -324,7 +328,7 @@ export default function MessageThread({
             <div className="border-border/70 bg-background mx-auto flex h-[calc(100svh-15rem)] max-h-[44rem] min-h-[26rem] w-full max-w-2xl flex-col overflow-hidden rounded-lg border">
                 <header className="border-border/70 flex items-center gap-3 border-b px-4 py-3">
                     {avatar ? (
-                        <img src={`/storage/${avatar}`} alt="" className="size-10 shrink-0 rounded-full object-cover" />
+                        <img src={thumbUrl(avatar)} alt="" className="size-10 shrink-0 rounded-full object-cover" />
                     ) : (
                         <span className="bg-olive-soft text-olive grid size-10 shrink-0 place-items-center rounded-full font-semibold">
                             {title.charAt(0).toUpperCase()}

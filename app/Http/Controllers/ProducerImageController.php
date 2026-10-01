@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Producer;
 use App\Models\ProducerImage;
+use App\Support\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ProducerImageController extends Controller
 {
@@ -33,7 +33,7 @@ class ProducerImageController extends Controller
 
         foreach ($request->file('images') as $index => $file) {
             $producer->images()->create([
-                'path' => $file->store('producers/gallery', 'public'),
+                'path' => Media::store($file, 'producers/gallery'),
                 'caption' => $request->input("captions.{$index}"),
                 'order' => $nextOrder++,
             ]);
@@ -48,7 +48,7 @@ class ProducerImageController extends Controller
 
         abort_unless($image->household_id === $producer->id, 404);
 
-        Storage::disk('public')->delete($image->path);
+        Media::delete($image->path);
         $image->delete();
 
         return back();

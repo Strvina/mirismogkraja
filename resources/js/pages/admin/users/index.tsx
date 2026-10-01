@@ -5,6 +5,7 @@ import AdminLayout from '@/layouts/admin-layout';
 import { ask } from '@/lib/confirm';
 import { formatDate } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type SharedData, type User } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -31,7 +32,7 @@ const ROLES: { name: string; label: string; hint: string }[] = [
 
 function Avatar({ user }: { user: AdminUser }) {
     if (user.avatar_path) {
-        return <img src={`/storage/${user.avatar_path}`} alt="" loading="lazy" className="size-10 shrink-0 rounded-full object-cover" />;
+        return <img src={thumbUrl(user.avatar_path)} alt="" loading="lazy" className="size-10 shrink-0 rounded-full object-cover" />;
     }
 
     return (

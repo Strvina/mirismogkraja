@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
@@ -99,7 +100,7 @@ export default function AccountMenu({ user }: { user: User }) {
             <DropdownMenuContent align="end" sideOffset={10} className="w-60 p-1.5">
                 <div className="flex items-center gap-3 px-2 py-2.5">
                     {user.avatar_path ? (
-                        <img src={`/storage/${user.avatar_path}`} alt="" className="size-9 shrink-0 rounded-full object-cover" />
+                        <img src={thumbUrl(user.avatar_path)} alt="" className="size-9 shrink-0 rounded-full object-cover" />
                     ) : (
                         <span className="bg-olive-soft text-olive grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold">
                             {user.name.charAt(0).toUpperCase()}

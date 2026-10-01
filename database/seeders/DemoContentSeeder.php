@@ -16,11 +16,11 @@ use App\Notifications\SiteNotification;
 use App\Services\BoostService;
 use App\Services\FoundingProducerService;
 use App\Services\SubscriptionService;
+use App\Support\Media;
 use App\Support\PaymentReference;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 
 class DemoContentSeeder extends Seeder
 {
@@ -221,14 +221,13 @@ class DemoContentSeeder extends Seeder
 
     private function copyDemoImage(): void
     {
-        if (Storage::disk('public')->exists(self::DEMO_IMAGE)) {
+        if (Media::disk()->exists(self::DEMO_IMAGE)) {
             return;
         }
 
-        Storage::disk('public')->put(
-            self::DEMO_IMAGE,
-            file_get_contents(resource_path('js/assets/products-table.jpg'))
-        );
+        $contents = (string) file_get_contents(resource_path('js/assets/products-table.jpg'));
+        Media::disk()->put(self::DEMO_IMAGE, $contents);
+        Media::makeThumbnail(self::DEMO_IMAGE, $contents);
     }
 
     private function seedAdminUser(): void

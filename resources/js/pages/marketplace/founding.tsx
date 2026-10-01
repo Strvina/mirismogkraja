@@ -1,5 +1,6 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { Head, Link } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 
@@ -54,7 +55,7 @@ export default function Founding({ producers, claimed, limit }: { producers: Fou
                                 {producer.logo_path ? (
                                     <img
                                         loading="lazy"
-                                        src={`/storage/${producer.logo_path}`}
+                                        src={thumbUrl(producer.logo_path)}
                                         alt=""
                                         className="size-14 shrink-0 rounded-full object-cover"
                                     />

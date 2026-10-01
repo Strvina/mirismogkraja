@@ -7,10 +7,10 @@ use App\Models\ProducerChangeRequest;
 use App\Models\User;
 use App\Notifications\SiteNotification;
 use App\Support\Admins;
+use App\Support\Media;
+use App\Support\UniqueSlug;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ProducerService
 {
@@ -26,7 +26,7 @@ class ProducerService
         $producer->{$field} = $value;
 
         if ($field === 'name') {
-            $producer->slug = $this->uniqueSlug($value, ignore: $producer);
+            $producer->slug = UniqueSlug::for(Producer::class, $value, ignore: $producer);
         }
 
         $producer->save();
@@ -92,7 +92,7 @@ class ProducerService
         return DB::transaction(function () use ($user, $attributes, $coverImage, $logo, $products) {
             $producer = $user->producers()->create([
                 ...$attributes,
-                'slug' => $this->uniqueSlug($attributes['name']),
+                'slug' => UniqueSlug::for(Producer::class, $attributes['name']),
             ]);
 
             if (! $user->hasRole('seller')) {
@@ -100,11 +100,11 @@ class ProducerService
             }
 
             if ($coverImage) {
-                $producer->cover_image_path = $coverImage->store('producers/covers', 'public');
+                $producer->cover_image_path = Media::store($coverImage, 'producers/covers');
             }
 
             if ($logo) {
-                $producer->logo_path = $logo->store('producers/logos', 'public');
+                $producer->logo_path = Media::store($logo, 'producers/logos');
             }
 
             if ($coverImage || $logo) {
@@ -120,7 +120,7 @@ class ProducerService
                 $product = $this->products->create($producer, [...$row, 'description' => null, 'status' => 'active']);
 
                 if ($image) {
-                    $product->images()->create(['path' => $image->store('products', 'public'), 'order' => 0]);
+                    $product->images()->create(['path' => Media::store($image, 'products'), 'order' => 0]);
                 }
             }
 
@@ -159,7 +159,7 @@ class ProducerService
         }
 
         if (($attributes['name'] ?? $producer->name) !== $producer->name) {
-            $attributes['slug'] = $this->uniqueSlug($attributes['name'], ignore: $producer);
+            $attributes['slug'] = UniqueSlug::for(Producer::class, $attributes['name'], ignore: $producer);
         }
 
         $producer->fill($attributes);
@@ -180,28 +180,8 @@ class ProducerService
     private function replaceImage(Producer $producer, string $column, UploadedFile $file, string $directory): void
     {
         $oldPath = $producer->{$column};
-        $producer->{$column} = $file->store($directory, 'public');
+        $producer->{$column} = Media::store($file, $directory);
 
-        if ($oldPath) {
-            Storage::disk('public')->delete($oldPath);
-        }
-    }
-
-    private function uniqueSlug(string $name, ?Producer $ignore = null): string
-    {
-        $base = Str::slug($name);
-        $slug = $base;
-        $suffix = 1;
-
-        while (
-            Producer::where('slug', $slug)
-                ->when($ignore, fn ($query) => $query->whereKeyNot($ignore))
-                ->exists()
-        ) {
-            $slug = "{$base}-{$suffix}";
-            $suffix++;
-        }
-
-        return $slug;
+        Media::delete($oldPath);
     }
 }
