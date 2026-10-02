@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ProducerMessage;
+use App\Support\Media;
 use App\Support\NotificationText;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,6 +34,9 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             // Which language the page is in; the client loads its words.
             'locale' => app()->getLocale(),
+            // Where images are served from, and whether new uploads get a
+            // small copy for cards (see App\Support\Media).
+            'media' => ['url' => Media::baseUrl(), 'thumbs' => Media::thumbnailsEnabled()],
             'auth' => [
                 // Roles come along so the header can offer the admin panel
                 // link without every page having to pass them.

@@ -3,12 +3,9 @@ import { formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
-import { Link, router, usePage, usePoll } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Bell } from 'lucide-react';
 import { useState } from 'react';
-
-/** How often the bell re-checks. Same cadence as the message badge. */
-const POLL_MS = 20_000;
 
 /**
  * The bell and its dropdown.
@@ -26,8 +23,6 @@ export default function NotificationsBell({ className = '' }: { className?: stri
     const { unreadNotifications, recentNotifications } = usePage<SharedData>().props;
     // The unread count the list was last fetched at; null until first opened.
     const [loadedAt, setLoadedAt] = useState<number | null>(null);
-
-    usePoll(POLL_MS, { only: ['unreadNotifications'] });
 
     const load = (open: boolean) => {
         if (!open || loadedAt === unreadNotifications) {

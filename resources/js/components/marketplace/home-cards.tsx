@@ -1,6 +1,7 @@
 import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { Link } from '@inertiajs/react';
 import { ImageOff, MapPin, Star } from 'lucide-react';
 
@@ -43,7 +44,7 @@ export function HomeProducerCard({ producer, featured = false }: { producer: Hom
             <Link href={href} className="bg-muted relative block aspect-[16/10] overflow-hidden">
                 {producer.cover_image_path ? (
                     <img
-                        src={`/storage/${producer.cover_image_path}`}
+                        src={thumbUrl(producer.cover_image_path)}
                         alt=""
                         loading="lazy"
                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -60,7 +61,7 @@ export function HomeProducerCard({ producer, featured = false }: { producer: Hom
                 <div className="-mt-11 mb-3 flex items-end justify-between gap-3">
                     <span className="ring-background relative z-10 rounded-full ring-4">
                         {producer.logo_path ? (
-                            <img loading="lazy" src={`/storage/${producer.logo_path}`} alt="" className="size-14 rounded-full object-cover" />
+                            <img loading="lazy" src={thumbUrl(producer.logo_path)} alt="" className="size-14 rounded-full object-cover" />
                         ) : (
                             <span className="bg-olive-soft text-olive grid size-14 place-items-center rounded-full font-serif text-xl">
                                 {producer.name.charAt(0).toUpperCase()}
@@ -124,7 +125,7 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
             <div className="bg-muted aspect-square overflow-hidden">
                 {product.image ? (
                     <img
-                        src={`/storage/${product.image}`}
+                        src={thumbUrl(product.image)}
                         alt={product.name}
                         loading="lazy"
                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"

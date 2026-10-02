@@ -6,9 +6,9 @@ use App\Models\Producer;
 use App\Models\Review;
 use App\Notifications\SiteNotification;
 use App\Support\Admins;
+use App\Support\Media;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class ReviewController extends Controller
 {
@@ -42,7 +42,7 @@ class ReviewController extends Controller
             'user_id' => $request->user()->id,
             'rating' => $data['rating'],
             'comment' => $data['comment'] ?? null,
-            'image_path' => $request->file('image')?->store('reviews', 'public'),
+            'image_path' => $request->hasFile('image') ? Media::store($request->file('image'), 'reviews') : null,
             'status' => Review::STATUS_PENDING,
         ]);
 
@@ -64,7 +64,7 @@ class ReviewController extends Controller
         $this->authorize('delete', $review);
 
         if ($review->image_path) {
-            Storage::disk('public')->delete($review->image_path);
+            Media::delete($review->image_path);
         }
 
         $review->delete();

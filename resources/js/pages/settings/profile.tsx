@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { t, tx } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { shrinkImage } from '@/lib/shrink-image';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -23,7 +24,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
     const { auth } = usePage<SharedData>().props;
-    const [avatarPreview, setAvatarPreview] = useState<string | null>(auth.user.avatar_path ? `/storage/${auth.user.avatar_path}` : null);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(auth.user.avatar_path ? thumbUrl(auth.user.avatar_path) : null);
 
     const [avatarProcessing, setAvatarProcessing] = useState(false);
     const [avatarError, setAvatarError] = useState<string | null>(null);

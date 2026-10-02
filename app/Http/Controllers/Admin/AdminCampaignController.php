@@ -7,10 +7,10 @@ use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Notifications\SiteNotification;
 use App\Services\CancellationService;
+use App\Support\UniqueSlug;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -72,7 +72,7 @@ class AdminCampaignController extends Controller
     {
         $data = $this->validated($request);
 
-        Campaign::create([...$data, 'slug' => $this->uniqueSlug($data['name'])]);
+        Campaign::create([...$data, 'slug' => UniqueSlug::for(Campaign::class, $data['name'])]);
 
         return back();
     }
@@ -145,18 +145,5 @@ class AdminCampaignController extends Controller
             'price_rsd' => ['required', 'integer', 'min:0', 'max:1000000'],
             'is_active' => ['required', 'boolean'],
         ]);
-    }
-
-    private function uniqueSlug(string $name): string
-    {
-        $base = Str::slug($name);
-        $slug = $base;
-        $suffix = 1;
-
-        while (Campaign::where('slug', $slug)->exists()) {
-            $slug = $base.'-'.$suffix++;
-        }
-
-        return $slug;
     }
 }

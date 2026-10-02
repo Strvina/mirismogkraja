@@ -24,7 +24,7 @@ class PageMeta
             // Without the query string: a filtered or paged address is the
             // same page as far as a search engine should know.
             'url' => url()->current(),
-            'image' => $imagePath ? asset('storage/'.$imagePath) : null,
+            'image' => $imagePath ? Media::absoluteUrl($imagePath) : null,
             'type' => $type,
         ];
     }
@@ -43,7 +43,7 @@ class PageMeta
             '@type' => 'Product',
             'name' => $product->name,
             'description' => Str::limit(Str::squish(strip_tags((string) $product->description)), 500) ?: null,
-            'image' => $product->images->map(fn ($image) => asset('storage/'.$image->path))->values()->all() ?: null,
+            'image' => $product->images->map(fn ($image) => Media::absoluteUrl($image->path))->values()->all() ?: null,
             'category' => $product->category?->name,
             'offers' => [
                 '@type' => 'Offer',

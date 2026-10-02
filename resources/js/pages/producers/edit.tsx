@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, router, useForm } from '@inertiajs/react';
@@ -65,7 +66,7 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
                     <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
                         {gallery.map((image) => (
                             <figure key={image.id} className="group relative">
-                                <img src={`/storage/${image.path}`} alt="" className="aspect-[4/3] w-full rounded-md object-cover" />
+                                <img src={thumbUrl(image.path)} alt="" className="aspect-[4/3] w-full rounded-md object-cover" />
                                 <button
                                     type="button"
                                     onClick={() => removeImage(image)}

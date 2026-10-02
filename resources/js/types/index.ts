@@ -99,6 +99,8 @@ export interface SharedData {
     auth: Auth;
     unreadMessages: number;
     unreadNotifications: number;
+    /** Where uploaded images are served from (see lib/media). */
+    media: { url: string; thumbs: boolean };
     /**
      * Only present after a partial reload asks for it (the bell dropdown).
      * Not called `notifications`: the notifications page has a prop of that

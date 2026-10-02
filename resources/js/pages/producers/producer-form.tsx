@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { t, tx } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { shrinkImage } from '@/lib/shrink-image';
 import { cn } from '@/lib/utils';
 import { type Category, type Producer } from '@/types';
@@ -167,8 +168,8 @@ export default function ProducerForm({
         setCustomMethod('');
     };
 
-    const [coverPreview, setCoverPreview] = useState<string | null>(producer?.cover_image_path ? `/storage/${producer.cover_image_path}` : null);
-    const [logoPreview, setLogoPreview] = useState<string | null>(producer?.logo_path ? `/storage/${producer.logo_path}` : null);
+    const [coverPreview, setCoverPreview] = useState<string | null>(producer?.cover_image_path ? thumbUrl(producer.cover_image_path) : null);
+    const [logoPreview, setLogoPreview] = useState<string | null>(producer?.logo_path ? thumbUrl(producer.logo_path) : null);
 
     // The name is the only field the server insists on, so it is the only
     // one the wizard refuses to move past.

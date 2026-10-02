@@ -1,5 +1,6 @@
 import { formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { type Review } from '@/types';
 import { BadgeCheck, Clock, Star } from 'lucide-react';
 
@@ -20,7 +21,7 @@ export default function ReviewCard({ review, pending = false }: { review: Review
         <article className="border-border border-b pb-4 last:border-b-0">
             <div className="flex gap-3">
                 {review.user.avatar_path ? (
-                    <img loading="lazy" src={`/storage/${review.user.avatar_path}`} alt="" className="size-9 shrink-0 rounded-full object-cover" />
+                    <img loading="lazy" src={thumbUrl(review.user.avatar_path)} alt="" className="size-9 shrink-0 rounded-full object-cover" />
                 ) : (
                     <span className="bg-olive-soft text-olive grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold">
                         {review.user.name.charAt(0).toUpperCase()}
@@ -46,7 +47,7 @@ export default function ReviewCard({ review, pending = false }: { review: Review
 
                     {review.image_path && (
                         <img
-                            src={`/storage/${review.image_path}`}
+                            src={thumbUrl(review.image_path)}
                             alt={t('Slika uz utisak kupca')}
                             loading="lazy"
                             className="mt-3 max-h-48 w-full max-w-xs rounded-md object-cover"

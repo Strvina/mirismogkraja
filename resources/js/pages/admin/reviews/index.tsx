@@ -4,6 +4,7 @@ import AdminLayout from '@/layouts/admin-layout';
 import { ask } from '@/lib/confirm';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type Producer, type Review, type User } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
@@ -109,7 +110,7 @@ export default function AdminReviewsIndex({
 
                                 {review.image_path && (
                                     <img
-                                        src={`/storage/${review.image_path}`}
+                                        src={thumbUrl(review.image_path)}
                                         alt={t('Slika uz utisak')}
                                         loading="lazy"
                                         className="mt-3 max-h-40 rounded-md object-cover"

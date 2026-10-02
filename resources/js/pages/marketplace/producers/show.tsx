@@ -11,6 +11,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { mediaUrl, thumbUrl } from '@/lib/media';
 import { shrinkImage } from '@/lib/shrink-image';
 import { mobileNumberForApps, trackContact } from '@/lib/statistics';
 import { type Producer, type Product, type SharedData } from '@/types';
@@ -94,7 +95,7 @@ export default function ProducerShow({
 
             {producer.cover_image_path && (
                 <img
-                    src={`/storage/${producer.cover_image_path}`}
+                    src={mediaUrl(producer.cover_image_path)}
                     alt={producer.name}
                     className="image-warm mt-6 aspect-[16/9] w-full rounded-md object-cover sm:aspect-[16/6]"
                 />
@@ -102,7 +103,7 @@ export default function ProducerShow({
 
             <div className="mt-6 flex flex-wrap items-start gap-4">
                 {producer.logo_path && (
-                    <img src={`/storage/${producer.logo_path}`} alt="" className="size-14 shrink-0 rounded-full border object-cover sm:size-16" />
+                    <img src={thumbUrl(producer.logo_path)} alt="" className="size-14 shrink-0 rounded-full border object-cover sm:size-16" />
                 )}
 
                 <div className="min-w-0 flex-1">
@@ -316,7 +317,7 @@ export default function ProducerShow({
                             <figure key={image.id} className="group">
                                 <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md">
                                     <img
-                                        src={`/storage/${image.path}`}
+                                        src={thumbUrl(image.path)}
                                         alt={image.caption ?? ''}
                                         loading="lazy"
                                         className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -341,7 +342,7 @@ export default function ProducerShow({
                                     {product.images?.[0] && (
                                         <img
                                             loading="lazy"
-                                            src={`/storage/${product.images[0].path}`}
+                                            src={thumbUrl(product.images[0].path)}
                                             alt={product.name}
                                             className="image-warm size-full object-cover transition group-hover:scale-105"
                                         />

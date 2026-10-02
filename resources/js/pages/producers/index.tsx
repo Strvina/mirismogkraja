@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
 import { t, tx } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Clock } from 'lucide-react';
@@ -53,7 +54,7 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                         {producers.map((producer) => (
                             <div key={producer.id} className="rounded-xl border p-4">
                                 {producer.cover_image_path && (
-                                    <img src={`/storage/${producer.cover_image_path}`} alt="" className="mb-3 h-32 w-full rounded-md object-cover" />
+                                    <img src={thumbUrl(producer.cover_image_path)} alt="" className="mb-3 h-32 w-full rounded-md object-cover" />
                                 )}
                                 <div className="flex items-start justify-between">
                                     <h2 className="font-serif text-lg">{producer.name}</h2>

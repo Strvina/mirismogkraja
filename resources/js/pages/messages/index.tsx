@@ -1,6 +1,7 @@
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePoll } from '@inertiajs/react';
 
@@ -40,7 +41,7 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
                             {thread.avatar_path ? (
                                 <img
                                     loading="lazy"
-                                    src={`/storage/${thread.avatar_path}`}
+                                    src={thumbUrl(thread.avatar_path)}
                                     alt=""
                                     className="size-10 shrink-0 rounded-full object-cover"
                                 />

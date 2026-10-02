@@ -25,15 +25,29 @@ class SitemapAndLegalPagesTest extends TestCase
         $hidden = Producer::factory()->create(['status' => 'pending']);
         $draft = Product::factory()->for($producer)->create(['status' => 'draft']);
 
-        $response = $this->get('/sitemap.xml');
-
-        $response->assertOk()
+        // The index points at the files; the files list the pages.
+        $this->get('/sitemap.xml')
+            ->assertOk()
             ->assertHeader('Content-Type', 'application/xml')
+            ->assertSee(route('sitemap.pages'))
+            ->assertSee(route('sitemap.section', ['producers', 1]))
+            ->assertSee(route('sitemap.section', ['products', 1]));
+
+        $this->get(route('sitemap.pages'))->assertOk()->assertSee(route('legal.terms'));
+
+        $this->get(route('sitemap.section', ['producers', 1]))
+            ->assertOk()
             ->assertSee(route('marketplace.producers.show', $producer->slug))
+            ->assertDontSee(route('marketplace.producers.show', $hidden->slug));
+
+        $this->get(route('sitemap.section', ['products', 1]))
+            ->assertOk()
             ->assertSee(route('marketplace.products.show', $product->slug))
-            ->assertSee(route('legal.terms'))
-            ->assertDontSee(route('marketplace.producers.show', $hidden->slug))
             ->assertDontSee(route('marketplace.products.show', $draft->slug));
+
+        $this->get('/sitemap-users-1.xml')->assertNotFound();
+
+        $this->get('/robots.txt')->assertOk()->assertSee('Sitemap: '.route('sitemap'), false)->assertSee('Disallow: /admin', false);
     }
 
     public function test_the_legal_pages_are_public(): void
