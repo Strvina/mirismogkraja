@@ -807,5 +807,15 @@
     "— proverili smo ko stoji iza ovog proizvođača.": "— мы проверили, кто стоит за этим производителем.",
     "„:name” već učestvuje u ovoj kampanji.": "«:name» уже участвует в этой кампании.",
     "Potvrdite da niste robot.": "Подтвердите, что вы не робот.",
-    "Provera da niste robot nije uspela. Pokušajte ponovo.": "Проверка на робота не пройдена. Попробуйте ещё раз."
+    "Provera da niste robot nije uspela. Pokušajte ponovo.": "Проверка на робота не пройдена. Попробуйте ещё раз.",
+    "Reset Password Notification": "Смена пароля",
+    "You are receiving this email because we received a password reset request for your account.": "Вы получили это письмо, потому что для вашего аккаунта запрошена смена пароля.",
+    "Reset Password": "Задать новый пароль",
+    "This password reset link will expire in :count minutes.": "Ссылка действительна :count минут.",
+    "If you did not request a password reset, no further action is required.": "Если вы не запрашивали смену пароля, ничего делать не нужно.",
+    "Whoops!": "Упс!",
+    "Hello!": "Здравствуйте!",
+    "Regards,": "С уважением,",
+    "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Если кнопка «:actionText» не работает, скопируйте эту ссылку в браузер:",
+    "All rights reserved.": "Все права защищены."
 }

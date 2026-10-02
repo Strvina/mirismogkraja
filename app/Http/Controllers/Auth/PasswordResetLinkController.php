@@ -36,9 +36,11 @@ class PasswordResetLinkController extends Controller
             ...Turnstile::rules(),
         ], Turnstile::messages());
 
-        Password::sendResetLink(
-            $request->only('email')
-        );
+        // After the response: the page then answers equally fast whether the
+        // account exists or not - waiting on the mail server only for real
+        // accounts would give them away - and nobody waits on it either.
+        $credentials = $request->only('email');
+        dispatch(fn () => Password::sendResetLink($credentials))->afterResponse();
 
         return back()->with('status', __('A reset link will be sent if the account exists.'));
     }
