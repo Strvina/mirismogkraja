@@ -35,7 +35,8 @@ class AdminPanelTest extends TestCase
         $log = ActivityLog::where('action', 'updated')->where('subject_type', 'Producer')->sole();
         $this->assertSame($this->admin->name, $log->user_name);
         $this->assertSame('Novo ime', $log->subject_label);
-        $this->assertSame(['from' => 'Staro ime', 'to' => 'Novo ime'], $log->changes['name']);
+        // assertEquals: a MySQL JSON column hands keys back in its own order.
+        $this->assertEquals(['from' => 'Staro ime', 'to' => 'Novo ime'], $log->changes['name']);
     }
 
     public function test_the_log_entry_outlives_the_record_it_describes(): void
