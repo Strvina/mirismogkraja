@@ -121,6 +121,7 @@ export interface User {
     city: string | null;
     email_verified_at: string | null;
     blocked_at?: string | null;
+    notify_messages_by_email: boolean;
     roles?: { id: number; name: string }[];
     created_at: string;
     updated_at: string;

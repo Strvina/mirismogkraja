@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable implements HasLocalePreference, MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
@@ -45,6 +46,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'lat',
         'lng',
         'blocked_at',
+        'notify_messages_by_email',
     ];
 
     /**
@@ -80,7 +82,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
             'blocked_at' => 'datetime',
+            'notify_messages_by_email' => 'boolean',
         ];
+    }
+
+    /** E-mails go out in the language the person last used the site in. */
+    public function preferredLocale(): ?string
+    {
+        return $this->locale;
     }
 
     public function isBlocked(): bool

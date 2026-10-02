@@ -822,5 +822,19 @@
     "Pretraži proizvođače…": "Search producers…",
     "Pretraga": "Search",
     "Rezultati za „:query”": "Results for “:query”",
-    "Poništi pretragu": "Clear search"
+    "Poništi pretragu": "Clear search",
+    "Nova poruka od :name": "New message from :name",
+    ":name vam je poslao/la nove poruke (:count). Poslednja:": ":name has sent you new messages (:count). The latest:",
+    ":name vam je poslao/la poruku:": ":name has sent you a message:",
+    "Odgovori": "Reply",
+    "Ne želite mejl za svaku novu poruku? [Isključite ih ovde](:url).": "Don't want an email for every new message? [Turn them off here](:url).",
+    "Zdravo!": "Hello!",
+    "Mejlovi o porukama su isključeni": "Message emails are turned off",
+    "Isključiti mejlove o novim porukama?": "Turn off emails about new messages?",
+    "Nove poruke ćete i dalje videti na sajtu. Mejlove možete ponovo da uključite u podešavanjima profila.": "You will still see new messages on the site. You can turn the emails back on in your profile settings.",
+    "Više vam nećemo slati mejl kad dobijete poruku. Poruke ćete i dalje videti na sajtu.": "We won't email you when you get a message anymore. You'll still see messages on the site.",
+    "Mejlovi o porukama": "Message emails",
+    "Isključi mejlove": "Turn off emails",
+    "Mejl kad dobijem novu poruku": "Email me when I get a new message",
+    "Najviše jedan mejl po prepisci na nekoliko sati, i samo dok poruku ne pročitate na sajtu.": "At most one email per conversation every few hours, and only while the message is unread on the site."
 }

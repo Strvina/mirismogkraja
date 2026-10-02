@@ -32,6 +32,7 @@ class ProfileUpdateRequest extends FormRequest
             'phone' => ['nullable', 'string', StoreProducerRequest::PHONE_RULE],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            'notify_messages_by_email' => ['sometimes', 'boolean'],
         ];
     }
 }

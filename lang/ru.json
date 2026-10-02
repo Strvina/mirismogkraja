@@ -835,5 +835,19 @@
     "Pretraži proizvođače…": "Искать производителей…",
     "Pretraga": "Поиск",
     "Rezultati za „:query”": "Результаты по запросу «:query»",
-    "Poništi pretragu": "Сбросить поиск"
+    "Poništi pretragu": "Сбросить поиск",
+    "Nova poruka od :name": "Новое сообщение от :name",
+    ":name vam je poslao/la nove poruke (:count). Poslednja:": ":name отправил(а) вам новые сообщения (:count). Последнее:",
+    ":name vam je poslao/la poruku:": ":name отправил(а) вам сообщение:",
+    "Odgovori": "Ответить",
+    "Ne želite mejl za svaku novu poruku? [Isključite ih ovde](:url).": "Не хотите получать письмо о каждом сообщении? [Отключите здесь](:url).",
+    "Zdravo!": "Здравствуйте!",
+    "Mejlovi o porukama su isključeni": "Письма о сообщениях отключены",
+    "Isključiti mejlove o novim porukama?": "Отключить письма о новых сообщениях?",
+    "Nove poruke ćete i dalje videti na sajtu. Mejlove možete ponovo da uključite u podešavanjima profila.": "Новые сообщения по-прежнему будут видны на сайте. Письма можно снова включить в настройках профиля.",
+    "Više vam nećemo slati mejl kad dobijete poruku. Poruke ćete i dalje videti na sajtu.": "Мы больше не будем присылать письмо о новых сообщениях. Сообщения по-прежнему будут видны на сайте.",
+    "Mejlovi o porukama": "Письма о сообщениях",
+    "Isključi mejlove": "Отключить письма",
+    "Mejl kad dobijem novu poruku": "Письмо, когда приходит новое сообщение",
+    "Najviše jedan mejl po prepisci na nekoliko sati, i samo dok poruku ne pročitate na sajtu.": "Не чаще одного письма на переписку раз в несколько часов, и только пока сообщение не прочитано на сайте."
 }
