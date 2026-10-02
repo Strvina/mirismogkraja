@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Report;
 use App\Services\BoostService;
 use App\Services\ProducerStatistics;
+use App\Services\ResponseTime;
 use App\Support\PageMeta;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
@@ -118,7 +119,7 @@ class ProductController extends Controller
             'featured' => $featured->map($card)->values(),
             ...$choices,
             'filters' => [
-                ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'sort']),
+                ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'sort']),
                 'q' => $search !== '' ? $search : null,
             ],
             // A search for "Jovanović" is often for the producer, not a
@@ -169,7 +170,7 @@ class ProductController extends Controller
     {
         return Product::query()
             ->published()
-            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'created_at'])
+            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'season_from', 'season_to', 'created_at'])
             ->with(['images:id,product_id,path,order', 'producer:id,name,city'])
             ->when($request->filled('q'), fn ($query) => Search::apply($query, self::SEARCHED, $request->string('q')->toString()))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
@@ -180,7 +181,8 @@ class ProductController extends Controller
             ))
             ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->float('min_price')))
             ->when($request->filled('max_price'), fn ($query) => $query->where('price', '<=', $request->float('max_price')))
-            ->when($request->boolean('in_stock'), fn ($query) => $query->where('stock_quantity', '>', 0));
+            ->when($request->boolean('in_stock'), fn ($query) => $query->where('stock_quantity', '>', 0))
+            ->when($request->boolean('in_season'), fn ($query) => $query->inSeason());
     }
 
     /**
@@ -198,7 +200,7 @@ class ProductController extends Controller
      * Show a product's public page. Only 'active' products belonging to an
      * 'active' producer are publicly visible.
      */
-    public function show(Request $request, Product $product, ProducerStatistics $statistics): Response
+    public function show(Request $request, Product $product, ProducerStatistics $statistics, ResponseTime $responseTime): Response
     {
         $product->load(['producer:id,user_id,name,slug,city,logo_path,status', 'category:id,name', 'images']);
 
@@ -233,6 +235,7 @@ class ProductController extends Controller
             // The owner has no one to ask about their own listing; anyone else
             // signed in can open a thread from here.
             'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
+            'responseTime' => $responseTime->bucketFor($product->producer),
             'canReport' => $user !== null && $product->producer->user_id !== $user->id,
             'reportReasons' => array_map(__(...), Report::REASONS),
             'isFavorited' => $user?->favorites()

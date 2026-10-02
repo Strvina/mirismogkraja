@@ -2,13 +2,17 @@ import { FeaturedLabel } from '@/components/marketplace/plan-badges';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
+import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
 import { Link, router } from '@inertiajs/react';
 import { Heart, ImageOff } from 'lucide-react';
 
 /** What the catalog sends per card - not the whole product row. */
-export type ProductCardProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'stock_quantity' | 'images'> & {
+export type ProductCardProduct = Pick<
+    Product,
+    'id' | 'name' | 'slug' | 'price' | 'unit' | 'stock_quantity' | 'images' | 'season_from' | 'season_to'
+> & {
     producer?: { id: number; name: string; city: string | null };
     is_favorited?: boolean;
 };
@@ -75,10 +79,22 @@ export default function ProductCard({
 
                 {featured && <FeaturedLabel className="absolute top-3 left-3" />}
 
-                {outOfStock && (
+                {outOfStock ? (
                     <span className="bg-charcoal/85 text-primary-foreground absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase">
                         {t('Nema na stanju')}
                     </span>
+                ) : (
+                    hasSeason(product) && (
+                        <span
+                            title={seasonLabel(product) ?? undefined}
+                            className={cn(
+                                'absolute bottom-3 left-3 rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.08em] uppercase backdrop-blur',
+                                isInSeason(product) ? 'bg-olive-soft/90 text-olive' : 'bg-background/85 text-muted-foreground',
+                            )}
+                        >
+                            {isInSeason(product) ? t('U sezoni') : t('Van sezone')}
+                        </span>
+                    )
                 )}
             </div>
 

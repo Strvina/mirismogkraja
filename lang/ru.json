@@ -854,5 +854,19 @@
     "Danas ste započeli dosta novih razgovora. Novi možete sutra, a postojeći možete da nastavite.": "Сегодня вы начали много новых разговоров. Новые можно начать завтра, а существующие — продолжать.",
     "Svi proizvodi (:count)": "Все товары (:count)",
     "kupac": "покупатель",
-    "Proizvod :number": "Товар :number"
+    "Proizvod :number": "Товар :number",
+    "Obično odgovara za manje od sat vremena": "Обычно отвечает менее чем за час",
+    "Obično odgovara u roku od nekoliko sati": "Обычно отвечает в течение нескольких часов",
+    "Obično odgovara u roku od jednog dana": "Обычно отвечает в течение дня",
+    "Obično odgovara za nekoliko dana": "Обычно отвечает за несколько дней",
+    "U sezoni": "В сезон",
+    "Van sezone": "Не сезон",
+    "Samo ono što je sada u sezoni": "Только то, что сейчас в сезоне",
+    "Sezona": "Сезон",
+    "Za proizvode kojih nema cele godine. Kupci vide da li je proizvod sada u sezoni, i mogu da traže samo takve.": "Для товаров, которых нет круглый год. Покупатели видят, в сезоне ли товар сейчас, и могут искать только такие.",
+    "Sezona od": "Сезон с",
+    "Sezona do": "Сезон до",
+    "Cele godine": "Круглый год",
+    "Sezona: :months": "Сезон: :months",
+    "— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.": "— один из первых производителей на сайте; номер показывает порядок присоединения."
 }

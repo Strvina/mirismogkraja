@@ -27,6 +27,9 @@ export interface Product {
     price: string;
     unit: 'kg' | 'g' | 'l' | 'ml' | 'kom' | 'paket';
     stock_quantity: number;
+    /** Months 1-12 when in season; both null: all year. */
+    season_from?: number | null;
+    season_to?: number | null;
     status: 'draft' | 'active' | 'archived' | 'blocked';
 }
 

@@ -841,5 +841,19 @@
     "Danas ste započeli dosta novih razgovora. Novi možete sutra, a postojeći možete da nastavite.": "You've started a lot of new conversations today. You can start new ones tomorrow, and carry on with the ones you have.",
     "Svi proizvodi (:count)": "All products (:count)",
     "kupac": "buyer",
-    "Proizvod :number": "Product :number"
+    "Proizvod :number": "Product :number",
+    "Obično odgovara za manje od sat vremena": "Usually replies within an hour",
+    "Obično odgovara u roku od nekoliko sati": "Usually replies within a few hours",
+    "Obično odgovara u roku od jednog dana": "Usually replies within a day",
+    "Obično odgovara za nekoliko dana": "Usually replies within a few days",
+    "U sezoni": "In season",
+    "Van sezone": "Out of season",
+    "Samo ono što je sada u sezoni": "Only what is in season now",
+    "Sezona": "Season",
+    "Za proizvode kojih nema cele godine. Kupci vide da li je proizvod sada u sezoni, i mogu da traže samo takve.": "For products that aren't available all year. Buyers see whether it's in season now, and can look for only those.",
+    "Sezona od": "Season from",
+    "Sezona do": "Season to",
+    "Cele godine": "All year",
+    "Sezona: :months": "Season: :months",
+    "— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.": "— one of the first producers on the site; the number shows the order they joined in."
 }

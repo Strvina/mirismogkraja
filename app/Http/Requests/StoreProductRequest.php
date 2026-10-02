@@ -41,6 +41,9 @@ class StoreProductRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             ...self::amountRules(),
             'unit' => ['required', 'in:kg,g,l,ml,kom,paket'],
+            // Months 1-12; both or neither (neither: all year).
+            'season_from' => ['nullable', 'integer', 'between:1,12', 'required_with:season_to'],
+            'season_to' => ['nullable', 'integer', 'between:1,12', 'required_with:season_from'],
             'status' => ['required', Rule::in(Product::OWNER_STATUSES)],
         ];
     }
