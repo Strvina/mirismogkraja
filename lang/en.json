@@ -840,5 +840,6 @@
     "Proizvođač može imati najviše :max proizvoda. Obrišite neki koji više ne nudite.": "A producer can have at most :max products. Delete one you no longer offer.",
     "Danas ste započeli dosta novih razgovora. Novi možete sutra, a postojeći možete da nastavite.": "You've started a lot of new conversations today. You can start new ones tomorrow, and carry on with the ones you have.",
     "Svi proizvodi (:count)": "All products (:count)",
-    "kupac": "buyer"
+    "kupac": "buyer",
+    "Proizvod :number": "Product :number"
 }

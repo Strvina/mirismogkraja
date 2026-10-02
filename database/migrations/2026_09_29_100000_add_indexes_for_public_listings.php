@@ -56,6 +56,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        // On MySQL these composite indexes are also what backs the foreign
+        // keys (MySQL drops its own key index once another one covers the
+        // column), so a plain one goes back first or the drop is refused.
+        Schema::table('producer_messages', fn (Blueprint $table) => $table->index('buyer_id'));
         Schema::table('producer_messages', fn (Blueprint $table) => $table->dropIndex(['buyer_id', 'read_at']));
 
         Schema::table('reviews', function (Blueprint $table) {
@@ -71,7 +75,11 @@ return new class extends Migration
         Schema::table('households', fn (Blueprint $table) => $table->index('status'));
         Schema::table('households', fn (Blueprint $table) => $table->dropIndex(['status', 'name']));
 
-        Schema::table('products', fn (Blueprint $table) => $table->index('status'));
+        Schema::table('products', function (Blueprint $table) {
+            $table->index('status');
+            $table->index('household_id');
+            $table->index('category_id');
+        });
 
         Schema::table('products', function (Blueprint $table) {
             $table->dropIndex(['status', 'created_at']);

@@ -853,5 +853,6 @@
     "Proizvođač može imati najviše :max proizvoda. Obrišite neki koji više ne nudite.": "У производителя может быть не больше :max товаров. Удалите тот, который больше не предлагаете.",
     "Danas ste započeli dosta novih razgovora. Novi možete sutra, a postojeći možete da nastavite.": "Сегодня вы начали много новых разговоров. Новые можно начать завтра, а существующие — продолжать.",
     "Svi proizvodi (:count)": "Все товары (:count)",
-    "kupac": "покупатель"
+    "kupac": "покупатель",
+    "Proizvod :number": "Товар :number"
 }

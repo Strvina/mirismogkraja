@@ -7,8 +7,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-    --font-serif: 'Lora', serif;
+    --font-sans:
+        'Manrope Variable', 'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+    --font-serif: 'Lora Variable', 'Lora', serif;
 
     --radius-2xl: calc(var(--radius) + 8px);
     --radius-xl: calc(var(--radius) + 4px);
