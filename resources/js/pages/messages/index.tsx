@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
@@ -21,7 +22,7 @@ interface Thread {
     unread: number;
 }
 
-export default function MessagesIndex({ threads }: { threads: Thread[] }) {
+export default function MessagesIndex({ threads }: { threads: Paginated<Thread> }) {
     // Slower than an open conversation: here it's enough that a new message
     // shows up on its own within a few seconds.
     usePoll(10000, { only: ['threads', 'unreadMessages'] });
@@ -32,11 +33,11 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
 
             <h1 className="font-serif text-4xl sm:text-5xl">{t('Poruke')}</h1>
 
-            {threads.length === 0 ? (
+            {threads.data.length === 0 ? (
                 <p className="text-muted-foreground mt-6 text-sm">{t('Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.')}</p>
             ) : (
                 <div className="border-border/70 mt-8 max-w-2xl divide-y rounded-lg border">
-                    {threads.map((thread) => (
+                    {threads.data.map((thread) => (
                         <Link key={thread.key} href={thread.href} className="hover:bg-muted/60 flex items-center gap-4 p-4 transition-colors">
                             {thread.avatar_path ? (
                                 <img
@@ -56,7 +57,7 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
                                     {thread.title}
                                     {thread.as_producer && (
                                         <span className="bg-olive-soft text-olive rounded-full px-2 py-0.5 text-[0.65rem] font-semibold">
-                                            kupac · {thread.subtitle}
+                                            {t('kupac')} · {thread.subtitle}
                                         </span>
                                     )}
                                     {thread.outcome && (
@@ -78,6 +79,8 @@ export default function MessagesIndex({ threads }: { threads: Thread[] }) {
                     ))}
                 </div>
             )}
+
+            <Pagination meta={threads} />
         </MarketplaceLayout>
     );
 }

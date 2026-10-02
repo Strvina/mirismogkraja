@@ -14,6 +14,7 @@ use App\Support\PageMeta;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -24,6 +25,15 @@ class ProductController extends Controller
 {
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
+
+    /**
+     * Deeper than this a list is not being read, only crawled - and an
+     * OFFSET that deep makes the database walk every row before it.
+     */
+    public const MAX_PAGE = 500;
+
+    /** How long the filter choices (categories, producers, cities, prices) are kept. */
+    private const FILTERS_SECONDS = 600;
 
     /** The columns of the products FULLTEXT index. */
     private const SEARCHED = ['name', 'description'];
@@ -56,6 +66,8 @@ class ProductController extends Controller
 
     private function listing(Request $request, BoostService $boosts, ?Category $category = null): Response
     {
+        abort_if($request->integer('page') > self::MAX_PAGE, 404);
+
         $sort = $request->string('sort')->toString();
         $search = Search::clean($request->string('q')->toString());
 
@@ -81,15 +93,7 @@ class ProductController extends Controller
                 ->get()
             : collect();
 
-        // Query cities directly off Producer instead of loading every
-        // matching Product just to read producer.city off each one.
-        $sellingProducers = Producer::published()
-            ->whereHas('products', fn ($query) => $query->where('status', 'active'));
-
-        // Both ends of the slider in one pass over the catalog, not two.
-        $bounds = Product::query()->published()->toBase()
-            ->selectRaw('min(price) as lowest, max(price) as highest')
-            ->first();
+        $choices = $this->filterChoices();
 
         $favoritedIds = $request->user()?->favorites()
             ->where('favoritable_type', 'product')
@@ -112,10 +116,7 @@ class ProductController extends Controller
             'category' => $category?->only(['id', 'name', 'slug']),
             'products' => $products->through($card),
             'featured' => $featured->map($card)->values(),
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
-            'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name']),
-            'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city'),
-            'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
+            ...$choices,
             'filters' => [
                 ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'sort']),
                 'q' => $search !== '' ? $search : null,
@@ -136,6 +137,34 @@ class ProductController extends Controller
      *
      * @return Builder<Product>
      */
+    /**
+     * What the filter panel offers. The same for every visitor and slow to
+     * change, while working it out reads the whole catalogue - so it is
+     * worked out once every few minutes, not on every page and filter.
+     *
+     * @return array{categories: array<int, mixed>, producers: array<int, mixed>, cities: array<int, string>, priceBounds: array{min: float, max: float}}
+     */
+    private function filterChoices(): array
+    {
+        return Cache::remember('catalog:filter-choices', self::FILTERS_SECONDS, function () {
+            // Cities straight off Producer, not by loading every product.
+            $sellingProducers = Producer::published()
+                ->whereHas('products', fn ($query) => $query->where('status', 'active'));
+
+            // Both ends of the price slider in one pass over the catalogue.
+            $bounds = Product::query()->published()->toBase()
+                ->selectRaw('min(price) as lowest, max(price) as highest')
+                ->first();
+
+            return [
+                'categories' => Category::orderBy('name')->get(['id', 'name'])->toArray(),
+                'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name'])->toArray(),
+                'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
+                'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
+            ];
+        });
+    }
+
     private function filtered(Request $request): Builder
     {
         return Product::query()

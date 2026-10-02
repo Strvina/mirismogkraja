@@ -31,12 +31,12 @@ class InquiryOutcomeTest extends TestCase
         $this->assertSame($product->id, $outcome->product_id);
 
         $this->actingAs($producer->user)->get(route('messages.index'))
-            ->assertInertia(fn ($page) => $page->where('threads.0.outcome', 'Realizovano'));
+            ->assertInertia(fn ($page) => $page->where('threads.data.0.outcome', 'Realizovano'));
         $this->actingAs($producer->user)->get(route('messages.thread', [$producer->id, $buyer->id]))
             ->assertInertia(fn ($page) => $page->where('outcome', 'completed'));
 
         // The buyer never sees the producer's note.
-        $this->actingAs($buyer)->get(route('messages.index'))->assertInertia(fn ($page) => $page->where('threads.0.outcome', null));
+        $this->actingAs($buyer)->get(route('messages.index'))->assertInertia(fn ($page) => $page->where('threads.data.0.outcome', null));
         $this->actingAs($buyer)->get(route('messages.show', $producer->slug))->assertInertia(fn ($page) => $page->where('outcome', null));
 
         $this->seed(RolesSeeder::class);

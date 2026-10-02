@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
@@ -12,7 +13,7 @@ const STATUS_LABELS: Record<Product['status'], string> = {
     blocked: tx('Blokiran'),
 };
 
-export default function ProductsIndex({ producer, products }: { producer: Producer; products: Product[] }) {
+export default function ProductsIndex({ producer, products }: { producer: Producer; products: Paginated<Product> }) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t('Moji proizvođači'), href: '/moji-proizvodjaci' },
         { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
@@ -45,11 +46,11 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                     </Button>
                 </div>
 
-                {products.length === 0 ? (
+                {products.data.length === 0 ? (
                     <p className="text-muted-foreground text-sm">{t('Nema još proizvoda.')}</p>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
-                        {products.map((product) => (
+                        {products.data.map((product) => (
                             <div key={product.id} className="rounded-xl border p-4">
                                 <div className="flex items-start justify-between">
                                     <h2 className="font-serif text-lg">{product.name}</h2>
@@ -78,6 +79,8 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                         ))}
                     </div>
                 )}
+
+                <Pagination meta={products} />
             </div>
         </MarketplaceLayout>
     );

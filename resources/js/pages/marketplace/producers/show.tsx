@@ -23,6 +23,7 @@ export default function ProducerShow({
     producer,
     gallery,
     products,
+    productsCount,
     reviews,
     averageRating,
     isPremium,
@@ -42,6 +43,8 @@ export default function ProducerShow({
     phone?: string | null;
     gallery: { id: number; path: string; caption: string | null }[];
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
+    /** All of the producer's published products; more than are shown above. */
+    productsCount: number;
     reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
     isPremium: boolean;
@@ -353,6 +356,14 @@ export default function ProducerShow({
                             </Link>
                         ))}
                     </div>
+                )}
+                {productsCount > products.length && (
+                    <Link
+                        href={route('marketplace.products.index', { producer_id: producer.id })}
+                        className="text-primary mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
+                    >
+                        {t('Svi proizvodi (:count)', { count: productsCount })}
+                    </Link>
                 )}
             </section>
 

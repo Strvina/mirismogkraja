@@ -13,6 +13,9 @@ use Inertia\Response;
 
 class FavoriteController extends Controller
 {
+    /** Per list; each of the two pages on its own. */
+    private const PER_PAGE = 24;
+
     /**
      * "Moji omiljeni": the authenticated user's favorited producers and
      * products, most recently saved first.
@@ -36,12 +39,12 @@ class FavoriteController extends Controller
                 ->join('favorites', $savedBy('household', 'households'))
                 ->published()
                 ->orderByDesc('favorites.created_at')
-                ->get(['households.id', 'households.name', 'households.slug', 'households.city']),
+                ->paginate(self::PER_PAGE, ['households.id', 'households.name', 'households.slug', 'households.city'], 'proizvodjaci'),
             'products' => Product::query()
                 ->join('favorites', $savedBy('product', 'products'))
                 ->published()
                 ->orderByDesc('favorites.created_at')
-                ->get(['products.id', 'products.name', 'products.slug', 'products.price', 'products.unit']),
+                ->paginate(self::PER_PAGE, ['products.id', 'products.name', 'products.slug', 'products.price', 'products.unit'], 'proizvodi'),
         ]);
     }
 
