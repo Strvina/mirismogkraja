@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProducerMessageController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/proizvod/{product:slug}/upit', [ProducerMessageController::class, 'storeInquiry'])
         ->middleware('throttle:10,1')
         ->name('inquiries.store');

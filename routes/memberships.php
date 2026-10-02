@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 
 // Every write here records a payment request or a refund and notifies the
 // admins, so each is limited well above what a person clicks.
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/clanarina', [MembershipController::class, 'index'])->name('memberships.index');
     Route::post('/clanarina', [MembershipController::class, 'store'])->middleware('throttle:10,1')->name('memberships.store');
     Route::get('/clanarina/{subscription}/uplatnica.pdf', [MembershipController::class, 'slip'])->name('memberships.slip');

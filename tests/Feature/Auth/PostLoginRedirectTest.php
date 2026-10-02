@@ -36,14 +36,14 @@ class PostLoginRedirectTest extends TestCase
             ->assertRedirect(route('admin.dashboard', absolute: false));
     }
 
-    public function test_a_new_registration_lands_on_the_home_page(): void
+    public function test_a_new_registration_is_asked_to_confirm_the_email_first(): void
     {
         $this->post('/register', [
             'name' => 'Marko Marković',
             'email' => 'marko@example.com',
             'password' => 'lozinka-123',
             'password_confirmation' => 'lozinka-123',
-        ])->assertRedirect(route('home', absolute: false));
+        ])->assertRedirect(route('verification.notice', absolute: false));
 
         $this->assertAuthenticated();
     }
