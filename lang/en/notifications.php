@@ -23,6 +23,7 @@ return [
 
     'product' => [
         'published' => ['title' => ':producer has something new', 'body' => '“:product” has just been listed.'],
+        'blocked' => ['title' => 'A product has been taken down', 'body' => 'An administrator has taken “:product” off the site. Contact us if you think this is a mistake.'],
     ],
 
     'review' => [

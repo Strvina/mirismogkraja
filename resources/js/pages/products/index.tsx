@@ -1,9 +1,16 @@
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
-import { t } from '@/lib/i18n';
+import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+
+const STATUS_LABELS: Record<Product['status'], string> = {
+    draft: tx('Nacrt'),
+    active: tx('Objavljeno'),
+    archived: tx('Sklonjeno'),
+    blocked: tx('Blokiran'),
+};
 
 export default function ProductsIndex({ producer, products }: { producer: Producer; products: Product[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -46,7 +53,15 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                             <div key={product.id} className="rounded-xl border p-4">
                                 <div className="flex items-start justify-between">
                                     <h2 className="font-serif text-lg">{product.name}</h2>
-                                    <span className="bg-muted rounded-full px-2 py-1 text-xs">{product.status}</span>
+                                    <span
+                                        className={
+                                            product.status === 'blocked'
+                                                ? 'bg-destructive/10 text-destructive rounded-full px-2 py-1 text-xs'
+                                                : 'bg-muted rounded-full px-2 py-1 text-xs'
+                                        }
+                                    >
+                                        {t(STATUS_LABELS[product.status])}
+                                    </span>
                                 </div>
                                 <p className="text-muted-foreground mt-1 text-sm">
                                     {product.price} RSD / {product.unit} · {product.category && t(product.category.name)}

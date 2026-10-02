@@ -823,5 +823,9 @@
     "If you did not create an account, no further action is required.": "Если вы не создавали аккаунт, ничего делать не нужно.",
     "Potvrdite email adresu :email preko linka koji smo vam poslali. Do tada ne možete da šaljete poruke, ocenjujete ni otvorite profil proizvođača.": "Подтвердите адрес :email по ссылке, которую мы вам отправили. До этого нельзя отправлять сообщения, оставлять отзывы и создавать профиль производителя.",
     "Niste dobili mejl?": "Не получили письмо?",
-    "Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.": "Мы отправили ссылку на :email. Если её нет, проверьте папку «Спам»."
+    "Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.": "Мы отправили ссылку на :email. Если её нет, проверьте папку «Спам».",
+    "Ovaj proizvođač više nije na sajtu. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "Этого производителя больше нет на сайте. Переписка остаётся здесь, но отправлять сообщения больше нельзя.",
+    "Ovaj korisnik je obrisao nalog. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "Этот пользователь удалил аккаунт. Переписка остаётся здесь, но отправлять сообщения больше нельзя.",
+    "Administrator je sklonio ovaj proizvod sa sajta. Možete da ga ispravite, ali samo administrator može ponovo da ga objavi.": "Администратор снял этот товар с сайта. Вы можете его исправить, но снова опубликовать его может только администратор.",
+    "Obrisan korisnik": "Удалённый пользователь"
 }

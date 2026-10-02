@@ -26,7 +26,9 @@ class ProducerMessage extends Model
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        // withTrashed: an archived producer's or a deleted account's
+        // conversations stay readable to the other side.
+        return $this->belongsTo(Producer::class, 'household_id')->withTrashed();
     }
 
     public function product(): BelongsTo
@@ -37,12 +39,12 @@ class ProducerMessage extends Model
     /** The buyer side of the thread, whoever wrote the individual message. */
     public function buyer(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'buyer_id');
+        return $this->belongsTo(User::class, 'buyer_id')->withTrashed();
     }
 
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'sender_id')->withTrashed();
     }
 
     /** @param  Builder<ProducerMessage>  $query */

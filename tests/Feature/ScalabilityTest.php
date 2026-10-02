@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Support\Media;
 use App\Support\UniqueSlug;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +42,7 @@ class ScalabilityTest extends TestCase
     {
         Storage::fake('public');
 
-        $path = Media::store(UploadedFile::fake()->create('ajvar.jpg', 10, 'image/jpeg'), 'products');
+        $path = Media::store($this->fakeImage('ajvar.jpg'), 'products');
         Storage::disk('public')->assertExists($path);
 
         Storage::disk('public')->put(Media::thumbPath($path), 'small copy');

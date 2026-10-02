@@ -6,7 +6,6 @@ use App\Models\Producer;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -132,8 +131,8 @@ class ProducerCrudTest extends TestCase
 
         $this->actingAs($user)->post(route('producers.store'), [
             'name' => 'Domaćinstvo Nićić',
-            'cover_image' => UploadedFile::fake()->create('cover.jpg', 10, 'image/jpeg'),
-            'logo' => UploadedFile::fake()->create('logo.jpg', 10, 'image/jpeg'),
+            'cover_image' => $this->fakeImage('cover.jpg'),
+            'logo' => $this->fakeImage('logo.jpg'),
         ]);
 
         $producer = Producer::sole();
@@ -150,7 +149,7 @@ class ProducerCrudTest extends TestCase
 
         $this->actingAs($user)->put(route('producers.update', $producer), [
             'name' => $producer->name,
-            'cover_image' => UploadedFile::fake()->create('new.jpg', 10, 'image/jpeg'),
+            'cover_image' => $this->fakeImage('new.jpg'),
         ]);
 
         $producer->refresh();

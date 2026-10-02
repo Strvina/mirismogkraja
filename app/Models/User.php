@@ -23,6 +23,17 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
+    /** What a deleted account's personal fields are set to. */
+    public const ANONYMISED = [
+        'name' => 'Obrisan korisnik',
+        'phone' => null,
+        'address' => null,
+        'city' => null,
+        'lat' => null,
+        'lng' => null,
+        'avatar_path' => null,
+    ];
+
     protected $fillable = [
         'name',
         'email',

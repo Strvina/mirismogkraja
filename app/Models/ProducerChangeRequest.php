@@ -50,7 +50,7 @@ class ProducerChangeRequest extends Model
 
     public function requester(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'requested_by');
+        return $this->belongsTo(User::class, 'requested_by')->withTrashed();
     }
 
     /** @param  Builder<ProducerChangeRequest>  $query */

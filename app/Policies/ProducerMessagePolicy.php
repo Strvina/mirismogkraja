@@ -41,6 +41,11 @@ class ProducerMessagePolicy
      */
     public function send(User $user, Producer $producer, User $buyer): bool
     {
-        return $this->viewThread($user, $producer, $buyer) && ! $producer->hasBlocked($buyer);
+        // Nobody is left on the other end of an archived producer or a
+        // deleted account.
+        return ! $producer->trashed()
+            && ! $buyer->trashed()
+            && $this->viewThread($user, $producer, $buyer)
+            && ! $producer->hasBlocked($buyer);
     }
 }

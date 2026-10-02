@@ -31,6 +31,7 @@ const STATUS_HINTS: Record<Product['status'], string> = {
     draft: tx('Vidite ga samo vi, dok ga ne objavite.'),
     active: tx('Svi ga vide i mogu da vam pišu o njemu.'),
     archived: tx('Sklonjen sa sajta, ali ostaje sačuvan kod vas.'),
+    blocked: tx('Administrator je sklonio ovaj proizvod sa sajta. Možete da ga ispravite, ali samo administrator može ponovo da ga objavi.'),
 };
 
 export default function ProductForm({
@@ -148,18 +149,24 @@ export default function ProductForm({
 
                 <div className="grid gap-2">
                     <Label htmlFor="status">{t('Vidljivost')}</Label>
-                    <select
-                        id="status"
-                        className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-                        value={data.status}
-                        onChange={(e) => setData('status', e.target.value as Product['status'])}
-                    >
-                        {STATUS_OPTIONS.map((option) => (
-                            <option key={option.value} value={option.value}>
-                                {t(option.label)}
-                            </option>
-                        ))}
-                    </select>
+                    {data.status === 'blocked' ? (
+                        <p id="status" className="text-destructive text-sm font-medium">
+                            {t('Blokiran')}
+                        </p>
+                    ) : (
+                        <select
+                            id="status"
+                            className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+                            value={data.status}
+                            onChange={(e) => setData('status', e.target.value as Product['status'])}
+                        >
+                            {STATUS_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                    {t(option.label)}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                     <p className="text-muted-foreground text-xs">{t(STATUS_HINTS[data.status])}</p>
                     <InputError message={errors.status} />
                 </div>

@@ -7,7 +7,6 @@ use App\Models\Producer;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -31,7 +30,7 @@ class ProducerWizardProductsTest extends TestCase
         $this->actingAs(User::factory()->create())->post(route('producers.store'), [
             'name' => 'Pčelarstvo Nikolić',
             'products' => [
-                ['name' => 'Bagremov med', 'category_id' => $honey->id, 'price' => '950', 'unit' => 'kg', 'stock_quantity' => '12', 'image' => UploadedFile::fake()->create('med.jpg', 10, 'image/jpeg')],
+                ['name' => 'Bagremov med', 'category_id' => $honey->id, 'price' => '950', 'unit' => 'kg', 'stock_quantity' => '12', 'image' => $this->fakeImage('med.jpg')],
                 ['name' => 'Polen', 'category_id' => $honey->id, 'price' => '400', 'unit' => 'g', 'stock_quantity' => '0'],
             ],
         ])->assertSessionHasNoErrors();

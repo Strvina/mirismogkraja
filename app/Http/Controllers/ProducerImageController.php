@@ -22,7 +22,7 @@ class ProducerImageController extends Controller
 
         $request->validate([
             'images' => ['required', 'array', 'max:'.max(0, self::MAX_IMAGES - $producer->images()->count())],
-            'images.*' => ['image', 'max:4096'],
+            'images.*' => Media::imageRules(),
             'captions' => ['nullable', 'array'],
             'captions.*' => ['nullable', 'string', 'max:255'],
         ], [

@@ -94,6 +94,7 @@ export default function MessageThread({
     messages,
     isOwner,
     blockedBy,
+    closed,
     reportReasons,
     outcome,
     outcomeLabels,
@@ -104,6 +105,8 @@ export default function MessageThread({
     messages: { data: Message[]; current_page: number; next_page_url: string | null };
     isOwner: boolean;
     blockedBy: 'producer' | 'buyer' | null;
+    /** Which side has left the site, if one has. */
+    closed: 'producer' | 'buyer' | null;
     reportReasons: Record<string, string>;
     outcome: string | null;
     outcomeLabels: Record<string, string>;
@@ -490,7 +493,14 @@ export default function MessageThread({
 
                 {/* A block closes the conversation both ways; the history
                     stays readable. */}
-                {blocked ? (
+                {closed ? (
+                    <p className="border-border/70 bg-muted/50 text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-sm">
+                        <Ban className="size-4 shrink-0" aria-hidden />
+                        {closed === 'producer'
+                            ? t('Ovaj proizvođač više nije na sajtu. Prepiska ostaje ovde, ali poruke se više ne mogu slati.')
+                            : t('Ovaj korisnik je obrisao nalog. Prepiska ostaje ovde, ali poruke se više ne mogu slati.')}
+                    </p>
+                ) : blocked ? (
                     <p className="border-border/70 bg-muted/50 text-muted-foreground flex items-center gap-2 border-t px-4 py-3 text-sm">
                         <Ban className="size-4 shrink-0" aria-hidden />
                         {blockedByMe

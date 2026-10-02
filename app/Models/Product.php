@@ -15,6 +15,12 @@ class Product extends Model
     /** @use HasFactory<ProductFactory> */
     use HasFactory;
 
+    /** Set only by an administrator; the owner cannot lift it. */
+    public const STATUS_BLOCKED = 'blocked';
+
+    /** What an owner may choose for their own listing. */
+    public const OWNER_STATUSES = ['draft', 'active', 'archived'];
+
     protected $fillable = [
         'household_id',
         'category_id',

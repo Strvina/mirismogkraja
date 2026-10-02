@@ -7,6 +7,7 @@ use App\Http\Requests\Settings\AvatarUpdateRequest;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
 use App\Models\User;
 use App\Services\ProfileUpdateService;
+use App\Support\Media;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -86,7 +87,12 @@ class ProfileController extends Controller
         DB::transaction(function () use ($user): void {
             $user->producers->each->delete();
 
+            Media::delete($user->avatar_path);
+
+            // Nothing that identifies the person stays: reviews and
+            // conversations keep their place under a neutral name.
             $user->forceFill([
+                ...User::ANONYMISED,
                 'email' => "obrisan-{$user->id}@obrisan.local",
                 'password' => Hash::make(Str::random(64)),
                 'remember_token' => null,
