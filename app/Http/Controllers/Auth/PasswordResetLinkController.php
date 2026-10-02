@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Rules\Turnstile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -19,6 +20,7 @@ class PasswordResetLinkController extends Controller
     {
         return Inertia::render('auth/forgot-password', [
             'status' => $request->session()->get('status'),
+            'captchaSiteKey' => Turnstile::siteKey(),
         ]);
     }
 
@@ -31,7 +33,8 @@ class PasswordResetLinkController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-        ]);
+            ...Turnstile::rules(),
+        ], Turnstile::messages());
 
         Password::sendResetLink(
             $request->only('email')
