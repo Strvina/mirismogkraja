@@ -20,3 +20,10 @@ Schedule::call(fn () => DatabaseNotification::query()
     ->delete())
     ->dailyAt('03:45')
     ->name('prune-read-notifications');
+
+// The database, nightly, before the other jobs touch it (see config/backup.php).
+$backup = Schedule::command('backup:database')->dailyAt('02:30')->withoutOverlapping();
+
+if ($notify = config('backup.notify')) {
+    $backup->emailOutputOnFailure($notify);
+}
