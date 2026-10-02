@@ -830,5 +830,10 @@
     "Obrisan korisnik": "Удалённый пользователь",
     ":category | Vrelina juga": ":category | Vrelina juga",
     "Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.": "Домашние товары из категории «:category» — напрямую от производителей с юга Сербии.",
-    "Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.": "Познакомьтесь с местными производителями юга Сербии и пишите им напрямую, без посредников."
+    "Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.": "Познакомьтесь с местными производителями юга Сербии и пишите им напрямую, без посредников.",
+    "Pretraži proizvode…": "Искать товары…",
+    "Pretraži proizvođače…": "Искать производителей…",
+    "Pretraga": "Поиск",
+    "Rezultati za „:query”": "Результаты по запросу «:query»",
+    "Poništi pretragu": "Сбросить поиск"
 }

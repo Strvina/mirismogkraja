@@ -4,6 +4,7 @@ import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
+import SearchBox from '@/components/marketplace/search-box';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
@@ -24,7 +25,7 @@ export default function ProducersIndex({
     /** Present once the visitor has opened the map. */
     mapPoints?: MapPoint[];
     cities: string[];
-    filters: { city: string | null };
+    filters: { city: string | null; q: string | null };
 }) {
     const [showMap, setShowMap] = useState(false);
 
@@ -37,9 +38,13 @@ export default function ProducersIndex({
         setShowMap(!showMap);
     };
 
-    const filterByCity = (city: string) => {
-        router.get('/proizvodjaci', city ? { city } : {}, { preserveState: true, preserveScroll: true });
+    const visit = (patch: { city?: string | null; q?: string | null }) => {
+        const next = { ...filters, ...patch };
+
+        router.get('/proizvodjaci', { city: next.city || undefined, q: next.q || undefined }, { preserveState: true, preserveScroll: true });
     };
+
+    const filterByCity = (city: string) => visit({ city });
 
     return (
         <MarketplaceLayout>
@@ -61,6 +66,8 @@ export default function ProducersIndex({
                     />
                 )}
             </div>
+
+            <SearchBox value={filters.q ?? ''} onSearch={(q) => visit({ q })} placeholder={t('Pretraži proizvođače…')} className="mt-8 max-w-xl" />
 
             <div className="mt-6">
                 <Button type="button" variant="outline" size="sm" onClick={toggleMap} aria-expanded={showMap}>

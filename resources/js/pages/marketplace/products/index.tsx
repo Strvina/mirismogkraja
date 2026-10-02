@@ -4,10 +4,12 @@ import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
+import SearchBox from '@/components/marketplace/search-box';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
+import { thumbUrl } from '@/lib/media';
 import { type Category, type SharedData } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 
 export default function ProductsIndex({
     products,
@@ -20,6 +22,7 @@ export default function ProductsIndex({
     perPage,
     perPageOptions,
     category,
+    matchingProducers,
 }: {
     products: Paginated<ProductCardProduct>;
     featured: ProductCardProduct[];
@@ -32,6 +35,8 @@ export default function ProductsIndex({
     perPageOptions: number[];
     /** Set on a category's own page (/kategorija/...). */
     category: { id: number; name: string; slug: string } | null;
+    /** On the first page of a search: the producers it matches. */
+    matchingProducers: { id: number; name: string; slug: string; city: string | null; logo_path: string | null }[];
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -42,7 +47,7 @@ export default function ProductsIndex({
     };
 
     const reset = () => {
-        router.get('/proizvodi', filters.sort ? { sort: filters.sort } : {}, { preserveScroll: true });
+        router.get('/proizvodi', { sort: filters.sort, q: filters.q }, { preserveScroll: true });
     };
 
     return (
@@ -55,6 +60,42 @@ export default function ProductsIndex({
                     ? t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
                     : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
             </p>
+
+            <SearchBox value={filters.q ?? ''} onSearch={(q) => update({ q: q || undefined })} className="mt-8 max-w-xl" />
+
+            {filters.q && (
+                <p className="text-muted-foreground mt-3 text-sm">
+                    {t('Rezultati za „:query”', { query: filters.q })} ·{' '}
+                    <button type="button" className="hover:text-foreground underline underline-offset-4" onClick={() => update({ q: undefined })}>
+                        {t('Poništi pretragu')}
+                    </button>
+                </p>
+            )}
+
+            {matchingProducers.length > 0 && (
+                <div className="mt-6">
+                    <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-[0.18em] uppercase">{t('Proizvođači')}</p>
+                    <div className="flex flex-wrap gap-2">
+                        {matchingProducers.map((producer) => (
+                            <Link
+                                key={producer.id}
+                                href={route('marketplace.producers.show', producer.slug)}
+                                className="border-border/70 hover:border-primary/40 hover:bg-muted/40 flex items-center gap-2 rounded-full border py-1 pr-4 pl-1 text-sm transition-colors"
+                            >
+                                {producer.logo_path ? (
+                                    <img src={thumbUrl(producer.logo_path)} alt="" loading="lazy" className="size-7 rounded-full object-cover" />
+                                ) : (
+                                    <span className="bg-muted text-muted-foreground flex size-7 items-center justify-center rounded-full text-xs font-semibold">
+                                        {producer.name.charAt(0).toUpperCase()}
+                                    </span>
+                                )}
+                                <span className="font-medium">{producer.name}</span>
+                                {producer.city && <span className="text-muted-foreground">· {producer.city}</span>}
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:gap-12">
                 <ProductFilters
