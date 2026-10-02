@@ -9,6 +9,7 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,6 +37,12 @@ class ProductController extends Controller
 
     public function store(StoreProductRequest $request, Producer $producer, ProductService $products): RedirectResponse
     {
+        if ($producer->products()->count() >= Product::MAX_PER_PRODUCER) {
+            throw ValidationException::withMessages([
+                'name' => __('Proizvođač može imati najviše :max proizvoda. Obrišite neki koji više ne nudite.', ['max' => Product::MAX_PER_PRODUCER]),
+            ]);
+        }
+
         $products->create($producer, $request->validated());
 
         return to_route('producers.products.index', $producer);

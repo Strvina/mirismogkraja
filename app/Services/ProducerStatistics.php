@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -41,6 +42,9 @@ class ProducerStatistics
      * interest in the producer, and counting them would make the numbers a
      * producer pays for meaningless.
      */
+    /** The same visitor counts once per page in this window, however often they reload. */
+    private const REPEAT_WINDOW_MINUTES = 30;
+
     private const BOTS = '/bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|viber|telegram|skype|curl|wget|python|headless|lighthouse/i';
 
     /**
@@ -51,7 +55,7 @@ class ProducerStatistics
      */
     public function record(Request $request, Producer $producer, string $event, ?Product $product = null): void
     {
-        if ($this->shouldIgnore($request, $producer)) {
+        if ($this->shouldIgnore($request, $producer) || $this->isRepeat($request, $producer, $event, $product)) {
             return;
         }
 
@@ -134,6 +138,20 @@ class ProducerStatistics
                 ->values()
                 ->all(),
         ];
+    }
+
+    /**
+     * Whether this visitor was already counted for this event lately. Keeps
+     * a reload - or a script hammering the public click address - from
+     * inflating the numbers a producer reads.
+     */
+    private function isRepeat(Request $request, Producer $producer, string $event, ?Product $product): bool
+    {
+        $visitor = $request->user()?->id ?? $request->ip();
+        $key = 'stats-seen:'.sha1("{$visitor}|{$producer->id}|{$event}|".($product?->id ?? 0));
+
+        // add() only writes when the key is not there yet.
+        return ! Cache::add($key, true, now()->addMinutes(self::REPEAT_WINDOW_MINUTES));
     }
 
     private function shouldIgnore(Request $request, Producer $producer): bool

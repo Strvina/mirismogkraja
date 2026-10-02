@@ -14,12 +14,21 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProducerMessageController extends Controller
 {
+    /**
+     * New conversations one account may start in a day. Far above what a
+     * buyer asking around needs; far below what it takes to message every
+     * producer on the site.
+     */
+    public const NEW_CONVERSATIONS_PER_DAY = 20;
+
     /**
      * Start a conversation from a product page. The product is recorded on
      * the message so the thread shows what the first question was about;
@@ -35,6 +44,7 @@ class ProducerMessageController extends Controller
         abort_if($product->producer->hasBlocked($request->user()), 403);
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
+        $this->countNewConversation($request->user(), $product->producer);
 
         ProducerMessage::create([
             'household_id' => $product->household_id,
@@ -178,6 +188,10 @@ class ProducerMessageController extends Controller
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
+        if ($producer->user_id !== $request->user()->id) {
+            $this->countNewConversation($request->user(), $producer);
+        }
+
         ProducerMessage::create([
             'household_id' => $producer->id,
             'buyer_id' => $buyer->id,
@@ -239,6 +253,27 @@ class ProducerMessageController extends Controller
         }
 
         return back();
+    }
+
+    /**
+     * Counts a first message to a producer against the day's allowance;
+     * a message in a conversation that already exists is not counted.
+     */
+    private function countNewConversation(User $buyer, Producer $producer): void
+    {
+        if (ProducerMessage::thread($producer, $buyer)->exists()) {
+            return;
+        }
+
+        $key = 'new-conversations:'.$buyer->id;
+
+        if (RateLimiter::tooManyAttempts($key, self::NEW_CONVERSATIONS_PER_DAY)) {
+            throw ValidationException::withMessages([
+                'body' => __('Danas ste započeli dosta novih razgovora. Novi možete sutra, a postojeći možete da nastavite.'),
+            ]);
+        }
+
+        RateLimiter::hit($key, 24 * 60 * 60);
     }
 
     /**

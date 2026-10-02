@@ -38,11 +38,25 @@ class ProducerStatisticsTest extends TestCase
     {
         $producer = Producer::factory()->active()->create();
 
-        $this->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.producers.show', $producer->slug))->assertOk();
-        $this->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.producers.show', $producer->slug))->assertOk();
+        // Two visitors, the second of them reloading: two views, not three.
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.1'])->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.producers.show', $producer->slug))->assertOk();
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.2'])->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.producers.show', $producer->slug))->assertOk();
+        $this->withServerVariables(['REMOTE_ADDR' => '10.0.0.2'])->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.producers.show', $producer->slug))->assertOk();
 
         $this->assertSame(2, $this->hits('profile_view'));
         $this->assertSame(1, DB::table('producer_stats')->count());
+    }
+
+    /** The public click address cannot be hammered into big numbers. */
+    public function test_repeated_clicks_from_one_visitor_count_once(): void
+    {
+        $producer = Producer::factory()->active()->create();
+
+        foreach (range(1, 5) as $click) {
+            $this->withHeader('User-Agent', self::BROWSER)->post(route('statistics.click', [$producer, 'whatsapp_click']))->assertNoContent();
+        }
+
+        $this->assertSame(1, $this->hits('whatsapp_click'));
     }
 
     public function test_a_product_view_is_counted_for_its_product(): void
@@ -97,7 +111,7 @@ class ProducerStatisticsTest extends TestCase
         $service->confirmPayment($service->request($producer, SubscriptionPlan::where('slug', 'premium')->sole()), $producer->user_id);
 
         foreach (range(1, 3) as $visit) {
-            $this->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.products.show', $popular->slug));
+            $this->withServerVariables(['REMOTE_ADDR' => "10.0.0.{$visit}"])->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.products.show', $popular->slug));
         }
         $this->withHeader('User-Agent', self::BROWSER)->get(route('marketplace.producers.show', $producer->slug));
 

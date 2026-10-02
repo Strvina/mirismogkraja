@@ -31,7 +31,11 @@ class ProductService
      */
     private function tellFollowersIfPublished(Product $product, bool $wasPublic): void
     {
-        if (! $wasPublic && $product->isPubliclyVisible()) {
+        // The first time only: a product taken down and put back up has
+        // already been announced.
+        if (! $wasPublic && $product->isPubliclyVisible() && $product->published_at === null) {
+            $product->forceFill(['published_at' => now()])->saveQuietly();
+
             NotifyFollowersOfProduct::dispatch($product)->afterResponse();
         }
     }
