@@ -28,6 +28,7 @@ return [
 
     'review' => [
         'received' => ['title' => 'New review about you', 'body' => 'Someone left a review of “:producer”. It will be published once we check it.'],
+        'replied' => ['title' => 'A reply to your review', 'body' => '“:producer” has replied to your review.'],
         'published' => ['title' => 'Your review has been published', 'body' => 'Your review of “:producer” is now visible to everyone.'],
     ],
 

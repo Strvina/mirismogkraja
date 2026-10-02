@@ -163,7 +163,7 @@ class Producer extends Model
     public function scopeWithCardData(Builder $query): void
     {
         $query
-            ->select($query->qualifyColumns(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods']))
+            ->select($query->qualifyColumns(['id', 'name', 'slug', 'city', 'description', 'cover_image_path', 'logo_path', 'verified_at', 'delivery_methods', 'lat', 'lng']))
             ->withAvg(['reviews' => fn ($reviews) => $reviews->approved()], 'rating')
             ->withCount([
                 'reviews' => fn ($reviews) => $reviews->approved(),

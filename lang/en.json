@@ -855,5 +855,18 @@
     "Sezona do": "Season to",
     "Cele godine": "All year",
     "Sezona: :months": "Season: :months",
-    "— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.": "— one of the first producers on the site; the number shows the order they joined in."
+    "— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.": "— one of the first producers on the site; the number shows the order they joined in.",
+    "Odgovor proizvođača „:name”": "Reply from “:name”",
+    "Odgovor proizvođača": "Producer's reply",
+    "Vaš odgovor": "Your reply",
+    "Zahvalite se kupcu ili objasnite svoju stranu — odgovor vide svi.": "Thank the buyer or give your side — everyone sees the reply.",
+    "Objavi odgovor": "Post reply",
+    "Izmeni odgovor": "Edit reply",
+    "Odgovori na utisak": "Reply to review",
+    ":km km od vas": ":km km from you",
+    "Vaš pregledač ne može da odredi lokaciju.": "Your browser can't determine your location.",
+    "Lokacija nije dostupna. Dozvolite sajtu pristup lokaciji u pregledaču i pokušajte ponovo.": "Location is not available. Allow the site to use your location in the browser and try again.",
+    "Poređano po udaljenosti od vas": "Sorted by distance from you",
+    "Tražim lokaciju…": "Finding your location…",
+    "Najbliži meni": "Nearest to me"
 }

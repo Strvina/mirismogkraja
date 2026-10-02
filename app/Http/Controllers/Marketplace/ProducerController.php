@@ -38,11 +38,18 @@ class ProducerController extends Controller
         $city = $request->string('city')->toString();
         $search = Search::clean($request->string('q')->toString());
 
+        $near = $this->nearPoint($request);
+
         $producers = $this->cards($city, $search)
-            ->tap(fn ($query) => Search::orderByRelevance($query, ['name', 'description'], $search))
+            ->when($near, fn ($query) => $this->orderByDistance($query, $near))
+            ->when(! $near, fn ($query) => Search::orderByRelevance($query, ['name', 'description'], $search))
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
+
+        if ($near) {
+            $producers->getCollection()->each(fn (Producer $producer) => $producer->setAttribute('distance_km', $this->kilometres($near, $producer)));
+        }
 
         // Paid placement lives in its own labelled row above the directory,
         // never mixed into it: the list below stays alphabetical for
@@ -90,7 +97,12 @@ class ProducerController extends Controller
                     'lng' => (float) $producer->lng,
                 ])),
             'cities' => $cities,
-            'filters' => ['city' => $city ?: null, 'q' => $search !== '' ? $search : null],
+            'filters' => [
+                'city' => $city ?: null,
+                'q' => $search !== '' ? $search : null,
+                'lat' => $near['lat'] ?? null,
+                'lng' => $near['lng'] ?? null,
+            ],
         ]);
     }
 
@@ -100,6 +112,58 @@ class ProducerController extends Controller
      *
      * @return Builder<Producer>
      */
+    /**
+     * The visitor's position for "near me", rounded to about a kilometre -
+     * close enough to sort by, and all that ends up in the address bar.
+     *
+     * @return array{lat: float, lng: float}|null
+     */
+    private function nearPoint(Request $request): ?array
+    {
+        $lat = $request->query('lat');
+        $lng = $request->query('lng');
+
+        if (! is_numeric($lat) || ! is_numeric($lng) || abs((float) $lat) > 90 || abs((float) $lng) > 180) {
+            return null;
+        }
+
+        return ['lat' => round((float) $lat, 2), 'lng' => round((float) $lng, 2)];
+    }
+
+    /**
+     * Nearest first, producers without a pin last. A flat approximation -
+     * longitude shrunk by the cosine of the latitude - is exact enough for
+     * ordering within a country, and is plain arithmetic any database runs.
+     *
+     * @param  array{lat: float, lng: float}  $near
+     */
+    private function orderByDistance(Builder $query, array $near): Builder
+    {
+        [$lat, $lng] = [$query->qualifyColumn('lat'), $query->qualifyColumn('lng')];
+        $shrink = cos(deg2rad($near['lat'])) ** 2;
+
+        return $query
+            ->orderByRaw("case when {$lat} is null or {$lng} is null then 1 else 0 end")
+            ->orderByRaw("({$lat} - ?) * ({$lat} - ?) + ({$lng} - ?) * ({$lng} - ?) * ?", [$near['lat'], $near['lat'], $near['lng'], $near['lng'], $shrink]);
+    }
+
+    /**
+     * Great-circle distance, rounded, for the card ("12 km od vas").
+     *
+     * @param  array{lat: float, lng: float}  $near
+     */
+    private function kilometres(array $near, Producer $producer): ?int
+    {
+        if ($producer->lat === null || $producer->lng === null) {
+            return null;
+        }
+
+        [$lat1, $lng1, $lat2, $lng2] = array_map(deg2rad(...), [$near['lat'], $near['lng'], (float) $producer->lat, (float) $producer->lng]);
+        $a = sin(($lat2 - $lat1) / 2) ** 2 + cos($lat1) * cos($lat2) * sin(($lng2 - $lng1) / 2) ** 2;
+
+        return (int) round(6371 * 2 * asin(min(1, sqrt($a))));
+    }
+
     private function cards(string $city, string $search = ''): Builder
     {
         return Producer::published()
@@ -182,6 +246,8 @@ class ProducerController extends Controller
             // The owner has no one to message on their own page; everyone
             // else signed in can open a thread with this producer.
             'canMessage' => $user !== null && $producer->user_id !== $user->id,
+            // The owner answers reviews in public, right under them.
+            'canReply' => $user !== null && $producer->user_id === $user->id,
             // Following is a standing request to hear about new listings,
             // which is a different thing from bookmarking (task 20.5).
             'canFollow' => $user !== null && $producer->user_id !== $user->id,

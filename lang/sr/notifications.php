@@ -32,6 +32,7 @@ return [
 
     'review' => [
         'received' => ['title' => 'Novi utisak o vama', 'body' => 'Neko je ostavio utisak o „:producer”. Biće objavljen kada ga pregledamo.'],
+        'replied' => ['title' => 'Odgovor na vaš utisak', 'body' => '„:producer” je odgovorio na vaš utisak.'],
         'published' => ['title' => 'Vaš utisak je objavljen', 'body' => 'Utisak o „:producer” je od sada vidljiv svima.'],
     ],
 

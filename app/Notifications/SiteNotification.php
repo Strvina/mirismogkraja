@@ -92,6 +92,11 @@ class SiteNotification extends Notification
         return new self('review.received', ['producer' => $producerName], $url);
     }
 
+    public static function reviewReplied(string $producerName, string $url): self
+    {
+        return new self('review.replied', ['producer' => $producerName], $url);
+    }
+
     public static function reviewPublished(string $producerName, string $url): self
     {
         return new self('review.published', ['producer' => $producerName], $url);

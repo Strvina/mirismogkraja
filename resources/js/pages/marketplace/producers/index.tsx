@@ -10,7 +10,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Head, router } from '@inertiajs/react';
-import { Map as MapIcon } from 'lucide-react';
+import { LocateFixed, Map as MapIcon } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ProducersIndex({
@@ -25,7 +25,7 @@ export default function ProducersIndex({
     /** Present once the visitor has opened the map. */
     mapPoints?: MapPoint[];
     cities: string[];
-    filters: { city: string | null; q: string | null };
+    filters: { city: string | null; q: string | null; lat: number | null; lng: number | null };
 }) {
     const [showMap, setShowMap] = useState(false);
 
@@ -38,11 +38,45 @@ export default function ProducersIndex({
         setShowMap(!showMap);
     };
 
-    const visit = (patch: { city?: string | null; q?: string | null }) => {
+    const visit = (patch: Partial<typeof filters>) => {
         const next = { ...filters, ...patch };
 
-        router.get('/proizvodjaci', { city: next.city || undefined, q: next.q || undefined }, { preserveState: true, preserveScroll: true });
+        router.get(
+            '/proizvodjaci',
+            { city: next.city || undefined, q: next.q || undefined, lat: next.lat ?? undefined, lng: next.lng ?? undefined },
+            { preserveState: true, preserveScroll: true },
+        );
     };
+
+    // "Near me": the browser asks for permission; only a position rounded
+    // to about a kilometre leaves it.
+    const [locating, setLocating] = useState(false);
+    const [locationError, setLocationError] = useState<string | null>(null);
+
+    const nearMe = () => {
+        setLocationError(null);
+
+        if (!('geolocation' in navigator)) {
+            setLocationError(t('Vaš pregledač ne može da odredi lokaciju.'));
+
+            return;
+        }
+
+        setLocating(true);
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setLocating(false);
+                visit({ lat: Number(position.coords.latitude.toFixed(2)), lng: Number(position.coords.longitude.toFixed(2)) });
+            },
+            () => {
+                setLocating(false);
+                setLocationError(t('Lokacija nije dostupna. Dozvolite sajtu pristup lokaciji u pregledaču i pokušajte ponovo.'));
+            },
+            { maximumAge: 10 * 60 * 1000, timeout: 10_000 },
+        );
+    };
+
+    const sortedByDistance = filters.lat !== null && filters.lng !== null;
 
     const filterByCity = (city: string) => visit({ city });
 
@@ -68,6 +102,27 @@ export default function ProducersIndex({
             </div>
 
             <SearchBox value={filters.q ?? ''} onSearch={(q) => visit({ q })} placeholder={t('Pretraži proizvođače…')} className="mt-8 max-w-xl" />
+
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+                {sortedByDistance ? (
+                    <p className="text-muted-foreground">
+                        {t('Poređano po udaljenosti od vas')} ·{' '}
+                        <button
+                            type="button"
+                            className="hover:text-foreground underline underline-offset-4"
+                            onClick={() => visit({ lat: null, lng: null })}
+                        >
+                            {t('Poništi')}
+                        </button>
+                    </p>
+                ) : (
+                    <Button type="button" variant="outline" size="sm" onClick={nearMe} disabled={locating}>
+                        <LocateFixed className="size-4" />
+                        {locating ? t('Tražim lokaciju…') : t('Najbliži meni')}
+                    </Button>
+                )}
+                {locationError && <p className="text-destructive">{locationError}</p>}
+            </div>
 
             <div className="mt-6">
                 <Button type="button" variant="outline" size="sm" onClick={toggleMap} aria-expanded={showMap}>
