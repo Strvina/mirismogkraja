@@ -827,5 +827,8 @@
     "Ovaj proizvođač više nije na sajtu. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "Этого производителя больше нет на сайте. Переписка остаётся здесь, но отправлять сообщения больше нельзя.",
     "Ovaj korisnik je obrisao nalog. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "Этот пользователь удалил аккаунт. Переписка остаётся здесь, но отправлять сообщения больше нельзя.",
     "Administrator je sklonio ovaj proizvod sa sajta. Možete da ga ispravite, ali samo administrator može ponovo da ga objavi.": "Администратор снял этот товар с сайта. Вы можете его исправить, но снова опубликовать его может только администратор.",
-    "Obrisan korisnik": "Удалённый пользователь"
+    "Obrisan korisnik": "Удалённый пользователь",
+    ":category | Vrelina juga": ":category | Vrelina juga",
+    "Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.": "Домашние товары из категории «:category» — напрямую от производителей с юга Сербии.",
+    "Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.": "Познакомьтесь с местными производителями юга Сербии и пишите им напрямую, без посредников."
 }

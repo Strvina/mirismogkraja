@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\KeepsOldSlugs;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory;
+    use HasFactory, KeepsOldSlugs;
 
     /** Set only by an administrator; the owner cannot lift it. */
     public const STATUS_BLOCKED = 'blocked';

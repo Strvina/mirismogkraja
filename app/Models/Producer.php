@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\KeepsOldSlugs;
 use Database\Factories\ProducerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Producer extends Model
 {
     /** @use HasFactory<ProducerFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, KeepsOldSlugs, SoftDeletes;
 
     /**
      * The underlying table predates this class's Household -> Producer

@@ -814,5 +814,8 @@
     "Ovaj proizvođač više nije na sajtu. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "This producer is no longer on the site. The conversation stays here, but no more messages can be sent.",
     "Ovaj korisnik je obrisao nalog. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "This user has deleted their account. The conversation stays here, but no more messages can be sent.",
     "Administrator je sklonio ovaj proizvod sa sajta. Možete da ga ispravite, ali samo administrator može ponovo da ga objavi.": "An administrator has taken this product off the site. You can correct it, but only an administrator can publish it again.",
-    "Obrisan korisnik": "Deleted user"
+    "Obrisan korisnik": "Deleted user",
+    ":category | Vrelina juga": ":category | Vrelina juga",
+    "Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.": "Homemade “:category”, straight from producers in southern Serbia.",
+    "Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.": "Meet local producers from southern Serbia and write to them directly, with no middleman."
 }

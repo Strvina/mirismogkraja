@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -46,6 +47,13 @@ class SitemapController extends Controller
             ['loc' => route('marketplace.producers.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.products.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.founding'), 'priority' => '0.5', 'changefreq' => 'weekly'],
+            // Categories with something in them.
+            ...Category::query()
+                ->whereHas('products', fn ($query) => $query->published())
+                ->orderBy('name')
+                ->pluck('slug')
+                ->map(fn (string $slug) => ['loc' => route('marketplace.categories.show', $slug), 'priority' => '0.8', 'changefreq' => 'daily'])
+                ->all(),
             ['loc' => route('legal.terms'), 'priority' => '0.3', 'changefreq' => 'yearly'],
             ['loc' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'yearly'],
         ]])->render());

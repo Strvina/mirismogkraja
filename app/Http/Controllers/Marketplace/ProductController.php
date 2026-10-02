@@ -35,6 +35,23 @@ class ProductController extends Controller
      */
     public function index(Request $request, BoostService $boosts): Response
     {
+        return $this->listing($request, $boosts);
+    }
+
+    /**
+     * A category's own page (/kategorija/med): the same list, filtered, with
+     * an address, a title and a description a search engine can show for
+     * "domaći med" - a query-string filter has none of those.
+     */
+    public function category(Request $request, Category $category, BoostService $boosts): Response
+    {
+        $request->merge(['category_id' => $category->id]);
+
+        return $this->listing($request, $boosts, $category);
+    }
+
+    private function listing(Request $request, BoostService $boosts, ?Category $category = null): Response
+    {
         $sort = $request->string('sort')->toString();
 
         $products = $this->filtered($request)
@@ -76,7 +93,16 @@ class ProductController extends Controller
             'is_favorited' => $favoritedIds->contains($product->id),
         ];
 
+        $name = $category ? __($category->name) : null;
+
         return Inertia::render('marketplace/products/index', [
+            'meta' => $category
+                ? PageMeta::make(
+                    __(':category | Vrelina juga', ['category' => $name]),
+                    __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name]),
+                )
+                : PageMeta::make(__('Proizvodi | Vrelina juga'), __('Domaći proizvodi, direktno od ljudi koji ih prave.')),
+            'category' => $category?->only(['id', 'name', 'slug']),
             'products' => $products->through($card),
             'featured' => $featured->map($card)->values(),
             'categories' => Category::orderBy('name')->get(['id', 'name']),

@@ -14,6 +14,7 @@ Route::redirect('/prvih-100', '/osnivaci', 301);
 Route::get('/kampanja/{campaign:slug}', [CampaignController::class, 'show'])->name('campaigns.show');
 Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])->name('marketplace.producers.show');
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
+Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->name('marketplace.categories.show');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {

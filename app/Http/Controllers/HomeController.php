@@ -9,6 +9,7 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\WeeklyPick;
 use App\Services\SubscriptionService;
+use App\Support\PageMeta;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -68,6 +69,10 @@ class HomeController extends Controller
         $subscriptions->markPremium($everyone);
 
         return Inertia::render('welcome', [
+            'meta' => PageMeta::make(
+                __('Vrelina juga | Domaći proizvođači sa juga Srbije'),
+                __('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije.'),
+            ),
             // Seasonal campaigns under way, announced at the top of the page.
             'campaigns' => Campaign::running()
                 ->withCount(['participants as producers_count' => fn ($query) => $query->where('status', CampaignParticipant::STATUS_ACTIVE)])
@@ -83,11 +88,11 @@ class HomeController extends Controller
             'popularProducts' => $this->mapProducts(),
             // Which categories have anything in them changes rarely, and
             // finding out means looking through the whole catalogue.
-            'categories' => Cache::remember('home:categories', self::RANKING_SECONDS, fn () => Category::query()
+            'categories' => Cache::remember('home:categories:v2', self::RANKING_SECONDS, fn () => Category::query()
                 ->whereHas('products', fn ($query) => $query->published())
                 ->orderBy('name')
                 ->take(6)
-                ->get(['id', 'name'])
+                ->get(['id', 'name', 'slug'])
                 ->toArray()),
         ]);
     }
