@@ -23,6 +23,8 @@ class ProducerStatistics
 
     public const PRODUCT_VIEW = 'product_view';
 
+    public const QR_SCAN = 'qr_scan';
+
     /**
      * Contact actions a visitor's browser reports. Views are counted by the
      * server; these happen after the page has loaded, so they arrive on
@@ -35,6 +37,8 @@ class ProducerStatistics
         'viber_click' => 'Viber',
         'whatsapp_click' => 'WhatsApp',
         'email_click' => 'E-mail',
+        // Recorded when the page is opened from the stall poster's QR code.
+        self::QR_SCAN => 'Skeniran QR kod sa postera',
     ];
 
     /**
