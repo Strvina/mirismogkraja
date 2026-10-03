@@ -4,6 +4,7 @@ namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Vite;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -16,6 +17,10 @@ abstract class TestCase extends BaseTestCase
         // the site as a Serbian visitor does; tests of the other languages
         // say so themselves.
         $this->withHeader('Accept-Language', 'sr');
+
+        // As if no `composer dev` were running, whether or not one is: a
+        // hot file that never exists, so pages behave as on a live site.
+        Vite::useHotFile(storage_path('framework/testing.hot'));
     }
 
     /**

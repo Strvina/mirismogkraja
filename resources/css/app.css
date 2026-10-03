@@ -1,3 +1,7 @@
+/* The two typefaces, bundled and served from the site: no request to a
+   third-party font host, and the error pages get them too. */
+@import '@fontsource-variable/lora';
+@import '@fontsource-variable/manrope';
 @import 'tailwindcss';
 
 @plugin 'tailwindcss-animate';
