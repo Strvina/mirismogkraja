@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProducerImage extends Model
 {
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'path',
         'caption',
         'order',
@@ -16,6 +16,6 @@ class ProducerImage extends Model
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 }

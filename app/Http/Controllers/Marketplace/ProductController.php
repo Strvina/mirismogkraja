@@ -170,11 +170,11 @@ class ProductController extends Controller
     {
         return Product::query()
             ->published()
-            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'season_from', 'season_to', 'created_at'])
+            ->select(['id', 'producer_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'season_from', 'season_to', 'created_at'])
             ->with(['images:id,product_id,path,order', 'producer:id,name,city'])
             ->when($request->filled('q'), fn ($query) => Search::apply($query, self::SEARCHED, $request->string('q')->toString()))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
-            ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('household_id', $producerId))
+            ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('producer_id', $producerId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
                 'producer',
                 fn ($q) => $q->where('city', $city)

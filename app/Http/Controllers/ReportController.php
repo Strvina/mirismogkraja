@@ -25,7 +25,7 @@ class ReportController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'reportable_type' => ['required', Rule::in(['household', 'product', 'user'])],
+            'reportable_type' => ['required', Rule::in(['producer', 'product', 'user'])],
             'reportable_id' => ['required', 'integer'],
             'reason' => ['required', Rule::in(array_keys(Report::REASONS))],
             'message' => ['nullable', 'string', 'max:1000'],

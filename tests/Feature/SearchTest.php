@@ -28,7 +28,7 @@ class SearchTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->onMySql()) {
-            foreach (['products', 'households', 'categories', 'users'] as $table) {
+            foreach (['products', 'producers', 'categories', 'users'] as $table) {
                 DB::table($table)->delete();
             }
         }

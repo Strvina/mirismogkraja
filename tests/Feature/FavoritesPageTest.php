@@ -24,7 +24,7 @@ class FavoritesPageTest extends TestCase
         $producer = Producer::factory()->active()->create(['name' => 'Moje omiljeno']);
         $product = Product::factory()->for(Producer::factory()->active())->create(['name' => 'Omiljeni proizvod']);
 
-        Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'household', 'favoritable_id' => $producer->id]);
+        Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'producer', 'favoritable_id' => $producer->id]);
         Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'product', 'favoritable_id' => $product->id]);
 
         $response = $this->actingAs($user)->get(route('favorites.index'));
@@ -42,7 +42,7 @@ class FavoritesPageTest extends TestCase
         $blocked = Producer::factory()->create(['status' => 'blocked']);
         $draft = Product::factory()->for(Producer::factory()->active())->create(['status' => 'draft']);
 
-        Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'household', 'favoritable_id' => $blocked->id]);
+        Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'producer', 'favoritable_id' => $blocked->id]);
         Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'product', 'favoritable_id' => $draft->id]);
 
         $this->actingAs($user)->get(route('favorites.index'))

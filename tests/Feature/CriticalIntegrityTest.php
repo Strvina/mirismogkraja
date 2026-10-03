@@ -53,7 +53,7 @@ class CriticalIntegrityTest extends TestCase
             ->assertRedirect(route('messages.show', $producer->slug));
 
         $this->assertDatabaseHas('producer_messages', [
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'product_id' => $product->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $buyer->id,
@@ -66,7 +66,7 @@ class CriticalIntegrityTest extends TestCase
         $producer = Producer::factory()->for($owner)->active()->create();
 
         ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $owner->id,
             'sender_id' => $owner->id,
             'body' => 'Poruka',

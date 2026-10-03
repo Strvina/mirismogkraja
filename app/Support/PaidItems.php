@@ -94,7 +94,7 @@ final class PaidItems
     {
         return match (true) {
             // A producer may have several; the page opens on this one.
-            $item instanceof ProducerSubscription => route('memberships.index', ['proizvodjac' => $item->household_id, ...$query]),
+            $item instanceof ProducerSubscription => route('memberships.index', ['proizvodjac' => $item->producer_id, ...$query]),
             $item instanceof Boost => route('boosts.index', $query),
             default => route('campaigns.index', $query),
         };

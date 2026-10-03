@@ -26,7 +26,7 @@ class Product extends Model
     public const OWNER_STATUSES = ['draft', 'active', 'archived'];
 
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'category_id',
         'name',
         'slug',
@@ -51,7 +51,7 @@ class Product extends Model
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     /**

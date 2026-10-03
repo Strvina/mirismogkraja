@@ -166,7 +166,7 @@ class ProducerCrudTest extends TestCase
         $this->actingAs($user)->delete(route('producers.destroy', $producer))
             ->assertRedirect(route('producers.index'));
 
-        $this->assertSoftDeleted('households', ['id' => $producer->id]);
+        $this->assertSoftDeleted('producers', ['id' => $producer->id]);
         $this->assertNotNull(Producer::withTrashed()->find($producer->id));
     }
 }

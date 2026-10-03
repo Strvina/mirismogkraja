@@ -39,8 +39,8 @@ class ProducerController extends Controller
             // list says so - otherwise the name simply not changing reads as
             // the save having failed.
             'pendingChanges' => ProducerChangeRequest::pending()
-                ->whereIn('household_id', $request->user()->producers()->pluck('id'))
-                ->get(['id', 'household_id', 'field', 'requested_value']),
+                ->whereIn('producer_id', $request->user()->producers()->pluck('id'))
+                ->get(['id', 'producer_id', 'field', 'requested_value']),
         ]);
     }
 

@@ -66,10 +66,10 @@ class NotificationCoverageTest extends TestCase
 
         $producer = Producer::factory()->active()->create();
         $buyer = User::factory()->create();
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
         $this->actingAs($buyer)->post(route('reviews.store', $producer), ['rating' => 5]);
-        $this->actingAs($buyer)->post(route('reports.store'), ['reportable_type' => 'household', 'reportable_id' => $producer->id, 'reason' => 'spam']);
+        $this->actingAs($buyer)->post(route('reports.store'), ['reportable_type' => 'producer', 'reportable_id' => $producer->id, 'reason' => 'spam']);
 
         $types = $this->typesFor($this->admin);
         $this->assertContains('admin.review-pending', $types);

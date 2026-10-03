@@ -95,7 +95,7 @@ class HandleInertiaRequests extends Middleware
             ->count();
 
         $asSeller = ProducerMessage::query()
-            ->whereIn('household_id', $user->producers()->select('id'))
+            ->whereIn('producer_id', $user->producers()->select('id'))
             ->whereNull('read_at')
             ->where('sender_id', '!=', $user->id)
             ->count();

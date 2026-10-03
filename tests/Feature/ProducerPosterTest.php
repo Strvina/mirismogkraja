@@ -43,6 +43,6 @@ class ProducerPosterTest extends TestCase
             ->get(ProducerPosterPdf::url($producer))
             ->assertOk();
 
-        $this->assertSame(1, (int) DB::table('producer_stats')->where('household_id', $producer->id)->where('event', ProducerStatistics::QR_SCAN)->sum('hits'));
+        $this->assertSame(1, (int) DB::table('producer_stats')->where('producer_id', $producer->id)->where('event', ProducerStatistics::QR_SCAN)->sum('hits'));
     }
 }

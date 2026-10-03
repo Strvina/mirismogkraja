@@ -44,7 +44,7 @@ class NearbyAndReviewRepliesTest extends TestCase
     {
         $author = User::factory()->create();
         $producer = Producer::factory()->active()->create();
-        $review = Review::create(['user_id' => $author->id, 'household_id' => $producer->id, 'rating' => 3, 'comment' => 'Kasnila dostava', 'status' => Review::STATUS_APPROVED]);
+        $review = Review::create(['user_id' => $author->id, 'producer_id' => $producer->id, 'rating' => 3, 'comment' => 'Kasnila dostava', 'status' => Review::STATUS_APPROVED]);
 
         $this->actingAs($producer->user)->put(route('reviews.reply', $review), ['reply' => 'Izvinite, bila je gužva.'])->assertSessionHasNoErrors();
         $this->actingAs($producer->user)->put(route('reviews.reply', $review), ['reply' => 'Izvinite, bila je gužva na putu.']);
@@ -68,8 +68,8 @@ class NearbyAndReviewRepliesTest extends TestCase
     public function test_only_the_reviewed_producer_answers_and_only_published_reviews(): void
     {
         $producer = Producer::factory()->active()->create();
-        $approved = Review::create(['user_id' => User::factory()->create()->id, 'household_id' => $producer->id, 'rating' => 5, 'status' => Review::STATUS_APPROVED]);
-        $pending = Review::create(['user_id' => User::factory()->create()->id, 'household_id' => $producer->id, 'rating' => 5, 'status' => Review::STATUS_PENDING]);
+        $approved = Review::create(['user_id' => User::factory()->create()->id, 'producer_id' => $producer->id, 'rating' => 5, 'status' => Review::STATUS_APPROVED]);
+        $pending = Review::create(['user_id' => User::factory()->create()->id, 'producer_id' => $producer->id, 'rating' => 5, 'status' => Review::STATUS_PENDING]);
 
         $this->actingAs(User::factory()->create())->put(route('reviews.reply', $approved), ['reply' => 'Hvala'])->assertForbidden();
         $this->actingAs($producer->user)->put(route('reviews.reply', $pending), ['reply' => 'Hvala'])->assertForbidden();

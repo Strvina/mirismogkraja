@@ -46,7 +46,7 @@ class ResponseTime
     public function medianHours(Producer $producer): ?float
     {
         $messages = ProducerMessage::query()
-            ->where('household_id', $producer->id)
+            ->where('producer_id', $producer->id)
             ->where('created_at', '>=', now()->subDays(self::WINDOW_DAYS))
             ->orderBy('id')
             ->limit(self::MAX_MESSAGES)

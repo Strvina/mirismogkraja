@@ -23,7 +23,7 @@ class ProductFactory extends Factory
         $name = fake()->words(2, true);
 
         return [
-            'household_id' => Producer::factory(),
+            'producer_id' => Producer::factory(),
             'category_id' => Category::factory(),
             'name' => $name,
             'slug' => Str::slug($name).'-'.fake()->unique()->randomNumber(5),

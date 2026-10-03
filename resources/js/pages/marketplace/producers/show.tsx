@@ -197,8 +197,8 @@ export default function ProducerShow({
                             </Link>
                         </Button>
                     )}
-                    {auth.user && <FavoriteButton type="household" id={producer.id} isFavorited={isFavorited} />}
-                    {canReport && <ReportButton type="household" id={producer.id} reasons={reportReasons} />}
+                    {auth.user && <FavoriteButton type="producer" id={producer.id} isFavorited={isFavorited} />}
+                    {canReport && <ReportButton type="producer" id={producer.id} reasons={reportReasons} />}
                 </div>
             </div>
 

@@ -30,12 +30,12 @@ class Boost extends Model implements Payable
     public const STATUSES = [self::STATUS_PENDING, self::STATUS_ACTIVE, self::STATUS_EXPIRED, self::STATUS_CANCELLED];
 
     /** What can be boosted, by morph alias. */
-    public const PROFILE = 'household';
+    public const PROFILE = 'producer';
 
     public const PRODUCT = 'product';
 
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'boostable_type',
         'boostable_id',
         'status',
@@ -61,7 +61,7 @@ class Boost extends Model implements Payable
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     public function boostable(): MorphTo

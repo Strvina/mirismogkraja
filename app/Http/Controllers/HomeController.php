@@ -59,7 +59,7 @@ class HomeController extends Controller
         // while the producer - and the product, if one was picked - is
         // still public.
         $pick = WeeklyPick::current()->first();
-        $weeklyProducer = $pick ? $this->publishedProducers()->find($pick->household_id) : null;
+        $weeklyProducer = $pick ? $this->publishedProducers()->find($pick->producer_id) : null;
         $weeklyProduct = $weeklyProducer && $pick->product_id
             ? $this->productCards()->find($pick->product_id)
             : null;
@@ -130,13 +130,13 @@ class HomeController extends Controller
     {
         return Product::query()
             ->where('products.status', 'active')
-            ->whereIn('household_id', $producerIds)
+            ->whereIn('producer_id', $producerIds)
             ->join('categories', 'categories.id', '=', 'products.category_id')
             ->distinct()
             ->orderBy('categories.name')
             ->toBase()
-            ->get(['products.household_id', 'categories.name'])
-            ->groupBy('household_id')
+            ->get(['products.producer_id', 'categories.name'])
+            ->groupBy('producer_id')
             ->map(fn (Collection $rows) => $rows->pluck('name')->take(2)->values());
     }
 
@@ -231,7 +231,7 @@ class HomeController extends Controller
     private function productCards(): Builder
     {
         return Product::published()
-            ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'created_at'])
+            ->select(['id', 'producer_id', 'name', 'slug', 'price', 'unit', 'created_at'])
             ->with(['producer:id,name,slug,city', 'images:id,product_id,path,order']);
     }
 

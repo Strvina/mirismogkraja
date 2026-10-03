@@ -60,7 +60,7 @@ class HomePageTest extends TestCase
         $saved = Producer::factory()->active()->create(['name' => 'Sačuvani']);
         $reviewed = Producer::factory()->active()->create(['name' => 'Ocenjeni']);
 
-        Favorite::factory()->count(2)->create(['favoritable_type' => 'household', 'favoritable_id' => $saved->id]);
+        Favorite::factory()->count(2)->create(['favoritable_type' => 'producer', 'favoritable_id' => $saved->id]);
         Review::factory()->for($reviewed, 'producer')->create();
 
         $this->get('/')->assertOk()->assertInertia(

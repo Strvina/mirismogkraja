@@ -20,7 +20,7 @@ export default function ReportButton({
     reasons,
     label = tx('Prijavi problem'),
 }: {
-    /** Morph alias, not a class name: 'household' | 'product' | 'user'. */
+    /** Morph alias, not a class name: 'producer' | 'product' | 'user'. */
     type: string;
     id: number;
     reasons: Record<string, string>;

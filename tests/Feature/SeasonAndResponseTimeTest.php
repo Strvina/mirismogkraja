@@ -84,7 +84,7 @@ class SeasonAndResponseTimeTest extends TestCase
 
     private function message(Producer $producer, User $buyer, User $sender, $at): void
     {
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $sender->id, 'body' => 'x'])
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $sender->id, 'body' => 'x'])
             ->forceFill(['created_at' => $at])
             ->save();
     }

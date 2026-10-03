@@ -24,11 +24,11 @@ class BoostController extends Controller
         $producers = $request->user()->producers()
             ->published()
             ->orderBy('name')
-            ->with(['products' => fn ($query) => $query->where('status', 'active')->orderBy('name')->select(['id', 'household_id', 'name'])])
+            ->with(['products' => fn ($query) => $query->where('status', 'active')->orderBy('name')->select(['id', 'producer_id', 'name'])])
             ->get(['id', 'name']);
 
         $history = Boost::query()
-            ->whereIn('household_id', $request->user()->producers()->select('id'))
+            ->whereIn('producer_id', $request->user()->producers()->select('id'))
             ->with(['boostable', 'producer.user'])
             ->latest()
             ->limit(30)

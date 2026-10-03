@@ -17,7 +17,7 @@ export interface ProductImage {
 
 export interface Product {
     id: number;
-    household_id: number;
+    producer_id: number;
     category_id: number;
     category?: Category;
     images?: ProductImage[];
@@ -44,7 +44,7 @@ export interface SiteNotification {
 export interface Review {
     id: number;
     user_id: number;
-    household_id: number;
+    producer_id: number;
     rating: number;
     comment: string | null;
     /** The producer's public answer, if they gave one. */

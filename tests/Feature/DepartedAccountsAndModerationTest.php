@@ -26,7 +26,7 @@ class DepartedAccountsAndModerationTest extends TestCase
     {
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Imate li meda?']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Imate li meda?']);
 
         return [$buyer, $producer];
     }
@@ -64,7 +64,7 @@ class DepartedAccountsAndModerationTest extends TestCase
     {
         $author = User::factory()->create(['name' => 'Petar Petrović']);
         $producer = Producer::factory()->active()->create();
-        Review::create(['user_id' => $author->id, 'household_id' => $producer->id, 'rating' => 5, 'status' => Review::STATUS_APPROVED]);
+        Review::create(['user_id' => $author->id, 'producer_id' => $producer->id, 'rating' => 5, 'status' => Review::STATUS_APPROVED]);
 
         $this->actingAs($author)->delete(route('profile.destroy'), ['password' => 'password']);
 

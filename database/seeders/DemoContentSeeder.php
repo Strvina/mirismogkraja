@@ -137,7 +137,7 @@ class DemoContentSeeder extends Seeder
         $boosts->request($producers[1], $producers[1]);
 
         WeeklyPick::create([
-            'household_id' => $producers[1]->id,
+            'producer_id' => $producers[1]->id,
             'product_id' => $producers[1]->products()->where('status', 'active')->value('id'),
             'starts_on' => WeeklyPick::weekOf()->toDateString(),
             'created_by' => $admin->id,
@@ -162,7 +162,7 @@ class DemoContentSeeder extends Seeder
         foreach ([$producers[0], $producers[4]] as $producer) {
             CampaignParticipant::create([
                 'campaign_id' => $campaign->id,
-                'household_id' => $producer->id,
+                'producer_id' => $producer->id,
                 'status' => CampaignParticipant::STATUS_ACTIVE,
                 'reference' => PaymentReference::generate(),
                 'amount_rsd' => $campaign->price_rsd,
@@ -175,7 +175,7 @@ class DemoContentSeeder extends Seeder
 
         CampaignParticipant::create([
             'campaign_id' => $campaign->id,
-            'household_id' => $producers[3]->id,
+            'producer_id' => $producers[3]->id,
             'status' => CampaignParticipant::STATUS_PENDING,
             'reference' => PaymentReference::generate(),
             'amount_rsd' => $campaign->price_rsd,
@@ -197,11 +197,11 @@ class DemoContentSeeder extends Seeder
 
             foreach (range(0, 29) as $daysAgo) {
                 $date = today()->subDays($daysAgo)->toDateString();
-                $rows[] = ['household_id' => $producer->id, 'product_id' => 0, 'event' => 'profile_view', 'date' => $date, 'hits' => fake()->numberBetween(3, 25)];
-                $rows[] = ['household_id' => $producer->id, 'product_id' => 0, 'event' => 'phone_reveal', 'date' => $date, 'hits' => fake()->numberBetween(0, 3)];
+                $rows[] = ['producer_id' => $producer->id, 'product_id' => 0, 'event' => 'profile_view', 'date' => $date, 'hits' => fake()->numberBetween(3, 25)];
+                $rows[] = ['producer_id' => $producer->id, 'product_id' => 0, 'event' => 'phone_reveal', 'date' => $date, 'hits' => fake()->numberBetween(0, 3)];
 
                 foreach ($products as $productId) {
-                    $rows[] = ['household_id' => $producer->id, 'product_id' => $productId, 'event' => 'product_view', 'date' => $date, 'hits' => fake()->numberBetween(1, 12)];
+                    $rows[] = ['producer_id' => $producer->id, 'product_id' => $productId, 'event' => 'product_view', 'date' => $date, 'hits' => fake()->numberBetween(1, 12)];
                 }
             }
         }
@@ -369,7 +369,7 @@ class DemoContentSeeder extends Seeder
                 : null;
 
             ProducerMessage::create([
-                'household_id' => $producer->id,
+                'producer_id' => $producer->id,
                 'product_id' => $product?->id,
                 'buyer_id' => $buyer->id,
                 'sender_id' => $buyer->id,
@@ -384,7 +384,7 @@ class DemoContentSeeder extends Seeder
             }
 
             ProducerMessage::create([
-                'household_id' => $producer->id,
+                'producer_id' => $producer->id,
                 'buyer_id' => $buyer->id,
                 'sender_id' => $producer->user_id,
                 'body' => $replies[$index],
@@ -419,7 +419,7 @@ class DemoContentSeeder extends Seeder
             $producer = $producers[$index % count($producers)];
 
             $answered = ProducerMessage::query()
-                ->where('household_id', $producer->id)
+                ->where('producer_id', $producer->id)
                 ->where('buyer_id', $buyer->id)
                 ->where('sender_id', $producer->user_id)
                 ->exists();
@@ -437,7 +437,7 @@ class DemoContentSeeder extends Seeder
 
             Review::create([
                 'user_id' => $buyer->id,
-                'household_id' => $producer->id,
+                'producer_id' => $producer->id,
                 'rating' => $rating,
                 'comment' => $comments[$rating],
                 // The first reviewer attaches a photo, so the review-image

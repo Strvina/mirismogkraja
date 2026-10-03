@@ -34,7 +34,7 @@ class ReportAndVerificationTest extends TestCase
         $producer = Producer::factory()->active()->create();
 
         $this->actingAs($buyer)->post(route('reports.store'), [
-            'reportable_type' => 'household',
+            'reportable_type' => 'producer',
             'reportable_id' => $producer->id,
             'reason' => 'prevara',
             'message' => 'Uplatio sam, nije poslao.',
@@ -84,7 +84,7 @@ class ReportAndVerificationTest extends TestCase
         $producer = Producer::factory()->active()->create();
 
         $this->actingAs(User::factory()->create())->post(route('reports.store'), [
-            'reportable_type' => 'household',
+            'reportable_type' => 'producer',
             'reportable_id' => $producer->id,
             'reason' => 'sta-god',
         ])->assertSessionHasErrors('reason');
@@ -97,10 +97,10 @@ class ReportAndVerificationTest extends TestCase
         $producer = Producer::factory()->active()->create();
 
         $this->actingAs($buyer)->post(route('reports.store'), [
-            'reportable_type' => 'household', 'reportable_id' => $producer->id, 'reason' => 'spam',
+            'reportable_type' => 'producer', 'reportable_id' => $producer->id, 'reason' => 'spam',
         ]);
         $this->actingAs($buyer)->post(route('reports.store'), [
-            'reportable_type' => 'household', 'reportable_id' => $producer->id, 'reason' => 'prevara',
+            'reportable_type' => 'producer', 'reportable_id' => $producer->id, 'reason' => 'prevara',
         ]);
 
         $this->assertSame('prevara', Report::sole()->reason);
@@ -111,7 +111,7 @@ class ReportAndVerificationTest extends TestCase
         $producer = Producer::factory()->active()->create();
 
         $this->post(route('reports.store'), [
-            'reportable_type' => 'household', 'reportable_id' => $producer->id, 'reason' => 'spam',
+            'reportable_type' => 'producer', 'reportable_id' => $producer->id, 'reason' => 'spam',
         ])->assertRedirect(route('login'));
     }
 
@@ -121,7 +121,7 @@ class ReportAndVerificationTest extends TestCase
         $buyer = User::factory()->create();
         $producer = Producer::factory()->active()->create();
         $this->actingAs($buyer)->post(route('reports.store'), [
-            'reportable_type' => 'household', 'reportable_id' => $producer->id, 'reason' => 'spam',
+            'reportable_type' => 'producer', 'reportable_id' => $producer->id, 'reason' => 'spam',
         ]);
 
         $report = Report::sole();

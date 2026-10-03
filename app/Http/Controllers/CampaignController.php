@@ -33,7 +33,7 @@ class CampaignController extends Controller
 
         $producers = Producer::published()
             ->withCardData()
-            ->whereIn('id', $campaign->participants()->where('status', CampaignParticipant::STATUS_ACTIVE)->select('household_id'))
+            ->whereIn('id', $campaign->participants()->where('status', CampaignParticipant::STATUS_ACTIVE)->select('producer_id'))
             ->orderBy('name')
             ->get();
 
@@ -52,7 +52,7 @@ class CampaignController extends Controller
         $producers = $request->user()->producers()->published()->orderBy('name')->get(['id', 'name']);
 
         $places = CampaignParticipant::query()
-            ->whereIn('household_id', $request->user()->producers()->select('id'))
+            ->whereIn('producer_id', $request->user()->producers()->select('id'))
             ->with(['campaign', 'producer.user'])
             ->latest()
             ->get();
@@ -63,7 +63,7 @@ class CampaignController extends Controller
             'places' => $places->map(fn (CampaignParticipant $place) => [
                 'id' => $place->id,
                 'campaign_id' => $place->campaign_id,
-                'household_id' => $place->household_id,
+                'producer_id' => $place->producer_id,
                 'campaign' => $place->campaign->name,
                 'producer' => $place->producer->name,
                 'status' => $place->status,
@@ -87,7 +87,7 @@ class CampaignController extends Controller
         $producer = Producer::published()->findOrFail($data['producer_id']);
         $this->authorize('update', $producer);
 
-        $place = CampaignParticipant::firstOrNew(['campaign_id' => $campaign->id, 'household_id' => $producer->id]);
+        $place = CampaignParticipant::firstOrNew(['campaign_id' => $campaign->id, 'producer_id' => $producer->id]);
 
         if ($place->status === CampaignParticipant::STATUS_ACTIVE) {
             throw ValidationException::withMessages(['producer_id' => __('„:name” već učestvuje u ovoj kampanji.', ['name' => $producer->name])]);

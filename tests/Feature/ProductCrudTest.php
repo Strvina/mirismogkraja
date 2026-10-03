@@ -38,7 +38,7 @@ class ProductCrudTest extends TestCase
         $response->assertRedirect(route('producers.products.index', $producer));
 
         $product = Product::sole();
-        $this->assertSame($producer->id, $product->household_id);
+        $this->assertSame($producer->id, $product->producer_id);
         $this->assertSame('domaci-ajvar', $product->slug);
     }
 

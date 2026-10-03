@@ -28,7 +28,7 @@ class WeeklyPickController extends Controller
     {
         $recent = WeeklyPick::query()
             ->whereDate('starts_on', '>=', WeeklyPick::weekOf()->subWeeks(WeeklyPick::REPEAT_AFTER_WEEKS))
-            ->pluck('household_id')
+            ->pluck('producer_id')
             ->unique();
 
         return Inertia::render('admin/weekly-picks/index', [
@@ -53,7 +53,7 @@ class WeeklyPickController extends Controller
             // Asked for by the form once a producer is chosen, as a partial
             // reload - the page never loads every product of every producer.
             'products' => Inertia::optional(fn () => Product::query()
-                ->where('household_id', $request->integer('producer'))
+                ->where('producer_id', $request->integer('producer'))
                 ->where('status', 'active')
                 ->orderBy('name')
                 ->get(['id', 'name'])),
@@ -67,11 +67,11 @@ class WeeklyPickController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'household_id' => ['required', 'integer', Rule::exists('households', 'id')->where('status', 'active')->whereNull('deleted_at')],
+            'producer_id' => ['required', 'integer', Rule::exists('producers', 'id')->where('status', 'active')->whereNull('deleted_at')],
             'product_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('products', 'id')->where('household_id', $request->integer('household_id'))->where('status', 'active'),
+                Rule::exists('products', 'id')->where('producer_id', $request->integer('producer_id'))->where('status', 'active'),
             ],
             'starts_on' => ['required', Rule::in($this->weeks())],
         ]);
@@ -79,7 +79,7 @@ class WeeklyPickController extends Controller
         // Found through whereDate rather than updateOrCreate: SQLite keeps
         // the date with a time, so an exact match on the bare date misses.
         $pick = WeeklyPick::whereDate('starts_on', $data['starts_on'])->first() ?? new WeeklyPick;
-        $changed = $pick->household_id !== (int) $data['household_id'];
+        $changed = $pick->producer_id !== (int) $data['producer_id'];
 
         $pick->fill([...$data, 'created_by' => $request->user()->id])->save();
 

@@ -178,7 +178,7 @@ class ProfileUpdateTest extends TestCase
             ->assertRedirect('/');
 
         $this->assertSoftDeleted('users', ['id' => $user->id]);
-        $this->assertSoftDeleted('households', ['id' => $producer->id]);
+        $this->assertSoftDeleted('producers', ['id' => $producer->id]);
         $this->assertNotNull(User::withTrashed()->find($user->id));
     }
 

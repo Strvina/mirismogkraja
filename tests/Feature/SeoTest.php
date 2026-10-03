@@ -72,7 +72,7 @@ class SeoTest extends TestCase
     public function test_a_producer_page_describes_itself_as_a_local_business(): void
     {
         $producer = Producer::factory()->active()->create(['city' => 'Leskovac', 'lat' => 42.99, 'lng' => 21.94]);
-        Review::create(['user_id' => User::factory()->create()->id, 'household_id' => $producer->id, 'rating' => 4, 'status' => Review::STATUS_APPROVED]);
+        Review::create(['user_id' => User::factory()->create()->id, 'producer_id' => $producer->id, 'rating' => 4, 'status' => Review::STATUS_APPROVED]);
 
         $this->get(route('marketplace.producers.show', $producer->slug))->assertOk()
             ->assertSee('"@type":"LocalBusiness"', false)
