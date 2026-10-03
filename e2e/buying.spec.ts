@@ -26,6 +26,18 @@ test('a buyer sends an inquiry from a product page and lands in the conversation
 
     await expect(page).toHaveURL(/\/poruke\//);
     await expect(page.getByText(message)).toBeVisible();
+
+    // A follow-up from the conversation itself: shown at once, and still
+    // there once the server has it.
+    const followUp = `I još nešto: da li šaljete kurirom? (${Date.now()})`;
+    await page.getByRole('textbox', { name: 'Poruka', exact: true }).fill(followUp);
+    await page.getByRole('textbox', { name: 'Poruka', exact: true }).press('Enter');
+    await expect(page.getByText(followUp)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: 'Poruka', exact: true })).toHaveValue('');
+
+    await page.reload();
+    await expect(page.getByText(followUp)).toBeVisible();
+    await expect(page.getByText('Nije poslato')).toHaveCount(0);
 });
 
 test('a category has its own page', async ({ page }) => {
