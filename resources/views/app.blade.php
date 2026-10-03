@@ -25,13 +25,13 @@
             @endif
             @if (! empty($meta['structured']))
                 {{-- JSON_HEX_TAG turns < and > into escapes, so no value can close the tag early. --}}
-                <script type="application/ld+json">{!! json_encode($meta['structured'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
+                <script type="application/ld+json" nonce="{{ Vite::cspNonce() }}">{!! json_encode($meta['structured'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
             @endif
         @endif
 
 
         {{-- The admin panel's routes only for admins; see config/ziggy.php. --}}
-        @routes(auth()->user()?->hasRole('admin') ? null : 'public')
+        @routes(auth()->user()?->hasRole('admin') ? null : 'public', Vite::cspNonce())
         @viteReactRefresh
         @vite(['resources/js/app.tsx', "resources/js/pages/{$page['component']}.tsx"])
         @inertiaHead

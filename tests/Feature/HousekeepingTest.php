@@ -19,7 +19,7 @@ class HousekeepingTest extends TestCase
         $product = Product::factory()->for(Producer::factory()->active())->create(['price' => 850, 'stock_quantity' => 3]);
 
         $this->get(route('marketplace.products.show', $product->slug))
-            ->assertSee('<script type="application/ld+json">', false)
+            ->assertSee('<script type="application/ld+json" nonce=', false)
             ->assertSee('"priceCurrency":"RSD"', false)
             ->assertSee('"price":"850.00"', false)
             ->assertSee('https://schema.org/InStock', false);

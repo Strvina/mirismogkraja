@@ -7,6 +7,10 @@ use App\Models\Product;
 use App\Models\User;
 use App\Observers\ActivityLogObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Foundation\Events\DiagnosingHealth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +29,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // /up, for an uptime monitor: a page that renders while the
+        // database is down is not "up".
+        Event::listen(DiagnosingHealth::class, function () {
+            DB::connection()->getPdo();
+            Cache::get('health-check');
+        });
+
         // The browser tests run on the built assets even while `composer
         // dev` is running alongside: pointed at a hot file that never
         // exists, Vite never reaches for the dev server.

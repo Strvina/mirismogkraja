@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Send the Content-Security-Policy as report-only (see SecurityHeaders).
+    'csp_report_only' => (bool) env('CSP_REPORT_ONLY', false),
+
     // Set only by the browser tests' server (e2e/serve.mjs).
     'e2e' => (bool) env('APP_E2E', false),
 
