@@ -893,5 +893,14 @@
     "Trenutno nije dostupno.": "Сейчас недоступно.",
     "Javi mi kad stigne": "Сообщить о поступлении",
     "i javićemo vam kad stigne.": "и мы сообщим, когда товар появится.",
-    "Pogledaj": "Посмотреть"
+    "Pogledaj": "Посмотреть",
+    "Obaveštenja na ovom uređaju": "Уведомления на этом устройстве",
+    "Nova poruka stiže na telefon ili računar odmah, i kada sajt nije otvoren.": "Новое сообщение приходит на телефон или компьютер сразу, даже когда сайт закрыт.",
+    "Na iPhone-u: otvorite sajt u Safariju, „Podeli” → „Dodaj na početni ekran”, pa uključite obaveštenja iz te ikonice.": "На iPhone: откройте сайт в Safari, «Поделиться» → «На экран Домой», затем включите уведомления из этой иконки.",
+    "Ovaj pregledač ne podržava obaveštenja.": "Этот браузер не поддерживает уведомления.",
+    "Obaveštenja su blokirana u pregledaču. Dozvolite ih u podešavanjima sajta, pa se vratite ovde.": "Уведомления заблокированы в браузере. Разрешите их в настройках сайта и вернитесь сюда.",
+    "Isključi obaveštenja": "Отключить уведомления",
+    "Uključi obaveštenja": "Включить уведомления",
+    "Uključeno na ovom uređaju.": "Включено на этом устройстве.",
+    "Nije uspelo. Pokušajte ponovo.": "Не получилось. Попробуйте ещё раз."
 }

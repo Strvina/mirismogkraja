@@ -14,6 +14,7 @@ Everything below is configuration: the code already supports each step.
 - **Cron:** `* * * * * php /path/to/artisan schedule:run`. Without it, memberships and boosts never expire, nobody gets the "ending soon" warnings, and old logs and notifications are never pruned.
 - **PHP GD extension:** with GD, uploads get a 480px copy for cards and lists. Without it, pages show the originals. After enabling GD, run `php artisan media:thumbnails` once to make copies of images uploaded before that.
 - **Mail:** set the `MAIL_*` values for an SMTP service (see `.env.example`), add its SPF and DKIM records to the domain's DNS, then run `php artisan mail:test you@example.com`. Without it nobody can reset a forgotten password.
+- **Push notifications:** run `php artisan push:vapid` once and put the three lines it prints into `.env`. New messages then reach the phones of people who turned notifications on in Profile. Without the keys, push stays off and nothing else changes.
 - **Error monitoring:** set `SENTRY_LARAVEL_DSN` (free project at sentry.io), so a crash reaches you with its stack trace before a user reports it. `php artisan sentry:test` sends a test event.
 - **HTTPS:** session cookies are HTTPS-only when `APP_ENV=production` (`SESSION_SECURE_COOKIE` overrides it), so the site has to be served over HTTPS.
 - **Turnstile keys** (`TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, free at dash.cloudflare.com → Turnstile, add the site's domain): without them registration and password reset have no robot check.

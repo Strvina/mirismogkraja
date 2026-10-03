@@ -1,0 +1,16 @@
+{
+    "name": "Vrelina juga",
+    "short_name": "Vrelina juga",
+    "description": "Domaći proizvođači sa juga Srbije — proizvodi, priče i poruke direktno proizvođaču.",
+    "lang": "sr",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "background_color": "#f6efe6",
+    "theme_color": "#9a3b26",
+    "icons": [
+        { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}
