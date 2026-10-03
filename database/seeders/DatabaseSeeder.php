@@ -3,23 +3,34 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * `php artisan db:seed`.
+ *
+ * Everywhere: the reference data (ReferenceDataSeeder). Only on a
+ * developer's machine and in the test suite: the demo producers, products
+ * and conversations, and the demo accounts with their well-known passwords
+ * (admin@gmail.com / admin, test@example.com / password) - which on a live
+ * site would hand the admin panel to anyone who has read this file.
+ */
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
+    /** Where demo content may be seeded. Anything else - production, staging - gets only the reference data. */
+    public const DEMO_ENVIRONMENTS = ['local', 'testing'];
+
     public function run(): void
     {
-        $this->call(RolesSeeder::class);
-        $this->call(CategoriesSeeder::class);
-        $this->call(SubscriptionPlansSeeder::class);
-        $this->call(DemoContentSeeder::class);
+        $this->call(ReferenceDataSeeder::class);
 
-        // User::factory(10)->create();
+        if (! app()->environment(self::DEMO_ENVIRONMENTS)) {
+            $this->command?->info('Demo content and demo accounts skipped outside a local setup. Create the administrator with: php artisan admin:create');
+
+            return;
+        }
+
+        $this->call(DemoContentSeeder::class);
 
         User::firstOrCreate(
             ['email' => 'test@example.com'],

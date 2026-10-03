@@ -7,7 +7,8 @@ Everything below is configuration: the code already supports each step.
 
 - `APP_ENV=production`, `APP_DEBUG=false`. With debug on, an error page shows code and settings to anyone.
 - **Database:** MySQL 8+ or MariaDB 10.4+. Search uses FULLTEXT indexes, and threads use window functions. CI runs the whole suite on MySQL 8, and it was also checked on MariaDB 10.4.
-- `php artisan migrate --force`, then `php artisan optimize`. This caches config, routes, events and views.
+- `php artisan migrate --force`, then `php artisan optimize`.
+- **First deploy only:** run `php artisan db:seed --force`. Outside a local setup it seeds only the roles, categories and membership plans; it creates no demo content and no demo accounts. Then run `php artisan admin:create` to create your own administrator, typing the password at a hidden prompt. Running the seeder again later is safe, because it only adds what is missing. This caches config, routes, events and views.
 - `npm ci && npm run build`.
 - `php artisan storage:link` when `MEDIA_DISK=public`.
 - **Cron:** `* * * * * php /path/to/artisan schedule:run`. Without it, memberships and boosts never expire, nobody gets the "ending soon" warnings, and old logs and notifications are never pruned.
