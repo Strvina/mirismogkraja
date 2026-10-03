@@ -7,12 +7,13 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci/{producer}/proizvodi')->name('producers.products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');
     Route::get('/novi', [ProductController::class, 'create'])->name('create');
-    Route::post('/', [ProductController::class, 'store'])->name('store');
+    // Each new public product notifies the producer's followers.
+    Route::post('/', [ProductController::class, 'store'])->middleware('throttle:30,1')->name('store');
     Route::get('/{product}/izmena', [ProductController::class, 'edit'])->name('edit');
     Route::put('/{product}', [ProductController::class, 'update'])->name('update');
     Route::delete('/{product}', [ProductController::class, 'destroy'])->name('destroy');
 
-    Route::post('/{product}/slike', [ProductImageController::class, 'store'])->name('images.store');
+    Route::post('/{product}/slike', [ProductImageController::class, 'store'])->middleware('throttle:30,1')->name('images.store');
     Route::delete('/{product}/slike/{image}', [ProductImageController::class, 'destroy'])->name('images.destroy');
     Route::patch('/{product}/slike/{image}/glavna', [ProductImageController::class, 'makePrimary'])->name('images.primary');
 });

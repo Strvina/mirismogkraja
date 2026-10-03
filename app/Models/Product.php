@@ -19,6 +19,9 @@ class Product extends Model
     /** Set only by an administrator; the owner cannot lift it. */
     public const STATUS_BLOCKED = 'blocked';
 
+    /** A shop, not a warehouse: past this a producer's page stops being readable. */
+    public const MAX_PER_PRODUCER = 500;
+
     /** What an owner may choose for their own listing. */
     public const OWNER_STATUSES = ['draft', 'active', 'archived'];
 
@@ -37,6 +40,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
+            'published_at' => 'datetime',
             'price' => 'decimal:2',
         ];
     }

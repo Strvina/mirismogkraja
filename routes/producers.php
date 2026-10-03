@@ -15,7 +15,7 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::put('/{producer}', [ProducerController::class, 'update'])->name('update');
     Route::delete('/{producer}', [ProducerController::class, 'destroy'])->name('destroy');
 
-    Route::post('/{producer}/galerija', [ProducerImageController::class, 'store'])->name('images.store');
+    Route::post('/{producer}/galerija', [ProducerImageController::class, 'store'])->middleware('throttle:30,1')->name('images.store');
     Route::delete('/{producer}/galerija/{image}', [ProducerImageController::class, 'destroy'])->name('images.destroy');
 });
 
