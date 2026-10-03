@@ -44,7 +44,16 @@ export default [
         },
     },
     {
-        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js'],
+        // The browser tests and their server script run in Node, not the page.
+        files: ['e2e/**', 'playwright.config.ts'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+    {
+        ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js', 'test-results', 'playwright-report'],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];

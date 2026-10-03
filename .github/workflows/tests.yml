@@ -78,3 +78,52 @@ jobs:
 
       - name: Tests
         run: ./vendor/bin/phpunit
+
+  # The main journeys in a real browser (e2e/, Playwright) - what the PHP
+  # tests cannot see: a page that throws in JavaScript, a link that stops
+  # working after login.
+  browser:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd, exif, pdo_sqlite
+          tools: composer:v2
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          npm run build
+
+      - name: Install Browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser Tests
+        run: npm run test:e2e
+
+      - name: Keep the report of a failed run
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

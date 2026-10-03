@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Set only by the browser tests' server (e2e/serve.mjs).
+    'e2e' => (bool) env('APP_E2E', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
