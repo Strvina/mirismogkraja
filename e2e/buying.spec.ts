@@ -12,6 +12,13 @@ test('a visitor searches from the header and finds the producer by name', async 
     await expect(page.getByText('Rezultati za „medovina”')).toBeVisible();
     await page.getByRole('link', { name: /Pčelinjak Medovina/ }).click();
     await expect(page).toHaveURL(/\/proizvodjac\//);
+
+    // The producer's page: the number only on request, the map only on request.
+    await expect(page.getByRole('heading', { level: 1, name: /Pčelinjak Medovina/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Prikaži broj' }).click();
+    await expect(page.locator('a[href^="tel:"]')).toBeVisible();
+    await page.getByRole('button', { name: 'Prikaži na mapi' }).click();
+    await expect(page.locator('.leaflet-container')).toBeVisible();
 });
 
 test('a buyer sends an inquiry from a product page and lands in the conversation', async ({ page }) => {

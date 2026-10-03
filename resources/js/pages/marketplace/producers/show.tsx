@@ -1,25 +1,22 @@
-import FavoriteButton from '@/components/favorite-button';
-import InfoHint from '@/components/info-hint';
-import { PointsMap } from '@/components/marketplace/map';
-import Pagination, { type Paginated } from '@/components/marketplace/pagination';
-import { PremiumBadge } from '@/components/marketplace/plan-badges';
-import ReportButton from '@/components/marketplace/report-button';
-import ResponseTimeBadge, { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
-import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
+import { type Paginated } from '@/components/marketplace/pagination';
+import { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
+import { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
-import { Button } from '@/components/ui/button';
+import ContactCard from '@/components/producer-page/contact-card';
+import LocationLinks from '@/components/producer-page/location-links';
+import ProducerHeader from '@/components/producer-page/producer-header';
+import { ProducerGallery, ProducerProducts } from '@/components/producer-page/producer-showcase';
+import ReviewsSection from '@/components/producer-page/reviews-section';
+import { type PublicProducer } from '@/components/producer-page/types';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
-import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
-import { mediaUrl, thumbUrl } from '@/lib/media';
-import { shrinkImage } from '@/lib/shrink-image';
-import { mobileNumberForApps, trackContact } from '@/lib/statistics';
-import { type Producer, type Product, type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BadgeCheck, Bell, BellRing, MapPin, MessageCircle, Star, Truck } from 'lucide-react';
-import { FormEventHandler, useState } from 'react';
+import { mediaUrl } from '@/lib/media';
+import { type Product, type SharedData } from '@/types';
+import { Head, usePage } from '@inertiajs/react';
+import { Truck } from 'lucide-react';
 
+/** A producer's public page: who they are, how to reach them, what they make, what buyers say. */
 export default function ProducerShow({
     producer,
     gallery,
@@ -41,7 +38,7 @@ export default function ProducerShow({
     isFavorited,
     phone,
 }: {
-    producer: Omit<Producer, 'user_id' | 'status' | 'created_at' | 'updated_at' | 'phone'> & { has_phone: boolean };
+    producer: PublicProducer;
     /** Only after "Prikaži broj": fetched by a partial reload, never in the page's HTML. */
     phone?: string | null;
     gallery: { id: number; path: string; caption: string | null }[];
@@ -64,38 +61,6 @@ export default function ProducerShow({
     isFavorited: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
-    const [rating, setRating] = useState(5);
-    const [comment, setComment] = useState('');
-    const [image, setImage] = useState<File | null>(null);
-    const [loadingPhone, setLoadingPhone] = useState(false);
-    // Opened on request: Leaflet and the map tiles are only fetched for a
-    // visitor who asks to see them.
-    const [mapShown, setMapShown] = useState(false);
-    const point =
-        producer.lat && producer.lng ? { id: producer.id, name: producer.name, lat: Number(producer.lat), lng: Number(producer.lng) } : null;
-    // Viber and WhatsApp open a chat with a mobile number, so they are only
-    // offered when the number is one.
-    const mobile = phone ? mobileNumberForApps(phone) : null;
-
-    const revealPhone = () => {
-        trackContact(producer.id, 'phone_reveal');
-        router.reload({ only: ['phone'], onStart: () => setLoadingPhone(true), onFinish: () => setLoadingPhone(false) });
-    };
-
-    const submitReview: FormEventHandler = (e) => {
-        e.preventDefault();
-        router.post(
-            route('reviews.store', producer.id),
-            { rating, comment, image },
-            {
-                forceFormData: true,
-                onSuccess: () => {
-                    setComment('');
-                    setImage(null);
-                },
-            },
-        );
-    };
 
     return (
         <MarketplaceLayout>
@@ -109,192 +74,28 @@ export default function ProducerShow({
                 />
             )}
 
-            <div className="mt-6 flex flex-wrap items-start gap-4">
-                {producer.logo_path && (
-                    <img src={thumbUrl(producer.logo_path)} alt="" className="size-14 shrink-0 rounded-full border object-cover sm:size-16" />
-                )}
-
-                <div className="min-w-0 flex-1">
-                    <h1 className="flex flex-wrap items-center gap-2 font-serif text-3xl break-words sm:text-4xl">
-                        {producer.name}
-                        {producer.verified_at && (
-                            <span
-                                title={t('Identitet proizvođača je proveren')}
-                                className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
-                            >
-                                <BadgeCheck className="size-3.5" />
-                                {t('Provereno')}
-                            </span>
-                        )}
-                        {isPremium && <PremiumBadge className="py-1" />}
-                        {(producer.verified_at || isPremium || producer.founding_number !== null) && (
-                            <InfoHint label={t('Šta znače oznake?')} title={t('Oznake na profilu')}>
-                                {producer.verified_at && (
-                                    <p>
-                                        <strong>{t('Provereno')}</strong> {t('— proverili smo ko stoji iza ovog proizvođača.')}
-                                    </p>
-                                )}
-                                {isPremium && (
-                                    <p>
-                                        <strong>Premium</strong> {t('— proizvođač ima plaćeno Premium ili Pro članstvo na sajtu.')}
-                                    </p>
-                                )}
-                                {producer.founding_number !== null && (
-                                    <p>
-                                        <strong>{t('Osnivač')}</strong>{' '}
-                                        {t('— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.')}
-                                    </p>
-                                )}
-                            </InfoHint>
-                        )}
-                    </h1>
-                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                        {producer.city && (
-                            <span className="flex items-center gap-1.5">
-                                <MapPin className="size-4 shrink-0" />
-                                {producer.city}
-                            </span>
-                        )}
-                        <ResponseTimeBadge bucket={responseTime} />
-                        {reviews.total > 0 && (
-                            <span className="flex items-center gap-1">
-                                <Star className="fill-gold text-gold size-4 shrink-0" />
-                                {averageRating} ({reviews.total})
-                            </span>
-                        )}
-                        {followersCount > 0 && (
-                            <span>
-                                {followersCount} {followersCount === 1 ? 'pratilac' : 'pratilaca'}
-                            </span>
-                        )}
-                        {producer.founding_number !== null && (
-                            <Link
-                                href={route('marketplace.founding')}
-                                className="text-gold border-gold/40 rounded-full border px-2 py-0.5 text-xs font-semibold"
-                            >
-                                Osnivač #{String(producer.founding_number).padStart(2, '0')}
-                            </Link>
-                        )}
-                    </div>
-                </div>
-
-                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-                    {canFollow && (
-                        <Button
-                            variant={isFollowing ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => router.post(route('producers.follow', producer.id), {}, { preserveScroll: true })}
-                        >
-                            {isFollowing ? <BellRing className="size-4" /> : <Bell className="size-4" />}
-                            {isFollowing ? 'Pratite' : 'Zaprati'}
-                        </Button>
-                    )}
-                    {canMessage && (
-                        <Button asChild variant="outline" size="sm">
-                            <Link href={route('messages.show', producer.slug)}>
-                                <MessageCircle className="size-4" />
-                                {t('Pošalji poruku')}
-                            </Link>
-                        </Button>
-                    )}
-                    {auth.user && <FavoriteButton type="producer" id={producer.id} isFavorited={isFavorited} />}
-                    {canReport && <ReportButton type="producer" id={producer.id} reasons={reportReasons} />}
-                </div>
-            </div>
+            <ProducerHeader
+                producer={producer}
+                isPremium={isPremium}
+                responseTime={responseTime}
+                averageRating={averageRating}
+                reviewCount={reviews.total}
+                followersCount={followersCount}
+                isFollowing={isFollowing}
+                canFollow={canFollow}
+                canMessage={canMessage}
+                canFavorite={Boolean(auth.user)}
+                isFavorited={isFavorited}
+                canReport={canReport}
+                reportReasons={reportReasons}
+            />
 
             <div className="mt-4">
                 <ShareButtons url={typeof window === 'undefined' ? '' : window.location.href} title={producer.name} />
             </div>
 
-            {(producer.has_phone || producer.contact_email || producer.address) && (
-                <div className="border-border/70 mt-6 grid gap-4 rounded-lg border p-5 text-sm sm:grid-cols-3">
-                    {producer.has_phone && (
-                        <div className="min-w-0">
-                            <p className="text-muted-foreground text-xs">{t('Telefon')}</p>
-                            {phone ? (
-                                <>
-                                    <a href={`tel:${phone}`} className="font-medium break-words">
-                                        {phone}
-                                    </a>
-                                    {mobile && (
-                                        <span className="mt-1 flex gap-3 text-xs">
-                                            <a
-                                                href={`viber://chat?number=%2B${mobile}`}
-                                                onClick={() => trackContact(producer.id, 'viber_click')}
-                                                className="text-primary font-semibold underline"
-                                            >
-                                                Viber
-                                            </a>
-                                            <a
-                                                href={`https://wa.me/${mobile}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                onClick={() => trackContact(producer.id, 'whatsapp_click')}
-                                                className="text-primary font-semibold underline"
-                                            >
-                                                WhatsApp
-                                            </a>
-                                        </span>
-                                    )}
-                                </>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={revealPhone}
-                                    disabled={loadingPhone}
-                                    className="text-primary font-medium underline disabled:opacity-60"
-                                >
-                                    {loadingPhone ? t('Učitavanje…') : t('Prikaži broj')}
-                                </button>
-                            )}
-                        </div>
-                    )}
-                    {producer.contact_email && (
-                        <div className="min-w-0">
-                            <p className="text-muted-foreground text-xs">{t('Email')}</p>
-                            <a
-                                href={`mailto:${producer.contact_email}`}
-                                onClick={() => trackContact(producer.id, 'email_click')}
-                                className="font-medium break-all"
-                            >
-                                {producer.contact_email}
-                            </a>
-                        </div>
-                    )}
-                    {producer.address && (
-                        <div className="min-w-0">
-                            <p className="text-muted-foreground text-xs">{t('Adresa')}</p>
-                            <p className="font-medium break-words">{producer.address}</p>
-                        </div>
-                    )}
-                </div>
-            )}
-
-            {point && (
-                <div className="mt-4">
-                    <div className="flex flex-wrap items-center gap-4 text-sm">
-                        <button
-                            type="button"
-                            onClick={() => setMapShown(!mapShown)}
-                            aria-expanded={mapShown}
-                            className="text-primary font-medium underline"
-                        >
-                            {mapShown ? t('Sakrij mapu') : t('Prikaži na mapi')}
-                        </button>
-                        {/* Directions are what a buyer on their way needs, and
-                            every phone already has Google Maps. */}
-                        <a
-                            href={`https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-muted-foreground underline"
-                        >
-                            {t('Otvori u Google mapama')}
-                        </a>
-                    </div>
-                    {mapShown && <PointsMap points={[point]} className="mt-3 h-64 max-w-2xl" />}
-                </div>
-            )}
+            <ContactCard producer={producer} phone={phone} />
+            <LocationLinks producer={producer} />
 
             {producer.description && <p className="text-muted-foreground mt-6 max-w-2xl leading-7">{producer.description}</p>}
 
@@ -319,143 +120,16 @@ export default function ProducerShow({
                 </section>
             )}
 
-            {gallery.length > 0 && (
-                <section className="mt-12">
-                    <h2 className="font-serif text-2xl">{t('Galerija')}</h2>
-                    <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                        {gallery.map((image) => (
-                            <figure key={image.id} className="group">
-                                <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md">
-                                    <img
-                                        src={thumbUrl(image.path)}
-                                        alt={image.caption ?? ''}
-                                        loading="lazy"
-                                        className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                    />
-                                </div>
-                                {image.caption && <figcaption className="text-muted-foreground mt-2 text-xs leading-5">{image.caption}</figcaption>}
-                            </figure>
-                        ))}
-                    </div>
-                </section>
-            )}
-
-            <section className="mt-12">
-                <h2 className="font-serif text-2xl">{t('Proizvodi')}</h2>
-                {products.length === 0 ? (
-                    <p className="text-muted-foreground mt-2 text-sm">{t('Ovaj proizvođač još nema objavljene proizvode.')}</p>
-                ) : (
-                    <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
-                        {products.map((product) => (
-                            <Link key={product.id} href={route('marketplace.products.show', product.slug)} className="group">
-                                <div className="bg-muted aspect-square overflow-hidden rounded-md">
-                                    {product.images?.[0] && (
-                                        <img
-                                            loading="lazy"
-                                            src={thumbUrl(product.images[0].path)}
-                                            alt={product.name}
-                                            className="image-warm size-full object-cover transition group-hover:scale-105"
-                                        />
-                                    )}
-                                </div>
-                                <p className="mt-2 text-sm font-medium break-words">{product.name}</p>
-                                <p className="text-muted-foreground text-sm">{formatPrice(product.price)}</p>
-                            </Link>
-                        ))}
-                    </div>
-                )}
-                {productsCount > products.length && (
-                    <Link
-                        href={route('marketplace.products.index', { producer_id: producer.id })}
-                        className="text-primary mt-6 inline-block text-sm font-medium underline-offset-4 hover:underline"
-                    >
-                        {t('Svi proizvodi (:count)', { count: productsCount })}
-                    </Link>
-                )}
-            </section>
-
-            <section className="mt-12 max-w-2xl">
-                <h2 className="font-serif text-2xl">{t('Utisci kupaca')}</h2>
-
-                {/* The author's own review, still with a moderator, sits
-                    where it will live once published - same card, same
-                    place - so sending it never looks like losing it. */}
-                {myPendingReview && (
-                    <div className="mt-4">
-                        <ReviewCard review={myPendingReview} pending />
-                    </div>
-                )}
-
-                {reviews.total === 0 ? (
-                    !myPendingReview && <p className="text-muted-foreground mt-2 text-sm">{t('Još niko nije ostavio utisak o ovom proizvođaču.')}</p>
-                ) : (
-                    <div className="mt-4 space-y-4">
-                        {reviews.data.map((review) => (
-                            <ReviewCard key={review.id} review={review} producerName={producer.name} canReply={canReply} />
-                        ))}
-                        <Pagination meta={reviews} />
-                    </div>
-                )}
-
-                {canReview && (
-                    <form onSubmit={submitReview} className="border-border/70 mt-6 space-y-3 rounded-lg border p-5">
-                        <div>
-                            <h3 className="font-serif text-xl">{t('Ostavi utisak')}</h3>
-                            <p className="text-muted-foreground mt-1 text-sm">
-                                {t('Utisak može da ostavi neko sa kim se proizvođač već dopisivao. Objavljujemo ga pošto ga pregledamo.')}
-                            </p>
-                        </div>
-                        <div className="grid gap-1.5">
-                            <label htmlFor="review-rating" className="text-muted-foreground text-xs">
-                                {t('Vaša ocena')}
-                            </label>
-                            <select
-                                id="review-rating"
-                                value={rating}
-                                onChange={(e) => setRating(Number(e.target.value))}
-                                className="border-input bg-background w-fit rounded-md border px-3 py-2 text-sm"
-                            >
-                                {[5, 4, 3, 2, 1].map((n) => (
-                                    <option key={n} value={n}>
-                                        {'★'.repeat(n)} ({n})
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder={t('Kako je prošlo? Napišite par rečenica...')}
-                            aria-label={t('Vaš utisak')}
-                            className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
-                        />
-                        <div className="grid gap-1.5">
-                            <label htmlFor="review-image" className="text-muted-foreground text-xs">
-                                {t('Slika onoga što ste dobili (nije obavezno)')}
-                            </label>
-                            <input
-                                id="review-image"
-                                type="file"
-                                accept="image/*"
-                                onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    setImage(file ? await shrinkImage(file) : null);
-                                }}
-                                className="border-input bg-background w-full max-w-xs rounded-md border px-3 py-2 text-sm"
-                            />
-                        </div>
-                        <Button>{t('Pošalji utisak')}</Button>
-                    </form>
-                )}
-
-                {!canReview && !myPendingReview && (
-                    <p className="text-muted-foreground mt-6 text-sm">
-                        {auth.user
-                            ? t('Utisak možete ostaviti kada vam se proizvođač javi na vašu poruku.')
-                            : t('Utiske ostavljaju prijavljeni korisnici koji su se dopisivali sa proizvođačem.')}
-                    </p>
-                )}
-            </section>
+            <ProducerGallery images={gallery} />
+            <ProducerProducts producerId={producer.id} products={products} total={productsCount} />
+            <ReviewsSection
+                producer={producer}
+                reviews={reviews}
+                myPendingReview={myPendingReview}
+                canReview={canReview}
+                canReply={canReply}
+                signedIn={Boolean(auth.user)}
+            />
         </MarketplaceLayout>
     );
 }

@@ -8,18 +8,20 @@ use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Report;
 use App\Models\User;
-use Closure;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * One conversation between a buyer and a producer: opening it from a
+ * product page, reading it, and writing in it. The inbox that lists them is
+ * MessageInboxController; closing one or noting how it ended is
+ * ConversationController.
+ */
 class ProducerMessageController extends Controller
 {
     /**
@@ -28,9 +30,6 @@ class ProducerMessageController extends Controller
      * producer on the site.
      */
     public const NEW_CONVERSATIONS_PER_DAY = 20;
-
-    /** Conversations per page of the inbox. */
-    private const THREADS_PER_PAGE = 30;
 
     /**
      * Start a conversation from a product page. The product is recorded on
@@ -58,57 +57,6 @@ class ProducerMessageController extends Controller
         ]);
 
         return to_route('messages.show', $product->producer->slug);
-    }
-
-    /**
-     * Every thread the user is part of, from either side: ones they started
-     * as a buyer, and ones buyers started with producers they own. They're
-     * listed together because a user can be both, and splitting them across
-     * two pages means a seller clicking the header's message badge lands on
-     * an inbox that doesn't contain the message they were notified about.
-     */
-    public function index(Request $request): Response
-    {
-        $user = $request->user();
-        $ownedProducerIds = $user->producers()->pluck('id');
-
-        $threads = $this->threadSummaries(
-            $user,
-            fn ($query) => $query->where(fn ($inner) => $inner
-                ->where('buyer_id', $user->id)
-                ->orWhereIn('producer_id', $ownedProducerIds))
-        );
-
-        // The producer's own note on each of their threads on this page, in one query.
-        $outcomes = InquiryOutcome::query()
-            ->whereIn('producer_id', $ownedProducerIds)
-            ->whereIn('buyer_id', $threads->getCollection()->map(fn (array $thread) => $thread['message']->buyer_id)->unique())
-            ->get(['producer_id', 'buyer_id', 'status'])
-            ->mapWithKeys(fn (InquiryOutcome $outcome) => [$outcome->producer_id.'-'.$outcome->buyer_id => $outcome->status]);
-
-        $threads = $threads->through(function (array $thread) use ($ownedProducerIds, $outcomes) {
-            $message = $thread['message'];
-            $asProducer = $ownedProducerIds->contains($message->producer_id);
-            $key = $message->producer_id.'-'.$message->buyer_id;
-
-            return [
-                'key' => $key,
-                'as_producer' => $asProducer,
-                // Only the producer sees it; it is their own record.
-                'outcome' => $asProducer && isset($outcomes[$key]) ? __(InquiryOutcome::STATUSES[$outcomes[$key]] ?? '') : null,
-                'title' => $asProducer ? $message->buyer->name : $message->producer->name,
-                'subtitle' => $asProducer ? $message->producer->name : null,
-                'avatar_path' => $asProducer ? $message->buyer->avatar_path : $message->producer->logo_path,
-                'href' => $asProducer
-                    ? route('messages.thread', [$message->producer_id, $message->buyer_id])
-                    : route('messages.show', $message->producer->slug),
-                'last_message' => $message->body,
-                'last_at' => $message->created_at,
-                'unread' => $thread['unread'],
-            ];
-        });
-
-        return Inertia::render('messages/index', ['threads' => $threads]);
     }
 
     /**
@@ -208,59 +156,6 @@ class ProducerMessageController extends Controller
     }
 
     /**
-     * The producer notes how an inquiry ended - for their own record, and
-     * the admin's unverified picture of what sells. Empty clears it.
-     */
-    public function setOutcome(Request $request, Producer $producer, User $buyer): RedirectResponse
-    {
-        $this->authorize('update', $producer);
-        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
-
-        $data = $request->validate(['status' => ['nullable', Rule::in(array_keys(InquiryOutcome::STATUSES))]]);
-
-        $thread = InquiryOutcome::where('producer_id', $producer->id)->where('buyer_id', $buyer->id);
-
-        if (empty($data['status'])) {
-            $thread->delete();
-
-            return back();
-        }
-
-        InquiryOutcome::upsert([[
-            'producer_id' => $producer->id,
-            'buyer_id' => $buyer->id,
-            'status' => $data['status'],
-            // What the conversation was opened about, if it came from a
-            // product page.
-            'product_id' => ProducerMessage::thread($producer, $buyer)->whereNotNull('product_id')->oldest('id')->value('product_id'),
-            'updated_at' => now(),
-        ]], ['producer_id', 'buyer_id'], ['status', 'product_id', 'updated_at']);
-
-        return back();
-    }
-
-    /**
-     * Either side closes the conversation, or reopens one it closed itself.
-     * A side cannot lift the other's block - that would make it meaningless.
-     */
-    public function toggleBlock(Request $request, Producer $producer, User $buyer): RedirectResponse
-    {
-        $this->authorize('viewThread', [ProducerMessage::class, $producer, $buyer]);
-
-        $side = $producer->user_id === $request->user()->id ? 'producer' : 'buyer';
-        $blockedBy = $producer->blockedBy($buyer);
-
-        if ($blockedBy === null) {
-            $producer->blockedBuyers()->attach($buyer->id, ['blocked_by' => $side]);
-        } else {
-            abort_unless($blockedBy === $side, 403);
-            $producer->blockedBuyers()->detach($buyer->id);
-        }
-
-        return back();
-    }
-
-    /**
      * Counts a first message to a producer against the day's allowance;
      * a message in a conversation that already exists is not counted.
      */
@@ -279,43 +174,5 @@ class ProducerMessageController extends Controller
         }
 
         RateLimiter::hit($key, 24 * 60 * 60);
-    }
-
-    /**
-     * A thread is a (producer, buyer) pair rather than a table of its own, so
-     * its summary is aggregated in one grouped query: the id of its newest
-     * message and how many of them the viewer hasn't read. Using max(id) -
-     * not max(created_at) - makes "last message" unambiguous when a reply
-     * lands in the same second as the message it answers, and it keeps the
-     * whole inbox to two queries instead of loading every message of every
-     * conversation into memory.
-     *
-     * Paginated, newest conversation first: a busy producer's inbox holds
-     * thousands of them, and only a page is ever on screen.
-     *
-     * @param  Closure(Builder<ProducerMessage>): mixed  $scope
-     * @return LengthAwarePaginator<int, array{message: ProducerMessage, unread: int}>
-     */
-    private function threadSummaries(User $viewer, Closure $scope): LengthAwarePaginator
-    {
-        $aggregates = ProducerMessage::query()
-            ->tap($scope)
-            ->selectRaw('max(id) as last_message_id')
-            ->selectRaw('sum(case when sender_id != ? and read_at is null then 1 else 0 end) as unread_count', [$viewer->id])
-            ->groupBy('producer_id', 'buyer_id')
-            ->orderByDesc('last_message_id')
-            ->paginate(self::THREADS_PER_PAGE);
-
-        $messages = ProducerMessage::query()
-            ->whereIn('id', $aggregates->pluck('last_message_id'))
-            ->with(['producer:id,name,slug,logo_path', 'buyer:id,name,avatar_path'])
-            ->get()
-            ->keyBy('id');
-
-        return $aggregates->through(fn ($row) => [
-            'message' => $messages[$row->last_message_id],
-            // SQLite hands sum() back as a string.
-            'unread' => (int) $row->unread_count,
-        ]);
     }
 }
