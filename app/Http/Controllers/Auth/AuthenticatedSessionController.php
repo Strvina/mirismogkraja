@@ -41,20 +41,28 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return Inertia::location(redirect()->intended($redirects->homeFor($request->user())));
+        $redirect = redirect()->intended($redirects->homeFor($request->user()));
+
+        // Only an admin needs the whole page reloaded: their route list
+        // (Ziggy) includes the admin panel and is written into the page at
+        // load. Everyone else keeps the one they have - a normal visit,
+        // without reloading every script.
+        return $request->user()->hasRole('admin') ? Inertia::location($redirect) : $redirect;
     }
 
     /**
-     * Destroy an authenticated session. A full page load for the same reason
-     * as logging in: the admin's route list goes with the session.
+     * Destroy an authenticated session. A full page load only for an admin,
+     * for the same reason as logging in: their route list goes with them.
      */
     public function destroy(Request $request): SymfonyResponse
     {
+        $wasAdmin = (bool) $request->user()?->hasRole('admin');
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Inertia::location(url('/'));
+        return $wasAdmin ? Inertia::location(url('/')) : redirect('/');
     }
 }
