@@ -253,6 +253,8 @@ class DemoContentSeeder extends Seeder
         $admin->forceFill([
             'name' => 'Admin',
             'password' => Hash::make('admin'),
+            // E-mail confirmation is required; the demo admin has nobody to click the link.
+            'email_verified_at' => $admin->email_verified_at ?? now(),
         ])->save();
 
         $admin->assignRole('admin');

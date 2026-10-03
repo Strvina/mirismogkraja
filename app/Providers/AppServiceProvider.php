@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Observers\ActivityLogObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -24,6 +25,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // The browser tests run on the built assets even while `composer
+        // dev` is running alongside: pointed at a hot file that never
+        // exists, Vite never reaches for the dev server.
+        if (config('app.e2e')) {
+            Vite::useHotFile(storage_path('framework/e2e.hot'));
+        }
+
         // Short, stable aliases for polymorphic types (Favorite.favoritable_type)
         // instead of raw class names, which would break if a class were moved.
         // Not enforced app-wide (Spatie's own polymorphic relations rely on

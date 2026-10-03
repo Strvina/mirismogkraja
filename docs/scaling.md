@@ -37,3 +37,9 @@ Everything below is configuration: the code already supports each step.
 - The sitemap is an index of files with 10,000 addresses each, cached for an hour.
 - Notifications to followers are sent in chunks after the response. Read notifications are pruned after six months.
 - Translations load as a lazy chunk, only for English and Russian visitors. Leaflet, the QR library and the map tiles load only when used.
+
+## Browser tests
+
+`npm run build`, then `npm run test:e2e`. On Windows PowerShell, use `npm.cmd run test:e2e`. The first time, run `npx playwright install chromium` as well.
+
+The tests start a site of their own on port 8123 with its own SQLite database (`storage/e2e.sqlite`), filled with the demo content on every run. Your database and a running `composer dev` are left alone. The tests live in `e2e/`, and any JavaScript error on a page fails the test. CI runs them on every pull request.
