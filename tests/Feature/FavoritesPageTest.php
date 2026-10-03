@@ -29,10 +29,10 @@ class FavoritesPageTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('favorites.index'));
 
-        $response->assertInertia(fn ($page) => $page->has('producers', 1)
-            ->where('producers.0.name', 'Moje omiljeno')
-            ->has('products', 1)
-            ->where('products.0.name', 'Omiljeni proizvod'));
+        $response->assertInertia(fn ($page) => $page->has('producers.data', 1)
+            ->where('producers.data.0.name', 'Moje omiljeno')
+            ->has('products.data', 1)
+            ->where('products.data.0.name', 'Omiljeni proizvod'));
     }
 
     /** A saved link must not outlive the page being public. */
@@ -46,7 +46,7 @@ class FavoritesPageTest extends TestCase
         Favorite::create(['user_id' => $user->id, 'favoritable_type' => 'product', 'favoritable_id' => $draft->id]);
 
         $this->actingAs($user)->get(route('favorites.index'))
-            ->assertInertia(fn ($page) => $page->has('producers', 0)->has('products', 0));
+            ->assertInertia(fn ($page) => $page->has('producers.data', 0)->has('products.data', 0));
     }
 
     public function test_only_shows_own_favorites()
@@ -56,6 +56,6 @@ class FavoritesPageTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('favorites.index'));
 
-        $response->assertInertia(fn ($page) => $page->has('producers', 0));
+        $response->assertInertia(fn ($page) => $page->has('producers.data', 0));
     }
 }

@@ -22,6 +22,9 @@ use function Illuminate\Support\defer;
 
 class ProducerController extends Controller
 {
+    /** Products on a producer's own page; "all of them" links to the catalogue. */
+    private const PRODUCTS_SHOWN = 24;
+
     /**
      * List active producers, optionally filtered by city, with everything
      * their card shows (task 13): rating, review count and the latest few
@@ -29,6 +32,8 @@ class ProducerController extends Controller
      */
     public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
     {
+        abort_if($request->integer('page') > ProductController::MAX_PAGE, 404);
+
         $city = $request->string('city')->toString();
         $search = Search::clean($request->string('q')->toString());
 
@@ -143,11 +148,16 @@ class ProducerController extends Controller
             ],
             'isPremium' => $subscriptions->hasFeature($producer, 'premium_badge'),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
+            // The newest few; the rest are one click away in the catalogue,
+            // filtered to this producer.
             'products' => $producer->products()
                 ->where('status', 'active')
                 ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit'])
                 ->with('images:id,product_id,path,order')
+                ->latest()
+                ->limit(self::PRODUCTS_SHOWN)
                 ->get(),
+            'productsCount' => $producer->products()->where('status', 'active')->count(),
             // Ordered and stamped by when they were written, not by when a
             // moderator got to them: the date on a review is the day its
             // author had the experience.

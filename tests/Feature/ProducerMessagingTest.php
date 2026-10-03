@@ -139,7 +139,7 @@ class ProducerMessagingTest extends TestCase
         }
 
         $this->actingAs($buyer)->get(route('messages.index'))
-            ->assertInertia(fn ($page) => $page->has('threads', 1)->where('threads.0.last_message', 'Druga'));
+            ->assertInertia(fn ($page) => $page->has('threads.data', 1)->where('threads.data.0.last_message', 'Druga'));
     }
 
     public function test_the_inbox_shows_threads_from_both_sides(): void
@@ -166,12 +166,12 @@ class ProducerMessagingTest extends TestCase
         ]);
 
         $this->actingAs($user)->get(route('messages.index'))->assertInertia(
-            fn ($page) => $page->has('threads', 2)
-                ->where('threads.0.title', 'Tuđi proizvođač')
-                ->where('threads.0.as_producer', false)
-                ->where('threads.1.title', 'Kupac Kupčević')
-                ->where('threads.1.as_producer', true)
-                ->where('threads.1.subtitle', 'Moj proizvođač')
+            fn ($page) => $page->has('threads.data', 2)
+                ->where('threads.data.0.title', 'Tuđi proizvođač')
+                ->where('threads.data.0.as_producer', false)
+                ->where('threads.data.1.title', 'Kupac Kupčević')
+                ->where('threads.data.1.as_producer', true)
+                ->where('threads.data.1.subtitle', 'Moj proizvođač')
         );
     }
 
@@ -221,8 +221,8 @@ class ProducerMessagingTest extends TestCase
         $this->assertSame(1, ProducerMessage::distinct()->count('created_at'));
 
         $this->actingAs($owner)->get(route('messages.index'))->assertInertia(
-            fn ($page) => $page->where('threads.0.last_message', 'Imamo, javite se.')
-                ->where('threads.0.unread', 0)
+            fn ($page) => $page->where('threads.data.0.last_message', 'Imamo, javite se.')
+                ->where('threads.data.0.unread', 0)
         );
 
         // The old seller-only inbox is the same list now.
@@ -245,14 +245,14 @@ class ProducerMessagingTest extends TestCase
         $this->actingAs($producer->user)->post(route('messages.thread.store', [$producer->id, $buyer->id]), ['body' => 'Odgovor']);
 
         $this->actingAs($buyer)->get(route('messages.index'))
-            ->assertInertia(fn ($page) => $page->where('threads.0.unread', 1)->where('unreadMessages', 1));
+            ->assertInertia(fn ($page) => $page->where('threads.data.0.unread', 1)->where('unreadMessages', 1));
 
         $this->actingAs($buyer)->get(route('messages.show', $producer->slug));
 
         // Both the row and the badge, on a freshly requested inbox.
         $this->actingAs($buyer)->get(route('messages.index'))
-            ->assertInertia(fn ($page) => $page->where('threads.0.unread', 0)
-                ->where('threads.0.last_message', 'Odgovor')
+            ->assertInertia(fn ($page) => $page->where('threads.data.0.unread', 0)
+                ->where('threads.data.0.last_message', 'Odgovor')
                 ->where('unreadMessages', 0));
     }
 

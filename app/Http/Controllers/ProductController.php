@@ -21,7 +21,7 @@ class ProductController extends Controller
 
         return Inertia::render('products/index', [
             'producer' => $producer,
-            'products' => $producer->products()->with('category')->latest()->get(),
+            'products' => $producer->products()->with('category')->latest()->paginate(30),
         ]);
     }
 

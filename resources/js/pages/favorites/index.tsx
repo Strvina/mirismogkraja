@@ -1,3 +1,4 @@
+import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
@@ -9,7 +10,7 @@ const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji omiljeni'), href: '/omi
 type SavedProducer = Pick<Producer, 'id' | 'name' | 'slug' | 'city'>;
 type SavedProduct = Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit'>;
 
-export default function FavoritesIndex({ producers, products }: { producers: SavedProducer[]; products: SavedProduct[] }) {
+export default function FavoritesIndex({ producers, products }: { producers: Paginated<SavedProducer>; products: Paginated<SavedProduct> }) {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title={t('Moji omiljeni')} />
@@ -19,11 +20,11 @@ export default function FavoritesIndex({ producers, products }: { producers: Sav
             <div className="mt-8 flex flex-col gap-8">
                 <div>
                     <h2 className="font-serif text-2xl">{t('Omiljeni proizvođači')}</h2>
-                    {producers.length === 0 ? (
+                    {producers.data.length === 0 ? (
                         <p className="text-muted-foreground mt-2 text-sm">{t('Nema omiljenih proizvođača.')}</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
-                            {producers.map((producer) => (
+                            {producers.data.map((producer) => (
                                 <Link
                                     key={producer.id}
                                     href={route('marketplace.producers.show', producer.slug)}
@@ -35,15 +36,16 @@ export default function FavoritesIndex({ producers, products }: { producers: Sav
                             ))}
                         </div>
                     )}
+                    <Pagination meta={producers} />
                 </div>
 
                 <div>
                     <h2 className="font-serif text-2xl">{t('Omiljeni proizvodi')}</h2>
-                    {products.length === 0 ? (
+                    {products.data.length === 0 ? (
                         <p className="text-muted-foreground mt-2 text-sm">{t('Nema omiljenih proizvoda.')}</p>
                     ) : (
                         <div className="mt-4 grid gap-4 md:grid-cols-3">
-                            {products.map((product) => (
+                            {products.data.map((product) => (
                                 <Link
                                     key={product.id}
                                     href={route('marketplace.products.show', product.slug)}
@@ -57,6 +59,7 @@ export default function FavoritesIndex({ producers, products }: { producers: Sav
                             ))}
                         </div>
                     )}
+                    <Pagination meta={products} />
                 </div>
             </div>
         </MarketplaceLayout>

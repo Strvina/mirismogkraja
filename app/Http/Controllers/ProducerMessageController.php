@@ -12,8 +12,8 @@ use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -28,6 +28,9 @@ class ProducerMessageController extends Controller
      * producer on the site.
      */
     public const NEW_CONVERSATIONS_PER_DAY = 20;
+
+    /** Conversations per page of the inbox. */
+    private const THREADS_PER_PAGE = 30;
 
     /**
      * Start a conversation from a product page. The product is recorded on
@@ -76,13 +79,14 @@ class ProducerMessageController extends Controller
                 ->orWhereIn('household_id', $ownedProducerIds))
         );
 
-        // The producer's own note on each of their threads, in one query.
+        // The producer's own note on each of their threads on this page, in one query.
         $outcomes = InquiryOutcome::query()
             ->whereIn('household_id', $ownedProducerIds)
+            ->whereIn('buyer_id', $threads->getCollection()->map(fn (array $thread) => $thread['message']->buyer_id)->unique())
             ->get(['household_id', 'buyer_id', 'status'])
             ->mapWithKeys(fn (InquiryOutcome $outcome) => [$outcome->household_id.'-'.$outcome->buyer_id => $outcome->status]);
 
-        $threads = $threads->map(function (array $thread) use ($ownedProducerIds, $outcomes) {
+        $threads = $threads->through(function (array $thread) use ($ownedProducerIds, $outcomes) {
             $message = $thread['message'];
             $asProducer = $ownedProducerIds->contains($message->household_id);
             $key = $message->household_id.'-'.$message->buyer_id;
@@ -102,7 +106,7 @@ class ProducerMessageController extends Controller
                 'last_at' => $message->created_at,
                 'unread' => $thread['unread'],
             ];
-        })->values();
+        });
 
         return Inertia::render('messages/index', ['threads' => $threads]);
     }
@@ -152,7 +156,8 @@ class ProducerMessageController extends Controller
             // the page is flipped back to chronological order below, and
             // "older messages" therefore means the next page.
             'messages' => tap(ProducerMessage::thread($producer, $buyer)
-                ->with(['sender:id,name,avatar_path', 'product:id,name,slug,price,unit', 'product.images'])
+                // Only each product's main photo: the thread shows one.
+                ->with(['sender:id,name,avatar_path', 'product:id,name,slug,price,unit', 'product.images' => fn ($images) => $images->orderBy('order')->limit(1)])
                 ->latest('id')
                 // Simple pagination: the page only needs to know whether
                 // there are older messages, and the thread is re-read every
@@ -285,17 +290,21 @@ class ProducerMessageController extends Controller
      * whole inbox to two queries instead of loading every message of every
      * conversation into memory.
      *
+     * Paginated, newest conversation first: a busy producer's inbox holds
+     * thousands of them, and only a page is ever on screen.
+     *
      * @param  Closure(Builder<ProducerMessage>): mixed  $scope
-     * @return Collection<int, array{message: ProducerMessage, unread: int}>
+     * @return LengthAwarePaginator<int, array{message: ProducerMessage, unread: int}>
      */
-    private function threadSummaries(User $viewer, Closure $scope): Collection
+    private function threadSummaries(User $viewer, Closure $scope): LengthAwarePaginator
     {
         $aggregates = ProducerMessage::query()
             ->tap($scope)
             ->selectRaw('max(id) as last_message_id')
             ->selectRaw('sum(case when sender_id != ? and read_at is null then 1 else 0 end) as unread_count', [$viewer->id])
             ->groupBy('household_id', 'buyer_id')
-            ->get();
+            ->orderByDesc('last_message_id')
+            ->paginate(self::THREADS_PER_PAGE);
 
         $messages = ProducerMessage::query()
             ->whereIn('id', $aggregates->pluck('last_message_id'))
@@ -303,13 +312,10 @@ class ProducerMessageController extends Controller
             ->get()
             ->keyBy('id');
 
-        return $aggregates
-            ->map(fn ($row) => [
-                'message' => $messages[$row->last_message_id],
-                // SQLite hands sum() back as a string.
-                'unread' => (int) $row->unread_count,
-            ])
-            ->sortByDesc(fn (array $thread) => $thread['message']->id)
-            ->values();
+        return $aggregates->through(fn ($row) => [
+            'message' => $messages[$row->last_message_id],
+            // SQLite hands sum() back as a string.
+            'unread' => (int) $row->unread_count,
+        ]);
     }
 }

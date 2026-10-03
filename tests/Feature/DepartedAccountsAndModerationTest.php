@@ -37,7 +37,7 @@ class DepartedAccountsAndModerationTest extends TestCase
         $producer->delete();
 
         $this->actingAs($buyer)->get('/poruke')->assertOk()
-            ->assertInertia(fn ($page) => $page->where('threads.0.title', $producer->name));
+            ->assertInertia(fn ($page) => $page->where('threads.data.0.title', $producer->name));
 
         $this->actingAs($buyer)->get(route('messages.show', $producer->slug))->assertOk()
             ->assertInertia(fn ($page) => $page->where('closed', 'producer')->has('messages.data', 1));
@@ -52,7 +52,7 @@ class DepartedAccountsAndModerationTest extends TestCase
         $this->actingAs($buyer)->delete(route('profile.destroy'), ['password' => 'password']);
 
         $this->actingAs($producer->user)->get('/poruke')->assertOk()
-            ->assertInertia(fn ($page) => $page->where('threads.0.title', 'Obrisan korisnik'));
+            ->assertInertia(fn ($page) => $page->where('threads.data.0.title', 'Obrisan korisnik'));
 
         $this->actingAs($producer->user)->get(route('messages.thread', [$producer->id, $buyer->id]))->assertOk()
             ->assertInertia(fn ($page) => $page->where('closed', 'buyer'));
