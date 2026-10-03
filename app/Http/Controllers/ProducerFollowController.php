@@ -7,7 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
- * Following a producer (task 20.5): a standing request to hear when they
+ * Following a producer: a standing request to hear when they
  * list something new. Distinct from a favourite, which is a bookmark and
  * says nothing about wanting to be told.
  */

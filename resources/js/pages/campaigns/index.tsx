@@ -56,7 +56,7 @@ function timing(campaign: Campaign): string {
 }
 
 /**
- * Seasonal campaigns a producer can join (task 20.3). Joining hands back a
+ * Seasonal campaigns a producer can join. Joining hands back a
  * slip straight away, as memberships and boosts do.
  */
 export default function Campaigns({

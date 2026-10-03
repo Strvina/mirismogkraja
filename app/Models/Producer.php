@@ -21,7 +21,7 @@ class Producer extends Model
 
     /**
      * How a producer can get goods to a buyer, keyed by what's stored in
-     * `delivery_methods` (task 13).
+     * `delivery_methods`.
      *
      * @var array<string, string>
      */
@@ -91,7 +91,7 @@ class Producer extends Model
         return $this->hasMany(ProducerMessage::class, 'producer_id');
     }
 
-    /** Memberships, paid and pending (task 20.1). */
+    /** Memberships, paid and pending. */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(ProducerSubscription::class, 'producer_id');
@@ -136,7 +136,7 @@ class Producer extends Model
     }
 
     /**
-     * Approved by an admin and so visible to the public (task 2.6). Every
+     * Approved by an admin and so visible to the public. Every
      * public query starts here, so a pending or blocked producer cannot leak
      * through one that forgot to ask.
      *

@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * Records create/update/delete on the models it's registered for (task 14).
+ * Records create/update/delete on the models it's registered for.
  * Registered per model in AppServiceProvider rather than globally, so noisy
  * writes (messages, message reads) stay out of the audit trail.
  */
 class ActivityLogObserver
 {
     /**
-     * Audited models (task 14). Deliberately not every model: messages and
+     * Audited models. Deliberately not every model: messages and
      * message reads would bury the entries that matter.
      *
      * @var list<class-string<Model>>

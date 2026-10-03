@@ -53,7 +53,7 @@ class ProducerController extends Controller
 
         return Inertia::render('producers/create', [
             // The launch offer only means something if people can see it
-            // running out (task 20.4).
+            // running out.
             'founding' => [
                 'claimed' => $founding->claimed(),
                 'limit' => $founding->limit(),

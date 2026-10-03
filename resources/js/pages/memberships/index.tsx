@@ -39,7 +39,7 @@ function linkedProducerId(producers: ProducerMembership[]): number | null {
 }
 
 /**
- * Memberships from the producer's side (task 20.1).
+ * Memberships from the producer's side.
  *
  * Payment is by bank slip, so the useful part of this page is not a button
  * that charges a card - it is the account number and the reference to copy

@@ -10,7 +10,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
 
 /**
- * sitemap.xml (task 21).
+ * sitemap.xml.
  *
  * Most of the traffic for home-made food arrives from a search like "domaći
  * med Niš", so the producer and product pages have to be findable. Only

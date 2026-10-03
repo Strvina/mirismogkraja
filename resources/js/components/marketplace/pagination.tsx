@@ -17,7 +17,7 @@ export interface Paginated<T> extends PaginatedMeta {
 }
 
 /**
- * Page links for a Laravel paginator (task 10), styled like the rest of the
+ * Page links for a Laravel paginator, styled like the rest of the
  * site. Laravel's own labels carry the &laquo;/&raquo; arrows, which we swap
  * for icons and translate.
  */

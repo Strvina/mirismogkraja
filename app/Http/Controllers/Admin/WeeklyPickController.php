@@ -15,7 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Choosing "Proizvođač nedelje" (task 20.7). A person decides; the page
+ * Choosing "Proizvođač nedelje". A person decides; the page
  * helps by suggesting Pro members - the plan that includes the chance - and
  * by flagging anyone picked in the last few weeks, so the slot keeps moving.
  */

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * What came of an inquiry, as its producer reports it (task 14, point 5).
+ * What came of an inquiry, as its producer reports it.
  * Self-reported, and so only ever shown as such.
  *
  * Keyed by the thread - (producer_id, buyer_id) - so it is only ever

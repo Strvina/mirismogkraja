@@ -69,7 +69,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Bulk delete, or bulk set status/category (task 14, point 1). Deleting
+     * Bulk delete, or bulk set status/category. Deleting
      * goes one by one rather than through a mass delete so the audit
      * observer sees each row.
      */

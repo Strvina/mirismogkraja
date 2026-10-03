@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A seasonal campaign (task 20.3): a themed page and a homepage banner for
+ * A seasonal campaign: a themed page and a homepage banner for
  * its dates, with the producers who paid to join.
  */
 class Campaign extends Model

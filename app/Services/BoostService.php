@@ -14,7 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Paid boosts (task 20.2).
+ * Paid boosts.
  *
  * A boost buys a place in the labelled "Istaknuto" row - of the producer
  * directory for a profile, of the catalog for a product - for a number of

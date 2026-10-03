@@ -26,7 +26,7 @@ const TABS: { status: Status; label: string }[] = [
 ];
 
 /**
- * The complaints queue (task 21). Because the platform never sees the deal
+ * The complaints queue. Because the platform never sees the deal
  * itself, this is the only place fraud or silence gets reported before it
  * turns into a public review.
  */

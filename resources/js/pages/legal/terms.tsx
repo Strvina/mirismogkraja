@@ -3,8 +3,8 @@ import { t } from '@/lib/i18n';
 import { Head } from '@inertiajs/react';
 
 /**
- * Task 21 asks for this page specifically because of how the platform works:
- * it has to be written down that Vrelina juga is not a party to the sale.
+ * The terms, shaped by how the platform works: it has to be written down
+ * that Vrelina juga is not a party to the sale.
  * The wording is plain and deliberately makes no claim to be a reviewed
  * legal document - a lawyer should go over it before launch.
  */

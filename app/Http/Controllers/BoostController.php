@@ -14,7 +14,7 @@ use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
- * A producer's own boosts (task 20.2): what can be boosted, for how much,
+ * A producer's own boosts: what can be boosted, for how much,
  * what is running, and the slip for anything still unpaid.
  */
 class BoostController extends Controller

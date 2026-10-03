@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * One week's "Proizvođač nedelje" (task 20.7). A week is identified by its
+ * One week's "Proizvođač nedelje". A week is identified by its
  * Monday, and has at most one pick.
  */
 class WeeklyPick extends Model

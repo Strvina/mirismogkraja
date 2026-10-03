@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A change to a producer that its owner may ask for but not make (task 15).
+ * A change to a producer that its owner may ask for but not make.
  *
  * Stored as field/value rather than as a column per field, so widening the
  * line later - say, to the contact e-mail - is a constant in the service

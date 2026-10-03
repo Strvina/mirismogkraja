@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 /**
  * Warns producers whose membership is about to run out, and closes the ones
- * that already have (task 20.1). Scheduled daily in routes/console.php.
+ * that already have. Scheduled daily in routes/console.php.
  *
  * Both steps are written so a second run on the same day changes nothing,
  * which matters on a host where the scheduler is a cron line someone may

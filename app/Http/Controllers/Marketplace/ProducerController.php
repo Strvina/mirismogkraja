@@ -28,7 +28,7 @@ class ProducerController extends Controller
 
     /**
      * List active producers, optionally filtered by city, with everything
-     * their card shows (task 13): rating, review count and the latest few
+     * their card shows: rating, review count and the latest few
      * reviews with their authors.
      */
     public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
@@ -55,10 +55,10 @@ class ProducerController extends Controller
         // never mixed into it: the list below stays alphabetical for
         // everyone, and a visitor can always tell what was paid for. The
         // row is drawn at random from the paying producers on each visit,
-        // so no single one holds the top for good (task 20.2). Premium and
+        // so no single one holds the top for good. Premium and
         // Pro members are in it for their whole membership; anyone else for
-        // the days of a boost they paid for. Filtered by city, it is the
-        // regional placement of task 20.8.
+        // the days of a boost they paid for. Filtered by city, it doubles
+        // as regional placement.
         $featured = $producers->onFirstPage()
             ? $this->cards($city, $search)
                 ->whereIn('id', $subscriptions->producerIdsWith('featured_section')->concat($boosts->runningIds(Boost::PROFILE))->unique()->values())
@@ -174,7 +174,7 @@ class ProducerController extends Controller
 
     /**
      * Show a producer's public page. Only 'active' producers (approved by
-     * an admin, task 2.6) are publicly visible - pending/blocked ones 404.
+     * an admin) are publicly visible - pending/blocked ones 404.
      */
     public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics, ResponseTime $responseTime): Response
     {
@@ -256,7 +256,7 @@ class ProducerController extends Controller
             // The owner answers reviews in public, right under them.
             'canReply' => $user !== null && $producer->user_id === $user->id,
             // Following is a standing request to hear about new listings,
-            // which is a different thing from bookmarking (task 20.5).
+            // which is a different thing from bookmarking.
             'canFollow' => $user !== null && $producer->user_id !== $user->id,
             'isFollowing' => $user !== null && $producer->followers()->whereKey($user->id)->exists(),
             'followersCount' => $producer->followers()->count(),

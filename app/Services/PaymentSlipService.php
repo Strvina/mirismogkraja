@@ -3,12 +3,12 @@
 namespace App\Services;
 
 use App\Contracts\Payable;
+use App\Support\PaidItems;
 use App\Support\Settings;
 
 /**
  * The details a producer needs to pay for something - a membership, a boost
- * - in the shape a Serbian payment slip and a bank application expect
- * (task 20.1).
+ * - in the shape a Serbian payment slip and a bank application expect.
  *
  * The QR payload follows the NBS IPS QR specification, which is what every
  * banking app in Serbia scans: fields separated by '|', a fixed header, the
@@ -44,6 +44,8 @@ class PaymentSlipService
             'amount' => number_format($payable->paymentAmount(), 2, ',', '.'),
             'payer' => $this->payerFor($payable),
             'qr' => $this->qrPayload($payable),
+            // The code as an image, for the slip on screen (PaymentSlipQrController).
+            'qr_url' => route('payment-slips.qr', [PaidItems::kind($payable), $payable->getKey()]),
         ];
     }
 

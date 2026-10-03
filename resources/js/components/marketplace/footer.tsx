@@ -3,17 +3,15 @@ import { Link } from '@inertiajs/react';
 import Brand from './brand';
 
 /**
- * Shared site footer (task 7.1 - was previously only on the landing page;
- * now used on every marketplace page too, per task 7.2's consistency goal).
+ * The site footer, the same on every page.
  *
  * The catalog links go through Inertia rather than a plain anchor, so
  * following one swaps the page instead of reloading the whole application.
  * The anchor to the landing page's "o nama" section stays a real anchor,
  * since it has to work from any page and ends in a fragment.
  *
- * There are no social icons: the ones that were here pointed at #top, which
- * is the kind of button task 19 asks not to exist. They belong back the day
- * there are real accounts to point them at.
+ * No social icons until there are real accounts to point them at - an icon
+ * that leads nowhere is worse than none.
  */
 export default function Footer() {
     return (

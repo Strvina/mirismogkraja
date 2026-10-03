@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
- * A paid boost (task 20.2): a producer's profile, or one of their products,
+ * A paid boost: a producer's profile, or one of their products,
  * in the labelled "Istaknuto" row for a number of days. Paid by bank slip,
  * so it waits for an admin like a membership does.
  */

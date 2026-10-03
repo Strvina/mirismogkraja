@@ -20,7 +20,7 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::delete('/{producer}/galerija/{image}', [ProducerImageController::class, 'destroy'])->name('images.destroy');
 });
 
-// Contact clicks reported by a visitor's browser (task 20.6). Public, since
+// Contact clicks reported by a visitor's browser. Public, since
 // most visitors are not signed in; limited, since it only counts.
 Route::post('/statistika/{producer}/{event}', [ProducerStatisticsController::class, 'click'])
     ->middleware('throttle:60,1')

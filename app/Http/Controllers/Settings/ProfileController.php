@@ -47,8 +47,7 @@ class ProfileController extends Controller
 
     /**
      * Update the user's avatar only, independent of the rest of the profile
-     * form (task 2 fix - avoids requiring name/email when only the picture
-     * changes).
+     * form, so changing the picture never requires the name and e-mail.
      */
     public function updateAvatar(AvatarUpdateRequest $request, ProfileUpdateService $profiles): RedirectResponse
     {

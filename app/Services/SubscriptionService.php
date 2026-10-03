@@ -13,7 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 /**
- * Memberships (task 20.1).
+ * Memberships.
  *
  * Payment is by bank slip, so this service never talks to a payment
  * provider: it records what a producer asked for, hands back a reference to
@@ -27,6 +27,9 @@ use Illuminate\Support\Collection;
  */
 class SubscriptionService
 {
+    /** @var array<string, list<int>> */
+    private array $planIdsByFeature = [];
+
     /**
      * The plan a producer's benefits are currently based on: their paid one,
      * or the free floor when they have none.
@@ -44,7 +47,11 @@ class SubscriptionService
 
     public function hasFeature(Producer $producer, string $feature): bool
     {
-        return $this->producerIdsWith($feature)->contains($producer->id);
+        return ProducerSubscription::query()
+            ->active()
+            ->where('producer_id', $producer->id)
+            ->whereIn('subscription_plan_id', $this->planIdsWith($feature))
+            ->exists();
     }
 
     /**
@@ -63,10 +70,7 @@ class SubscriptionService
     {
         return ProducerSubscription::query()
             ->active()
-            ->whereIn('subscription_plan_id', SubscriptionPlan::query()
-                ->get(['id', 'features'])
-                ->filter(fn (SubscriptionPlan $plan) => $plan->has($feature))
-                ->modelKeys())
+            ->whereIn('subscription_plan_id', $this->planIdsWith($feature))
             ->distinct()
             ->pluck('producer_id');
     }
@@ -78,6 +82,20 @@ class SubscriptionService
      *
      * @param  iterable<Producer>  $producers
      */
+    /**
+     * The plans that include a feature. A handful of rows, read once per
+     * request however often it is asked.
+     *
+     * @return list<int>
+     */
+    private function planIdsWith(string $feature): array
+    {
+        return $this->planIdsByFeature[$feature] ??= SubscriptionPlan::query()
+            ->get(['id', 'features'])
+            ->filter(fn (SubscriptionPlan $plan) => $plan->has($feature))
+            ->modelKeys();
+    }
+
     public function markPremium(iterable $producers): void
     {
         $premium = $this->producerIdsWith('premium_badge');
@@ -129,8 +147,8 @@ class SubscriptionService
     }
 
     /**
-     * A membership nobody pays for - the founding producers's first year
-     * (task 20.4). Recorded like any other, at 0 RSD, so it shows in the
+     * A membership nobody pays for - the founding producers' first year.
+     * Recorded like any other, at 0 RSD, so it shows in the
      * admin panel, runs out on its own date and sends the same reminders;
      * nothing about it is special-cased later.
      */

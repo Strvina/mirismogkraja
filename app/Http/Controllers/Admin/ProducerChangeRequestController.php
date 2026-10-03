@@ -12,8 +12,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The queue of changes producers may ask for but not make themselves
- * (task 15). Today that is only a rename of an already-published producer;
+ * The queue of changes producers may ask for but not make themselves.
+ * Today that is only a rename of an already-published producer;
  * the table stores field and value, so widening that line later needs no
  * new screen.
  */

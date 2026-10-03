@@ -127,7 +127,7 @@ function CampaignFields({ campaign, onDone }: { campaign?: Campaign; onDone?: ()
 }
 
 /**
- * Seasonal campaigns (task 20.3): making and editing them on the first tab,
+ * Seasonal campaigns: making and editing them on the first tab,
  * the producers who paid to join, by status, on the others.
  */
 export default function AdminCampaigns({

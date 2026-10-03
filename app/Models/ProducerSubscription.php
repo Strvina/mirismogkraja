@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One producer's membership. Paid by bank slip, so it waits in
- * 'pending_payment' until an admin confirms the money arrived (task 20.1).
+ * 'pending_payment' until an admin confirms the money arrived.
  */
 class ProducerSubscription extends Model implements Payable
 {

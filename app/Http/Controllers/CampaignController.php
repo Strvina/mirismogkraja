@@ -21,7 +21,7 @@ use Inertia\Response;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
- * Seasonal campaigns (task 20.3): the public campaign page, and a producer
+ * Seasonal campaigns: the public campaign page, and a producer
  * joining one.
  */
 class CampaignController extends Controller

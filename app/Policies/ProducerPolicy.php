@@ -25,8 +25,8 @@ class ProducerPolicy
 
     /**
      * Any authenticated user can create a producer. Creating one is how a
-     * buyer becomes a seller (assigning the 'seller' role is task 1.4's job,
-     * not this policy's).
+     * buyer becomes a seller (ProducerService assigns the 'seller' role, not
+     * this policy).
      */
     public function create(User $user): bool
     {

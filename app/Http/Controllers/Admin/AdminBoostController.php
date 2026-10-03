@@ -13,7 +13,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Paid boosts in the admin panel (task 20.2): the prices on a settings tab,
+ * Paid boosts in the admin panel: the prices on a settings tab,
  * and the payments by status on the others. Confirming is a person looking
  * at the bank statement, as with memberships.
  */

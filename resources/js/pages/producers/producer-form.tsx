@@ -102,7 +102,7 @@ function ImageField({
 /**
  * The producer's own page, as a form.
  *
- * Signing up walks through it in three short steps (task 21): who you are,
+ * Signing up walks through it in three short steps: who you are,
  * how buyers reach you, and how you present yourself. A single page of
  * fifteen fields is where people give up, and the last step is the one that
  * takes thought - photos and a story - so it comes after the short factual

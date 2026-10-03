@@ -15,7 +15,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Seasonal campaigns in the admin panel (task 20.3): creating and editing
+ * Seasonal campaigns in the admin panel: creating and editing
  * them on the settings tab, and the producers who paid to join, by status,
  * on the others.
  */

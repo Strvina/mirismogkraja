@@ -50,7 +50,7 @@ function Rating({ value, count }: { value: number | null; count: number }) {
 }
 
 /**
- * Producer tile for the catalog grid (task 13): cover image with the
+ * Producer tile for the catalog grid: cover image with the
  * producer's avatar overlapping it, their tagline, rating and location, and
  * a couple of recent reviews so the card carries some social proof.
  */

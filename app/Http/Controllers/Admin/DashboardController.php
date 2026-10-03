@@ -56,7 +56,7 @@ class DashboardController extends Controller
             // How inquiries ended this month, as producers report it (task
             // 14.5) - unverifiable, and labelled so on the page.
             'outcomes' => $this->outcomesThisMonth(),
-            // What the platform earns, by source (task 20.9): only money an
+            // What the platform earns, by source: only money an
             // admin confirmed, and nothing given away free.
             'revenue' => [
                 ['label' => __('Članarine'), ...$this->earned(ProducerSubscription::query())],

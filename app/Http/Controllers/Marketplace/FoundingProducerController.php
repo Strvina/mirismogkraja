@@ -9,7 +9,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The public roll of the founding producers (task 20.4). It is a brand page as
+ * The public roll of the founding producers. It is a brand page as
  * much as a record: these are the producers who listed their goods before
  * anyone was searching for them.
  */

@@ -37,7 +37,7 @@ class HomeController extends Controller
      */
     public function __invoke(SubscriptionService $subscriptions): Response
     {
-        // The homepage slot is what the top plan pays for (task 20.1). It
+        // The homepage slot is what the top plan pays for. It
         // is its own labelled section, drawn at random from the paying
         // producers on every visit so none of them owns it.
         $featuredProducers = $this->publishedProducers()
@@ -55,7 +55,7 @@ class HomeController extends Controller
             $this->popularProducerIds(),
         );
 
-        // "Proizvođač nedelje" (task 20.7), chosen by an admin. Only shown
+        // "Proizvođač nedelje", chosen by an admin. Only shown
         // while the producer - and the product, if one was picked - is
         // still public.
         $pick = WeeklyPick::current()->first();

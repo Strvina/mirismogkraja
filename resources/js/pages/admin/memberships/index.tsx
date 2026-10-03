@@ -261,7 +261,7 @@ function SettingsTab({ settings }: { settings: Settings }) {
 }
 
 /**
- * Memberships (task 20.9): plans, slip details and founding places on the
+ * Memberships: plans, slip details and founding places on the
  * settings tab; the payments by status on the others. Confirming a payment
  * is a human step on purpose - somebody has to see the bank statement.
  */

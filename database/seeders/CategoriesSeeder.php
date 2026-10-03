@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class CategoriesSeeder extends Seeder
 {
     /**
-     * Base product categories, per docs/plan.md task 3.2.
+     * The base product categories.
      *
      * @var list<string>
      */

@@ -81,7 +81,7 @@ class ProducerService
 
     /**
      * Create a new producer owned by the given user, generating a unique slug from its name.
-     * This is the "Postani prodavac" flow (task 1.4): filling in producer details is what
+     * This is the "Postani prodavac" flow: filling in producer details is what
      * grants the 'seller' role, on top of whatever role(s) the user already has.
      *
      * @param  array<string, mixed>  $attributes

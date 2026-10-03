@@ -157,4 +157,20 @@ class PaymentSlipTest extends TestCase
 
         $this->actingAs(User::factory()->create())->get(route('memberships.slip', $subscription))->assertForbidden();
     }
+
+    /** The code on screen is drawn on the server, like the PDF's, and only for the slip's owner. */
+    public function test_the_slip_qr_is_an_image_for_its_owner_only(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $subscription = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole());
+        $slip = app(PaymentSlipService::class)->detailsFor($subscription);
+
+        $this->assertSame(route('payment-slips.qr', ['clanarina', $subscription->id]), $slip['qr_url']);
+
+        $this->actingAs($producer->user)->get($slip['qr_url'])
+            ->assertOk()
+            ->assertHeader('content-type', 'image/svg+xml');
+
+        $this->actingAs(User::factory()->create())->get($slip['qr_url'])->assertForbidden();
+    }
 }
