@@ -862,5 +862,7 @@
     "Bar 3 objavljena proizvoda": "At least 3 published products",
     "Profil je popunjen :percent%": "Profile :percent% complete",
     "Kupci češće pišu proizvođačima sa potpunim profilom. Još nedostaje:": "Buyers write more often to producers with a complete profile. Still missing:",
-    "Prestaje odmah i prelazi u otkazane; proizvođač dobija obaveštenje. Ako mu dugujete novac, dogovorite se direktno.": "It stops at once and moves to cancelled; the producer is notified. If you owe them money, settle it with them directly."
+    "Prestaje odmah i prelazi u otkazane; proizvođač dobija obaveštenje. Ako mu dugujete novac, dogovorite se direktno.": "It stops at once and moves to cancelled; the producer is notified. If you owe them money, settle it with them directly.",
+    "Kliknite na mapu da označite gde ste — kupci će vas videti na mapi proizvođača. Ne mora biti tačna kućna adresa; dovoljno je selo ili deo grada.": "Click the map to mark where you are — buyers will see you on the producers map. It need not be your exact address; the village or part of town is enough.",
+    "Ukloni „:method”": "Remove “:method”"
 }

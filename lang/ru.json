@@ -875,5 +875,7 @@
     "Bar 3 objavljena proizvoda": "Хотя бы 3 опубликованных товара",
     "Profil je popunjen :percent%": "Профиль заполнен на :percent%",
     "Kupci češće pišu proizvođačima sa potpunim profilom. Još nedostaje:": "Покупатели чаще пишут производителям с полным профилем. Ещё не хватает:",
-    "Prestaje odmah i prelazi u otkazane; proizvođač dobija obaveštenje. Ako mu dugujete novac, dogovorite se direktno.": "Прекращается сразу и переходит в отменённые; производитель получает уведомление. Если вы должны ему деньги, договоритесь напрямую."
+    "Prestaje odmah i prelazi u otkazane; proizvođač dobija obaveštenje. Ako mu dugujete novac, dogovorite se direktno.": "Прекращается сразу и переходит в отменённые; производитель получает уведомление. Если вы должны ему деньги, договоритесь напрямую.",
+    "Kliknite na mapu da označite gde ste — kupci će vas videti na mapi proizvođača. Ne mora biti tačna kućna adresa; dovoljno je selo ili deo grada.": "Нажмите на карту, чтобы отметить, где вы находитесь, — покупатели увидят вас на карте производителей. Не обязательно точный адрес; достаточно села или района.",
+    "Ukloni „:method”": "Убрать «:method»"
 }
