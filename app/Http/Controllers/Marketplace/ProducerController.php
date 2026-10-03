@@ -61,6 +61,7 @@ class ProducerController extends Controller
             ->pluck('city');
 
         return Inertia::render('marketplace/producers/index', [
+            'meta' => PageMeta::make(__('Proizvođači | Vrelina juga'), __('Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.')),
             'producers' => $producers,
             'featured' => $featured,
             // Every published producer that marked a point, within the city
@@ -111,6 +112,7 @@ class ProducerController extends Controller
         defer(fn () => $statistics->record($request, $producer, ProducerStatistics::PROFILE_VIEW));
 
         $user = $request->user();
+        $averageRating = round((float) ($producer->reviews()->approved()->avg('rating') ?? 0), 1);
 
         return Inertia::render('marketplace/producers/show', [
             // What the page prints. Not the owner's account id, the stored
@@ -126,12 +128,15 @@ class ProducerController extends Controller
             // partial reload asks for it), as the privacy page promises -
             // not in every page's HTML for every crawler to collect.
             'phone' => Inertia::optional(fn () => $producer->phone),
-            'meta' => PageMeta::make(
-                $producer->city ? "{$producer->name} - {$producer->city}" : $producer->name,
-                $producer->description,
-                $producer->cover_image_path ?? $producer->logo_path,
-                'profile',
-            ),
+            'meta' => [
+                ...PageMeta::make(
+                    $producer->city ? "{$producer->name} - {$producer->city}" : $producer->name,
+                    $producer->description,
+                    $producer->cover_image_path ?? $producer->logo_path,
+                    'profile',
+                ),
+                'structured' => PageMeta::producer($producer, $averageRating, $reviewCount = $producer->reviews()->approved()->count()),
+            ],
             'isPremium' => $subscriptions->hasFeature($producer, 'premium_badge'),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'products' => $producer->products()
@@ -147,7 +152,7 @@ class ProducerController extends Controller
                 ->latest()
                 ->paginate(10)
                 ->withQueryString(),
-            'averageRating' => round($producer->reviews()->approved()->avg('rating') ?? 0, 1),
+            'averageRating' => $averageRating,
             'canReview' => $user?->can('create', [Review::class, $producer]) ?? false,
             // An author sees their own review straight away, in its usual
             // place and in the usual card, marked as still waiting on a

@@ -29,6 +29,7 @@ const categoryImages = [
 interface HomeCategory {
     id: number;
     name: string;
+    slug: string;
 }
 
 /**
@@ -179,7 +180,7 @@ export default function Welcome({
                         {categories.map((category, index) => (
                             <Link
                                 key={category.id}
-                                href={route('marketplace.products.index', { category_id: category.id })}
+                                href={route('marketplace.categories.show', category.slug)}
                                 className="group bg-muted relative block aspect-[4/5] overflow-hidden rounded-md"
                             >
                                 <img

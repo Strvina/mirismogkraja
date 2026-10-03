@@ -4,12 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        @php($meta = $page['props']['meta'] ?? null)
+        <title inertia>{{ $meta['title'] ?? config('app.name', 'Laravel') }}</title>
 
         {{-- Link previews and search results read this first response and
              never run JavaScript, so a page's own description is written
              here rather than by React. See App\Support\PageMeta. --}}
-        @php($meta = $page['props']['meta'] ?? null)
         @if ($meta)
             <meta name="description" content="{{ $meta['description'] }}">
             <link rel="canonical" href="{{ $meta['url'] }}">
@@ -18,7 +18,7 @@
             <meta property="og:title" content="{{ $meta['title'] }}">
             <meta property="og:description" content="{{ $meta['description'] }}">
             <meta property="og:url" content="{{ $meta['url'] }}">
-            <meta property="og:locale" content="sr_RS">
+            <meta property="og:locale" content="{{ \App\Support\PageMeta::OG_LOCALES[app()->getLocale()] ?? 'sr_RS' }}">
             @if ($meta['image'])
                 <meta property="og:image" content="{{ $meta['image'] }}">
                 <meta name="twitter:card" content="summary_large_image">

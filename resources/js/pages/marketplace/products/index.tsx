@@ -19,6 +19,7 @@ export default function ProductsIndex({
     filters,
     perPage,
     perPageOptions,
+    category,
 }: {
     products: Paginated<ProductCardProduct>;
     featured: ProductCardProduct[];
@@ -29,6 +30,8 @@ export default function ProductsIndex({
     filters: ProductFilterValues;
     perPage: number;
     perPageOptions: number[];
+    /** Set on a category's own page (/kategorija/...). */
+    category: { id: number; name: string; slug: string } | null;
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -44,10 +47,14 @@ export default function ProductsIndex({
 
     return (
         <MarketplaceLayout>
-            <Head title={t('Proizvodi | Vrelina juga')} />
+            <Head title={category ? t(':category | Vrelina juga', { category: t(category.name) }) : t('Proizvodi | Vrelina juga')} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">{t('Proizvodi')}</h1>
-            <p className="text-muted-foreground mt-3 max-w-lg leading-7">{t('Domaći proizvodi, direktno od ljudi koji ih prave.')}</p>
+            <h1 className="font-serif text-4xl sm:text-5xl">{category ? t(category.name) : t('Proizvodi')}</h1>
+            <p className="text-muted-foreground mt-3 max-w-lg leading-7">
+                {category
+                    ? t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
+                    : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
+            </p>
 
             <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:gap-12">
                 <ProductFilters
