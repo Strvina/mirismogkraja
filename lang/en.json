@@ -817,5 +817,10 @@
     "Obrisan korisnik": "Deleted user",
     ":category | Vrelina juga": ":category | Vrelina juga",
     "Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.": "Homemade “:category”, straight from producers in southern Serbia.",
-    "Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.": "Meet local producers from southern Serbia and write to them directly, with no middleman."
+    "Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.": "Meet local producers from southern Serbia and write to them directly, with no middleman.",
+    "Pretraži proizvode…": "Search products…",
+    "Pretraži proizvođače…": "Search producers…",
+    "Pretraga": "Search",
+    "Rezultati za „:query”": "Results for “:query”",
+    "Poništi pretragu": "Clear search"
 }

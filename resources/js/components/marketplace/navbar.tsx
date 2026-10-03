@@ -3,8 +3,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
-import { Link, usePage, usePoll } from '@inertiajs/react';
-import { Heart, Package, Sprout } from 'lucide-react';
+import { Link, router, usePage, usePoll } from '@inertiajs/react';
+import { Heart, Package, Search, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import AccountMenu from './account-menu';
 import Brand from './brand';
@@ -12,6 +12,7 @@ import LanguageSwitcher from './language-switcher';
 import MenuIcon from './menu-icon';
 import MessagesLink from './messages-link';
 import NotificationsBell from './notifications-bell';
+import SearchBox from './search-box';
 
 /**
  * The site's header: shared by every page except the admin panel, which has
@@ -42,6 +43,14 @@ export default function Navbar() {
     usePoll(BADGE_POLL_MS, { only: ['unreadMessages', 'unreadNotifications'] }, { autoStart: Boolean(auth.user) });
     const { url } = usePage();
     const [guestMenuOpen, setGuestMenuOpen] = useState(false);
+    // Below the wide layout the search folds into an icon and opens a row
+    // of its own under the header.
+    const [searchOpen, setSearchOpen] = useState(false);
+
+    const search = (q: string) => {
+        setSearchOpen(false);
+        router.get('/proizvodi', q ? { q } : {});
+    };
 
     const sections = [
         { href: route('marketplace.producers.index'), paths: ['/proizvodjaci', '/proizvodjac'], label: t('Proizvođači'), icon: Sprout },
@@ -97,6 +106,17 @@ export default function Navbar() {
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2 sm:gap-3">
+                    <SearchBox onSearch={search} className="hidden w-56 xl:block" />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="xl:hidden"
+                        aria-label={t('Pretraga')}
+                        aria-expanded={searchOpen}
+                        onClick={() => setSearchOpen((open) => !open)}
+                    >
+                        <Search className="size-5" />
+                    </Button>
                     <LanguageSwitcher />
                     {auth.user ? (
                         <>
@@ -157,6 +177,12 @@ export default function Navbar() {
                     )}
                 </div>
             </div>
+
+            {searchOpen && (
+                <div className="border-border/70 border-t px-5 py-3 sm:px-8 xl:hidden">
+                    <SearchBox onSearch={search} autoFocus className="mx-auto max-w-xl" />
+                </div>
+            )}
         </header>
     );
 }

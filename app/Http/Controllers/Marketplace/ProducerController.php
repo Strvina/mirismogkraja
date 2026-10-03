@@ -11,6 +11,7 @@ use App\Services\BoostService;
 use App\Services\ProducerStatistics;
 use App\Services\SubscriptionService;
 use App\Support\PageMeta;
+use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -29,8 +30,10 @@ class ProducerController extends Controller
     public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
     {
         $city = $request->string('city')->toString();
+        $search = Search::clean($request->string('q')->toString());
 
-        $producers = $this->cards($city)
+        $producers = $this->cards($city, $search)
+            ->tap(fn ($query) => Search::orderByRelevance($query, ['name', 'description'], $search))
             ->orderBy('name')
             ->paginate(12)
             ->withQueryString();
@@ -44,7 +47,7 @@ class ProducerController extends Controller
         // the days of a boost they paid for. Filtered by city, it is the
         // regional placement of task 20.8.
         $featured = $producers->onFirstPage()
-            ? $this->cards($city)
+            ? $this->cards($city, $search)
                 ->whereIn('id', $subscriptions->producerIdsWith('featured_section')->concat($boosts->runningIds(Boost::PROFILE))->unique()->values())
                 ->inRandomOrder()
                 // Enough to fill the slider on a wide screen.
@@ -81,7 +84,7 @@ class ProducerController extends Controller
                     'lng' => (float) $producer->lng,
                 ])),
             'cities' => $cities,
-            'filters' => ['city' => $request->string('city')->toString() ?: null],
+            'filters' => ['city' => $city ?: null, 'q' => $search !== '' ? $search : null],
         ]);
     }
 
@@ -91,11 +94,12 @@ class ProducerController extends Controller
      *
      * @return Builder<Producer>
      */
-    private function cards(string $city): Builder
+    private function cards(string $city, string $search = ''): Builder
     {
         return Producer::published()
             ->withCardData()
-            ->when($city, fn ($query) => $query->where('city', $city));
+            ->when($city, fn ($query) => $query->where('city', $city))
+            ->when($search !== '', fn ($query) => Search::apply($query, ['name', 'description'], $search));
     }
 
     /**

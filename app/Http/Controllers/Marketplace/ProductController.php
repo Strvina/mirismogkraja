@@ -11,6 +11,7 @@ use App\Models\Report;
 use App\Services\BoostService;
 use App\Services\ProducerStatistics;
 use App\Support\PageMeta;
+use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -23,6 +24,9 @@ class ProductController extends Controller
 {
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
+
+    /** The columns of the products FULLTEXT index. */
+    private const SEARCHED = ['name', 'description'];
 
     /**
      * List published products, with optional category/producer/city/price/
@@ -53,10 +57,13 @@ class ProductController extends Controller
     private function listing(Request $request, BoostService $boosts, ?Category $category = null): Response
     {
         $sort = $request->string('sort')->toString();
+        $search = Search::clean($request->string('q')->toString());
 
         $products = $this->filtered($request)
             ->when($sort === 'price_asc', fn ($query) => $query->orderBy('price'))
             ->when($sort === 'price_desc', fn ($query) => $query->orderByDesc('price'))
+            // A search with no sort chosen: best matches first.
+            ->when($search !== '' && ! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => Search::orderByRelevance($query, self::SEARCHED, $search))
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
             ->paginate($this->perPage($request))
             ->withQueryString();
@@ -109,9 +116,15 @@ class ProductController extends Controller
             'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name']),
             'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city'),
             'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
-            'filters' => $request->only([
-                'category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'sort',
-            ]),
+            'filters' => [
+                ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'sort']),
+                'q' => $search !== '' ? $search : null,
+            ],
+            // A search for "Jovanović" is often for the producer, not a
+            // product: the few producers it matches are shown above the list.
+            'matchingProducers' => $search === '' || ! $products->onFirstPage() ? [] : Search::apply(Producer::published(), ['name', 'description'], $search)
+                ->limit(4)
+                ->get(['id', 'name', 'slug', 'city', 'logo_path']),
             'perPage' => $this->perPage($request),
             'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
@@ -129,6 +142,7 @@ class ProductController extends Controller
             ->published()
             ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'created_at'])
             ->with(['images:id,product_id,path,order', 'producer:id,name,city'])
+            ->when($request->filled('q'), fn ($query) => Search::apply($query, self::SEARCHED, $request->string('q')->toString()))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('household_id', $producerId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
