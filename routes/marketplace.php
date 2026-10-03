@@ -4,6 +4,7 @@ use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\Marketplace\FoundingProducerController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
+use App\Http\Controllers\ProductAlertController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewReplyController;
 use Illuminate\Support\Facades\Route;
@@ -23,5 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:5,1')
         ->name('reviews.store');
     Route::delete('/ocene/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    // "Javi mi kad stigne" - signing in is enough, it reaches nobody else.
+    Route::post('/proizvod/{product:slug}/obavesti', [ProductAlertController::class, 'toggle'])->middleware('throttle:20,1')->withoutMiddleware('verified')->name('products.alert');
     Route::put('/ocene/{review}/odgovor', [ReviewReplyController::class, 'update'])->middleware('throttle:10,1')->name('reviews.reply');
 });

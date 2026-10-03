@@ -70,6 +70,31 @@ class Product extends Model
      *
      * @param  Builder<Product>  $query
      */
+    /** The same rule as the inSeason scope, for a product already loaded. */
+    public function isInSeason(?int $month = null): bool
+    {
+        if ($this->season_from === null || $this->season_to === null) {
+            return true;
+        }
+
+        $month ??= now()->month;
+
+        return $this->season_from <= $this->season_to
+            ? $month >= $this->season_from && $month <= $this->season_to
+            : $month >= $this->season_from || $month <= $this->season_to;
+    }
+
+    /** Something a buyer can have now: in stock and in season. */
+    public function isAvailable(): bool
+    {
+        return $this->stock_quantity > 0 && $this->isInSeason();
+    }
+
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(ProductAlert::class);
+    }
+
     /**
      * In season in the given month (default: now). Products without a
      * season are available all year; a range may wrap the new year.

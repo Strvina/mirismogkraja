@@ -30,3 +30,6 @@ if ($notify = config('backup.notify')) {
 
 // "You have a message" e-mails, for messages unread for a few minutes.
 Schedule::command('messages:email-unread')->everyFiveMinutes()->withoutOverlapping();
+
+// "Javi mi kad stigne": products back in stock or in season.
+Schedule::command('products:send-alerts')->hourly()->withoutOverlapping();
