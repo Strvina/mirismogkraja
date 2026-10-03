@@ -889,5 +889,16 @@
     "Isključi obaveštenja": "Turn notifications off",
     "Uključi obaveštenja": "Turn notifications on",
     "Uključeno na ovom uređaju.": "On for this device.",
-    "Nije uspelo. Pokušajte ponovo.": "That didn't work. Please try again."
+    "Nije uspelo. Pokušajte ponovo.": "That didn't work. Please try again.",
+    "Logo ili vaša fotografija": "Logo or a photo of you",
+    "Naslovna fotografija": "Cover photo",
+    "Opis od bar par rečenica": "A description of a few sentences",
+    "Vaša priča": "Your story",
+    "Mesto i lokacija na mapi": "Town and a pin on the map",
+    "Telefon ili e-mail za kontakt": "Phone or e-mail for contact",
+    "Načini dostave": "Delivery options",
+    "Bar 3 fotografije u galeriji": "At least 3 photos in the gallery",
+    "Bar 3 objavljena proizvoda": "At least 3 published products",
+    "Profil je popunjen :percent%": "Profile :percent% complete",
+    "Kupci češće pišu proizvođačima sa potpunim profilom. Još nedostaje:": "Buyers write more often to producers with a complete profile. Still missing:"
 }
