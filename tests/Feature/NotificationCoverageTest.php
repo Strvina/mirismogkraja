@@ -50,7 +50,7 @@ class NotificationCoverageTest extends TestCase
             'boost.requested', 'boost.activated', 'boost.ending', 'boost.expired', 'boost.cancelled',
             'campaign.requested', 'campaign.joined', 'campaign.cancelled',
             'admin.producer-pending', 'admin.membership-requested', 'admin.boost-requested', 'admin.campaign-requested',
-            'admin.cancel-requested', 'admin.review-pending', 'admin.report-opened', 'admin.change-requested',
+            'admin.review-pending', 'admin.report-opened', 'admin.change-requested',
         ];
 
         foreach ($types as $type) {

@@ -9,7 +9,6 @@ use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\BoostService;
-use App\Services\CancellationService;
 use App\Services\FoundingProducerService;
 use App\Services\SubscriptionService;
 use Database\Seeders\RolesSeeder;
@@ -69,36 +68,23 @@ class BillingAndCancellationTest extends TestCase
         $this->get('/prvih-100')->assertRedirect('/osnivaci');
     }
 
-    public function test_a_producer_asks_to_cancel_and_the_admin_deactivates(): void
+    public function test_an_admin_deactivates_a_running_membership(): void
     {
         $producer = Producer::factory()->active()->create();
         $membership = $this->activeMembership($producer);
 
-        $this->actingAs(User::factory()->create())->post(route('cancellation.request', ['clanarina', $membership->id]))->assertForbidden();
-        $this->actingAs($producer->user)->post(route('cancellation.request', ['clanarina', $membership->id]))->assertRedirect();
-        $this->assertNotNull($membership->refresh()->cancel_requested_at);
-
-        $this->actingAs($this->admin)->get(route('admin.dashboard'))
-            ->assertInertia(fn ($page) => $page->where('todo', fn ($todo) => collect($todo)->firstWhere('label', 'zahteva za otkazivanje članarine')['count'] === 1));
-
-        $this->actingAs($this->admin)->patch(route('admin.paid.cancel', ['clanarina', $membership->id]), ['refund_rsd' => 0])->assertRedirect();
+        $this->actingAs($producer->user)->patch(route('admin.paid.cancel', ['clanarina', $membership->id]))->assertForbidden();
+        $this->actingAs($this->admin)->patch(route('admin.paid.cancel', ['clanarina', $membership->id]))->assertRedirect();
 
         $this->assertSame(ProducerSubscription::STATUS_CANCELLED, $membership->refresh()->status);
-        $this->assertNull($membership->refund_rsd);
         $this->assertFalse(app(SubscriptionService::class)->hasFeature($producer, 'statistics'));
         $this->assertContains('membership.cancelled', $producer->user->notifications()->get()->pluck('data.type'));
+
+        // Already cancelled: nothing left to stop.
+        $this->actingAs($this->admin)->patch(route('admin.paid.cancel', ['clanarina', $membership->id]))->assertStatus(422);
     }
 
-    /** Only something running can be asked to stop. */
-    public function test_an_unpaid_request_cannot_be_asked_to_cancel(): void
-    {
-        $producer = Producer::factory()->active()->create();
-        $pending = app(SubscriptionService::class)->request($producer, SubscriptionPlan::where('slug', 'basic')->sole());
-
-        $this->actingAs($producer->user)->post(route('cancellation.request', ['clanarina', $pending->id]))->assertStatus(422);
-    }
-
-    public function test_an_admin_can_deactivate_a_running_boost_without_a_request(): void
+    public function test_an_admin_deactivates_a_running_boost(): void
     {
         $producer = Producer::factory()->active()->create();
         $boosts = app(BoostService::class);
@@ -109,51 +95,6 @@ class BillingAndCancellationTest extends TestCase
         $this->assertSame(Boost::STATUS_CANCELLED, $boost->refresh()->status);
         $this->assertFalse($boosts->runningIds(Boost::PROFILE)->contains($producer->id));
         $this->assertContains('boost.cancelled', $producer->user->notifications()->get()->pluck('data.type'));
-    }
-
-    /** Half the time left, about half the money back - as a suggestion. */
-    public function test_the_suggested_refund_is_the_unused_share(): void
-    {
-        $producer = Producer::factory()->active()->create();
-        $boosts = app(BoostService::class);
-        $boost = $boosts->confirm($boosts->request($producer, $producer), $this->admin->id);
-        $boost->update(['amount_rsd' => 1000, 'starts_at' => now()->subDays(5), 'ends_at' => now()->addDays(5)]);
-
-        $this->assertEqualsWithDelta(500, app(CancellationService::class)->suggestedRefund($boost), 1);
-
-        $boost->update(['status' => Boost::STATUS_EXPIRED]);
-        $this->assertSame(0, app(CancellationService::class)->suggestedRefund($boost));
-    }
-
-    /**
-     * The whole refund: the producer gives an account with the request, the
-     * admin decides the amount while deactivating, then marks it sent - and
-     * the producer hears at each step. Never more than was paid.
-     */
-    public function test_a_refund_from_request_to_money_sent(): void
-    {
-        $producer = Producer::factory()->active()->create();
-        $membership = $this->activeMembership($producer);
-
-        $this->actingAs($producer->user)->post(route('cancellation.request', ['clanarina', $membership->id]), ['refund_account' => 'nije račun'])
-            ->assertSessionHasErrors('refund_account');
-        $this->actingAs($producer->user)->post(route('cancellation.request', ['clanarina', $membership->id]), ['refund_account' => '160-0000000012345-67']);
-        $this->assertSame('160-0000000012345-67', $membership->refresh()->refund_account);
-
-        $this->actingAs($this->admin)->patch(route('admin.paid.cancel', ['clanarina', $membership->id]), ['refund_rsd' => $membership->amount_rsd + 1])
-            ->assertSessionHasErrors('refund_rsd');
-        $this->actingAs($this->admin)->patch(route('admin.paid.cancel', ['clanarina', $membership->id]), ['refund_rsd' => 2000]);
-
-        $this->assertSame(2000, $membership->refresh()->refund_rsd);
-        $this->assertContains('refund.decided', $producer->user->notifications()->get()->pluck('data.type'));
-        $this->actingAs($this->admin)->get(route('admin.memberships.index', ['status' => 'cancelled']))
-            ->assertInertia(fn ($page) => $page->where('counts.refunds_due', 1)->where('subscriptions.data.0.refund.amount', 2000));
-
-        $this->actingAs($this->admin)->patch(route('admin.refunds.paid', ['clanarina', $membership->id]))->assertRedirect();
-
-        $this->assertNotNull($membership->refresh()->refunded_at);
-        $this->assertContains('refund.paid', $producer->user->notifications()->get()->pluck('data.type'));
-        $this->actingAs($this->admin)->patch(route('admin.refunds.paid', ['clanarina', $membership->id]))->assertStatus(422);
     }
 
     /** A notification about a payment opens that exact slip or row, not just the list. */
@@ -196,24 +137,5 @@ class BillingAndCancellationTest extends TestCase
 
         $this->actingAs($producer->user)->get(route('notifications.open', $notification->id))
             ->assertRedirect(url('/isticanje').'#isticanje-2');
-    }
-
-    /** Deactivated without an account on file: the producer is asked for one, and can give it later. */
-    public function test_a_producer_gives_the_refund_account_afterwards(): void
-    {
-        $producer = Producer::factory()->active()->create();
-        $boosts = app(BoostService::class);
-        $boost = $boosts->confirm($boosts->request($producer, $producer), $this->admin->id);
-
-        $this->actingAs($this->admin)->patch(route('admin.paid.cancel', ['isticanje', $boost->id]), ['refund_rsd' => 300]);
-        $this->assertContains('refund.needs-account', $producer->user->notifications()->get()->pluck('data.type'));
-
-        $this->actingAs(User::factory()->create())->put(route('refunds.account', ['isticanje', $boost->id]), ['refund_account' => '160000000001234567'])
-            ->assertForbidden();
-        $this->actingAs($producer->user)->put(route('refunds.account', ['isticanje', $boost->id]), ['refund_account' => '160000000001234567'])
-            ->assertRedirect();
-
-        $this->assertSame('160000000001234567', $boost->refresh()->refund_account);
-        $this->assertContains('admin.refund-account', $this->admin->notifications()->get()->pluck('data.type'));
     }
 }

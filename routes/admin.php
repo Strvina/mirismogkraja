@@ -53,11 +53,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/kampanje/{campaign}', [AdminCampaignController::class, 'update'])->name('campaigns.update');
     Route::patch('/kampanje/prijave/{participant}/potvrdi', [AdminCampaignController::class, 'confirm'])->name('campaigns.confirm');
 
-    // Stopping anything paid for by slip, and settling its refund.
+    // Stopping anything paid for by slip.
     Route::patch('/otkazivanje/{kind}/{id}', [AdminCancellationController::class, 'cancel'])
         ->whereIn('kind', array_keys(PaidItems::KINDS))->whereNumber('id')->name('paid.cancel');
-    Route::patch('/povracaj/{kind}/{id}', [AdminCancellationController::class, 'refunded'])
-        ->whereIn('kind', array_keys(PaidItems::KINDS))->whereNumber('id')->name('refunds.paid');
 
     Route::get('/nedelja', [WeeklyPickController::class, 'index'])->name('weekly-picks.index');
     Route::post('/nedelja', [WeeklyPickController::class, 'store'])->name('weekly-picks.store');

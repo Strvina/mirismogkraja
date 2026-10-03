@@ -29,15 +29,12 @@ class AdminBoostController extends Controller
 
         return Inertia::render('admin/boosts/index', [
             'filters' => ['status' => $status],
-            'counts' => [...Boost::countsByStatus(), 'refunds_due' => Boost::refundDue()->count()],
+            'counts' => Boost::countsByStatus(),
             // Only the open tab's data is loaded: the list, or the prices.
             'terms' => $status === 'settings' ? $boosts->terms() : null,
             'boosts' => $status === 'settings' ? null : Boost::query()
                 ->with(['producer:id,name,slug', 'boostable'])
                 ->where('status', $status)
-                // What needs acting on leads: a request to cancel, a refund to send.
-                ->orderByRaw('cancel_requested_at is null')
-                ->orderByRaw('(refund_rsd > 0 and refunded_at is null) desc')
                 ->latest()
                 ->paginate(30)
                 ->withQueryString()

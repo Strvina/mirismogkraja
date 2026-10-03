@@ -3,10 +3,6 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        {{-- Installable on a phone's home screen (see public/sw.js). --}}
-        <link rel="manifest" href="/manifest.webmanifest">
-        <meta name="theme-color" content="#9a3b26">
-        <link rel="apple-touch-icon" href="/icons/icon-180.png">
 
         @php($meta = $page['props']['meta'] ?? null)
         <title inertia>{{ $meta['title'] ?? config('app.name', 'Laravel') }}</title>

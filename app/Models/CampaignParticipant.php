@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Contracts\Payable;
 use App\Models\Concerns\CountsByStatus;
-use App\Models\Concerns\HasRefund;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CampaignParticipant extends Model implements Payable
 {
-    use CountsByStatus, HasRefund;
+    use CountsByStatus;
 
     public const STATUS_PENDING = 'pending_payment';
 
@@ -37,7 +36,7 @@ class CampaignParticipant extends Model implements Payable
 
     protected function casts(): array
     {
-        return ['confirmed_at' => 'datetime', 'cancel_requested_at' => 'datetime'];
+        return ['confirmed_at' => 'datetime'];
     }
 
     public function campaign(): BelongsTo

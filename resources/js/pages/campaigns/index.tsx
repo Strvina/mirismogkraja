@@ -1,7 +1,7 @@
 import heroImage from '@/assets/hero-ajvar.jpg';
 import InputError from '@/components/input-error';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { CancelRequest, HowItWorks, linkedSlipId, PaymentStatusBadge, type RefundState, RefundStatus } from '@/components/marketplace/payment-status';
+import { HowItWorks, linkedSlipId, PaymentStatusBadge } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -29,8 +29,6 @@ interface Place {
     producer: string;
     status: 'pending_payment' | 'active' | 'cancelled';
     amount_rsd: number;
-    cancel_requested_at: string | null;
-    refund: RefundState | null;
     slip: PaymentSlip | null;
     download_url: string | null;
 }
@@ -245,26 +243,13 @@ export default function Campaigns({
                                     </span>
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    {place.status === 'active' && (
-                                        <CancelRequest
-                                            kind="kampanja"
-                                            id={place.id}
-                                            requestedAt={place.cancel_requested_at}
-                                            what={t('učešće u kampanji „:name”', { name: place.campaign })}
-                                        />
-                                    )}
-                                    <PaymentStatusBadge status={place.status} label={place.status === 'active' ? 'Učestvujete' : undefined} />
+                                    <PaymentStatusBadge status={place.status} label={place.status === 'active' ? t('Učestvujete') : undefined} />
                                     {place.slip && (
                                         <Button variant="outline" size="sm" onClick={() => setSlipFor(place.id)}>
                                             {t('Uplatnica')}
                                         </Button>
                                     )}
                                 </span>
-                                {place.refund && (
-                                    <div className="basis-full">
-                                        <RefundStatus kind="kampanja" id={place.id} refund={place.refund} />
-                                    </div>
-                                )}
                             </li>
                         ))}
                     </ul>

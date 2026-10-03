@@ -6,7 +6,6 @@ use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Models\Producer;
 use App\Notifications\SiteNotification;
-use App\Services\CancellationService;
 use App\Services\PaymentSlipPdf;
 use App\Services\PaymentSlipService;
 use App\Services\SubscriptionService;
@@ -69,8 +68,6 @@ class CampaignController extends Controller
                 'producer' => $place->producer->name,
                 'status' => $place->status,
                 'amount_rsd' => $place->amount_rsd,
-                'cancel_requested_at' => $place->cancel_requested_at,
-                'refund' => CancellationService::refundState($place),
                 'slip' => $place->status === CampaignParticipant::STATUS_PENDING ? $slips->detailsFor($place) : null,
                 'download_url' => $place->status === CampaignParticipant::STATUS_PENDING ? route('campaigns.slip', $place) : null,
             ]),
@@ -103,7 +100,6 @@ class CampaignController extends Controller
                 'amount_rsd' => $campaign->price_rsd,
                 'confirmed_by' => null,
                 'confirmed_at' => null,
-                'cancel_requested_at' => null,
             ])->save();
 
             $request->user()->notify(SiteNotification::campaignRequested($campaign->name, $place->amount_rsd, $place->reference, PaidItems::slipUrl($place)));

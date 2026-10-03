@@ -39,7 +39,7 @@ class AdminMembershipController extends Controller
 
         return Inertia::render('admin/memberships/index', [
             'filters' => ['status' => $status],
-            'counts' => [...ProducerSubscription::countsByStatus(), 'refunds_due' => ProducerSubscription::refundDue()->count()],
+            'counts' => ProducerSubscription::countsByStatus(),
             // Only the open tab's data is loaded: the list, or the settings.
             'settings' => $status === 'settings' ? [
                 'plans' => SubscriptionPlan::orderBy('level')->get(),
@@ -51,9 +51,6 @@ class AdminMembershipController extends Controller
             ] : null,
             'subscriptions' => $status === 'settings' ? null : ProducerSubscription::with(['producer:id,name,slug', 'plan:id,name'])
                 ->where('status', $status)
-                // What needs acting on leads: a request to cancel, a refund to send.
-                ->orderByRaw('cancel_requested_at is null')
-                ->orderByRaw('(refund_rsd > 0 and refunded_at is null) desc')
                 ->latest()
                 ->paginate(30)
                 ->withQueryString()

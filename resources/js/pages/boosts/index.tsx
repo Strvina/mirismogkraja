@@ -1,14 +1,6 @@
 import InfoHint from '@/components/info-hint';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import {
-    CancelRequest,
-    HowItWorks,
-    linkedSlipId,
-    type PaymentStatus,
-    PaymentStatusBadge,
-    type RefundState,
-    RefundStatus,
-} from '@/components/marketplace/payment-status';
+import { HowItWorks, linkedSlipId, type PaymentStatus, PaymentStatusBadge } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatNumber } from '@/lib/format';
@@ -33,8 +25,6 @@ interface BoostRow {
     days: number;
     ends_at: string | null;
     created_at: string;
-    cancel_requested_at: string | null;
-    refund: RefundState | null;
     slip: PaymentSlip | null;
     download_url: string | null;
 }
@@ -281,14 +271,6 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                                     </span>
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    {boost.status === 'active' && (
-                                        <CancelRequest
-                                            kind="isticanje"
-                                            id={boost.id}
-                                            requestedAt={boost.cancel_requested_at}
-                                            what={t('isticanje „:name”', { name: boost.name })}
-                                        />
-                                    )}
                                     <PaymentStatusBadge status={boost.status} />
                                     {boost.slip && (
                                         <Button variant="outline" size="sm" onClick={() => setSlipFor(boost.id)}>
@@ -296,11 +278,6 @@ export default function Boosts({ terms, producers, boosts }: { terms: Terms; pro
                                         </Button>
                                     )}
                                 </span>
-                                {boost.refund && (
-                                    <div className="basis-full">
-                                        <RefundStatus kind="isticanje" id={boost.id} refund={boost.refund} />
-                                    </div>
-                                )}
                             </li>
                         ))}
                     </ul>

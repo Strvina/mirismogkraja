@@ -190,19 +190,6 @@ class SiteNotification extends Notification
      * profila") and is translated when read; without an account on file the
      * notification asks for one.
      */
-    public static function refundDecided(string $label, string $name, int $amount, ?string $account, string $url): self
-    {
-        return new self(
-            $account ? 'refund.decided' : 'refund.needs-account',
-            ['what_label' => $label, 'name' => $name, 'amount' => number_format($amount, 0, ',', '.'), 'account' => (string) $account],
-            $url,
-        );
-    }
-
-    public static function refundPaid(string $label, string $name, int $amount, string $account, string $url): self
-    {
-        return new self('refund.paid', ['what_label' => $label, 'name' => $name, 'amount' => number_format($amount, 0, ',', '.'), 'account' => $account], $url);
-    }
 
     // ---------------------------------------------------------------- admin
 

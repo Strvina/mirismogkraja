@@ -24,7 +24,7 @@ export default function StatusTabs({
     current: string;
     settingsLabel: string;
     tabs: StatusTab[];
-    /** Per status; "refunds_due" marks the cancelled tab when money is owed. */
+    /** How many items each tab holds. */
     counts: Record<string, number>;
 }) {
     const tabClass = (active: boolean) =>
@@ -43,8 +43,7 @@ export default function StatusTabs({
             <span className="bg-border mx-2 h-6 w-px shrink-0" aria-hidden />
 
             {tabs.map((tab) => {
-                const urgent =
-                    (tab.status === 'pending_payment' && counts.pending_payment > 0) || (tab.status === 'cancelled' && counts.refunds_due > 0);
+                const urgent = tab.status === 'pending_payment' && counts.pending_payment > 0;
 
                 return (
                     <Link
@@ -59,11 +58,6 @@ export default function StatusTabs({
                                 'rounded-full px-1.5 py-0.5 text-[0.65rem] tabular-nums',
                                 urgent ? 'bg-gold text-foreground' : 'bg-muted text-muted-foreground',
                             )}
-                            title={
-                                tab.status === 'cancelled' && counts.refunds_due > 0
-                                    ? t('Povraćaja čeka isplatu: :count', { count: counts.refunds_due })
-                                    : undefined
-                            }
                         >
                             {counts[tab.status] ?? 0}
                         </span>
