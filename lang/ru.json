@@ -881,5 +881,12 @@
     "Lokacija nije dostupna. Dozvolite sajtu pristup lokaciji u pregledaču i pokušajte ponovo.": "Местоположение недоступно. Разрешите сайту доступ к местоположению в браузере и попробуйте снова.",
     "Poređano po udaljenosti od vas": "Отсортировано по расстоянию от вас",
     "Tražim lokaciju…": "Определяю местоположение…",
-    "Najbliži meni": "Ближайшие ко мне"
+    "Najbliži meni": "Ближайшие ко мне",
+    "Skenirajte i pišite nam": "Отсканируйте и напишите нам",
+    "Naši proizvodi, cene i poruke direktno nama — i kada nismo na pijaci.": "Наши товары, цены и сообщения напрямую нам — даже когда нас нет на рынке.",
+    "Poster je dostupan kada proizvođač bude odobren.": "Постер станет доступен после одобрения производителя.",
+    "Skeniran QR kod sa postera": "Сканирован QR-код с постера",
+    "Novi naziv „:name” čeka odobrenje. Do tada ostaje dosadašnji.": "Новое название «:name» ожидает одобрения. До тех пор остаётся прежнее.",
+    "Odštampajte i zalepite na tezgu — kupci skeniraju i pišu vam.": "Распечатайте и повесьте на прилавок — покупатели сканируют и пишут вам.",
+    "QR poster za tezgu": "QR-постер для прилавка"
 }

@@ -868,5 +868,12 @@
     "Lokacija nije dostupna. Dozvolite sajtu pristup lokaciji u pregledaču i pokušajte ponovo.": "Location is not available. Allow the site to use your location in the browser and try again.",
     "Poređano po udaljenosti od vas": "Sorted by distance from you",
     "Tražim lokaciju…": "Finding your location…",
-    "Najbliži meni": "Nearest to me"
+    "Najbliži meni": "Nearest to me",
+    "Skenirajte i pišite nam": "Scan and write to us",
+    "Naši proizvodi, cene i poruke direktno nama — i kada nismo na pijaci.": "Our products, prices and messages straight to us - even when we are not at the market.",
+    "Poster je dostupan kada proizvođač bude odobren.": "The poster is available once the producer is approved.",
+    "Skeniran QR kod sa postera": "QR code scanned from the poster",
+    "Novi naziv „:name” čeka odobrenje. Do tada ostaje dosadašnji.": "The new name “:name” is awaiting approval. Until then the current one stays.",
+    "Odštampajte i zalepite na tezgu — kupci skeniraju i pišu vam.": "Print it and put it on your stall — buyers scan it and write to you.",
+    "QR poster za tezgu": "QR poster for your stall"
 }

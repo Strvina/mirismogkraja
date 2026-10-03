@@ -9,10 +9,12 @@ use App\Models\Producer;
 use App\Models\ProducerChangeRequest;
 use App\Notifications\SiteNotification;
 use App\Services\FoundingProducerService;
+use App\Services\ProducerPosterPdf;
 use App\Services\ProducerService;
 use App\Support\Admins;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -118,5 +120,20 @@ class ProducerController extends Controller
         $producer->delete();
 
         return to_route('producers.index');
+    }
+
+    /**
+     * The printable stall poster with the producer's QR code. Only for a
+     * producer the public can see: the code would otherwise open a 404.
+     */
+    public function poster(Producer $producer, ProducerPosterPdf $poster): HttpResponse
+    {
+        $this->authorize('update', $producer);
+        abort_unless($producer->status === 'active', 403, __('Poster je dostupan kada proizvođač bude odobren.'));
+
+        return response($poster->render($producer), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$poster->filenameFor($producer).'"',
+        ]);
     }
 }

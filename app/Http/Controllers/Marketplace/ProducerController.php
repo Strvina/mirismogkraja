@@ -183,7 +183,14 @@ class ProducerController extends Controller
         }
 
         // After the response is sent, so a visitor never waits on a counter.
-        defer(fn () => $statistics->record($request, $producer, ProducerStatistics::PROFILE_VIEW));
+        defer(function () use ($request, $producer, $statistics) {
+            $statistics->record($request, $producer, ProducerStatistics::PROFILE_VIEW);
+
+            // Opened from the QR code on the producer's stall poster.
+            if ($request->query('izvor') === 'qr') {
+                $statistics->record($request, $producer, ProducerStatistics::QR_SCAN);
+            }
+        });
 
         $user = $request->user();
         $averageRating = round((float) ($producer->reviews()->approved()->avg('rating') ?? 0), 1);
