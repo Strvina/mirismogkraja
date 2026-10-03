@@ -7,6 +7,7 @@ import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -35,12 +36,14 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
         phone: string;
         address: string;
         city: string;
+        notify_messages_by_email: boolean;
     }>({
         name: auth.user.name,
         email: auth.user.email,
         phone: auth.user.phone ?? '',
         address: auth.user.address ?? '',
         city: auth.user.city ?? '',
+        notify_messages_by_email: auth.user.notify_messages_by_email,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -183,6 +186,21 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
 
                             <InputError className="mt-2" message={errors.city} />
                         </div>
+
+                        <label htmlFor="notify_messages_by_email" className="flex cursor-pointer items-start gap-3">
+                            <Checkbox
+                                id="notify_messages_by_email"
+                                checked={data.notify_messages_by_email}
+                                onCheckedChange={(checked) => setData('notify_messages_by_email', checked === true)}
+                                className="mt-0.5"
+                            />
+                            <span className="grid gap-1">
+                                <span className="text-sm font-medium">{t('Mejl kad dobijem novu poruku')}</span>
+                                <span className="text-muted-foreground text-xs">
+                                    {t('Najviše jedan mejl po prepisci na nekoliko sati, i samo dok poruku ne pročitate na sajtu.')}
+                                </span>
+                            </span>
+                        </label>
 
                         {mustVerifyEmail && auth.user.email_verified_at === null && (
                             <div>

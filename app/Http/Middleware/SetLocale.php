@@ -29,9 +29,20 @@ class SetLocale
 
     public function handle(Request $request, Closure $next): Response
     {
-        app()->setLocale($this->localeFor($request));
+        $locale = $this->localeFor($request);
+        app()->setLocale($locale);
 
-        return $next($request);
+        $response = $next($request);
+
+        // Remembered for e-mails, which have no browser to ask. Written only
+        // when it changes, and without touching updated_at or the audit log.
+        $user = $request->user();
+
+        if ($user && $user->locale !== $locale) {
+            $user->forceFill(['locale' => $locale])->saveQuietly();
+        }
+
+        return $response;
     }
 
     private function localeFor(Request $request): string

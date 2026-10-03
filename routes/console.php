@@ -27,3 +27,6 @@ $backup = Schedule::command('backup:database')->dailyAt('02:30')->withoutOverlap
 if ($notify = config('backup.notify')) {
     $backup->emailOutputOnFailure($notify);
 }
+
+// "You have a message" e-mails, for messages unread for a few minutes.
+Schedule::command('messages:email-unread')->everyFiveMinutes()->withoutOverlapping();
