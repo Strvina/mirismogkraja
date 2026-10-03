@@ -10,7 +10,7 @@ import { mediaUrl, thumbUrl } from '@/lib/media';
 import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { MapPin } from 'lucide-react';
+import { BellRing, MapPin } from 'lucide-react';
 import { useState } from 'react';
 
 type FullProduct = Product & { producer: Pick<Producer, 'id' | 'name' | 'slug' | 'city' | 'logo_path'> };
@@ -21,6 +21,8 @@ export default function ProductShow({
     similar,
     canInquire,
     responseTime,
+    available,
+    alertRequested,
     canReport,
     reportReasons,
     isFavorited,
@@ -29,6 +31,10 @@ export default function ProductShow({
     similar: SimilarProduct[];
     canInquire: boolean;
     responseTime: ResponseTimeBucket | null;
+    /** In stock and in season. */
+    available: boolean;
+    /** The visitor asked to be told when it is available again. */
+    alertRequested: boolean;
     canReport: boolean;
     reportReasons: Record<string, string>;
     isFavorited: boolean;
@@ -81,6 +87,45 @@ export default function ProductShow({
                             </span>
                             <span className="text-muted-foreground">{t('Sezona: :months', { months: seasonLabel(product) ?? '' })}</span>
                         </p>
+                    )}
+
+                    {!available && (canInquire || !auth.user) && (
+                        <div className="border-border/70 bg-muted/40 mt-4 flex flex-wrap items-center gap-3 rounded-lg border px-4 py-3 text-sm">
+                            <BellRing className="text-primary size-4 shrink-0" aria-hidden />
+                            {auth.user ? (
+                                alertRequested ? (
+                                    <>
+                                        <span>{t('Javićemo vam čim bude ponovo dostupno.')}</span>
+                                        <button
+                                            type="button"
+                                            className="text-muted-foreground hover:text-foreground underline underline-offset-4"
+                                            onClick={() => router.post(route('products.alert', product.slug), {}, { preserveScroll: true })}
+                                        >
+                                            {t('Otkaži')}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span>{t('Trenutno nije dostupno.')}</span>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => router.post(route('products.alert', product.slug), {}, { preserveScroll: true })}
+                                        >
+                                            {t('Javi mi kad stigne')}
+                                        </Button>
+                                    </>
+                                )
+                            ) : (
+                                <span>
+                                    {t('Trenutno nije dostupno.')}{' '}
+                                    <Link href={route('login')} className="font-medium underline underline-offset-4">
+                                        {t('Prijavite se')}
+                                    </Link>{' '}
+                                    {t('i javićemo vam kad stigne.')}
+                                </span>
+                            )}
+                        </div>
                     )}
 
                     {product.description && <p className="text-muted-foreground mt-6 leading-7 break-words">{product.description}</p>}

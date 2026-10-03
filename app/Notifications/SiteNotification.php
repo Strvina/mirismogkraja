@@ -3,7 +3,9 @@
 namespace App\Notifications;
 
 use App\Support\LocalUrl;
+use App\Support\NotificationText;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
 
@@ -33,6 +35,9 @@ class SiteNotification extends Notification
     use Queueable;
 
     private readonly ?string $url;
+
+    /** Also sent as an e-mail (see alsoByMail). */
+    private bool $byMail = false;
 
     /** @param  array<string, string|int>  $params */
     private function __construct(
@@ -85,6 +90,11 @@ class SiteNotification extends Notification
     public static function productBlocked(string $productName, string $url): self
     {
         return new self('product.blocked', ['product' => $productName], $url);
+    }
+
+    public static function productAvailable(string $productName, string $producerName, string $url): self
+    {
+        return new self('product.available', ['product' => $productName, 'producer' => $producerName], $url);
     }
 
     public static function reviewReceived(string $producerName, string $url): self
@@ -202,10 +212,35 @@ class SiteNotification extends Notification
         return new self('admin.'.$kind, $params, $url);
     }
 
+    /**
+     * Also by e-mail, to a confirmed address - for what the person asked to
+     * be told about themselves, so it should not wait until they next open
+     * the site. Everything else stays on the site's bell.
+     */
+    public function alsoByMail(): self
+    {
+        $this->byMail = true;
+
+        return $this;
+    }
+
     /** @return list<string> */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return $this->byMail && $notifiable->email_verified_at !== null ? ['database', 'mail'] : ['database'];
+    }
+
+    /** The same words as on the site, in the recipient's language. */
+    public function toMail(object $notifiable): MailMessage
+    {
+        $text = NotificationText::for($this->toArray($notifiable));
+
+        $mail = (new MailMessage)
+            ->subject($text['title'])
+            ->greeting(__('Zdravo!'))
+            ->line($text['body'] ?? '');
+
+        return $this->url === null ? $mail : $mail->action(__('Pogledaj'), url($this->url));
     }
 
     /** @return array<string, mixed> */

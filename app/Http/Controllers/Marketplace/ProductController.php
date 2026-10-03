@@ -236,6 +236,9 @@ class ProductController extends Controller
             // signed in can open a thread from here.
             'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
             'responseTime' => $responseTime->bucketFor($product->producer),
+            // "Javi mi kad stigne", for a product not available right now.
+            'available' => $product->isAvailable(),
+            'alertRequested' => $user !== null && $product->alerts()->where('user_id', $user->id)->exists(),
             'canReport' => $user !== null && $product->producer->user_id !== $user->id,
             'reportReasons' => array_map(__(...), Report::REASONS),
             'isFavorited' => $user?->favorites()
