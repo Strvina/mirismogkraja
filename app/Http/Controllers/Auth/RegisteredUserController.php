@@ -54,6 +54,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect($redirects->homeFor($user));
+        // Straight to "check your inbox": until the link is clicked, messages,
+        // reviews and producer pages are closed (the "verified" routes).
+        return redirect()->route('verification.notice');
     }
 }

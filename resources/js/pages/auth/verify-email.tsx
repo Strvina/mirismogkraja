@@ -1,5 +1,6 @@
 // Components
-import { Head, useForm } from '@inertiajs/react';
+import { type SharedData } from '@/types';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
@@ -9,6 +10,7 @@ import AuthLayout from '@/layouts/auth-layout';
 import { t } from '@/lib/i18n';
 
 export default function VerifyEmail({ status }: { status?: string }) {
+    const { auth } = usePage<SharedData>().props;
     const { post, processing } = useForm({});
 
     const submit: FormEventHandler = (e) => {
@@ -27,15 +29,22 @@ export default function VerifyEmail({ status }: { status?: string }) {
                 </div>
             )}
 
+            <p className="text-muted-foreground mb-6 text-center text-sm">
+                {t('Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.', { email: auth.user?.email ?? '' })}
+            </p>
+
             <form onSubmit={submit} className="space-y-6 text-center">
                 <Button disabled={processing} variant="secondary">
                     {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
                     {t('Pošalji link ponovo')}
                 </Button>
 
-                <TextLink href={route('logout')} method="post" className="mx-auto block text-sm">
-                    {t('Odjavi se')}
-                </TextLink>
+                <div className="flex items-center justify-center gap-4 text-sm">
+                    <TextLink href={route('home')}>{t('Nazad na sajt')}</TextLink>
+                    <TextLink href={route('logout')} method="post">
+                        {t('Odjavi se')}
+                    </TextLink>
+                </div>
             </form>
         </AuthLayout>
     );

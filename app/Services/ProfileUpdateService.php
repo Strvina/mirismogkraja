@@ -17,11 +17,18 @@ class ProfileUpdateService
     {
         $user->fill($attributes);
 
-        if ($user->isDirty('email')) {
+        $emailChanged = $user->isDirty('email');
+
+        if ($emailChanged) {
             $user->email_verified_at = null;
         }
 
         $user->save();
+
+        // The new address has to be confirmed like the first one was.
+        if ($emailChanged) {
+            $user->sendEmailVerificationNotification();
+        }
     }
 
     /**

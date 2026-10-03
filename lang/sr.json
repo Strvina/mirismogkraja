@@ -9,5 +9,8 @@
     "Hello!": "Zdravo!",
     "Regards,": "Pozdrav,",
     "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Ako dugme „:actionText” ne radi, kopirajte ovaj link u pregledač:",
-    "All rights reserved.": "Sva prava zadržana."
+    "All rights reserved.": "Sva prava zadržana.",
+    "Verify Email Address": "Potvrdite email adresu",
+    "Please click the button below to verify your email address.": "Kliknite na dugme ispod da biste potvrdili email adresu.",
+    "If you did not create an account, no further action is required.": "Ako niste vi napravili nalog, ne morate ništa da radite."
 }

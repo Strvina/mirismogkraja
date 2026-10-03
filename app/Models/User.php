@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, SoftDeletes;
@@ -34,6 +35,16 @@ class User extends Authenticatable
         'lng',
         'blocked_at',
     ];
+
+    /**
+     * Sent after the response: registering doesn't wait on the mail server,
+     * and a mail server that is down can't turn a created account into an
+     * error page - the failure is reported, and the link can be re-sent.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        dispatch(fn () => $this->notify(new VerifyEmail))->afterResponse();
+    }
 
     /**
      * The attributes that should be hidden for serialization.

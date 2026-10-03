@@ -5,7 +5,7 @@ use App\Http\Controllers\ProducerImageController;
 use App\Http\Controllers\ProducerStatisticsController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('auth')->prefix('moji-proizvodjaci')->name('producers.')->group(function () {
+Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('producers.')->group(function () {
     Route::get('/', [ProducerController::class, 'index'])->name('index');
     Route::get('/novo', [ProducerController::class, 'create'])->name('create');
     // Uploads photos and notifies the admins: a few a minute is plenty.

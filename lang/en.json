@@ -264,7 +264,7 @@
     "Naslovna slika": "Cover photo",
     "Nazad": "Back",
     "Nazad na početnu": "Back to the home page",
-    "Nazad na sajt": "Back to site",
+    "Nazad na sajt": "Back to the site",
     "Naziv": "Name",
     "Naziv nove kategorije": "New category name",
     "Naziv pod kojim vas kupci prepoznaju i gde vas mogu naći.": "The name buyers know you by and where they can find you.",
@@ -807,5 +807,8 @@
     "— proverili smo ko stoji iza ovog proizvođača.": "— we checked who is behind this producer.",
     "„:name” već učestvuje u ovoj kampanji.": "“:name” is already taking part in this campaign.",
     "Potvrdite da niste robot.": "Please confirm you are not a robot.",
-    "Provera da niste robot nije uspela. Pokušajte ponovo.": "The robot check failed. Please try again."
+    "Provera da niste robot nije uspela. Pokušajte ponovo.": "The robot check failed. Please try again.",
+    "Potvrdite email adresu :email preko linka koji smo vam poslali. Do tada ne možete da šaljete poruke, ocenjujete ni otvorite profil proizvođača.": "Confirm your email address :email using the link we sent you. Until then you can't send messages, leave reviews or open a producer profile.",
+    "Niste dobili mejl?": "Didn't get the email?",
+    "Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.": "We sent the link to :email. If you can't see it, check your spam folder too."
 }

@@ -16,7 +16,7 @@ Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])-
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/proizvodjac/{producer}/ocene', [ReviewController::class, 'store'])
         ->middleware('throttle:5,1')
         ->name('reviews.store');

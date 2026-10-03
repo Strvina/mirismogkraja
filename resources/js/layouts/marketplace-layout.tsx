@@ -1,5 +1,6 @@
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
+import VerifyEmailBanner from '@/components/marketplace/verify-email-banner';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
 import { Link } from '@inertiajs/react';
@@ -24,6 +25,7 @@ export default function MarketplaceLayout({
     return (
         <div className="bg-background paper-grain flex min-h-screen flex-col">
             <Navbar />
+            <VerifyEmailBanner />
 
             {fullBleed ? (
                 <main id="top" className="flex-1">

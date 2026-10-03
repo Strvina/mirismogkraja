@@ -817,5 +817,11 @@
     "Hello!": "Здравствуйте!",
     "Regards,": "С уважением,",
     "If you're having trouble clicking the \":actionText\" button, copy and paste the URL below\ninto your web browser:": "Если кнопка «:actionText» не работает, скопируйте эту ссылку в браузер:",
-    "All rights reserved.": "Все права защищены."
+    "All rights reserved.": "Все права защищены.",
+    "Verify Email Address": "Подтвердите адрес электронной почты",
+    "Please click the button below to verify your email address.": "Нажмите на кнопку ниже, чтобы подтвердить адрес электронной почты.",
+    "If you did not create an account, no further action is required.": "Если вы не создавали аккаунт, ничего делать не нужно.",
+    "Potvrdite email adresu :email preko linka koji smo vam poslali. Do tada ne možete da šaljete poruke, ocenjujete ni otvorite profil proizvođača.": "Подтвердите адрес :email по ссылке, которую мы вам отправили. До этого нельзя отправлять сообщения, оставлять отзывы и создавать профиль производителя.",
+    "Niste dobili mejl?": "Не получили письмо?",
+    "Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.": "Мы отправили ссылку на :email. Если её нет, проверьте папку «Спам»."
 }
