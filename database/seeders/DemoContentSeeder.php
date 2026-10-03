@@ -73,6 +73,16 @@ class DemoContentSeeder extends Seeder
      */
     public function run(): void
     {
+        // Run directly (db:seed --class=...) it would skip DatabaseSeeder's
+        // check - so it checks for itself. Its accounts have passwords
+        // anyone can read here, and it needs Faker, which a production
+        // install (composer install --no-dev) does not have.
+        if (! app()->environment(DatabaseSeeder::DEMO_ENVIRONMENTS)) {
+            $this->command?->error('Demo content is for a local setup only; nothing was seeded.');
+
+            return;
+        }
+
         $this->copyDemoImage();
         $this->seedAdminUser();
 
