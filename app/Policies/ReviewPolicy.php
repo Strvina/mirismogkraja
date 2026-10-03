@@ -38,7 +38,7 @@ class ReviewPolicy
         }
 
         return ProducerMessage::query()
-            ->where('household_id', $producer->id)
+            ->where('producer_id', $producer->id)
             ->where('buyer_id', $user->id)
             ->where('sender_id', $producer->user_id)
             ->exists();

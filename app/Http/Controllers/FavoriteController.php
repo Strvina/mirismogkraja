@@ -36,10 +36,10 @@ class FavoriteController extends Controller
 
         return Inertia::render('favorites/index', [
             'producers' => Producer::query()
-                ->join('favorites', $savedBy('household', 'households'))
+                ->join('favorites', $savedBy('producer', 'producers'))
                 ->published()
                 ->orderByDesc('favorites.created_at')
-                ->paginate(self::PER_PAGE, ['households.id', 'households.name', 'households.slug', 'households.city'], 'proizvodjaci'),
+                ->paginate(self::PER_PAGE, ['producers.id', 'producers.name', 'producers.slug', 'producers.city'], 'proizvodjaci'),
             'products' => Product::query()
                 ->join('favorites', $savedBy('product', 'products'))
                 ->published()
@@ -54,11 +54,11 @@ class FavoriteController extends Controller
     public function toggle(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'favoritable_type' => ['required', 'in:household,product'],
+            'favoritable_type' => ['required', 'in:producer,product'],
             'favoritable_id' => ['required', 'integer'],
         ]);
 
-        $favoritable = $data['favoritable_type'] === 'household'
+        $favoritable = $data['favoritable_type'] === 'producer'
             ? Producer::published()->findOrFail($data['favoritable_id'])
             : Product::published()->findOrFail($data['favoritable_id']);
 

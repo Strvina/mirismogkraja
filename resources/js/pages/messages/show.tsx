@@ -360,7 +360,7 @@ export default function MessageThread({
                         {isOwner ? (
                             <ReportButton type="user" id={buyer.id} reasons={reportReasons} />
                         ) : (
-                            <ReportButton type="household" id={producer.id} reasons={reportReasons} />
+                            <ReportButton type="producer" id={producer.id} reasons={reportReasons} />
                         )}
                     </div>
                 </header>

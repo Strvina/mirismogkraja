@@ -22,7 +22,7 @@ interface Completeness {
 
 interface PendingChange {
     id: number;
-    household_id: number;
+    producer_id: number;
     field: string;
     requested_value: string;
 }
@@ -77,7 +77,7 @@ export default function ProducersIndex({
                                     an admin, so say so rather than letting the
                                     unchanged name look like a failed save. */}
                                 {pendingChanges
-                                    .filter((change) => change.household_id === producer.id)
+                                    .filter((change) => change.producer_id === producer.id)
                                     .map((change) => (
                                         <p key={change.id} className="text-muted-foreground mt-3 flex items-start gap-1.5 text-xs">
                                             <Clock className="mt-0.5 size-3.5 shrink-0" />

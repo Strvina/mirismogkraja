@@ -115,7 +115,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     /** Producers this user asked to hear from. */
     public function followedProducers(): BelongsToMany
     {
-        return $this->belongsToMany(Producer::class, 'producer_follows', 'user_id', 'household_id');
+        return $this->belongsToMany(Producer::class, 'producer_follows', 'user_id', 'producer_id');
     }
 
     public function favorites(): HasMany

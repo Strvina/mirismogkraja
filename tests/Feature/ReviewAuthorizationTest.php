@@ -16,7 +16,7 @@ class ReviewAuthorizationTest extends TestCase
     private function askedWithoutAnswer(User $buyer, Producer $producer): void
     {
         ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $buyer->id,
             'body' => 'Pitanje',
@@ -28,7 +28,7 @@ class ReviewAuthorizationTest extends TestCase
         $this->askedWithoutAnswer($buyer, $producer);
 
         ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $producer->user_id,
             'body' => 'Odgovor',

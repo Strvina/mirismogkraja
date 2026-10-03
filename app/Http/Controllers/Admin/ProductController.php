@@ -28,7 +28,7 @@ class ProductController extends Controller
             // with no producer at all in the admin table.
             ->with(['producer' => fn ($query) => $query->withTrashed()->select('id', 'name'), 'category:id,name'])
             ->when($request->string('search')->toString(), fn ($query, $search) => $query->where('name', 'like', "%{$search}%"))
-            ->when($request->integer('producer_id'), fn ($query, $id) => $query->where('household_id', $id))
+            ->when($request->integer('producer_id'), fn ($query, $id) => $query->where('producer_id', $id))
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             ->latest()
             ->paginate(25)
@@ -115,7 +115,7 @@ class ProductController extends Controller
 
         $product->producer?->user?->notify(SiteNotification::productBlocked(
             $product->name,
-            route('producers.products.edit', [$product->household_id, $product->id]),
+            route('producers.products.edit', [$product->producer_id, $product->id]),
         ));
     }
 }

@@ -34,9 +34,9 @@ class AdminDashboardTest extends TestCase
         // Two messages in one thread, plus a second thread: three messages,
         // two conversations. A count that simply totals the rows would read
         // three here and go unnoticed.
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $admin->id, 'sender_id' => $admin->id, 'body' => 'Pitanje']);
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $admin->id, 'sender_id' => $seller->id, 'body' => 'Odgovor']);
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $otherBuyer->id, 'sender_id' => $otherBuyer->id, 'body' => 'Drugo pitanje']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $admin->id, 'sender_id' => $admin->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $admin->id, 'sender_id' => $seller->id, 'body' => 'Odgovor']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $otherBuyer->id, 'sender_id' => $otherBuyer->id, 'body' => 'Drugo pitanje']);
 
         $response = $this->actingAs($admin)->get(route('admin.dashboard'));
 

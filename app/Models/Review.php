@@ -26,7 +26,7 @@ class Review extends Model
 
     protected $fillable = [
         'user_id',
-        'household_id',
+        'producer_id',
         'rating',
         'comment',
         'image_path',
@@ -50,7 +50,7 @@ class Review extends Model
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     /**

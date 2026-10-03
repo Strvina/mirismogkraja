@@ -225,7 +225,7 @@ class ProducerController extends Controller
             // filtered to this producer.
             'products' => $producer->products()
                 ->where('status', 'active')
-                ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'season_from', 'season_to'])
+                ->select(['id', 'producer_id', 'name', 'slug', 'price', 'unit', 'season_from', 'season_to'])
                 ->with('images:id,product_id,path,order')
                 ->latest()
                 ->limit(self::PRODUCTS_SHOWN)
@@ -265,7 +265,7 @@ class ProducerController extends Controller
             'canReport' => $user !== null && $producer->user_id !== $user->id,
             'reportReasons' => array_map(__(...), Report::REASONS),
             'isFavorited' => $user?->favorites()
-                ->where('favoritable_type', 'household')
+                ->where('favoritable_type', 'producer')
                 ->where('favoritable_id', $producer->id)
                 ->exists() ?? false,
         ]);

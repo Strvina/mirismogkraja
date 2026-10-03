@@ -64,7 +64,7 @@ class BoostService
         }
 
         $boost = Boost::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'boostable_type' => $type,
             'boostable_id' => $target->id,
             'status' => Boost::STATUS_PENDING,

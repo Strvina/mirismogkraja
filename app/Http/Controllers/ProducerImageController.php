@@ -46,7 +46,7 @@ class ProducerImageController extends Controller
     {
         $this->authorize('update', $producer);
 
-        abort_unless($image->household_id === $producer->id, 404);
+        abort_unless($image->producer_id === $producer->id, 404);
 
         Media::delete($image->path);
         $image->delete();

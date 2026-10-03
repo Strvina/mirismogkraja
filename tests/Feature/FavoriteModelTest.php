@@ -22,7 +22,7 @@ class FavoriteModelTest extends TestCase
         $favorite = Favorite::create([
             'user_id' => $user->id,
             'favoritable_id' => $producer->id,
-            'favoritable_type' => 'household',
+            'favoritable_type' => 'producer',
         ]);
 
         $this->assertTrue($favorite->favoritable->is($producer));
@@ -46,9 +46,9 @@ class FavoriteModelTest extends TestCase
     {
         $user = User::factory()->create();
         $producer = Producer::factory()->create();
-        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $producer->id, 'favoritable_type' => 'household']);
+        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $producer->id, 'favoritable_type' => 'producer']);
 
         $this->expectException(QueryException::class);
-        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $producer->id, 'favoritable_type' => 'household']);
+        Favorite::create(['user_id' => $user->id, 'favoritable_id' => $producer->id, 'favoritable_type' => 'producer']);
     }
 }

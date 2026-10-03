@@ -50,7 +50,7 @@ class ProducerMessageController extends Controller
         $this->countNewConversation($request->user(), $product->producer);
 
         ProducerMessage::create([
-            'household_id' => $product->household_id,
+            'producer_id' => $product->producer_id,
             'product_id' => $product->id,
             'buyer_id' => $request->user()->id,
             'sender_id' => $request->user()->id,
@@ -76,20 +76,20 @@ class ProducerMessageController extends Controller
             $user,
             fn ($query) => $query->where(fn ($inner) => $inner
                 ->where('buyer_id', $user->id)
-                ->orWhereIn('household_id', $ownedProducerIds))
+                ->orWhereIn('producer_id', $ownedProducerIds))
         );
 
         // The producer's own note on each of their threads on this page, in one query.
         $outcomes = InquiryOutcome::query()
-            ->whereIn('household_id', $ownedProducerIds)
+            ->whereIn('producer_id', $ownedProducerIds)
             ->whereIn('buyer_id', $threads->getCollection()->map(fn (array $thread) => $thread['message']->buyer_id)->unique())
-            ->get(['household_id', 'buyer_id', 'status'])
-            ->mapWithKeys(fn (InquiryOutcome $outcome) => [$outcome->household_id.'-'.$outcome->buyer_id => $outcome->status]);
+            ->get(['producer_id', 'buyer_id', 'status'])
+            ->mapWithKeys(fn (InquiryOutcome $outcome) => [$outcome->producer_id.'-'.$outcome->buyer_id => $outcome->status]);
 
         $threads = $threads->through(function (array $thread) use ($ownedProducerIds, $outcomes) {
             $message = $thread['message'];
-            $asProducer = $ownedProducerIds->contains($message->household_id);
-            $key = $message->household_id.'-'.$message->buyer_id;
+            $asProducer = $ownedProducerIds->contains($message->producer_id);
+            $key = $message->producer_id.'-'.$message->buyer_id;
 
             return [
                 'key' => $key,
@@ -100,7 +100,7 @@ class ProducerMessageController extends Controller
                 'subtitle' => $asProducer ? $message->producer->name : null,
                 'avatar_path' => $asProducer ? $message->buyer->avatar_path : $message->producer->logo_path,
                 'href' => $asProducer
-                    ? route('messages.thread', [$message->household_id, $message->buyer_id])
+                    ? route('messages.thread', [$message->producer_id, $message->buyer_id])
                     : route('messages.show', $message->producer->slug),
                 'last_message' => $message->body,
                 'last_at' => $message->created_at,
@@ -148,7 +148,7 @@ class ProducerMessageController extends Controller
             // A closure, like the other props the three-second poll does
             // not ask for, so polling never runs its query.
             'outcome' => fn () => $producer->user_id === $request->user()->id
-                ? InquiryOutcome::where('household_id', $producer->id)->where('buyer_id', $buyer->id)->value('status')
+                ? InquiryOutcome::where('producer_id', $producer->id)->where('buyer_id', $buyer->id)->value('status')
                 : null,
             'outcomeLabels' => array_map(__(...), InquiryOutcome::STATUSES),
             'reportReasons' => array_map(__(...), Report::REASONS),
@@ -198,7 +198,7 @@ class ProducerMessageController extends Controller
         }
 
         ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $request->user()->id,
             'body' => $data['body'],
@@ -218,7 +218,7 @@ class ProducerMessageController extends Controller
 
         $data = $request->validate(['status' => ['nullable', Rule::in(array_keys(InquiryOutcome::STATUSES))]]);
 
-        $thread = InquiryOutcome::where('household_id', $producer->id)->where('buyer_id', $buyer->id);
+        $thread = InquiryOutcome::where('producer_id', $producer->id)->where('buyer_id', $buyer->id);
 
         if (empty($data['status'])) {
             $thread->delete();
@@ -227,14 +227,14 @@ class ProducerMessageController extends Controller
         }
 
         InquiryOutcome::upsert([[
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'status' => $data['status'],
             // What the conversation was opened about, if it came from a
             // product page.
             'product_id' => ProducerMessage::thread($producer, $buyer)->whereNotNull('product_id')->oldest('id')->value('product_id'),
             'updated_at' => now(),
-        ]], ['household_id', 'buyer_id'], ['status', 'product_id', 'updated_at']);
+        ]], ['producer_id', 'buyer_id'], ['status', 'product_id', 'updated_at']);
 
         return back();
     }
@@ -302,7 +302,7 @@ class ProducerMessageController extends Controller
             ->tap($scope)
             ->selectRaw('max(id) as last_message_id')
             ->selectRaw('sum(case when sender_id != ? and read_at is null then 1 else 0 end) as unread_count', [$viewer->id])
-            ->groupBy('household_id', 'buyer_id')
+            ->groupBy('producer_id', 'buyer_id')
             ->orderByDesc('last_message_id')
             ->paginate(self::THREADS_PER_PAGE);
 

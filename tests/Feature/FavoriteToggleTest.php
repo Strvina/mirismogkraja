@@ -17,7 +17,7 @@ class FavoriteToggleTest extends TestCase
     {
         $producer = Producer::factory()->active()->create();
 
-        $this->post(route('favorites.toggle'), ['favoritable_type' => 'household', 'favoritable_id' => $producer->id])
+        $this->post(route('favorites.toggle'), ['favoritable_type' => 'producer', 'favoritable_id' => $producer->id])
             ->assertRedirect('/login');
     }
 
@@ -27,13 +27,13 @@ class FavoriteToggleTest extends TestCase
         $producer = Producer::factory()->active()->create();
 
         $this->actingAs($user)->post(route('favorites.toggle'), [
-            'favoritable_type' => 'household',
+            'favoritable_type' => 'producer',
             'favoritable_id' => $producer->id,
         ]);
         $this->assertSame(1, Favorite::count());
 
         $this->actingAs($user)->post(route('favorites.toggle'), [
-            'favoritable_type' => 'household',
+            'favoritable_type' => 'producer',
             'favoritable_id' => $producer->id,
         ]);
         $this->assertSame(0, Favorite::count());

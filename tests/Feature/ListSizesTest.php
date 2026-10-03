@@ -22,7 +22,7 @@ class ListSizesTest extends TestCase
         $buyers = User::factory()->count(31)->create();
 
         foreach ($buyers as $buyer) {
-            ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => "Od {$buyer->id}"]);
+            ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => "Od {$buyer->id}"]);
         }
 
         $this->actingAs($producer->user)->get('/poruke')->assertInertia(fn ($page) => $page

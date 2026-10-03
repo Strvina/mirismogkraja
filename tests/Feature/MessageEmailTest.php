@@ -19,7 +19,7 @@ class MessageEmailTest extends TestCase
     private function message(Producer $producer, User $buyer, User $sender, int $minutesAgo = 15, array $extra = []): ProducerMessage
     {
         $message = ProducerMessage::create([
-            'household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $sender->id, 'body' => 'Imate li meda?', ...$extra,
+            'producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $sender->id, 'body' => 'Imate li meda?', ...$extra,
         ]);
         $message->forceFill(['created_at' => now()->subMinutes($minutesAgo)])->save();
 

@@ -24,7 +24,7 @@ interface Campaign {
 interface Place {
     id: number;
     campaign_id: number;
-    household_id: number;
+    producer_id: number;
     campaign: string;
     producer: string;
     status: 'pending_payment' | 'active' | 'cancelled';
@@ -73,7 +73,7 @@ export default function Campaigns({
     const [slipFor, setSlipFor] = useState<number | null>(linkedSlipId);
 
     const placeOf = (campaign: Campaign) =>
-        places.find((place) => place.campaign_id === campaign.id && String(place.household_id) === producerId && place.status !== 'cancelled');
+        places.find((place) => place.campaign_id === campaign.id && String(place.producer_id) === producerId && place.status !== 'cancelled');
 
     const join = (campaign: Campaign) => {
         router.post(
@@ -84,7 +84,7 @@ export default function Campaigns({
                 onSuccess: (page) => {
                     // Open the slip for the place just asked for.
                     const fresh = (page.props.places as Place[]).find(
-                        (place) => place.campaign_id === campaign.id && String(place.household_id) === producerId,
+                        (place) => place.campaign_id === campaign.id && String(place.producer_id) === producerId,
                     );
                     setSlipFor(fresh?.id ?? null);
                 },

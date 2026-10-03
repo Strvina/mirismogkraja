@@ -36,7 +36,7 @@ class DashboardController extends Controller
                 // marks which product opened a thread, and replies don't
                 // carry it.
                 'conversations' => DB::query()->fromSub(
-                    ProducerMessage::query()->select('household_id', 'buyer_id')->distinct(),
+                    ProducerMessage::query()->select('producer_id', 'buyer_id')->distinct(),
                     'threads'
                 )->count(),
                 'messages' => ProducerMessage::count(),

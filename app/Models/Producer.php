@@ -20,13 +20,6 @@ class Producer extends Model
     use HasFactory, KeepsOldSlugs, SoftDeletes;
 
     /**
-     * The underlying table predates this class's Household -> Producer
-     * rename (task 9.3) and was intentionally left as-is to avoid a
-     * disruptive schema migration - so it must be pinned explicitly.
-     */
-    protected $table = 'households';
-
-    /**
      * How a producer can get goods to a buyer, keyed by what's stored in
      * `delivery_methods` (task 13).
      *
@@ -80,28 +73,28 @@ class Producer extends Model
 
     public function products(): HasMany
     {
-        return $this->hasMany(Product::class, 'household_id');
+        return $this->hasMany(Product::class, 'producer_id');
     }
 
     public function reviews(): HasMany
     {
-        return $this->hasMany(Review::class, 'household_id');
+        return $this->hasMany(Review::class, 'producer_id');
     }
 
     public function images(): HasMany
     {
-        return $this->hasMany(ProducerImage::class, 'household_id')->orderBy('order');
+        return $this->hasMany(ProducerImage::class, 'producer_id')->orderBy('order');
     }
 
     public function messages(): HasMany
     {
-        return $this->hasMany(ProducerMessage::class, 'household_id');
+        return $this->hasMany(ProducerMessage::class, 'producer_id');
     }
 
     /** Memberships, paid and pending (task 20.1). */
     public function subscriptions(): HasMany
     {
-        return $this->hasMany(ProducerSubscription::class, 'household_id');
+        return $this->hasMany(ProducerSubscription::class, 'producer_id');
     }
 
     /**
@@ -111,7 +104,7 @@ class Producer extends Model
      */
     public function currentMembership(): HasOne
     {
-        return $this->hasOne(ProducerSubscription::class, 'household_id')
+        return $this->hasOne(ProducerSubscription::class, 'producer_id')
             ->ofMany(['ends_at' => 'max'], fn ($query) => $query->active());
     }
 
@@ -121,7 +114,7 @@ class Producer extends Model
      */
     public function blockedBuyers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'conversation_blocks', 'household_id', 'buyer_id')->withPivot('blocked_by');
+        return $this->belongsToMany(User::class, 'conversation_blocks', 'producer_id', 'buyer_id')->withPivot('blocked_by');
     }
 
     /** Whether the conversation with this buyer is closed, by either side. */
@@ -139,7 +132,7 @@ class Producer extends Model
     /** People who asked to hear when this producer lists something new. */
     public function followers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'producer_follows', 'household_id', 'user_id');
+        return $this->belongsToMany(User::class, 'producer_follows', 'producer_id', 'user_id');
     }
 
     /**

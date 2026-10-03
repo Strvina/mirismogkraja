@@ -41,11 +41,11 @@ export default function AdminWeeklyPicks({
     weeks: string[];
     products?: { id: number; name: string }[];
 }) {
-    const { data, setData, post, processing, errors, reset } = useForm({ household_id: '', product_id: '', starts_on: weeks[0] });
+    const { data, setData, post, processing, errors, reset } = useForm({ producer_id: '', product_id: '', starts_on: weeks[0] });
     const currentWeek = weeks[0];
 
     const chooseProducer = (id: string) => {
-        setData((current) => ({ ...current, household_id: id, product_id: '' }));
+        setData((current) => ({ ...current, producer_id: id, product_id: '' }));
 
         // Only this producer's products, fetched when they are chosen.
         if (id) {
@@ -115,7 +115,7 @@ export default function AdminWeeklyPicks({
 
                 <div className="grid gap-1.5">
                     <Label htmlFor="pick-producer">{t('Proizvođač')}</Label>
-                    <select id="pick-producer" className={selectClasses} value={data.household_id} onChange={(e) => chooseProducer(e.target.value)}>
+                    <select id="pick-producer" className={selectClasses} value={data.producer_id} onChange={(e) => chooseProducer(e.target.value)}>
                         <option value="">{t('Izaberite…')}</option>
                         {producers.map((producer) => (
                             <option key={producer.id} value={producer.id}>
@@ -124,7 +124,7 @@ export default function AdminWeeklyPicks({
                             </option>
                         ))}
                     </select>
-                    <InputError message={errors.household_id} />
+                    <InputError message={errors.producer_id} />
                 </div>
 
                 <div className="grid gap-1.5">
@@ -133,7 +133,7 @@ export default function AdminWeeklyPicks({
                         id="pick-product"
                         className={selectClasses}
                         value={data.product_id}
-                        disabled={!data.household_id}
+                        disabled={!data.producer_id}
                         onChange={(e) => setData('product_id', e.target.value)}
                     >
                         <option value="">{t('Bez proizvoda')}</option>
@@ -147,7 +147,7 @@ export default function AdminWeeklyPicks({
                 </div>
 
                 <div className="sm:col-span-3">
-                    <Button disabled={processing || !data.household_id}>{t('Sačuvaj izbor')}</Button>
+                    <Button disabled={processing || !data.producer_id}>{t('Sačuvaj izbor')}</Button>
                 </div>
             </form>
 

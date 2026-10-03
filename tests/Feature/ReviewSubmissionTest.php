@@ -17,8 +17,8 @@ class ReviewSubmissionTest extends TestCase
     /** The producer has to have written back before a review is allowed. */
     private function answeredConversation(User $buyer, Producer $producer): void
     {
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
-        ProducerMessage::create(['household_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Pitanje']);
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $producer->user_id, 'body' => 'Odgovor']);
     }
 
     public function test_buyer_the_producer_answered_can_submit_a_review()
@@ -32,7 +32,7 @@ class ReviewSubmissionTest extends TestCase
             'comment' => 'Odlično!',
         ])->assertRedirect();
 
-        $this->assertDatabaseHas('reviews', ['user_id' => $buyer->id, 'household_id' => $producer->id, 'rating' => 5]);
+        $this->assertDatabaseHas('reviews', ['user_id' => $buyer->id, 'producer_id' => $producer->id, 'rating' => 5]);
     }
 
     public function test_a_review_can_carry_a_photo_which_is_removed_with_it()

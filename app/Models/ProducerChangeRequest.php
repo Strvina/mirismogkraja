@@ -28,7 +28,7 @@ class ProducerChangeRequest extends Model
     public const STATUSES = [self::STATUS_PENDING, self::STATUS_APPROVED, self::STATUS_REJECTED];
 
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'requested_by',
         'field',
         'current_value',
@@ -45,7 +45,7 @@ class ProducerChangeRequest extends Model
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     public function requester(): BelongsTo

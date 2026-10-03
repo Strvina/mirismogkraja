@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ProducerMessage extends Model
 {
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'product_id',
         'buyer_id',
         'sender_id',
@@ -28,7 +28,7 @@ class ProducerMessage extends Model
     {
         // withTrashed: an archived producer's or a deleted account's
         // conversations stay readable to the other side.
-        return $this->belongsTo(Producer::class, 'household_id')->withTrashed();
+        return $this->belongsTo(Producer::class, 'producer_id')->withTrashed();
     }
 
     public function product(): BelongsTo
@@ -50,6 +50,6 @@ class ProducerMessage extends Model
     /** @param  Builder<ProducerMessage>  $query */
     public function scopeThread(Builder $query, Producer $producer, User $buyer): void
     {
-        $query->where('household_id', $producer->id)->where('buyer_id', $buyer->id);
+        $query->where('producer_id', $producer->id)->where('buyer_id', $buyer->id);
     }
 }

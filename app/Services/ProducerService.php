@@ -53,7 +53,7 @@ class ProducerService
 
             $change = ProducerChangeRequest::updateOrCreate(
                 [
-                    'household_id' => $producer->id,
+                    'producer_id' => $producer->id,
                     'field' => $field,
                     'status' => ProducerChangeRequest::STATUS_PENDING,
                 ],

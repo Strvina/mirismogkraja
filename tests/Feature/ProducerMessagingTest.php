@@ -41,7 +41,7 @@ class ProducerMessagingTest extends TestCase
         $producer = Producer::factory()->for($owner)->active()->create();
 
         ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $buyer->id,
             'body' => 'Privatno',
@@ -66,7 +66,7 @@ class ProducerMessagingTest extends TestCase
         $producer = Producer::factory()->for($owner)->active()->create();
 
         $message = ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $buyer->id,
             'body' => 'Pitanje',
@@ -131,7 +131,7 @@ class ProducerMessagingTest extends TestCase
 
         foreach (['Prva', 'Druga'] as $body) {
             ProducerMessage::create([
-                'household_id' => $producer->id,
+                'producer_id' => $producer->id,
                 'buyer_id' => $buyer->id,
                 'sender_id' => $buyer->id,
                 'body' => $body,
@@ -151,7 +151,7 @@ class ProducerMessagingTest extends TestCase
 
         // Someone wrote to the producer this user owns...
         ProducerMessage::create([
-            'household_id' => $ownProducer->id,
+            'producer_id' => $ownProducer->id,
             'buyer_id' => $customer->id,
             'sender_id' => $customer->id,
             'body' => 'Pitanje za moj proizvod',
@@ -159,7 +159,7 @@ class ProducerMessagingTest extends TestCase
 
         // ...and the same user wrote to a different producer as a buyer.
         ProducerMessage::create([
-            'household_id' => $otherProducer->id,
+            'producer_id' => $otherProducer->id,
             'buyer_id' => $user->id,
             'sender_id' => $user->id,
             'body' => 'Moje pitanje njima',
@@ -272,7 +272,7 @@ class ProducerMessagingTest extends TestCase
         $this->actingAs($buyer)->get(route('messages.show', $producer->slug));
 
         $reply = ProducerMessage::create([
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'buyer_id' => $buyer->id,
             'sender_id' => $producer->user_id,
             'body' => 'Odgovor koji stiže dok je razgovor otvoren',
@@ -316,6 +316,6 @@ class ProducerMessagingTest extends TestCase
         $sql = collect(DB::getQueryLog())->pluck('query')->implode("\n");
         $this->assertStringNotContainsString('inquiry_outcomes', $sql);
         // The header badge's count is expected; a count of the thread is not.
-        $this->assertDoesNotMatchRegularExpression('/count\(\*\) as aggregate from "producer_messages" where "household_id" = \? and "buyer_id" = \?/', $sql);
+        $this->assertDoesNotMatchRegularExpression('/count\(\*\) as aggregate from "producer_messages" where "producer_id" = \? and "buyer_id" = \?/', $sql);
     }
 }

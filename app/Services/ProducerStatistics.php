@@ -65,13 +65,13 @@ class ProducerStatistics
 
         DB::table('producer_stats')->upsert(
             [[
-                'household_id' => $producer->id,
+                'producer_id' => $producer->id,
                 'product_id' => $product?->id ?? 0,
                 'event' => $event,
                 'date' => now()->toDateString(),
                 'hits' => 1,
             ]],
-            ['household_id', 'date', 'event', 'product_id'],
+            ['producer_id', 'date', 'event', 'product_id'],
             ['hits' => DB::raw('producer_stats.hits + 1')],
         );
     }
@@ -91,7 +91,7 @@ class ProducerStatistics
     {
         $from = now()->subDays($days - 1)->startOfDay();
         $range = DB::table('producer_stats')
-            ->where('household_id', $producer->id)
+            ->where('producer_id', $producer->id)
             ->where('date', '>=', $from->toDateString());
 
         $totals = (clone $range)

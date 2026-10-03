@@ -21,7 +21,7 @@ class ReviewFactory extends Factory
     {
         return [
             'user_id' => User::factory(),
-            'household_id' => Producer::factory(),
+            'producer_id' => Producer::factory(),
             'rating' => fake()->numberBetween(1, 5),
             'comment' => fake()->sentence(),
             // Approved by default: the factory stands in for reviews that

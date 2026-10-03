@@ -21,8 +21,8 @@ class GenerateThumbnails extends Command
     private const COLUMNS = [
         ['product_images', 'path'],
         ['producer_images', 'path'],
-        ['households', 'cover_image_path'],
-        ['households', 'logo_path'],
+        ['producers', 'cover_image_path'],
+        ['producers', 'logo_path'],
         ['users', 'avatar_path'],
         ['reviews', 'image_path'],
     ];

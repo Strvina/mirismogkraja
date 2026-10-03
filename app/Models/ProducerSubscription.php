@@ -31,7 +31,7 @@ class ProducerSubscription extends Model implements Payable
     public const WARN_DAYS_BEFORE = 14;
 
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'subscription_plan_id',
         'status',
         'reference',
@@ -55,7 +55,7 @@ class ProducerSubscription extends Model implements Payable
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     public function plan(): BelongsTo

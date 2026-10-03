@@ -50,7 +50,7 @@ class EmailUnreadMessages extends Command
 
         // One group per conversation and direction: the buyer's messages go
         // to the producer's owner, the producer's to the buyer.
-        foreach ($messages->groupBy(fn (ProducerMessage $message) => $message->household_id.'-'.$message->buyer_id.'-'.($message->sender_id === $message->buyer_id ? 'seller' : 'buyer')) as $group) {
+        foreach ($messages->groupBy(fn (ProducerMessage $message) => $message->producer_id.'-'.$message->buyer_id.'-'.($message->sender_id === $message->buyer_id ? 'seller' : 'buyer')) as $group) {
             $sent += (int) $this->mail($group, $buyers);
         }
 
@@ -91,7 +91,7 @@ class EmailUnreadMessages extends Command
                 count: $group->count(),
                 preview: $latest->body,
                 url: $toSeller
-                    ? route('messages.thread', [$latest->household_id, $latest->buyer_id])
+                    ? route('messages.thread', [$latest->producer_id, $latest->buyer_id])
                     : route('messages.show', $latest->producer->slug),
             ));
         } catch (Throwable $e) {

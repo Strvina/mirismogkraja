@@ -133,7 +133,7 @@ class PublicProductListTest extends TestCase
         $product = Product::factory()->for($producer)->create(['status' => 'active']);
 
         $user = User::factory()->create();
-        $user->favorites()->create(['favoritable_type' => 'household', 'favoritable_id' => 999]);
+        $user->favorites()->create(['favoritable_type' => 'producer', 'favoritable_id' => 999]);
         $user->favorites()->create(['favoritable_type' => 'product', 'favoritable_id' => $product->id]);
 
         $this->actingAs($user)->get(route('marketplace.products.index'))

@@ -68,7 +68,7 @@ class SubscriptionService
                 ->filter(fn (SubscriptionPlan $plan) => $plan->has($feature))
                 ->modelKeys())
             ->distinct()
-            ->pluck('household_id');
+            ->pluck('producer_id');
     }
 
     /**

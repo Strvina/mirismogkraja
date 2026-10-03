@@ -22,7 +22,7 @@ class FavoriteFactory extends Factory
         return [
             'user_id' => User::factory(),
             'favoritable_id' => Producer::factory(),
-            'favoritable_type' => 'household',
+            'favoritable_type' => 'producer',
         ];
     }
 }

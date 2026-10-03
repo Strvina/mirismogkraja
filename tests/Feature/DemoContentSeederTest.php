@@ -85,11 +85,11 @@ class DemoContentSeederTest extends TestCase
         $this->seedDemoContent();
 
         foreach (Review::with('user')->get() as $review) {
-            $producer = Producer::findOrFail($review->household_id);
+            $producer = Producer::findOrFail($review->producer_id);
 
             $this->assertTrue(
                 ProducerMessage::query()
-                    ->where('household_id', $producer->id)
+                    ->where('producer_id', $producer->id)
                     ->where('buyer_id', $review->user_id)
                     ->where('sender_id', $producer->user_id)
                     ->exists(),

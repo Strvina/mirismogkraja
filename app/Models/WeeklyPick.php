@@ -17,7 +17,7 @@ class WeeklyPick extends Model
     public const REPEAT_AFTER_WEEKS = 8;
 
     protected $fillable = [
-        'household_id',
+        'producer_id',
         'product_id',
         'starts_on',
         'created_by',
@@ -31,7 +31,7 @@ class WeeklyPick extends Model
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     public function product(): BelongsTo

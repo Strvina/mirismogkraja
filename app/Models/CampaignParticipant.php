@@ -26,7 +26,7 @@ class CampaignParticipant extends Model implements Payable
 
     protected $fillable = [
         'campaign_id',
-        'household_id',
+        'producer_id',
         'status',
         'reference',
         'amount_rsd',
@@ -46,7 +46,7 @@ class CampaignParticipant extends Model implements Payable
 
     public function producer(): BelongsTo
     {
-        return $this->belongsTo(Producer::class, 'household_id');
+        return $this->belongsTo(Producer::class, 'producer_id');
     }
 
     public function paymentProducer(): Producer

@@ -35,7 +35,7 @@ class WeeklyPickTest extends TestCase
         $product = Product::factory()->for($producer)->create(['name' => 'Bagremov med']);
 
         $this->actingAs($this->admin())->post(route('admin.weekly-picks.store'), [
-            'household_id' => $producer->id,
+            'producer_id' => $producer->id,
             'product_id' => $product->id,
             'starts_on' => $this->thisWeek(),
         ])->assertSessionHasNoErrors();
@@ -53,10 +53,10 @@ class WeeklyPickTest extends TestCase
         [$first, $second] = Producer::factory()->active()->count(2)->create();
 
         foreach ([$first, $second] as $producer) {
-            $this->actingAs($admin)->post(route('admin.weekly-picks.store'), ['household_id' => $producer->id, 'starts_on' => $this->thisWeek()]);
+            $this->actingAs($admin)->post(route('admin.weekly-picks.store'), ['producer_id' => $producer->id, 'starts_on' => $this->thisWeek()]);
         }
 
-        $this->assertSame($second->id, WeeklyPick::sole()->household_id);
+        $this->assertSame($second->id, WeeklyPick::sole()->producer_id);
         $this->get('/')->assertInertia(fn ($page) => $page->where('weeklyPick.producer.id', $second->id)->where('weeklyPick.product', null));
     }
 
@@ -69,13 +69,13 @@ class WeeklyPickTest extends TestCase
         $foreign = Product::factory()->for(Producer::factory()->active())->create();
 
         $this->actingAs($admin)
-            ->post(route('admin.weekly-picks.store'), ['household_id' => $pending->id, 'starts_on' => $this->thisWeek()])
-            ->assertSessionHasErrors('household_id');
+            ->post(route('admin.weekly-picks.store'), ['producer_id' => $pending->id, 'starts_on' => $this->thisWeek()])
+            ->assertSessionHasErrors('producer_id');
         $this->actingAs($admin)
-            ->post(route('admin.weekly-picks.store'), ['household_id' => $producer->id, 'product_id' => $foreign->id, 'starts_on' => $this->thisWeek()])
+            ->post(route('admin.weekly-picks.store'), ['producer_id' => $producer->id, 'product_id' => $foreign->id, 'starts_on' => $this->thisWeek()])
             ->assertSessionHasErrors('product_id');
         $this->actingAs($admin)
-            ->post(route('admin.weekly-picks.store'), ['household_id' => $producer->id, 'starts_on' => '2020-01-06'])
+            ->post(route('admin.weekly-picks.store'), ['producer_id' => $producer->id, 'starts_on' => '2020-01-06'])
             ->assertSessionHasErrors('starts_on');
 
         $this->assertSame(0, WeeklyPick::count());
@@ -84,7 +84,7 @@ class WeeklyPickTest extends TestCase
     public function test_a_producer_blocked_mid_week_leaves_the_homepage(): void
     {
         $producer = Producer::factory()->active()->create();
-        WeeklyPick::create(['household_id' => $producer->id, 'starts_on' => $this->thisWeek()]);
+        WeeklyPick::create(['producer_id' => $producer->id, 'starts_on' => $this->thisWeek()]);
 
         $producer->update(['status' => 'blocked']);
 
@@ -94,7 +94,7 @@ class WeeklyPickTest extends TestCase
     public function test_last_weeks_pick_is_history_not_the_homepage(): void
     {
         $producer = Producer::factory()->active()->create();
-        WeeklyPick::create(['household_id' => $producer->id, 'starts_on' => WeeklyPick::weekOf()->subWeek()->toDateString()]);
+        WeeklyPick::create(['producer_id' => $producer->id, 'starts_on' => WeeklyPick::weekOf()->subWeek()->toDateString()]);
 
         $this->get('/')->assertInertia(fn ($page) => $page->where('weeklyPick', null));
 
@@ -108,7 +108,7 @@ class WeeklyPickTest extends TestCase
         $producer = Producer::factory()->active()->create();
 
         $this->actingAs(User::factory()->create())
-            ->post(route('admin.weekly-picks.store'), ['household_id' => $producer->id, 'starts_on' => $this->thisWeek()])
+            ->post(route('admin.weekly-picks.store'), ['producer_id' => $producer->id, 'starts_on' => $this->thisWeek()])
             ->assertForbidden();
     }
 }
