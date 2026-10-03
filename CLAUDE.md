@@ -1,24 +1,25 @@
 # Projekat: Vrelina juga – marketplace za domaćinstva
 
 ## Šta je ovo
-Saas platforma koja promoviše domaćinstva (male proizvođače, poljoprivredna gazdinstva) i omogućava
-im da prodaju svoje proizvode direktno kupcima. Korisnik može biti kupac (buyer), prodavac koji je
-registrovao svoje domaćinstvo (seller), ili oboje istovremeno. Postoji i admin panel za mene kao
-vlasnika platforme.
+Saas platforma koja promoviše male proizvođače i poljoprivredna gazdinstva i povezuje ih direktno sa
+kupcima. **Nije prodavnica**: nema korpe ni plaćanja na sajtu - kupac pošalje upit, a dogovor ide u
+porukama. Korisnik može biti kupac (buyer), vlasnik stranice proizvođača (seller), ili oboje
+istovremeno. Platforma zarađuje od proizvođača (članarine, isticanje, kampanje - uplatnicom).
+Postoji i admin panel za mene kao vlasnika platforme.
 
 ## Stek
-- Laravel 12 (PHP 8.3+), Inertia.js, React 19 + TypeScript, Tailwind CSS v4
+- Laravel 12 (PHP 8.2+), Inertia.js, React 19 + TypeScript, Tailwind CSS v4
 - Projekat je kreiran od `laravel/react-starter-kit` - NE menjaj auth scaffolding iz starter kita bez
   potrebe, samo ga proširuj.
 - Spatie Laravel-permission za role (buyer, seller, admin).
-- Pest za testove.
+- PHPUnit za feature/unit testove (`tests/`), Playwright za testove u pregledaču (`e2e/`).
 
 ## Dizajn
 U folderu `/design-reference` (ili gde ga smestim) nalazi se kopija postojećeg landing page repoa
 (generisan u Lovable-u). To je JEDINI izvor istine za vizuelni identitet: boje, fontove, razmake,
 izgled dugmadi/kartica/formi. SVAKA nova stranica ili komponenta koju praviš mora vizuelno da se
 uklapa u taj dizajn - koristi iste Tailwind klase/tokene, isti font, istu paletu boja. Ne izmišljaj
-nov stil. Ako nešto iz dizajna nije pokriveno (npr. izgled forme za checkout), ekstrapoliraj na
+nov stil. Ako nešto iz dizajna nije pokriveno (npr. izgled nove admin strane), ekstrapoliraj na
 osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
 
 ## Kako radimo
@@ -29,13 +30,13 @@ osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
   onda piši kod - pogotovo za taskove koji diraju bazu (migracije se teško menjaju kasnije).
 - Svaka nova tabela ide kroz Laravel migraciju + Eloquent model sa definisanim relacijama
   (`belongsTo`, `hasMany` itd.) i, gde ima smisla, factory za testove/seedere.
-- Autorizacija: koristi Laravel Policy klase za svaki model gde ima smisla (Product, Household,
-  Order, Review) - ne oslanjaj se samo na provere u kontroleru.
-- Piši Pest test za svaki novi feature koji dira bazu ili poslovnu logiku (nije potrebno za čisto
+- Autorizacija: koristi Laravel Policy klase za svaki model gde ima smisla (Producer, Product,
+  ProducerMessage, Review) - ne oslanjaj se samo na provere u kontroleru.
+- Piši PHPUnit test za svaki novi feature koji dira bazu ili poslovnu logiku (nije potrebno za čisto
   vizuelne komponente).
 - Nemoj menjati strukturu baze iz prethodnih taskova bez da mi eksplicitno kažeš da to radiš i zašto.
-- Kad nisi siguran za poslovno pravilo (npr. da li seller može da menja cenu proizvoda posle
-  porudžbine, da li kupac mora prvo da naruči da bi ostavio ocenu) - pitaj me, ne pretpostavljaj.
+- Kad nisi siguran za poslovno pravilo (npr. da li proizvođač sme da menja cenu posle
+  upita, ko sme da ostavi utisak) - pitaj me, ne pretpostavljaj.
 - Komentare u kodu i commit poruke piši na engleskom, komunikaciju sa mnom na srpskom.
 - Git workflow: za SVAKI task napravi poseban branch (npr. `task/1.1-extend-users-migration`), radi i
   commituj tamo, pa nakon što se proveri da radi (testovi prolaze, ponašanje je ispravno) otvori

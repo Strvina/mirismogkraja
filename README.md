@@ -1,86 +1,83 @@
 # Vrelina juga
 
-SaaS marketplace koji povezuje mala domaćinstva i poljoprivredna gazdinstva sa juga Srbije direktno
-sa kupcima. Platforma **nije prodavnica**: nema korpe ni naplate - kupac pošalje upit sa stranice
-proizvoda, a oko količine, cene i dostave se dve strane dogovaraju direktno. Korisnik može biti
-**kupac** (buyer), **proizvođač** koji je otvorio svoju stranicu (seller), ili oboje istovremeno.
-Platforma ima i **admin panel** za odobravanje proizvođača, upravljanje korisnicima i proizvodima,
-i moderaciju utisaka.
+Marketplace za male proizvođače sa juga Srbije: med, ajvar, sir, rakija i ostalo domaće. Platforma
+**nije prodavnica**. Nema korpe ni plaćanja na sajtu. Kupac nađe proizvod i pošalje upit, a oko
+količine, cene i dostave se dve strane dogovaraju direktno, u porukama na sajtu.
 
-## Tehnologije
+Platforma zarađuje od proizvođača. Postoje članarine (Basic, Premium, Pro), plaćeno isticanje
+profila ili proizvoda i sezonske kampanje. Sve se plaća uplatnicom sa IPS QR kodom, a admin
+potvrđuje uplatu.
 
-- **Backend**: Laravel 12 (PHP 8.2+), Inertia.js
-- **Frontend**: React 19 + TypeScript, Tailwind CSS v4, shadcn/ui komponente
-- **Autorizacija**: Spatie `laravel-permission` (role buyer/seller/admin)
-- **Testovi**: Pest/PHPUnit (185 testova, feature nivo)
-- **Baza**: SQLite (dev), migracije spremne za MySQL/Postgres u produkciji
-
-Projekat je zasnovan na `laravel/react-starter-kit` template-u.
-
-## Uloge i mogućnosti
+## Ko šta može
 
 | Uloga | Šta može |
 | --- | --- |
-| **Gost** | Pregleda javnu listu/pretragu domaćinstava i proizvoda, javne stranice domaćinstva i proizvoda |
-| **Kupac (buyer)** | Registracija/login, slanje upita sa stranice proizvoda i dopisivanje sa proizvođačem, utisak o proizvođaču (tek pošto mu se proizvođač javi, i pošto admin odobri utisak), omiljeni proizvođači/proizvodi |
-| **Proizvođač (seller)** | Sve što i kupac, plus: kreiranje/uređivanje sopstvenih stranica proizvođača (kreiranje automatski dodeljuje seller rolu), CRUD nad sopstvenim proizvodima i njihovim slikama, galerija, i odgovaranje na upite kupaca |
-| **Admin** | Evidencija (korisnici, proizvođači, proizvodi, razgovori, poruke), upravljanje korisnicima (role, blokiranje naloga), odobravanje/blokiranje proizvođača, brisanje proizvoda, CRUD kategorija, moderacija utisaka (odobri/odbij/obriši) i log aktivnosti |
+| **Posetilac** | Pretraga i filteri proizvoda i proizvođača, stranice kategorija, mapa i „Najbliži meni“, profili proizvođača, na srpskom, engleskom ili ruskom |
+| **Kupac** | Upit sa stranice proizvoda i dopisivanje, praćenje proizvođača, sačuvani proizvodi, „Javi mi kad stigne“, utisak o proizvođaču (tek kad mu se proizvođač javi), prijava problema |
+| **Proizvođač** | Svoja stranica i proizvodi (slike, sezona, zalihe), odgovori kupcima i na utiske, statistika, QR poster za tezgu, članarina, isticanje i kampanje |
+| **Admin** | Odobravanje proizvođača, moderacija utisaka, prijava i proizvoda, potvrda uplata, cene i paketi, proizvođač nedelje, log aktivnosti |
 
-## Arhitektura i konvencije
+Uloge se mogu kombinovati: proizvođač je i kupac kod drugih.
 
-- **Rute** su podeljene po domenu u zasebne fajlove (`routes/households.php`, `routes/products.php`,
-  `routes/cart.php`, `routes/orders.php`, `routes/favorites.php`, `routes/admin.php`,
-  `routes/marketplace.php`) umesto svega u `web.php`.
-- **Poslovna logika** živi u `app/Services/*` (npr. `HouseholdService`, `CheckoutService`,
-  `OrderStatusService`), ne u kontrolerima - kontroleri ostaju tanki (validacija preko Form Request-a
-  → poziv servisa → redirect).
-- **Autorizacija** ide preko Laravel Policy klasa (`app/Policies/*`) za svaki model koji ima
-  vlasništvo (Household, Product, Order, Review, CartItem), ne preko ručnih provera u kontroleru.
-  Vidi `tests/Feature/SecurityAuthorizationAuditTest.php` za konsolidovan pregled IDOR zaštite.
-- **Dizajn** je preuzet iz `design-reference/` (Lovable-generisan landing page) - `docs/design-tokens.md`
-  dokumentuje paletu boja, fontove i komponente koje su prenete u ovaj projekat.
-- **Struktura baze** je dokumentovana u `docs/database.md` (ER dijagram + opis svake tabele).
-- **Plan projekta** (svi taskovi po fazama) je u `docs/plan.md`, praćen i kao GitHub Issues/Project
-  board.
+## Tehnologije
 
-## Pokretanje projekta lokalno
+- **Backend:** Laravel 12 (PHP 8.2+), MySQL 8 / MariaDB 10.4+ (SQLite za testove)
+- **Frontend:** Inertia.js 2, React 19 + TypeScript, Tailwind CSS 4, Radix UI
+- **Uloge:** Spatie `laravel-permission` (buyer, seller, admin)
+- **Ostalo:** dompdf i endroid/qr-code (uplatnice i poster), Leaflet + OpenStreetMap (mapa), Sentry (greške)
+
+## Kako je organizovano
+
+- **Rute** su podeljene po oblasti u `routes/*.php`. Na primer `marketplace.php` za javne strane,
+  `messages.php`, `memberships.php` i `admin.php`.
+- **Kontroleri su tanki**: validacija, pa poziv servisa, pa odgovor. Poslovna logika je u `app/Services`
+  (članarine, isticanje, statistika, vreme odgovora, uplatnice) i `app/Support`
+  (pretraga, mediji, QR, slugovi).
+- **Autorizacija** ide preko Policy klasa u `app/Policies` za proizvođače, proizvode, poruke i utiske,
+  ne preko provera razbacanih po kontrolerima.
+- **Slike** idu kroz `App\Support\Media` (upload, male verzije, brisanje). Mesto čuvanja bira `MEDIA_DISK`:
+  lokalno ili S3/CDN.
+- **Obaveštenja:** zvono na sajtu za sve, mejl za nepročitane poruke i za ono što je kupac sam tražio
+  („Javi mi kad stigne“).
+- **Prevodi:** srpski tekst u kodu je ključ, a `lang/en.json` i `lang/ru.json` su prevodi.
+- **Dizajn:** vizuelni identitet je preuzet iz `design-reference/` (prvobitni landing page).
+  Paleta i fontovi su opisani u `docs/design-tokens.md`.
+
+Šema baze je u [docs/database.md](docs/database.md), a pokretanje na serveru i rast u
+[docs/deploy.md](docs/deploy.md) i [docs/scaling.md](docs/scaling.md).
+
+## Lokalno pokretanje
 
 ```bash
 composer install
 npm install
 cp .env.example .env
 php artisan key:generate
-touch database/database.sqlite
 php artisan migrate --seed
 php artisan storage:link
 composer run dev
 ```
 
-`composer run dev` pokreće Laravel server, queue listener i Vite dev server istovremeno.
-Aplikacija je dostupna na `http://127.0.0.1:8000`.
+Sajt je na `http://127.0.0.1:8000`.
 
-`php artisan migrate --seed` puni bazu sa: 3 role (buyer/seller/admin), 9 osnovnih kategorija
-proizvoda, i demo sadržajem (proizvođači sa proizvodima i slikama, razgovori u različitim stanjima,
-objavljeni utisci i jedan koji čeka odobrenje) - dovoljno da se sve funkcionalnosti, uključujući
-moderaciju, odmah isprobaju bez ručnog unosa podataka.
+Na Windows-u u PowerShell-u koristite `npm.cmd` umesto `npm`, ili radite u Git Bash-u.
 
-## Testiranje
+`php artisan migrate --seed` lokalno puni bazu demo sadržajem: proizvođači, proizvodi, razgovori, utisci i
+uplate u svim stanjima. Demo nalozi su `admin@gmail.com` / `admin` i `marko@example.com` / `password`.
+Na produkciji isti seeder pravi samo uloge, kategorije i pakete. Administrator se tamo pravi sa
+`php artisan admin:create`.
 
-```bash
-php artisan test
-```
-
-185 testova pokriva: registraciju/login, dodelu rola, CRUD za proizvođače/proizvode (sa
-autorizacijom), upload slika, upite i dopisivanje, utiske (može ih ostaviti samo prijavljeni
-korisnik kome se proizvođač javio, i vidljivi su tek posle odobrenja), omiljene, rangiranje na
-početnoj strani, kompletan admin panel, i bezbednosni audit autorizacije.
-
-Stil koda se proverava preko Laravel Pint-a:
+## Testovi
 
 ```bash
-vendor/bin/pint --test
+php artisan test            # PHP: feature i unit testovi
+npm run build && npm run test:e2e   # u pravom pregledaču (Playwright), prvi put i: npx playwright install chromium
+vendor/bin/pint --test      # stil PHP koda
+npm run lint && npx tsc --noEmit && npm run format:check
 ```
 
-## Autor
+Testovi u pregledaču podižu svoj sajt sa sopstvenom bazom (`storage/e2e.sqlite`), pa ne diraju vašu
+bazu ni `composer dev`.
 
-Vladimir
+CI (`.github/workflows`) na svaki pull request pokreće PHP testove na SQLite-u i na MySQL-u, testove u
+pregledaču i proveru stila.
