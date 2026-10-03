@@ -6,7 +6,6 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -22,8 +21,8 @@ class ProductImageCrudTest extends TestCase
 
         $this->actingAs($user)->post(route('producers.products.images.store', [$producer, $product]), [
             'images' => [
-                UploadedFile::fake()->create('a.jpg', 10, 'image/jpeg'),
-                UploadedFile::fake()->create('b.jpg', 10, 'image/jpeg'),
+                $this->fakeImage('a.jpg'),
+                $this->fakeImage('b.jpg'),
             ],
         ]);
 
@@ -38,7 +37,7 @@ class ProductImageCrudTest extends TestCase
         $product = Product::factory()->create();
 
         $this->actingAs($user)->post(route('producers.products.images.store', [$product->producer, $product]), [
-            'images' => [UploadedFile::fake()->create('a.jpg', 10, 'image/jpeg')],
+            'images' => [$this->fakeImage('a.jpg')],
         ])->assertForbidden();
     }
 

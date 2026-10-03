@@ -6,7 +6,6 @@ use App\Models\Producer;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -82,7 +81,7 @@ class ProfileUpdateTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->post('/settings/profile/avatar', [
-                'avatar' => UploadedFile::fake()->create('avatar.jpg', 10, 'image/jpeg'),
+                'avatar' => $this->fakeImage('avatar.jpg'),
             ]);
 
         $response
@@ -105,7 +104,7 @@ class ProfileUpdateTest extends TestCase
         $response = $this
             ->actingAs($user)
             ->post('/settings/profile/avatar', [
-                'avatar' => UploadedFile::fake()->create('avatar.jpg', 10, 'image/jpeg'),
+                'avatar' => $this->fakeImage('avatar.jpg'),
             ]);
 
         $response

@@ -810,5 +810,9 @@
     "Provera da niste robot nije uspela. Pokušajte ponovo.": "The robot check failed. Please try again.",
     "Potvrdite email adresu :email preko linka koji smo vam poslali. Do tada ne možete da šaljete poruke, ocenjujete ni otvorite profil proizvođača.": "Confirm your email address :email using the link we sent you. Until then you can't send messages, leave reviews or open a producer profile.",
     "Niste dobili mejl?": "Didn't get the email?",
-    "Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.": "We sent the link to :email. If you can't see it, check your spam folder too."
+    "Link smo poslali na :email. Ako ga ne vidite, proverite i spam folder.": "We sent the link to :email. If you can't see it, check your spam folder too.",
+    "Ovaj proizvođač više nije na sajtu. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "This producer is no longer on the site. The conversation stays here, but no more messages can be sent.",
+    "Ovaj korisnik je obrisao nalog. Prepiska ostaje ovde, ali poruke se više ne mogu slati.": "This user has deleted their account. The conversation stays here, but no more messages can be sent.",
+    "Administrator je sklonio ovaj proizvod sa sajta. Možete da ga ispravite, ali samo administrator može ponovo da ga objavi.": "An administrator has taken this product off the site. You can correct it, but only an administrator can publish it again.",
+    "Obrisan korisnik": "Deleted user"
 }

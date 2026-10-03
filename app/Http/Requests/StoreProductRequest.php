@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Product;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest
 {
@@ -40,7 +41,7 @@ class StoreProductRequest extends FormRequest
             'description' => ['nullable', 'string', 'max:5000'],
             ...self::amountRules(),
             'unit' => ['required', 'in:kg,g,l,ml,kom,paket'],
-            'status' => ['required', 'in:draft,active,archived'],
+            'status' => ['required', Rule::in(Product::OWNER_STATUSES)],
         ];
     }
 }

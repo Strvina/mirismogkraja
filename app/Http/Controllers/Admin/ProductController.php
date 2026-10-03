@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Notifications\SiteNotification;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ use Inertia\Response;
 class ProductController extends Controller
 {
     /** @var list<string> */
-    private const STATUSES = ['draft', 'active', 'archived'];
+    private const STATUSES = [...Product::OWNER_STATUSES, Product::STATUS_BLOCKED];
 
     public function index(Request $request): Response
     {
@@ -53,7 +54,9 @@ class ProductController extends Controller
 
         // Keep public slugs consistent regardless of whether an owner or an
         // administrator changes the product name.
+        $before = $product->status;
         $products->update($product, $data);
+        $this->tellOwnerIfBlocked($product, $before);
 
         return back();
     }
@@ -88,11 +91,31 @@ class ProductController extends Controller
         foreach ($products as $product) {
             match ($data['action']) {
                 'delete' => $product->delete(),
-                'status' => $product->update(['status' => $data['status']]),
+                'status' => $this->setStatus($product, $data['status']),
                 'category' => $product->update(['category_id' => $data['category_id']]),
             };
         }
 
         return back();
+    }
+
+    private function setStatus(Product $product, string $status): void
+    {
+        $before = $product->status;
+        $product->update(['status' => $status]);
+        $this->tellOwnerIfBlocked($product, $before);
+    }
+
+    /** The owner hears why a listing disappeared, and where to fix it. */
+    private function tellOwnerIfBlocked(Product $product, string $before): void
+    {
+        if ($before === Product::STATUS_BLOCKED || $product->status !== Product::STATUS_BLOCKED) {
+            return;
+        }
+
+        $product->producer?->user?->notify(SiteNotification::productBlocked(
+            $product->name,
+            route('producers.products.edit', [$product->household_id, $product->id]),
+        ));
     }
 }

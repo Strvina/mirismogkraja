@@ -82,6 +82,11 @@ class SiteNotification extends Notification
         return new self('product.published', ['producer' => $producerName, 'product' => $productName], $url);
     }
 
+    public static function productBlocked(string $productName, string $url): self
+    {
+        return new self('product.blocked', ['product' => $productName], $url);
+    }
+
     public static function reviewReceived(string $producerName, string $url): self
     {
         return new self('review.received', ['producer' => $producerName], $url);

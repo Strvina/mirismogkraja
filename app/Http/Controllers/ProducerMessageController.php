@@ -123,6 +123,13 @@ class ProducerMessageController extends Controller
             // Both sides see who closed it: that side to undo it, and both
             // so the missing message box explains itself.
             'blockedBy' => $producer->blockedBy($buyer),
+            // The other side has left the site: the history stays, the
+            // message box goes.
+            'closed' => match (true) {
+                $producer->trashed() => 'producer',
+                $buyer->trashed() => 'buyer',
+                default => null,
+            },
             // The producer's own note on how this inquiry ended.
             // A closure, like the other props the three-second poll does
             // not ask for, so polling never runs its query.

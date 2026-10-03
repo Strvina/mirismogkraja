@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Settings;
 
+use App\Support\Media;
 use Illuminate\Foundation\Http\FormRequest;
 
 class AvatarUpdateRequest extends FormRequest
@@ -14,7 +15,7 @@ class AvatarUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'avatar' => ['required', 'image', 'max:2048'],
+            'avatar' => ['required', ...Media::imageRules(2048)],
         ];
     }
 }

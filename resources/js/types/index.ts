@@ -27,7 +27,7 @@ export interface Product {
     price: string;
     unit: 'kg' | 'g' | 'l' | 'ml' | 'kom' | 'paket';
     stock_quantity: number;
-    status: 'draft' | 'active' | 'archived';
+    status: 'draft' | 'active' | 'archived' | 'blocked';
 }
 
 export interface SiteNotification {

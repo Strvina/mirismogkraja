@@ -43,7 +43,8 @@ class Review extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        // A deleted account's published review stays, under its anonymised name.
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function producer(): BelongsTo

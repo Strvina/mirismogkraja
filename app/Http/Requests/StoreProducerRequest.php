@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Producer;
+use App\Support\Media;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -53,8 +54,8 @@ class StoreProducerRequest extends FormRequest
             // A point on the map, or none - never half of one.
             'lat' => ['nullable', 'numeric', 'between:-90,90', 'required_with:lng'],
             'lng' => ['nullable', 'numeric', 'between:-180,180', 'required_with:lat'],
-            'cover_image' => ['nullable', 'image', 'max:4096'],
-            'logo' => ['nullable', 'image', 'max:2048'],
+            'cover_image' => ['nullable', ...Media::imageRules()],
+            'logo' => ['nullable', ...Media::imageRules(2048)],
             ...$this->productRules(),
         ];
     }
@@ -74,7 +75,7 @@ class StoreProducerRequest extends FormRequest
             'products.*.price' => StoreProductRequest::amountRules()['price'],
             'products.*.unit' => ['required', 'in:kg,g,l,ml,kom,paket'],
             'products.*.stock_quantity' => StoreProductRequest::amountRules()['stock_quantity'],
-            'products.*.image' => ['nullable', 'image', 'max:4096'],
+            'products.*.image' => ['nullable', ...Media::imageRules()],
         ];
     }
 }

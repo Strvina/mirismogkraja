@@ -23,6 +23,17 @@ final class Media
     /** Longest side of the small copy: a card at twice its CSS size. */
     public const THUMB_SIDE = 480;
 
+    /**
+     * The largest side an upload may have. The site's own forms shrink
+     * photos to 1600px before sending, so this only stops a crafted file -
+     * a few megabytes of PNG can claim 20000x20000 pixels, which GD would
+     * try to hold in memory at four bytes each.
+     */
+    public const MAX_SIDE = 5000;
+
+    /** Above this, no small copy is made (decoding would need too much memory). */
+    private const MAX_THUMB_SOURCE_PIXELS = 20_000_000;
+
     private const THUMB_DIRECTORY = 'thumbs';
 
     public static function diskName(): string
@@ -36,6 +47,16 @@ final class Media
     }
 
     /** Store an upload under $directory, with its small copy; returns the path to save. */
+    /**
+     * Validation rules for an uploaded photo.
+     *
+     * @return array<int, string>
+     */
+    public static function imageRules(int $maxKilobytes = 4096): array
+    {
+        return ['image', 'max:'.$maxKilobytes, 'dimensions:max_width='.self::MAX_SIDE.',max_height='.self::MAX_SIDE];
+    }
+
     public static function store(UploadedFile $file, string $directory): string
     {
         $path = $file->store($directory, self::diskName());
@@ -91,6 +112,12 @@ final class Media
     public static function makeThumbnail(string $path, string $contents): bool
     {
         if (! self::thumbnailsEnabled() || $contents === '') {
+            return false;
+        }
+
+        $size = @getimagesizefromstring($contents);
+
+        if ($size === false || $size[0] * $size[1] > self::MAX_THUMB_SOURCE_PIXELS) {
             return false;
         }
 

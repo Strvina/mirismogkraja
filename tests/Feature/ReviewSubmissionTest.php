@@ -7,7 +7,6 @@ use App\Models\ProducerMessage;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -47,7 +46,7 @@ class ReviewSubmissionTest extends TestCase
         $this->actingAs($buyer)->post(route('reviews.store', $producer), [
             'rating' => 5,
             'comment' => 'Stiglo baš kako se vidi na slici.',
-            'image' => UploadedFile::fake()->create('stiglo.jpg', 10, 'image/jpeg'),
+            'image' => $this->fakeImage('stiglo.jpg'),
         ])->assertRedirect();
 
         $review = Review::sole();

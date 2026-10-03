@@ -16,6 +16,7 @@ const statusLabels: Record<string, string> = {
     draft: tx('Nacrt'),
     active: tx('Aktivan'),
     archived: tx('Arhiviran'),
+    blocked: tx('Blokiran'),
 };
 
 const selectClasses =

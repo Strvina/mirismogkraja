@@ -27,6 +27,7 @@ return [
 
     'product' => [
         'published' => ['title' => ':producer ima nešto novo', 'body' => '„:product” je upravo objavljen.'],
+        'blocked' => ['title' => 'Proizvod je sklonjen', 'body' => 'Administrator je sklonio „:product” sa sajta. Javite nam se ako mislite da je greška.'],
     ],
 
     'review' => [
