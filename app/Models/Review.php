@@ -37,6 +37,7 @@ class Review extends Model
     protected function casts(): array
     {
         return [
+            'replied_at' => 'datetime',
             'approved_at' => 'datetime',
         ];
     }

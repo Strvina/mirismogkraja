@@ -44,6 +44,12 @@ class ReviewPolicy
             ->exists();
     }
 
+    /** The producer reviewed answers in public, once the review is. */
+    public function reply(User $user, Review $review): bool
+    {
+        return $review->status === Review::STATUS_APPROVED && $review->producer?->user_id === $user->id;
+    }
+
     public function update(User $user, Review $review): bool
     {
         return $user->id === $review->user_id;

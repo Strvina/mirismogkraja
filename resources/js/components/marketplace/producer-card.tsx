@@ -12,6 +12,8 @@ export interface ProducerCardProducer extends Producer {
     reviews_count: number;
     products_count: number;
     is_premium?: boolean;
+    /** Set when the directory is sorted by the visitor's position. */
+    distance_km?: number | null;
     reviews: {
         id: number;
         rating: number;
@@ -95,6 +97,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                             {producer.city}
                         </span>
                     )}
+                    {producer.distance_km != null && <span>{t(':km km od vas', { km: producer.distance_km })}</span>}
                     <span>{producer.products_count === 1 ? t('1 proizvod') : t(':count proizvoda', { count: producer.products_count })}</span>
                 </div>
 

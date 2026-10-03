@@ -868,5 +868,18 @@
     "Sezona do": "Сезон до",
     "Cele godine": "Круглый год",
     "Sezona: :months": "Сезон: :months",
-    "— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.": "— один из первых производителей на сайте; номер показывает порядок присоединения."
+    "— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.": "— один из первых производителей на сайте; номер показывает порядок присоединения.",
+    "Odgovor proizvođača „:name”": "Ответ производителя «:name»",
+    "Odgovor proizvođača": "Ответ производителя",
+    "Vaš odgovor": "Ваш ответ",
+    "Zahvalite se kupcu ili objasnite svoju stranu — odgovor vide svi.": "Поблагодарите покупателя или объясните свою позицию — ответ видят все.",
+    "Objavi odgovor": "Опубликовать ответ",
+    "Izmeni odgovor": "Изменить ответ",
+    "Odgovori na utisak": "Ответить на отзыв",
+    ":km km od vas": ":km км от вас",
+    "Vaš pregledač ne može da odredi lokaciju.": "Ваш браузер не может определить местоположение.",
+    "Lokacija nije dostupna. Dozvolite sajtu pristup lokaciji u pregledaču i pokušajte ponovo.": "Местоположение недоступно. Разрешите сайту доступ к местоположению в браузере и попробуйте снова.",
+    "Poređano po udaljenosti od vas": "Отсортировано по расстоянию от вас",
+    "Tražim lokaciju…": "Определяю местоположение…",
+    "Najbliži meni": "Ближайшие ко мне"
 }

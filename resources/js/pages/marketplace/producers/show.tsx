@@ -31,6 +31,7 @@ export default function ProducerShow({
     responseTime,
     canReview,
     myPendingReview,
+    canReply,
     canMessage,
     canFollow,
     isFollowing,
@@ -53,6 +54,7 @@ export default function ProducerShow({
     responseTime: ResponseTimeBucket | null;
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
+    canReply: boolean;
     canMessage: boolean;
     canFollow: boolean;
     isFollowing: boolean;
@@ -389,7 +391,7 @@ export default function ProducerShow({
                 ) : (
                     <div className="mt-4 space-y-4">
                         {reviews.data.map((review) => (
-                            <ReviewCard key={review.id} review={review} />
+                            <ReviewCard key={review.id} review={review} producerName={producer.name} canReply={canReply} />
                         ))}
                         <Pagination meta={reviews} />
                     </div>

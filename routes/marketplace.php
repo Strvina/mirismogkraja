@@ -5,6 +5,7 @@ use App\Http\Controllers\Marketplace\FoundingProducerController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewReplyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/proizvodjaci', [ProducerController::class, 'index'])->name('marketplace.producers.index');
@@ -22,4 +23,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:5,1')
         ->name('reviews.store');
     Route::delete('/ocene/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::put('/ocene/{review}/odgovor', [ReviewReplyController::class, 'update'])->middleware('throttle:10,1')->name('reviews.reply');
 });

@@ -6,6 +6,7 @@ Everything below is configuration: the code already supports each step.
 ## Every deployment
 
 - `APP_ENV=production`, `APP_DEBUG=false`. With debug on, an error page shows code and settings to anyone.
+- **Database:** MySQL 8+ or MariaDB 10.4+. Search uses FULLTEXT indexes, and threads use window functions. CI runs the whole suite on MySQL 8, and it was also checked on MariaDB 10.4.
 - `php artisan migrate --force`, then `php artisan optimize`. This caches config, routes, events and views.
 - `npm ci && npm run build`.
 - `php artisan storage:link` when `MEDIA_DISK=public`.

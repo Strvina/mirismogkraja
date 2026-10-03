@@ -29,7 +29,8 @@ class SecurityHeaders
             // Links out still say where the visitor came from, but not which
             // page - a thread URL names the people in it.
             'Referrer-Policy' => 'strict-origin-when-cross-origin',
-            'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(), payment=()',
+            // Location only for the site itself: "producers near me".
+            'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(self), payment=()',
         ]);
 
         // Only over HTTPS: sent on plain HTTP it is ignored at best, and on

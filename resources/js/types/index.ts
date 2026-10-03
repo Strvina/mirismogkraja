@@ -47,6 +47,9 @@ export interface Review {
     household_id: number;
     rating: number;
     comment: string | null;
+    /** The producer's public answer, if they gave one. */
+    reply?: string | null;
+    replied_at?: string | null;
     image_path: string | null;
     status: 'pending' | 'approved' | 'rejected';
     /** When a moderator published it; the public date is created_at. */
