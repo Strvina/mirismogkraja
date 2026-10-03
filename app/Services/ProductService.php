@@ -6,6 +6,7 @@ use App\Jobs\NotifyFollowersOfProduct;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Support\UniqueSlug;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 class ProductService
 {
@@ -14,10 +15,12 @@ class ProductService
      */
     public function create(Producer $producer, array $attributes): Product
     {
-        $product = $producer->products()->create([
+        // Two products with the same name at the same moment can pick the
+        // same slug; the second one picks again.
+        $product = retry(2, fn () => $producer->products()->create([
             ...$attributes,
             'slug' => UniqueSlug::for(Product::class, $attributes['name']),
-        ]);
+        ]), 0, fn ($e) => $e instanceof UniqueConstraintViolationException);
 
         $this->tellFollowersIfPublished($product, wasPublic: false);
 

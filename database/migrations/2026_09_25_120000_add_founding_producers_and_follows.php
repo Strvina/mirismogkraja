@@ -42,6 +42,8 @@ return new class extends Migration
         Schema::dropIfExists('producer_follows');
 
         Schema::table('households', function (Blueprint $table) {
+            // The unique index first: SQLite will not drop a column an index still names.
+            $table->dropUnique(['founding_number']);
             $table->dropColumn(['founding_number', 'founding_joined_at']);
         });
     }

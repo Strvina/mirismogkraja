@@ -6,11 +6,40 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Support\Search;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class SearchTest extends TestCase
 {
     use RefreshDatabase;
+
+    /**
+     * InnoDB adds rows to a FULLTEXT index only when their transaction
+     * commits, so on MySQL these tests write for real - outside the usual
+     * per-test transaction - and clear up after themselves.
+     *
+     * @return list<string>
+     */
+    protected function connectionsToTransact(): array
+    {
+        return $this->onMySql() ? [] : [config('database.default')];
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->onMySql()) {
+            foreach (['products', 'households', 'categories', 'users'] as $table) {
+                DB::table($table)->delete();
+            }
+        }
+
+        parent::tearDown();
+    }
+
+    private function onMySql(): bool
+    {
+        return in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true);
+    }
 
     public function test_products_are_found_by_name_or_description_with_every_word_required(): void
     {

@@ -8,6 +8,8 @@ import { type Category } from '@/types';
 import { Plus, Trash2 } from 'lucide-react';
 
 export type DraftProduct = {
+    /** Which row this is, for React - an index would move with every removal. */
+    uid: number;
     name: string;
     category_id: string;
     price: string;
@@ -18,7 +20,17 @@ export type DraftProduct = {
 
 const UNITS = ['kg', 'g', 'l', 'ml', 'kom', 'paket'];
 
-export const emptyProduct = (): DraftProduct => ({ name: '', category_id: '', price: '', unit: 'kg', stock_quantity: '0', image: null });
+let nextUid = 0;
+
+export const emptyProduct = (): DraftProduct => ({
+    uid: ++nextUid,
+    name: '',
+    category_id: '',
+    price: '',
+    unit: 'kg',
+    stock_quantity: '0',
+    image: null,
+});
 
 /**
  * The sign-up wizard's last step: the first few products, entered along
@@ -54,8 +66,8 @@ export default function ProducerProductsStep({
                 const id = (field: string) => `product-${index}-${field}`;
 
                 return (
-                    <fieldset key={index} className="border-border/70 grid gap-3 rounded-xl border p-4 sm:grid-cols-6">
-                        <legend className="px-1 text-sm font-medium">Proizvod {index + 1}</legend>
+                    <fieldset key={product.uid} className="border-border/70 grid gap-3 rounded-xl border p-4 sm:grid-cols-6">
+                        <legend className="px-1 text-sm font-medium">{t('Proizvod :number', { number: index + 1 })}</legend>
 
                         <div className="grid gap-1.5 sm:col-span-4">
                             <Label htmlFor={id('name')}>{t('Naziv')}</Label>

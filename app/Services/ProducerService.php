@@ -9,8 +9,10 @@ use App\Notifications\SiteNotification;
 use App\Support\Admins;
 use App\Support\Media;
 use App\Support\UniqueSlug;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ProducerService
 {
@@ -87,58 +89,64 @@ class ProducerService
      */
     public function create(User $user, array $attributes, ?UploadedFile $coverImage = null, ?UploadedFile $logo = null, array $products = []): Producer
     {
-        // One step: a producer whose products failed half-way would be a
-        // sign-up the owner cannot see through.
-        return DB::transaction(function () use ($user, $attributes, $coverImage, $logo, $products) {
-            $producer = $user->producers()->create([
-                ...$attributes,
-                'slug' => UniqueSlug::for(Producer::class, $attributes['name']),
-            ]);
+        // Photos first, outside the transaction: resizing them holds no
+        // locks, and if the database part fails they are removed again
+        // instead of staying on disk with nothing pointing at them.
+        $stored = [];
+        $store = function (?UploadedFile $file, string $directory) use (&$stored): ?string {
+            return $file === null ? null : $stored[] = Media::store($file, $directory);
+        };
 
-            if (! $user->hasRole('seller')) {
-                $user->assignRole('seller');
-            }
+        $coverPath = $store($coverImage, 'producers/covers');
+        $logoPath = $store($logo, 'producers/logos');
+        $products = array_map(function (array $row) use ($store) {
+            $row['image_path'] = $store($row['image'] ?? null, 'products');
+            unset($row['image']);
 
-            if ($coverImage) {
-                $producer->cover_image_path = Media::store($coverImage, 'producers/covers');
-            }
+            return $row;
+        }, $products);
 
-            if ($logo) {
-                $producer->logo_path = Media::store($logo, 'producers/logos');
-            }
+        try {
+            // One step: a producer whose products failed half-way would be a
+            // sign-up the owner cannot see through.
+            return DB::transaction(function () use ($user, $attributes, $coverPath, $logoPath, $products) {
+                // Two sign-ups with the same name at the same moment can pick
+                // the same slug; the second one picks again.
+                $producer = retry(2, fn () => $user->producers()->create([
+                    ...$attributes,
+                    'slug' => UniqueSlug::for(Producer::class, $attributes['name']),
+                ]), 0, fn ($e) => $e instanceof UniqueConstraintViolationException);
 
-            if ($coverImage || $logo) {
-                $producer->save();
-            }
-
-            // The wizard's first products, listed straight away: they are only
-            // public once the producer is, so there is nothing to hold back.
-            foreach ($products as $row) {
-                $image = $row['image'] ?? null;
-                unset($row['image']);
-
-                $product = $this->products->create($producer, [...$row, 'description' => null, 'status' => 'active']);
-
-                if ($image) {
-                    $product->images()->create(['path' => Media::store($image, 'products'), 'order' => 0]);
+                if (! $user->hasRole('seller')) {
+                    $user->assignRole('seller');
                 }
-            }
 
-            return $producer;
-        });
+                if ($coverPath || $logoPath) {
+                    $producer->forceFill(['cover_image_path' => $coverPath, 'logo_path' => $logoPath])->save();
+                }
+
+                // The wizard's first products, listed straight away: they are only
+                // public once the producer is, so there is nothing to hold back.
+                foreach ($products as $row) {
+                    $imagePath = $row['image_path'];
+                    unset($row['image_path']);
+
+                    $product = $this->products->create($producer, [...$row, 'description' => null, 'status' => 'active']);
+
+                    if ($imagePath) {
+                        $product->images()->create(['path' => $imagePath, 'order' => 0]);
+                    }
+                }
+
+                return $producer;
+            });
+        } catch (Throwable $e) {
+            Media::delete($stored);
+
+            throw $e;
+        }
     }
 
-    /**
-     * Fields an owner may only ask to change once their producer is public
-     * (task 15). Everything else - description, story, contact details,
-     * delivery, images, and all of their products - they change themselves,
-     * and it takes effect at once.
-     *
-     * The name is here because it is what an admin approved, what buyers
-     * recognise and what the public address is built from.
-     *
-     * @var list<string>
-     */
     public const FIELDS_NEEDING_APPROVAL = ['name'];
 
     /**
@@ -164,24 +172,21 @@ class ProducerService
 
         $producer->fill($attributes);
 
-        if ($coverImage) {
-            $this->replaceImage($producer, 'cover_image_path', $coverImage, 'producers/covers');
-        }
+        $replaced = [];
 
-        if ($logo) {
-            $this->replaceImage($producer, 'logo_path', $logo, 'producers/logos');
+        foreach (['cover_image_path' => [$coverImage, 'producers/covers'], 'logo_path' => [$logo, 'producers/logos']] as $column => [$file, $directory]) {
+            if ($file) {
+                $replaced[] = $producer->{$column};
+                $producer->{$column} = Media::store($file, $directory);
+            }
         }
 
         $producer->save();
 
+        // Only once the new paths are saved: had the save failed, the page
+        // would still be pointing at these.
+        Media::delete($replaced);
+
         return $producer;
-    }
-
-    private function replaceImage(Producer $producer, string $column, UploadedFile $file, string $directory): void
-    {
-        $oldPath = $producer->{$column};
-        $producer->{$column} = Media::store($file, $directory);
-
-        Media::delete($oldPath);
     }
 }

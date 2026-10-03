@@ -1,3 +1,7 @@
+// The two typefaces, bundled and served from the site: no request to a
+// third-party font host before the first paint, and nothing for it to log.
+import '@fontsource-variable/lora';
+import '@fontsource-variable/manrope';
 import '../css/app.css';
 
 import { createInertiaApp } from '@inertiajs/react';

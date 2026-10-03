@@ -127,6 +127,8 @@ final class Media
             return false;
         }
 
+        $image = self::upright($image, $contents);
+
         $width = imagesx($image);
         $height = imagesy($image);
         $scale = min(1, self::THUMB_SIDE / max($width, $height, 1));
@@ -150,5 +152,41 @@ final class Media
         imagedestroy($thumb);
 
         return $data !== '' && self::disk()->put(self::thumbPath($path), $data);
+    }
+
+    /**
+     * A phone stores a photo as the sensor saw it, plus an EXIF note on how
+     * to turn it. Browsers follow the note; GD does not, and the copy it
+     * writes has no note left - so a portrait photo's thumbnail would lie on
+     * its side. The turn is applied to the pixels here instead.
+     */
+    private static function upright(GdImage $image, string $contents): GdImage
+    {
+        if (! function_exists('exif_read_data') || ! str_starts_with($contents, "\xFF\xD8")) {
+            return $image;
+        }
+
+        $exif = @exif_read_data('data://image/jpeg;base64,'.base64_encode($contents));
+        $orientation = (int) ($exif['Orientation'] ?? 1);
+
+        // 2, 4, 5 and 7 are mirrored versions of 1, 3, 6 and 8.
+        if (in_array($orientation, [2, 4, 5, 7], true)) {
+            imageflip($image, $orientation === 4 ? IMG_FLIP_VERTICAL : IMG_FLIP_HORIZONTAL);
+        }
+
+        $angle = match ($orientation) {
+            3, 4 => 180,
+            5, 6 => -90,
+            7, 8 => 90,
+            default => 0,
+        };
+
+        if ($angle === 0) {
+            return $image;
+        }
+
+        $turned = imagerotate($image, $angle, 0);
+
+        return $turned instanceof GdImage ? $turned : $image;
     }
 }

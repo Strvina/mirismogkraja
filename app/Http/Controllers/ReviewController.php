@@ -7,6 +7,7 @@ use App\Models\Review;
 use App\Notifications\SiteNotification;
 use App\Support\Admins;
 use App\Support\Media;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -38,13 +39,22 @@ class ReviewController extends Controller
             ->each
             ->delete();
 
-        $review = $producer->reviews()->create([
-            'user_id' => $request->user()->id,
-            'rating' => $data['rating'],
-            'comment' => $data['comment'] ?? null,
-            'image_path' => $request->hasFile('image') ? Media::store($request->file('image'), 'reviews') : null,
-            'status' => Review::STATUS_PENDING,
-        ]);
+        $imagePath = $request->hasFile('image') ? Media::store($request->file('image'), 'reviews') : null;
+
+        try {
+            $review = $producer->reviews()->create([
+                'user_id' => $request->user()->id,
+                'rating' => $data['rating'],
+                'comment' => $data['comment'] ?? null,
+                'image_path' => $imagePath,
+                'status' => Review::STATUS_PENDING,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            // The same form sent twice at once: the first one is the review.
+            Media::delete($imagePath);
+
+            return back();
+        }
 
         $producer->user?->notify(SiteNotification::reviewReceived(
             $producer->name,
@@ -63,10 +73,7 @@ class ReviewController extends Controller
     {
         $this->authorize('delete', $review);
 
-        if ($review->image_path) {
-            Media::delete($review->image_path);
-        }
-
+        // Its photo goes with it (ActivityLogObserver::deleting).
         $review->delete();
 
         return back();
