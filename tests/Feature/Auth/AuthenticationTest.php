@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\User;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -32,24 +33,40 @@ class AuthenticationTest extends TestCase
     }
 
     /**
-     * Logging in and out from the Inertia page is a full page load, so the
-     * route list written into the page matches who is now signed in - an
-     * admin's includes the admin panel's routes, a visitor's does not.
+     * An admin's login and logout reload the whole page, so the route list
+     * written into it matches who is now signed in - an admin's includes
+     * the admin panel's routes, a visitor's does not.
      */
-    public function test_logging_in_and_out_reloads_the_whole_page()
+    public function test_an_admin_logging_in_and_out_reloads_the_whole_page()
+    {
+        $this->seed(RolesSeeder::class);
+        $admin = User::factory()->create()->assignRole('admin');
+        $inertia = ['X-Inertia' => 'true', 'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request())];
+
+        $this->withHeaders($inertia)
+            ->post('/login', ['email' => $admin->email, 'password' => 'password'])
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', route('admin.dashboard'));
+
+        $this->withHeaders($inertia)
+            ->post('/logout')
+            ->assertStatus(409)
+            ->assertHeader('X-Inertia-Location', url('/'));
+    }
+
+    /** Everyone else keeps the same route list, so a normal, quick visit is enough. */
+    public function test_anyone_else_logs_in_and_out_without_a_page_reload()
     {
         $user = User::factory()->create();
         $inertia = ['X-Inertia' => 'true', 'X-Inertia-Version' => (string) app(HandleInertiaRequests::class)->version(request())];
 
         $this->withHeaders($inertia)
             ->post('/login', ['email' => $user->email, 'password' => 'password'])
-            ->assertStatus(409)
-            ->assertHeader('X-Inertia-Location', route('home'));
+            ->assertRedirect(route('home'));
+        $this->assertAuthenticated();
 
-        $this->withHeaders($inertia)
-            ->post('/logout')
-            ->assertStatus(409)
-            ->assertHeader('X-Inertia-Location', url('/'));
+        $this->withHeaders($inertia)->post('/logout')->assertRedirect('/');
+        $this->assertGuest();
     }
 
     public function test_users_can_not_authenticate_with_invalid_password()
