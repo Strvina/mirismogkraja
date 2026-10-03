@@ -805,5 +805,7 @@
     "Žitarice": "Grains",
     "— proizvođač ima plaćeno Premium ili Pro članstvo na sajtu.": "— the producer has a paid Premium or Pro membership on the site.",
     "— proverili smo ko stoji iza ovog proizvođača.": "— we checked who is behind this producer.",
-    "„:name” već učestvuje u ovoj kampanji.": "“:name” is already taking part in this campaign."
+    "„:name” već učestvuje u ovoj kampanji.": "“:name” is already taking part in this campaign.",
+    "Potvrdite da niste robot.": "Please confirm you are not a robot.",
+    "Provera da niste robot nije uspela. Pokušajte ponovo.": "The robot check failed. Please try again."
 }

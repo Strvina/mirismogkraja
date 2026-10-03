@@ -1,7 +1,8 @@
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
+import Captcha from '@/components/captcha';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -15,20 +16,26 @@ interface RegisterForm extends Record<string, string> {
     email: string;
     password: string;
     password_confirmation: string;
+    captcha: string;
 }
 
-export default function Register() {
+export default function Register({ captchaSiteKey }: { captchaSiteKey?: string | null }) {
+    const [attempt, setAttempt] = useState(0);
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
+        captcha: '',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
+            onFinish: () => {
+                reset('password', 'password_confirmation');
+                setAttempt((n) => n + 1);
+            },
         });
     };
 
@@ -100,6 +107,11 @@ export default function Register() {
                             placeholder={t('Potvrda lozinke')}
                         />
                         <InputError message={errors.password_confirmation} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Captcha siteKey={captchaSiteKey} attempt={attempt} onToken={(token) => setData('captcha', token)} />
+                        <InputError message={errors.captcha} />
                     </div>
 
                     <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>

@@ -1,8 +1,9 @@
 // Components
 import { Head, useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
-import { FormEventHandler } from 'react';
+import { FormEventHandler, useState } from 'react';
 
+import Captcha from '@/components/captcha';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -11,15 +12,19 @@ import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
 import { t } from '@/lib/i18n';
 
-export default function ForgotPassword({ status }: { status?: string }) {
+export default function ForgotPassword({ status, captchaSiteKey }: { status?: string; captchaSiteKey?: string | null }) {
+    const [attempt, setAttempt] = useState(0);
     const { data, setData, post, processing, errors } = useForm({
         email: '',
+        captcha: '',
     });
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('password.email'));
+        post(route('password.email'), {
+            onFinish: () => setAttempt((n) => n + 1),
+        });
     };
 
     return (
@@ -44,6 +49,11 @@ export default function ForgotPassword({ status }: { status?: string }) {
                         />
 
                         <InputError message={errors.email} />
+                    </div>
+
+                    <div className="mt-4 grid gap-2">
+                        <Captcha siteKey={captchaSiteKey} attempt={attempt} onToken={(token) => setData('captcha', token)} />
+                        <InputError message={errors.captcha} />
                     </div>
 
                     <div className="my-6 flex items-center justify-start">

@@ -11,6 +11,7 @@ Everything below is configuration: the code already supports each step.
 - `php artisan storage:link` when `MEDIA_DISK=public`.
 - **Cron:** `* * * * * php /path/to/artisan schedule:run`. Without it, memberships and boosts never expire, nobody gets the "ending soon" warnings, and old logs and notifications are never pruned.
 - **PHP GD extension:** with GD, uploads get a 480px copy for cards and lists. Without it, pages show the originals. After enabling GD, run `php artisan media:thumbnails` once to make copies of images uploaded before that.
+- **Turnstile keys** (`TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, free at dash.cloudflare.com → Turnstile, add the site's domain): without them registration and password reset have no robot check.
 
 ## When traffic grows
 
