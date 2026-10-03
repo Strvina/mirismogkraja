@@ -15,6 +15,11 @@ const statusLabels: Record<Producer['status'], string> = {
     blocked: tx('Blokirano'),
 };
 
+interface Completeness {
+    percent: number;
+    missing: { key: string; label: string; href: string }[];
+}
+
 interface PendingChange {
     id: number;
     household_id: number;
@@ -22,7 +27,13 @@ interface PendingChange {
     requested_value: string;
 }
 
-export default function ProducersIndex({ producers, pendingChanges }: { producers: Producer[]; pendingChanges: PendingChange[] }) {
+export default function ProducersIndex({
+    producers,
+    pendingChanges,
+}: {
+    producers: (Producer & { completeness: Completeness })[];
+    pendingChanges: PendingChange[];
+}) {
     const destroy = async (producer: Producer) => {
         if (
             await ask({
@@ -73,6 +84,40 @@ export default function ProducersIndex({ producers, pendingChanges }: { producer
                                             {t('Novi naziv „:name” čeka odobrenje. Do tada ostaje dosadašnji.', { name: change.requested_value })}
                                         </p>
                                     ))}
+                                {producer.completeness.missing.length > 0 && (
+                                    <div className="bg-muted/40 mt-4 rounded-lg p-3">
+                                        <div className="flex items-center justify-between gap-3 text-sm">
+                                            <span className="font-medium">
+                                                {t('Profil je popunjen :percent%', { percent: producer.completeness.percent })}
+                                            </span>
+                                        </div>
+                                        <div
+                                            className="bg-border mt-2 h-1.5 overflow-hidden rounded-full"
+                                            role="progressbar"
+                                            aria-valuenow={producer.completeness.percent}
+                                            aria-valuemin={0}
+                                            aria-valuemax={100}
+                                        >
+                                            <div className="bg-primary h-full rounded-full" style={{ width: `${producer.completeness.percent}%` }} />
+                                        </div>
+                                        <p className="text-muted-foreground mt-2 text-xs">
+                                            {t('Kupci češće pišu proizvođačima sa potpunim profilom. Još nedostaje:')}
+                                        </p>
+                                        <ul className="mt-1.5 flex flex-wrap gap-1.5">
+                                            {producer.completeness.missing.map((item) => (
+                                                <li key={item.key}>
+                                                    <Link
+                                                        href={item.href}
+                                                        className="border-border hover:border-primary/40 hover:text-foreground text-muted-foreground inline-block rounded-full border px-2.5 py-0.5 text-xs transition-colors"
+                                                    >
+                                                        + {item.label}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
                                 <div className="mt-4 flex flex-wrap gap-2">
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.edit', producer.id)}>{t('Izmeni')}</Link>

@@ -12,6 +12,7 @@ use App\Services\FoundingProducerService;
 use App\Services\ProducerPosterPdf;
 use App\Services\ProducerService;
 use App\Support\Admins;
+use App\Support\ProfileCompleteness;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -28,7 +29,12 @@ class ProducerController extends Controller
         $this->authorize('viewAny', Producer::class);
 
         return Inertia::render('producers/index', [
-            'producers' => $request->user()->producers()->latest()->get(),
+            'producers' => $request->user()->producers()
+                ->withCount(['images', 'products as active_products_count' => fn ($products) => $products->where('status', 'active')])
+                ->latest()
+                ->get()
+                // What would make each page more convincing to a buyer.
+                ->each(fn (Producer $producer) => $producer->setAttribute('completeness', ProfileCompleteness::for($producer))),
             // A rename of a published producer waits for an admin, so the
             // list says so - otherwise the name simply not changing reads as
             // the save having failed.
