@@ -15,6 +15,7 @@ export interface ProductFilterValues {
     min_price?: string;
     max_price?: string;
     in_stock?: string;
+    in_season?: string;
     sort?: string;
 }
 
@@ -36,9 +37,15 @@ interface Props {
 export default function ProductFilters({ filters, categories, producers, cities, priceBounds, onChange, onReset }: Props) {
     const [open, setOpen] = useState(false);
 
-    const activeCount = [filters.category_id, filters.producer_id, filters.city, filters.min_price, filters.max_price, filters.in_stock].filter(
-        Boolean,
-    ).length;
+    const activeCount = [
+        filters.category_id,
+        filters.producer_id,
+        filters.city,
+        filters.min_price,
+        filters.max_price,
+        filters.in_stock,
+        filters.in_season,
+    ].filter(Boolean).length;
 
     return (
         <div className="lg:w-64 lg:shrink-0">
@@ -142,6 +149,16 @@ export default function ProductFilters({ filters, categories, producers, cities,
                             onChange={(e) => onChange({ in_stock: e.target.checked ? '1' : undefined })}
                         />
                         {t('Samo dostupno na stanju')}
+                    </label>
+
+                    <label className="flex cursor-pointer items-center gap-2.5 self-end text-sm sm:pb-2 lg:self-auto lg:pb-0">
+                        <input
+                            type="checkbox"
+                            className="border-input text-primary focus-visible:ring-ring/50 size-4 rounded border focus-visible:ring-[3px]"
+                            checked={filters.in_season === '1'}
+                            onChange={(e) => onChange({ in_season: e.target.checked ? '1' : undefined })}
+                        />
+                        {t('Samo ono što je sada u sezoni')}
                     </label>
                 </div>
             </div>

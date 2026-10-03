@@ -4,6 +4,7 @@ import { PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { PremiumBadge } from '@/components/marketplace/plan-badges';
 import ReportButton from '@/components/marketplace/report-button';
+import ResponseTimeBadge, { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ export default function ProducerShow({
     reviews,
     averageRating,
     isPremium,
+    responseTime,
     canReview,
     myPendingReview,
     canMessage,
@@ -48,6 +50,7 @@ export default function ProducerShow({
     reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
     isPremium: boolean;
+    responseTime: ResponseTimeBucket | null;
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
     canMessage: boolean;
@@ -136,7 +139,8 @@ export default function ProducerShow({
                                 )}
                                 {producer.founding_number !== null && (
                                     <p>
-                                        <strong>{t('Osnivač')}</strong> — jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.
+                                        <strong>{t('Osnivač')}</strong>{' '}
+                                        {t('— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.')}
                                     </p>
                                 )}
                             </InfoHint>
@@ -149,6 +153,7 @@ export default function ProducerShow({
                                 {producer.city}
                             </span>
                         )}
+                        <ResponseTimeBadge bucket={responseTime} />
                         {reviews.total > 0 && (
                             <span className="flex items-center gap-1">
                                 <Star className="fill-gold text-gold size-4 shrink-0" />

@@ -34,12 +34,16 @@ class Product extends Model
         'price',
         'unit',
         'stock_quantity',
+        'season_from',
+        'season_to',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
+            'season_from' => 'integer',
+            'season_to' => 'integer',
             'published_at' => 'datetime',
             'price' => 'decimal:2',
         ];
@@ -66,6 +70,22 @@ class Product extends Model
      *
      * @param  Builder<Product>  $query
      */
+    /**
+     * In season in the given month (default: now). Products without a
+     * season are available all year; a range may wrap the new year.
+     */
+    public function scopeInSeason(Builder $query, ?int $month = null): void
+    {
+        $month ??= now()->month;
+        [$from, $to] = [$query->qualifyColumn('season_from'), $query->qualifyColumn('season_to')];
+
+        $query->where(fn (Builder $any) => $any
+            ->whereNull($from)
+            ->orWhereNull($to)
+            ->orWhere(fn (Builder $plain) => $plain->whereColumn($from, '<=', $to)->where($from, '<=', $month)->where($to, '>=', $month))
+            ->orWhere(fn (Builder $wrapping) => $wrapping->whereColumn($from, '>', $to)->where(fn (Builder $either) => $either->where($from, '<=', $month)->orWhere($to, '>=', $month))));
+    }
+
     public function scopePublished(Builder $query): void
     {
         $query->where($query->qualifyColumn('status'), 'active')->whereHas('producer', fn (Builder $producer) => $producer->published());

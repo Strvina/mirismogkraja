@@ -1,11 +1,13 @@
 import FavoriteButton from '@/components/favorite-button';
 import ReportButton from '@/components/marketplace/report-button';
+import ResponseTimeBadge, { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
+import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
@@ -18,6 +20,7 @@ export default function ProductShow({
     product,
     similar,
     canInquire,
+    responseTime,
     canReport,
     reportReasons,
     isFavorited,
@@ -25,6 +28,7 @@ export default function ProductShow({
     product: FullProduct;
     similar: SimilarProduct[];
     canInquire: boolean;
+    responseTime: ResponseTimeBucket | null;
     canReport: boolean;
     reportReasons: Record<string, string>;
     isFavorited: boolean;
@@ -63,6 +67,21 @@ export default function ProductShow({
                     <p className="mt-3 font-serif text-2xl">
                         {formatPrice(product.price)} <span className="text-muted-foreground font-sans text-sm">/ {product.unit}</span>
                     </p>
+
+                    {hasSeason(product) && (
+                        <p className="mt-3 flex items-center gap-2 text-sm">
+                            <span
+                                className={
+                                    isInSeason(product)
+                                        ? 'bg-olive-soft text-olive rounded-full px-2.5 py-0.5 text-xs font-semibold'
+                                        : 'bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-semibold'
+                                }
+                            >
+                                {isInSeason(product) ? t('U sezoni') : t('Van sezone')}
+                            </span>
+                            <span className="text-muted-foreground">{t('Sezona: :months', { months: seasonLabel(product) ?? '' })}</span>
+                        </p>
+                    )}
 
                     {product.description && <p className="text-muted-foreground mt-6 leading-7 break-words">{product.description}</p>}
 
@@ -125,6 +144,7 @@ export default function ProductShow({
                                     {product.producer.city}
                                 </p>
                             )}
+                            <ResponseTimeBadge bucket={responseTime} className="text-muted-foreground mt-1 text-xs" />
                         </div>
                     </Link>
                 </div>

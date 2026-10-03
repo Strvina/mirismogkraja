@@ -9,6 +9,7 @@ use App\Models\Report;
 use App\Models\Review;
 use App\Services\BoostService;
 use App\Services\ProducerStatistics;
+use App\Services\ResponseTime;
 use App\Services\SubscriptionService;
 use App\Support\PageMeta;
 use App\Support\Search;
@@ -111,7 +112,7 @@ class ProducerController extends Controller
      * Show a producer's public page. Only 'active' producers (approved by
      * an admin, task 2.6) are publicly visible - pending/blocked ones 404.
      */
-    public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics): Response
+    public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics, ResponseTime $responseTime): Response
     {
         if ($producer->status !== 'active') {
             throw new NotFoundHttpException;
@@ -147,12 +148,13 @@ class ProducerController extends Controller
                 'structured' => PageMeta::producer($producer, $averageRating, $reviewCount = $producer->reviews()->approved()->count()),
             ],
             'isPremium' => $subscriptions->hasFeature($producer, 'premium_badge'),
+            'responseTime' => $responseTime->bucketFor($producer),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             // The newest few; the rest are one click away in the catalogue,
             // filtered to this producer.
             'products' => $producer->products()
                 ->where('status', 'active')
-                ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit'])
+                ->select(['id', 'household_id', 'name', 'slug', 'price', 'unit', 'season_from', 'season_to'])
                 ->with('images:id,product_id,path,order')
                 ->latest()
                 ->limit(self::PRODUCTS_SHOWN)
