@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\MessageInboxController;
 use App\Http\Controllers\ProducerMessageController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,7 +10,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->middleware('throttle:10,1')
         ->name('inquiries.store');
     // Buyer's side: one thread per producer they've written to.
-    Route::get('/poruke', [ProducerMessageController::class, 'index'])->name('messages.index');
+    Route::get('/poruke', MessageInboxController::class)->name('messages.index');
     Route::get('/poruke/{producer:slug}', [ProducerMessageController::class, 'show'])->withTrashed()->name('messages.show');
     Route::post('/poruke/{producer:slug}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')
@@ -18,8 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // sides together; the old address still leads there.
     Route::redirect('/poruke-proizvodjaca', '/poruke')->name('messages.inbox');
     Route::get('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'show'])->withTrashed()->name('messages.thread');
-    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/blokada', [ProducerMessageController::class, 'toggleBlock'])->withTrashed()->name('messages.block');
-    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/ishod', [ProducerMessageController::class, 'setOutcome'])->withTrashed()->name('messages.outcome');
+    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/blokada', [ConversationController::class, 'toggleBlock'])->withTrashed()->name('messages.block');
+    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/ishod', [ConversationController::class, 'setOutcome'])->withTrashed()->name('messages.outcome');
     Route::post('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')
         ->withTrashed()->name('messages.thread.store');

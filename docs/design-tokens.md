@@ -21,11 +21,11 @@ tekst/brend.
 - `--font-sans: "Manrope", sans-serif` - telo teksta, UI elementi, dugmad, navigacija
 - `--font-serif: "Lora", serif` - naslovi (h1-h3), "eyebrow" akcenti u citatima
 
-**Bitno**: `design-reference` ne učitava ova dva fonta ni preko `<link>` ni preko npm paketa (nema
-`@fontsource/*` u `package.json`) - vizuelno se oslanja na fallback ako fontovi nisu instalirani na
-mašini. U našem projektu moramo eksplicitno dodati Google Fonts (`Manrope` + `Lora`, sa italic i
-nekoliko weight-ova, npr. 400/500/600/700) - preko `<link>` u `resources/views/app.blade.php` ili
-`@import` u `resources/css/app.css`.
+Oba fonta su u projektu kao npm paketi (`@fontsource-variable/manrope` i `@fontsource-variable/lora`),
+uvezeni na vrhu `resources/css/app.css`. Vite ih pakuje sa sajtom, pa se ništa ne učitava sa
+spoljnih servisa (Google Fonts, Bunny). Zato ih dozvoljava i Content-Security-Policy, a dobijaju ih i
+strane sa greškom. Pregledač preuzima samo podskupove slova koje strana stvarno koristi (latinica sa
+našim slovima, ćirilica za ruski).
 
 ## Boje (Tailwind v4 `@theme inline`, oklch format)
 
