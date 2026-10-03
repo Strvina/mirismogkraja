@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 /**
- * What a producer's page and products are getting: views and contact clicks
- * (task 20.6).
+ * What a producer's page and products are getting: views and contact clicks.
  *
  * Kept as daily counters, not as a log of visits - one row per producer,
  * day, event and product, bumped in place. That keeps the table small and

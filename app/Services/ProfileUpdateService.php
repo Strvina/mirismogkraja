@@ -34,7 +34,7 @@ class ProfileUpdateService
     /**
      * Store the new avatar and remove the user's previous one, if any.
      *
-     * Kept as its own endpoint/request (task 2 fix) so that changing only
+     * Kept as its own endpoint/request so that changing only
      * the avatar never drags in validation for unrelated profile fields.
      */
     public function updateAvatar(User $user, UploadedFile $avatar): void

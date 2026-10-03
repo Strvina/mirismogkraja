@@ -9,8 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Notification;
 
 /**
- * Tell a producer's followers about a product that just became public
- * (task 20.5).
+ * Tell a producer's followers about a product that just became public.
  *
  * Dispatched with afterResponse(): it runs in the same PHP process once the
  * producer already has their page back, so a producer with thousands of

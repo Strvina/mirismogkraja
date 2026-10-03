@@ -41,7 +41,7 @@ const sections = [
 ];
 
 /**
- * Admin shell (task 14): a fixed left sidebar that stays put while the
+ * Admin shell: a fixed left sidebar that stays put while the
  * section on the right changes, with the active item highlighted. The spec
  * allows the panel its own chrome, so it swaps the public header for this
  * rather than nesting inside it.

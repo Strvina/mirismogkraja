@@ -1,8 +1,8 @@
 import InputError from '@/components/input-error';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
+import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Transition } from '@headlessui/react';
 import { Head, useForm } from '@inertiajs/react';
 import { FormEventHandler, useRef } from 'react';
 
@@ -111,15 +111,12 @@ export default function Password() {
                         <div className="flex items-center gap-4">
                             <Button disabled={processing}>{t('Sačuvaj lozinku')}</Button>
 
-                            <Transition
-                                show={recentlySuccessful}
-                                enter="transition ease-in-out"
-                                enterFrom="opacity-0"
-                                leave="transition ease-in-out"
-                                leaveTo="opacity-0"
+                            <p
+                                aria-live="polite"
+                                className={cn('text-sm text-neutral-600 transition-opacity', recentlySuccessful ? 'opacity-100' : 'opacity-0')}
                             >
-                                <p className="text-sm text-neutral-600">{t('Sačuvano')}</p>
-                            </Transition>
+                                {t('Sačuvano')}
+                            </p>
                         </div>
                     </form>
                 </div>

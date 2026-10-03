@@ -35,16 +35,6 @@ final class PaidItems
         return self::KINDS[$kind]::findOrFail($id);
     }
 
-    /** What it is, as a translation key: "Isticanje profila", "Članarina"… */
-    public static function label(ProducerSubscription|Boost|CampaignParticipant $item): string
-    {
-        return match (true) {
-            $item instanceof ProducerSubscription => 'Članarina',
-            $item instanceof Boost => $item->isProduct() ? 'Isticanje proizvoda' : 'Isticanje profila',
-            default => 'Učešće u kampanji',
-        };
-    }
-
     /** Which one: the plan, the boosted profile or product, the campaign. */
     public static function name(ProducerSubscription|Boost|CampaignParticipant $item): string
     {

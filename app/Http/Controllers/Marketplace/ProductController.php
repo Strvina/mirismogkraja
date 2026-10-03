@@ -43,10 +43,9 @@ class ProductController extends Controller
      * List published products, with optional category/producer/city/price/
      * availability filters and sorting.
      *
-     * Only the columns a card shows are read. The whole row - and the whole
-     * producer behind it, story and phone number included - used to go out
-     * once per card, which made a page of the catalog several times heavier
-     * than what it displays.
+     * Only the columns a card shows are read: the whole row - and the whole
+     * producer behind it, story and phone number included - would make a
+     * page of the catalog several times heavier than what it displays.
      */
     public function index(Request $request, BoostService $boosts): Response
     {
@@ -82,7 +81,7 @@ class ProductController extends Controller
             ->withQueryString();
 
         // Boosted products get a labelled row of their own above the
-        // results (task 20.2) - within the visitor's filters, so a boost
+        // results - within the visitor's filters, so a boost
         // never shows honey to someone looking for cheese - and are never
         // moved up the results themselves. Drawn at random on every visit.
         $featured = $products->onFirstPage()
@@ -186,7 +185,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Page size, defaulting to 20 (task 10) and limited to the offered
+     * Page size, defaulting to 20 and limited to the offered
      * options so a crafted query can't ask for the whole catalog at once.
      */
     private function perPage(Request $request): int

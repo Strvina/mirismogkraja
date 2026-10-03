@@ -18,7 +18,7 @@ export type ProductCardProduct = Pick<
 };
 
 /**
- * The product tile used across the catalog (task 11): image with a hover
+ * The product tile used across the catalog: image with a hover
  * zoom, a favourite toggle pinned in the corner, and the price set in the
  * landing page's type scale.
  */

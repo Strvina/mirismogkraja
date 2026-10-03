@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * A yearly membership tier (task 20.1). Prices and features are rows, not
+ * A yearly membership tier. Prices and features are rows, not
  * code, because the owner changes them from the admin panel.
  */
 class SubscriptionPlan extends Model

@@ -24,7 +24,7 @@ export default function ProducersCreate({
                 <h1 className="font-serif text-4xl sm:text-5xl">{t('Novi proizvođač')}</h1>
 
                 {/* The launch offer only means something if people can see it
-                    running out (task 20.4). */}
+                    running out. */}
                 {founding.remaining > 0 && (
                     <div className="border-gold/40 bg-cream-deep flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border p-4 text-sm">
                         <span className="font-serif text-xl">

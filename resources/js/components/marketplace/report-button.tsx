@@ -6,7 +6,7 @@ import { Flag } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 /**
- * "Prijavi problem" (task 21).
+ * "Prijavi problem".
  *
  * The platform is not a party to the deal, so a buyer who is cheated or
  * ignored has no other way to reach anyone - and without one, their only

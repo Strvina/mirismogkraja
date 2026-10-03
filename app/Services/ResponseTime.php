@@ -52,31 +52,42 @@ class ResponseTime
             ->limit(self::MAX_MESSAGES)
             ->get(['buyer_id', 'sender_id', 'created_at']);
 
+        $waits = self::waits($messages);
+
+        return count($waits) < self::MIN_ANSWERS ? null : self::median($waits);
+    }
+
+    /**
+     * Hours from each time a buyer started waiting to the producer's next
+     * message. A second message from the buyer while waiting does not
+     * restart the clock.
+     *
+     * @param  iterable<object{buyer_id: int, sender_id: int, created_at: Carbon}>  $messages  Oldest first.
+     * @return list<float>
+     */
+    public static function waits(iterable $messages): array
+    {
         $waitingSince = [];
         $waits = [];
 
         foreach ($messages as $message) {
-            $fromBuyer = $message->sender_id === $message->buyer_id;
-
-            if ($fromBuyer) {
-                // The first unanswered message starts the clock; more from
-                // the buyer before an answer don't restart it.
+            if ($message->sender_id === $message->buyer_id) {
                 $waitingSince[$message->buyer_id] ??= $message->created_at;
             } elseif (isset($waitingSince[$message->buyer_id])) {
-                /** @var Carbon $since */
-                $since = $waitingSince[$message->buyer_id];
-                $waits[] = $since->diffInMinutes($message->created_at) / 60;
+                $waits[] = $waitingSince[$message->buyer_id]->diffInMinutes($message->created_at) / 60;
                 unset($waitingSince[$message->buyer_id]);
             }
         }
 
-        if (count($waits) < self::MIN_ANSWERS) {
-            return null;
-        }
+        return $waits;
+    }
 
-        sort($waits);
-        $middle = intdiv(count($waits), 2);
+    /** @param  non-empty-list<float>  $values */
+    public static function median(array $values): float
+    {
+        sort($values);
+        $middle = intdiv(count($values), 2);
 
-        return count($waits) % 2 ? $waits[$middle] : ($waits[$middle - 1] + $waits[$middle]) / 2;
+        return count($values) % 2 ? $values[$middle] : ($values[$middle - 1] + $values[$middle]) / 2;
     }
 }

@@ -28,7 +28,7 @@ class ProductService
     }
 
     /**
-     * Followers asked to hear about new listings (task 20.5), but only about
+     * Followers asked to hear about new listings, but only about
      * ones they can actually open - a draft is nobody's news - and once, when
      * it goes public. Sent after the response (see NotifyFollowersOfProduct).
      */

@@ -6,7 +6,7 @@ use App\Models\SubscriptionPlan;
 use Illuminate\Database\Seeder;
 
 /**
- * The three membership tiers (task 20.1). Prices are starting points the
+ * The three membership tiers. Prices are starting points the
  * owner changes from the admin panel - they live in rows precisely so they
  * are not a deploy away.
  */

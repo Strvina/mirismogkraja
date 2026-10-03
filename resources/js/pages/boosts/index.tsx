@@ -83,7 +83,7 @@ function OptionCard({
 }
 
 /**
- * A producer's paid boosts (task 20.2). Choosing one hands back a slip
+ * A producer's paid boosts. Choosing one hands back a slip
  * straight away, as the membership page does - the payment is the one thing
  * left to do, and a second click is how it gets forgotten.
  */

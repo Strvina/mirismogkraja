@@ -4,7 +4,7 @@ import { Check, Link2, MessageCircle, Send, Share2 } from 'lucide-react';
 import { useState } from 'react';
 
 /**
- * Share links (task 21).
+ * Share links.
  *
  * Plain anchors to each network's own share address, with no third-party
  * script: an embedded share widget would load tracking code on every page

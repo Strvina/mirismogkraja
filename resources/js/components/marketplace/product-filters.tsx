@@ -30,7 +30,7 @@ interface Props {
 }
 
 /**
- * Catalog filter panel (task 12). Sits in a sidebar on desktop; on a phone it
+ * Catalog filter panel. Sits in a sidebar on desktop; on a phone it
  * folds behind a button and opens as a compact two-column panel, with lists
  * that stay small instead of taking over the screen.
  */

@@ -2,9 +2,7 @@ import { Link } from '@inertiajs/react';
 import { Sprout } from 'lucide-react';
 
 /**
- * Shared "Vrelina juga" wordmark used across the landing page and every
- * marketplace page's navbar/footer (task 7.1 - was previously duplicated
- * inline in welcome.tsx).
+ * The "Vrelina juga" wordmark, in the header and footer of every page.
  */
 export default function Brand({ href = '/' }: { href?: string }) {
     return (

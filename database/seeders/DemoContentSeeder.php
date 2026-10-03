@@ -65,7 +65,7 @@ class DemoContentSeeder extends Seeder
     ];
 
     /**
-     * Realistic demo data (task 1): an admin account, a handful of seller
+     * Realistic demo data: an admin account, a handful of seller
      * producers each specialised in a couple of categories with priced
      * products and images, plain buyer accounts, product inquiries in every
      * state a thread can be in, and reviews with a realistic rating spread -

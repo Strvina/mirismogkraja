@@ -25,12 +25,12 @@ return [
 
     /*
      * How many producers get a founding number - and with it a free year
-     * of Premium (task 20.4).
+     * of Premium.
      */
     'founding_limit' => 50,
 
     /*
-     * Paid boosts (task 20.2), in whole dinars and days.
+     * Paid boosts, in whole dinars and days.
      */
     'boost' => [
         'profile_price' => 1000,

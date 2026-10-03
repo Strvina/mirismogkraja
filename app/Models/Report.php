@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Someone telling the site that something is wrong with a producer, a
- * product or another user (task 21).
+ * product or another user.
  *
  * The platform never sees the deal itself, so this is the only channel
  * through which fraud, silence or abuse can reach an admin before it reaches

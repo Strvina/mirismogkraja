@@ -16,7 +16,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * Memberships in the admin panel (task 20.9): on the settings tab, the plans,
+ * Memberships in the admin panel: on the settings tab, the plans,
  * the bank details printed on every slip and the founding places; on the
  * others, the payments by status.
  *

@@ -16,7 +16,7 @@ interface FoundingProducer {
 }
 
 /**
- * The founding hundred (task 20.4), in the order they were approved. The
+ * The founding hundred, in the order they were approved. The
  * number is permanent, so this page is a record rather than a ranking - it
  * does not change when someone's subscription does.
  */

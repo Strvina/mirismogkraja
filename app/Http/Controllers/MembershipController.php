@@ -14,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 
 /**
- * The producer's own membership page (task 20.1): which plan they are on,
+ * The producer's own membership page: which plan they are on,
  * what the others offer, and - once they pick one - the details to write on
  * the payment slip.
  */

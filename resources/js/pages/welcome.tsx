@@ -200,7 +200,7 @@ export default function Welcome({
                     </CardSlider>
                 </section>
 
-                {/* Seasonal campaigns under way (task 20.3): one runs wide
+                {/* Seasonal campaigns under way: one runs wide
                     beside its photograph, several share the row. */}
                 {campaigns.length > 0 && (
                     <section aria-label={t('Kampanje')} className="mx-auto max-w-[1380px] px-5 pb-16 sm:px-8 lg:px-12">

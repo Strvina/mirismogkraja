@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { t } from '@/lib/i18n';
 import { Check, Copy, Download } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export interface PaymentSlip {
     recipient: string;
@@ -14,12 +14,12 @@ export interface PaymentSlip {
     reference: string;
     amount: string;
     payer: string;
-    /** NBS IPS QR payload - what a banking app reads. */
-    qr: string;
+    /** The NBS IPS QR code - what a banking app reads - as an image, drawn on the server. */
+    qr_url: string;
 }
 
 /**
- * The payment slip, laid out the way the paper one is (task 20.1).
+ * The payment slip, laid out the way the paper one is.
  *
  * The QR code is the point of it: every banking application in Serbia reads
  * the NBS IPS format, and scanning it fills in the account, amount and
@@ -44,40 +44,7 @@ export default function PaymentSlipDialog({
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }) {
-    // The drawn code remembers which payload it was drawn from: the dialog
-    // can stay mounted while the slip changes (another plan, another
-    // producer), and a code for the previous slip would pay the wrong
-    // amount against the wrong reference.
-    const [drawn, setDrawn] = useState<{ payload: string; image: string } | null>(null);
-    const qrImage = drawn?.payload === slip.qr ? drawn.image : null;
     const [copied, setCopied] = useState<string | null>(null);
-
-    // Loaded only when the slip is opened, so the QR library stays out of
-    // the bundle every other page pays for.
-    useEffect(() => {
-        if (!open || qrImage) {
-            return;
-        }
-
-        let cancelled = false;
-        const payload = slip.qr;
-
-        import('qrcode')
-            .then((qrcode) => qrcode.toDataURL(payload, { errorCorrectionLevel: 'M', margin: 1, width: 320 }))
-            .then((image) => {
-                if (!cancelled) {
-                    setDrawn({ payload, image });
-                }
-            })
-            .catch(() => {
-                // The printed fields are enough on their own; the code is a
-                // convenience, not the only way to pay.
-            });
-
-        return () => {
-            cancelled = true;
-        };
-    }, [open, qrImage, slip.qr]);
 
     const copy = (value: string) => {
         navigator.clipboard
@@ -133,11 +100,8 @@ export default function PaymentSlipDialog({
                         </dl>
 
                         <figure className="shrink-0 text-center">
-                            {qrImage ? (
-                                <img src={qrImage} alt={t('IPS QR kod za plaćanje')} className="size-40" />
-                            ) : (
-                                <span className="bg-muted text-muted-foreground grid size-40 place-items-center text-xs">{t('QR kod…')}</span>
-                            )}
+                            {/* Fetched only now, when the slip is open. */}
+                            <img src={slip.qr_url} alt={t('IPS QR kod za plaćanje')} width={160} height={160} className="bg-muted size-40" />
                             <figcaption className="text-muted-foreground mt-1 text-[0.65rem]">
                                 {t('IPS QR — skenirajte u aplikaciji banke')}
                             </figcaption>

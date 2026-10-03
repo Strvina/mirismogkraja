@@ -52,7 +52,7 @@ class ProducerController extends Controller
         $producer->update($data);
 
         // The founding producers are counted from approval, so a request that
-        // is never approved does not use up a place (task 20.4).
+        // is never approved does not use up a place.
         if ($producer->status === 'active') {
             $founding->claimNumberFor($producer);
         }
@@ -75,7 +75,7 @@ class ProducerController extends Controller
     }
 
     /**
-     * Mark a producer as checked, or take that mark away (task 21). Done by
+     * Mark a producer as checked, or take that mark away. Done by
      * hand, after an admin has seen who they actually are - the badge is
      * only worth something if nothing awards it automatically.
      */
@@ -96,8 +96,8 @@ class ProducerController extends Controller
     }
 
     /**
-     * Admins can correct a producer's details before or after approving them
-     * (task 14, point 2), which the owner-only ProducerPolicy wouldn't allow.
+     * Admins can correct a producer's details before or after approving them,
+     * which the owner-only ProducerPolicy wouldn't allow.
      */
     public function update(Request $request, Producer $producer): RedirectResponse
     {

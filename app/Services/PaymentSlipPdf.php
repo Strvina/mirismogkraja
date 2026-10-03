@@ -3,12 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\Payable;
+use App\Support\Qr;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\SvgWriter;
 
 /**
  * Renders the payment slip as a real PDF file.
@@ -31,7 +28,7 @@ class PaymentSlipPdf
 
         $html = view('pdf.payment-slip', [
             'slip' => $slip,
-            'qr' => $this->qrDataUri($slip['qr']),
+            'qr' => Qr::dataUri($slip['qr']),
         ])->render();
 
         $options = new Options;
@@ -52,28 +49,5 @@ class PaymentSlipPdf
     public function filenameFor(Payable $payable): string
     {
         return 'uplatnica-'.$payable->paymentReference().'.pdf';
-    }
-
-    /**
-     * The QR as a data URI, since dompdf reads no files of its own here.
-     *
-     * Written as SVG rather than PNG: it stays sharp at whatever size the
-     * slip is printed, the file is smaller, and it needs no GD extension -
-     * which this machine, and plenty of shared hosts, do not have.
-     *
-     * Medium correction leaves the code readable when the print smudges,
-     * without making it so dense a phone camera struggles.
-     */
-    private function qrDataUri(string $payload): string
-    {
-        $qr = new QrCode(
-            data: $payload,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: ErrorCorrectionLevel::Medium,
-            size: 320,
-            margin: 8,
-        );
-
-        return (new SvgWriter)->write($qr)->getDataUri();
     }
 }

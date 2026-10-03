@@ -7,9 +7,9 @@ use App\Models\User;
 class AuthRedirectService
 {
     /**
-     * Where a user lands after authenticating (task 4): the public home page
+     * Where a user lands after authenticating: the public home page
      * rather than the starter kit's dashboard - except admins, who go
-     * straight to the admin panel (task 14).
+     * straight to the admin panel.
      */
     public function homeFor(?User $user): string
     {

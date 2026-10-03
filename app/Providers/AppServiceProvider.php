@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'producer' => Producer::class,
             'product' => Product::class,
-            // Reports can name a user too (task 21).
+            // Reports can name a user too.
             'user' => User::class,
         ]);
 

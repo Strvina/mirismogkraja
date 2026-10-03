@@ -4,12 +4,10 @@ namespace App\Services;
 
 use App\Models\Producer;
 use App\Support\Media;
+use App\Support\Qr;
 use Dompdf\Dompdf;
 use Dompdf\Options;
-use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\SvgWriter;
 use Throwable;
 
 /**
@@ -31,7 +29,9 @@ class ProducerPosterPdf
         $html = view('pdf.producer-poster', [
             'producer' => $producer,
             'url' => self::url($producer),
-            'qr' => $this->qrDataUri(self::url($producer)),
+            // High correction: a poster lives outdoors, gets folded, splashed and
+            // taped over at a corner, and a phone should still read it.
+            'qr' => Qr::dataUri(self::url($producer), ErrorCorrectionLevel::High, 600, 0),
             'logo' => $this->logoDataUri($producer),
         ])->render();
 
@@ -56,23 +56,6 @@ class ProducerPosterPdf
     public function filenameFor(Producer $producer): string
     {
         return 'poster-'.$producer->slug.'.pdf';
-    }
-
-    /**
-     * High error correction: a poster lives outdoors, gets folded, splashed
-     * and taped over at a corner, and a phone should still read it.
-     */
-    private function qrDataUri(string $url): string
-    {
-        $qr = new QrCode(
-            data: $url,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: 600,
-            margin: 0,
-        );
-
-        return (new SvgWriter)->write($qr)->getDataUri();
     }
 
     private function logoDataUri(Producer $producer): ?string

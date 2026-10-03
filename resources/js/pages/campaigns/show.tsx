@@ -6,7 +6,7 @@ import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 
-/** A seasonal campaign's page (task 20.3): the theme, and who takes part. */
+/** A seasonal campaign's page: the theme, and who takes part. */
 export default function CampaignShow({ campaign, producers }: { campaign: CampaignSummary; producers: ProducerCardProducer[] }) {
     const { auth } = usePage<SharedData>().props;
 

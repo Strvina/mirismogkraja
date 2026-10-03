@@ -32,7 +32,7 @@ const FIELD_LABELS: Record<string, string> = {
 };
 
 /**
- * Changes a producer asked for but may not make alone (task 15). Everything
+ * Changes a producer asked for but may not make alone. Everything
  * else about their page - opis, priča, kontakt, dostava, slike, proizvodi -
  * they change themselves and it applies at once; this queue exists for the
  * few fields that were approved once and buyers now recognise.

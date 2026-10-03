@@ -9,7 +9,7 @@ use App\Support\Settings;
 use Illuminate\Support\Facades\DB;
 
 /**
- * The founding producers (task 20.4): the first producers to be approved get a
+ * The founding producers: the first producers to be approved get a
  * permanent number, shown on their page and on a public list, and they keep
  * it for good - including after they start paying like everyone else.
  *
