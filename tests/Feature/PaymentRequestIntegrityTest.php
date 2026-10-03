@@ -7,8 +7,6 @@ use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
-use App\Services\BoostService;
-use App\Services\CancellationService;
 use App\Services\SubscriptionService;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\SubscriptionPlansSeeder;
@@ -59,21 +57,6 @@ class PaymentRequestIntegrityTest extends TestCase
 
         $pro = $subscriptions->request($producer, SubscriptionPlan::where('slug', 'pro')->sole());
         $this->assertSame([$pro->id], ProducerSubscription::where('status', ProducerSubscription::STATUS_PENDING)->pluck('id')->all());
-    }
-
-    public function test_the_admins_hear_about_a_refund_account_once(): void
-    {
-        $producer = Producer::factory()->active()->create();
-        $boosts = app(BoostService::class);
-        $boost = $boosts->confirm($boosts->request($producer, $producer), $this->admin->id);
-        app(CancellationService::class)->cancel($boost, 300);
-        $this->admin->notifications()->delete();
-
-        foreach ([1, 2, 3] as $attempt) {
-            $this->actingAs($producer->user)->put(route('refunds.account', ['isticanje', $boost->id]), ['refund_account' => '160-0000000012345-67']);
-        }
-
-        $this->assertSame(1, $this->admin->notifications()->count());
     }
 
     public function test_a_phone_number_is_digits_and_separators(): void

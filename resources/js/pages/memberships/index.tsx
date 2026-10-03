@@ -1,5 +1,5 @@
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
-import { CancelRequest, HowItWorks, linkedSlipId, type RefundState, RefundStatus } from '@/components/marketplace/payment-status';
+import { HowItWorks, linkedSlipId } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate, formatNumber } from '@/lib/format';
@@ -27,9 +27,8 @@ interface ProducerMembership {
     name: string;
     status: string;
     current_plan: { id: number; name: string; level: number } | null;
-    active: { id: number; ends_at: string; cancel_requested_at: string | null } | null;
+    active: { id: number; ends_at: string } | null;
     pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip; download_url: string } | null;
-    refunds: { id: number; plan: string | null; refund: RefundState }[];
 }
 
 /** The producer a notification link names (?proizvodjac=3), if it is one of theirs. */
@@ -132,17 +131,6 @@ export default function Memberships({
                         </div>
                     )}
 
-                    {producer?.refunds.map((item) => (
-                        <div
-                            key={item.id}
-                            id={`clanarina-${item.id}`}
-                            className="border-border/70 target:ring-gold/60 mt-8 scroll-mt-24 rounded-lg border p-4 text-sm target:ring-2"
-                        >
-                            <p className="font-medium">{t('Otkazan paket „:name”', { name: item.plan ?? '' })}</p>
-                            <RefundStatus kind="clanarina" id={item.id} refund={item.refund} />
-                        </div>
-                    ))}
-
                     {producer?.active && (
                         <div
                             id={`clanarina-${producer.active.id}`}
@@ -152,12 +140,6 @@ export default function Memberships({
                                 {t('Aktivan paket:')} <strong>{producer.current_plan?.name}</strong> —{' '}
                                 {t('važi do :date', { date: formatDate(producer.active.ends_at) })}.
                             </p>
-                            <CancelRequest
-                                kind="clanarina"
-                                id={producer.active.id}
-                                requestedAt={producer.active.cancel_requested_at}
-                                what={t('paket „:name”', { name: producer.current_plan?.name ?? '' })}
-                            />
                         </div>
                     )}
 

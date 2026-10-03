@@ -49,9 +49,6 @@ class AdminCampaignController extends Controller
                 ->withQueryString() : null,
             'places' => $status === 'settings' ? null : $this->places($status)
                 ->with(['campaign:id,name,slug,starts_on,ends_on', 'producer:id,name,slug'])
-                // What needs acting on leads: a request to cancel, a refund to send.
-                ->orderByRaw('cancel_requested_at is null')
-                ->orderByRaw('(refund_rsd > 0 and refunded_at is null) desc')
                 ->latest()
                 ->paginate(30)
                 ->withQueryString()
@@ -130,7 +127,6 @@ class AdminCampaignController extends Controller
             CampaignParticipant::STATUS_ACTIVE => $running,
             'ended' => $byStatus[CampaignParticipant::STATUS_ACTIVE] - $running,
             CampaignParticipant::STATUS_CANCELLED => $byStatus[CampaignParticipant::STATUS_CANCELLED],
-            'refunds_due' => CampaignParticipant::refundDue()->count(),
         ];
     }
 

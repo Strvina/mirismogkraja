@@ -57,21 +57,13 @@ return [
         'cancelled' => ['title' => 'Участие в кампании отменено', 'body' => 'Вас больше нет на странице кампании «:campaign». Если есть вопросы, свяжитесь с нами.'],
     ],
 
-    'refund' => [
-        'decided' => ['title' => 'Мы возвращаем вам :amount RSD', 'body' => ':what_label «:name» отменено. Мы отправим деньги на счёт :account и сообщим, когда перевод будет выполнен.'],
-        'needs-account' => ['title' => 'Мы возвращаем вам :amount RSD', 'body' => ':what_label «:name» отменено. Откройте это уведомление и укажите счёт, на который вернуть деньги.'],
-        'paid' => ['title' => 'Деньги возвращены', 'body' => ':amount RSD за :what_label «:name» переведены на счёт :account.'],
-    ],
-
     'admin' => [
         'producer-pending' => ['title' => 'Новый производитель ждёт одобрения', 'body' => '«:producer» (:city).'],
         'membership-requested' => ['title' => 'Новая оплата членства', 'body' => '«:producer» — тариф :plan, :amount RSD, номер платежа :reference.'],
         'boost-requested' => ['title' => 'Новая оплата продвижения', 'body' => '«:producer» — :name, :amount RSD, номер платежа :reference.'],
         'campaign-requested' => ['title' => 'Новая заявка на кампанию', 'body' => '«:producer» — :campaign, :amount RSD, номер платежа :reference.'],
-        'cancel-requested' => ['title' => 'Запрос на отмену', 'body' => '«:producer» просит отменить: :what_label «:name».'],
         'review-pending' => ['title' => 'Новый отзыв ждёт одобрения', 'body' => 'О «:producer», оценка :rating/5.'],
         'report-opened' => ['title' => 'Новая жалоба', 'body' => ':subject — :reason_label.'],
         'change-requested' => ['title' => 'Запрос на изменение названия', 'body' => '«:current» хочет называться «:requested».'],
-        'refund-account' => ['title' => 'Счёт для возврата', 'body' => '«:producer» ждёт возврата :amount RSD на счёт :account.'],
     ],
 ];
