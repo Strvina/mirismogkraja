@@ -880,5 +880,14 @@
     "Trenutno nije dostupno.": "Not available right now.",
     "Javi mi kad stigne": "Tell me when it is back",
     "i javićemo vam kad stigne.": "and we'll tell you when it's back.",
-    "Pogledaj": "View"
+    "Pogledaj": "View",
+    "Obaveštenja na ovom uređaju": "Notifications on this device",
+    "Nova poruka stiže na telefon ili računar odmah, i kada sajt nije otvoren.": "A new message reaches your phone or computer right away, even when the site is not open.",
+    "Na iPhone-u: otvorite sajt u Safariju, „Podeli” → „Dodaj na početni ekran”, pa uključite obaveštenja iz te ikonice.": "On an iPhone: open the site in Safari, tap “Share” → “Add to Home Screen”, then turn notifications on from that icon.",
+    "Ovaj pregledač ne podržava obaveštenja.": "This browser doesn't support notifications.",
+    "Obaveštenja su blokirana u pregledaču. Dozvolite ih u podešavanjima sajta, pa se vratite ovde.": "Notifications are blocked in the browser. Allow them in the site settings, then come back here.",
+    "Isključi obaveštenja": "Turn notifications off",
+    "Uključi obaveštenja": "Turn notifications on",
+    "Uključeno na ovom uređaju.": "On for this device.",
+    "Nije uspelo. Pokušajte ponovo.": "That didn't work. Please try again."
 }

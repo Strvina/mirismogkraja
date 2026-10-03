@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Jobs\PushNewMessage;
+use App\Support\Push;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -22,6 +24,16 @@ class ProducerMessage extends Model
         return [
             'read_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // To the other side's phone, the moment it is sent (PushNewMessage).
+        static::created(function (ProducerMessage $message) {
+            if (Push::enabled()) {
+                PushNewMessage::dispatch($message)->afterResponse();
+            }
+        });
     }
 
     public function producer(): BelongsTo

@@ -6,6 +6,7 @@ import { FormEventHandler, useState } from 'react';
 import DeleteUser from '@/components/delete-user';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
+import PushToggle from '@/components/push-toggle';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
+export default function Profile({ mustVerifyEmail, status, pushKey }: { mustVerifyEmail: boolean; status?: string; pushKey: string | null }) {
     const { auth } = usePage<SharedData>().props;
     const [avatarPreview, setAvatarPreview] = useState<string | null>(auth.user.avatar_path ? thumbUrl(auth.user.avatar_path) : null);
 
@@ -239,6 +240,8 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                         </div>
                     </form>
                 </div>
+
+                <PushToggle publicKey={pushKey} />
 
                 <DeleteUser />
             </SettingsLayout>
