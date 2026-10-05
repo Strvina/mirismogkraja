@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 124).
+Poslednja izmena: 2026-10-05 (posle zadatka 125).
 
 ## 1. Šta je ovo
 
@@ -92,8 +92,11 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
   se posle moderacije.
 - **Osnivači:** prvih N odobrenih (podešavanje, podrazumevano 50) dobijaju trajan broj i godinu
   Premium-a besplatno. Broj se dodeljuje pri odobrenju.
-- **Članarina** koja istekne ne skida profil sa sajta; proizvođač samo gubi pogodnosti. Obnova se
-  nadovezuje na kraj tekuće.
+- **Članarina** koja istekne ne skida profil sa sajta; proizvođač samo gubi pogodnosti.
+- **Redosled članarina** (odluka vlasnika, 2026-10-05): isti ili niži paket čeka kraj tekućeg (obnova
+  se nadovezuje); **viši paket počinje odmah**, a ostatak nižeg se pomera iza njega, bez gubitka dana.
+  Pogodnosti daje samo članarina koja trenutno teče (`running`), ne ona koja čeka red (`active` = plaćena
+  i nije istekla).
 - Plaćeno isticanje je uvek u posebnom, označenom redu; redovna lista ostaje po abecedi.
 - **Telefon** proizvođača nije u HTML-u stranice; dohvata se tek na „Prikaži broj".
 - **Sertifikat** je javan tek kad ga admin potvrdi i dok mu ne istekne rok. Javno je samo naziv,
@@ -174,11 +177,6 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 
 - Google prijava je testirana samo sa lažnim odgovorom; pravi ključevi još ne postoje.
 - Lokalni PHP nema GD (bez umanjenih kopija slika) ni zip.
-- **Otvoreno pitanje za vlasnika (članarine):** članarina plaćena ili poklonjena dok druga još traje
-  dobija početak tek kad tekuća istekne, ali se računa kao aktivna odmah (`scopeActive` gleda samo
-  kraj). Zato prelazak sa Basic na Premium daje Premium pogodnosti od danas do kraja oba perioda, a
-  `planFor` može da prikaže plan sa najdaljim krajem umesto onog koji trenutno teče. Ne menjati bez
-  odluke: da li viši paket počinje odmah, a samo obnova istog čeka na kraj tekućeg.
 - Uslovi korišćenja i politika privatnosti nisu pravno pregledani.
 
 ## 12. TODO

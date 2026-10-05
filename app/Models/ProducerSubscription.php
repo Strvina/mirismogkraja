@@ -84,14 +84,35 @@ class ProducerSubscription extends Model implements Payable
         return null;
     }
 
-    /** @param  Builder<ProducerSubscription>  $query */
+    /**
+     * Paid for and not over yet: in force now, or waiting its turn behind
+     * another membership of the same producer.
+     *
+     * @param  Builder<ProducerSubscription>  $query
+     */
     public function scopeActive(Builder $query): void
     {
         $query->where('status', self::STATUS_ACTIVE)->where('ends_at', '>', now());
     }
 
+    /**
+     * The one in force right now - what the producer's benefits come from.
+     * A membership queued behind it is paid for, but has not started.
+     *
+     * @param  Builder<ProducerSubscription>  $query
+     */
+    public function scopeRunning(Builder $query): void
+    {
+        $query->active()->where('starts_at', '<=', now());
+    }
+
     public function isActive(): bool
     {
         return $this->status === self::STATUS_ACTIVE && $this->ends_at?->isFuture();
+    }
+
+    public function isRunning(): bool
+    {
+        return $this->isActive() && ! $this->starts_at?->isFuture();
     }
 }

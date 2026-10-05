@@ -32,8 +32,18 @@ class MembershipController extends Controller
                 'name' => $producer->name,
                 'status' => $producer->status,
                 'current_plan' => $subscriptions->planFor($producer)?->only(['id', 'name', 'level']),
-                'active' => $producer->subscriptions->first(fn (ProducerSubscription $subscription) => $subscription->isActive())
+                'active' => $producer->subscriptions->first(fn (ProducerSubscription $subscription) => $subscription->isRunning())
                     ?->only(['id', 'ends_at']),
+                // Paid for and waiting behind the one in force: the rest of a
+                // lower plan after an upgrade, or a renewal paid early.
+                'upcoming' => $producer->subscriptions
+                    ->filter(fn (ProducerSubscription $subscription) => $subscription->isActive() && ! $subscription->isRunning())
+                    ->sortBy('starts_at')
+                    ->map(fn (ProducerSubscription $subscription) => [
+                        ...$subscription->only(['id', 'starts_at', 'ends_at']),
+                        'plan' => $subscription->plan?->name,
+                    ])
+                    ->values(),
                 'pending' => $this->pendingSlip($producer, $slips),
             ]),
         ]);

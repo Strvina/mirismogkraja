@@ -9,8 +9,8 @@ use App\Notifications\SiteNotification;
 use App\Support\Admins;
 use App\Support\PaidItems;
 use App\Support\PaymentReference;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Memberships.
@@ -31,24 +31,27 @@ class SubscriptionService
     private array $planIdsByFeature = [];
 
     /**
-     * The plan a producer's benefits are currently based on: their paid one,
-     * or the free floor when they have none.
+     * The plan a producer's benefits are currently based on: the one in
+     * force today, or the free floor when they have none. Not one that is
+     * paid for but still waiting behind it.
      */
     public function planFor(Producer $producer): ?SubscriptionPlan
     {
-        $active = $producer->subscriptions()
-            ->active()
+        $running = $producer->subscriptions()
+            ->running()
             ->with('plan')
-            ->orderByDesc('ends_at')
+            ->get()
+            // Only one runs at a time; should two ever overlap, the higher wins.
+            ->sortByDesc(fn (ProducerSubscription $subscription) => $subscription->plan->level)
             ->first();
 
-        return $active?->plan ?? $this->basePlan();
+        return $running?->plan ?? $this->basePlan();
     }
 
     public function hasFeature(Producer $producer, string $feature): bool
     {
         return ProducerSubscription::query()
-            ->active()
+            ->running()
             ->where('producer_id', $producer->id)
             ->whereIn('subscription_plan_id', $this->planIdsWith($feature))
             ->exists();
@@ -69,7 +72,7 @@ class SubscriptionService
     public function producerIdsWith(string $feature): Collection
     {
         return ProducerSubscription::query()
-            ->active()
+            ->running()
             ->whereIn('subscription_plan_id', $this->planIdsWith($feature))
             ->distinct()
             ->pluck('producer_id');
@@ -168,9 +171,15 @@ class SubscriptionService
     }
 
     /**
-     * The money arrived. A renewal starts where the current membership ends,
-     * not today, so paying early never costs the producer the days they have
-     * already paid for.
+     * The money arrived. Where the membership starts depends on what the
+     * producer already has, and either way no paid day is lost:
+     *
+     * - behind everything on the same plan or a higher one. A renewal starts
+     *   where the current membership ends, not today, so paying early costs
+     *   nothing;
+     * - ahead of everything on a lower plan. An upgrade is in force at once,
+     *   and what is left of the lower plan moves back by the upgrade's
+     *   length and carries on after it.
      *
      * $confirmedBy is the admin who saw the payment; null when there was no
      * payment to see. $days is for a gift shorter than the plan's own term
@@ -179,22 +188,42 @@ class SubscriptionService
     public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy, bool $notify = true, ?int $days = null): ProducerSubscription
     {
         $subscription->loadMissing(['plan', 'producer']);
+        $days ??= $subscription->plan->duration_days;
 
-        $current = $subscription->producer
-            ->subscriptions()
-            ->active()
-            ->max('ends_at');
+        DB::transaction(function () use ($subscription, $confirmedBy, $days) {
+            $others = $subscription->producer
+                ->subscriptions()
+                ->active()
+                ->whereKeyNot($subscription->id)
+                ->with('plan')
+                ->lockForUpdate()
+                ->get();
 
-        $startsAt = $current ? max(now(), Carbon::parse($current)) : now();
+            [$lower, $sameOrHigher] = $others->partition(
+                fn (ProducerSubscription $other) => $other->plan->level < $subscription->plan->level
+            );
 
-        $subscription->update([
-            'status' => ProducerSubscription::STATUS_ACTIVE,
-            'starts_at' => $startsAt,
-            'ends_at' => $startsAt->copy()->addDays($days ?? $subscription->plan->duration_days),
-            'confirmed_by' => $confirmedBy,
-            'confirmed_at' => now(),
-            'expiry_warned_at' => null,
-        ]);
+            $startsAt = max(now(), $sameOrHigher->max('ends_at') ?? now());
+
+            foreach ($lower->filter(fn (ProducerSubscription $other) => $other->ends_at->greaterThan($startsAt)) as $other) {
+                $other->update([
+                    // One already under way stops here and resumes after
+                    // the upgrade with exactly the time it had left.
+                    'starts_at' => max($other->starts_at, $startsAt)->copy()->addDays($days),
+                    'ends_at' => $other->ends_at->copy()->addDays($days),
+                    'expiry_warned_at' => null,
+                ]);
+            }
+
+            $subscription->update([
+                'status' => ProducerSubscription::STATUS_ACTIVE,
+                'starts_at' => $startsAt,
+                'ends_at' => $startsAt->copy()->addDays($days),
+                'confirmed_by' => $confirmedBy,
+                'confirmed_at' => now(),
+                'expiry_warned_at' => null,
+            ]);
+        });
 
         if ($notify) {
             $subscription->producer->user?->notify(SiteNotification::membershipActivated(
