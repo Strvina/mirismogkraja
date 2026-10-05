@@ -157,6 +157,29 @@ Documents behind what a producer claims (organic, protected origin, registered f
 
 Indexes: (producer_id, status); (status, created_at); (reviewed_by)
 
+## posts
+
+Stories and recipes written by producers. `status` is draft or published (the author's choice) or blocked (an admin's; the author cannot lift it). Public only while published and while the producer is active. `published_at` is set the first time it is published. A renamed post keeps its old address through `slug_redirects`.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `producer_id` | integer |  | → producers.id (cascade) |
+| `type` | string |  | story, recipe |
+| `title` | string |  |  |
+| `slug` | string |  |  |
+| `excerpt` | string | yes | the opening of `body`, written on save |
+| `body` | text |  | plain text |
+| `ingredients` | text | yes | recipes only, one per line |
+| `cover_image_path` | string | yes |  |
+| `product_id` | integer | yes | → products.id (set null) |
+| `status` | string |  | draft, published, blocked |
+| `published_at` | datetime | yes |  |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: unique (slug); (status, published_at); (producer_id, status, published_at); (product_id)
+
 ## categories
 
 Product categories, with a public page each (`/kategorija/{slug}`).

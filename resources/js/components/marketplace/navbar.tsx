@@ -4,7 +4,7 @@ import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, router, usePage, usePoll } from '@inertiajs/react';
-import { Heart, Package, Search, Sprout } from 'lucide-react';
+import { BookOpen, Heart, Package, Search, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import AccountMenu from './account-menu';
 import Brand from './brand';
@@ -55,6 +55,7 @@ export default function Navbar() {
     const sections = [
         { href: route('marketplace.producers.index'), paths: ['/proizvodjaci', '/proizvodjac'], label: t('Proizvođači'), icon: Sprout },
         { href: route('marketplace.products.index'), paths: ['/proizvodi', '/proizvod'], label: t('Proizvodi'), icon: Package },
+        { href: route('marketplace.posts.index'), paths: ['/price'], label: t('Priče i recepti'), icon: BookOpen },
     ];
 
     // The active section is derived from the current URL, never remembered

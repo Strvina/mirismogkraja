@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { t } from '@/lib/i18n';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
-import { CalendarHeart, ChevronDown, MapPin, Megaphone, QrCode, ShieldCheck, Zap, type LucideIcon } from 'lucide-react';
+import { BookOpen, CalendarHeart, ChevronDown, MapPin, Megaphone, QrCode, ShieldCheck, Zap, type LucideIcon } from 'lucide-react';
 
 interface Item {
     label: string;
@@ -19,6 +19,7 @@ interface Item {
  */
 export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer, 'id' | 'status'> }) {
     const items: Item[] = [
+        { label: t('Priče i recepti'), href: route('producers.posts.index', producer.id), icon: BookOpen },
         { label: t('Gde me nađete'), href: route('producers.markets.index', producer.id), icon: MapPin },
         { label: t('Brzi odgovori'), href: route('producers.quick-replies.index', producer.id), icon: Zap },
         { label: t('Sertifikati'), href: route('producers.certificates.index', producer.id), icon: ShieldCheck },

@@ -113,6 +113,12 @@ class Producer extends Model
         return $this->hasMany(ProducerCertificate::class);
     }
 
+    /** Stories and recipes. */
+    public function posts(): HasMany
+    {
+        return $this->hasMany(Post::class);
+    }
+
     /** Saved answers for the message box. */
     public function quickReplies(): HasMany
     {

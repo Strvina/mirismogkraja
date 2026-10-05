@@ -7,6 +7,7 @@ import ContactCard from '@/components/producer-page/contact-card';
 import LocationLinks from '@/components/producer-page/location-links';
 import MarketList from '@/components/producer-page/market-list';
 import ProducerHeader from '@/components/producer-page/producer-header';
+import ProducerPosts from '@/components/producer-page/producer-posts';
 import { ProducerGallery, ProducerProducts } from '@/components/producer-page/producer-showcase';
 import ReviewsSection from '@/components/producer-page/reviews-section';
 import { type PublicProducer } from '@/components/producer-page/types';
@@ -14,7 +15,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { t } from '@/lib/i18n';
 import { mediaUrl } from '@/lib/media';
-import { type ProducerMarket, type Product, type SharedData } from '@/types';
+import { type PostSummary, type ProducerMarket, type Product, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { Truck } from 'lucide-react';
 
@@ -24,6 +25,7 @@ export default function ProducerShow({
     gallery,
     markets,
     certificates,
+    posts,
     products,
     productsCount,
     reviews,
@@ -49,6 +51,8 @@ export default function ProducerShow({
     markets: ProducerMarket[];
     /** Approved and in date; the documents themselves are never sent. */
     certificates: PublicCertificate[];
+    /** The latest few stories and recipes. */
+    posts: PostSummary[];
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     /** All of the producer's published products; more than are shown above. */
     productsCount: number;
@@ -131,6 +135,7 @@ export default function ProducerShow({
             <MarketList markets={markets} />
             <ProducerGallery images={gallery} />
             <ProducerProducts producerId={producer.id} producerSlug={producer.slug} products={products} total={productsCount} />
+            <ProducerPosts posts={posts} producerSlug={producer.slug} />
             <ReviewsSection
                 producer={producer}
                 reviews={reviews}

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\WeeklyPick;
@@ -86,6 +87,12 @@ class HomeController extends Controller
             'newProducers' => $this->mapProducers($newProducers, $tags),
             'popularProducers' => $this->mapProducers($popularProducers, $tags),
             'popularProducts' => $this->mapProducts(),
+            // The newest stories and recipes; the section is left out while there are none.
+            'latestPosts' => Post::published()
+                ->with('producer:id,name,slug,city,logo_path')
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get(Post::CARD_COLUMNS),
             // Which categories have anything in them changes rarely, and
             // finding out means looking through the whole catalogue.
             'categories' => Cache::remember('home:categories:v2', self::RANKING_SECONDS, fn () => Category::query()

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProducerCertificateController;
 use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProducerImageController;
@@ -33,6 +34,14 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::post('/{producer}/sertifikati', [ProducerCertificateController::class, 'store'])->middleware('throttle:6,1')->name('certificates.store');
     Route::get('/{producer}/sertifikati/{certificate}/dokument', [ProducerCertificateController::class, 'file'])->middleware('throttle:60,1')->name('certificates.file');
     Route::delete('/{producer}/sertifikati/{certificate}', [ProducerCertificateController::class, 'destroy'])->name('certificates.destroy');
+
+    // Stories and recipes. Publishing one notifies followers and admins.
+    Route::get('/{producer}/price', [PostController::class, 'index'])->name('posts.index');
+    Route::get('/{producer}/price/nova', [PostController::class, 'create'])->name('posts.create');
+    Route::post('/{producer}/price', [PostController::class, 'store'])->middleware('throttle:10,1')->name('posts.store');
+    Route::get('/{producer}/price/{post}/izmena', [PostController::class, 'edit'])->name('posts.edit');
+    Route::put('/{producer}/price/{post}', [PostController::class, 'update'])->middleware('throttle:20,1')->name('posts.update');
+    Route::delete('/{producer}/price/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     // Saved answers for the message box.
     Route::get('/{producer}/brzi-odgovori', [QuickReplyController::class, 'index'])->name('quick-replies.index');

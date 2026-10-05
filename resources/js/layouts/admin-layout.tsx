@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
 import {
     Award,
+    BookOpen,
     CalendarHeart,
     FilePen,
     Flag,
@@ -31,6 +32,7 @@ const sections = [
     { href: '/admin/sertifikati', label: tx('Sertifikati'), icon: ShieldCheck },
     { href: '/admin/zahtevi', label: tx('Zahtevi za izmenu'), icon: FilePen },
     { href: '/admin/proizvodi', label: tx('Proizvodi'), icon: Package },
+    { href: '/admin/price', label: tx('Priče i recepti'), icon: BookOpen },
     { href: '/admin/kategorije', label: tx('Kategorije'), icon: FolderTree },
     { href: '/admin/korisnici', label: tx('Korisnici'), icon: Users },
     { href: '/admin/utisci', label: tx('Utisci'), icon: Star },

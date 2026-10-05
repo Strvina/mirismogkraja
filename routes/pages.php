@@ -17,7 +17,7 @@ Route::get('/robots.txt', fn () => response("User-agent: *\nDisallow: /admin\n\n
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('/sitemap-{section}-{page}.xml', [SitemapController::class, 'section'])
-    ->whereIn('section', ['producers', 'products'])
+    ->whereIn('section', ['producers', 'products', 'posts'])
     ->where('page', '[1-9][0-9]*')
     ->name('sitemap.section');
 

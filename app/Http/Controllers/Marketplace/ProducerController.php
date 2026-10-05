@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Marketplace;
 
 use App\Http\Controllers\Controller;
 use App\Models\Boost;
+use App\Models\Post;
 use App\Models\Producer;
 use App\Models\ProducerCertificate;
 use App\Models\ProducerMarket;
@@ -224,6 +225,12 @@ class ProducerController extends Controller
             'responseTime' => $responseTime->bucketFor($producer),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'markets' => $producer->markets()->get(ProducerMarket::PUBLIC_COLUMNS),
+            // The latest few stories and recipes; the rest are on their own page.
+            'posts' => $producer->posts()
+                ->where('status', Post::STATUS_PUBLISHED)
+                ->orderByDesc('published_at')
+                ->limit(3)
+                ->get(Post::CARD_COLUMNS),
             // Checked by an admin and still in date. The claim only - the
             // document behind it is never public.
             'certificates' => $producer->certificates()
