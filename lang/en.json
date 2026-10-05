@@ -932,5 +932,13 @@
     "Dostava": "Delivery",
     "Dobar dan! Proizvod je dostupan. Javite koliko vam treba, pa ćemo se dogovoriti oko preuzimanja ili dostave.": "Hello! The product is available. Let me know how much you need and we will arrange pickup or delivery.",
     "Šaljemo kurirskom službom na teritoriji cele Srbije. Paket obično stiže za jedan do dva radna dana, a poštarinu plaća kupac.": "We ship by courier anywhere in Serbia. A parcel usually arrives in one to two working days, and the buyer pays the postage.",
-    "Hvala na interesovanju! Trenutno nemamo na stanju. Javiću vam čim ponovo bude dostupno.": "Thank you for your interest! We are out of stock at the moment. I will let you know as soon as it is available again."
+    "Hvala na interesovanju! Trenutno nemamo na stanju. Javiću vam čim ponovo bude dostupno.": "Thank you for your interest! We are out of stock at the moment. I will let you know as soon as it is available again.",
+    "Čeka :count kupac": ":count buyer is waiting",
+    "Čekaju :count kupca": ":count buyers are waiting",
+    "Čeka :count kupaca": ":count buyers are waiting",
+    "da im javimo kad proizvod ponovo stigne. Čim dopunite zalihe ili počne sezona, obavestićemo ih umesto vas.": "to hear when a product is back. As soon as you restock or its season starts, we will tell them for you.",
+    "Prikaži sve proizvode": "Show all products",
+    "Prikaži samo te proizvode": "Show only those products",
+    "Trenutno niko ne čeka nijedan proizvod.": "Nobody is waiting for a product right now.",
+    "na proizvode kojih trenutno nema. Pogledajte koje.": "for products that are not available right now. See which."
 }

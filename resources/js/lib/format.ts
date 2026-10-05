@@ -1,4 +1,4 @@
-import { currentLocale, intlLocale, t } from '@/lib/i18n';
+import { currentLocale, intlLocale, t, tx } from '@/lib/i18n';
 
 /**
  * Prices arrive from Eloquent as decimal strings ("1250.00"). Rendered the
@@ -38,6 +38,18 @@ function plural(count: number, one: string, few: string, many: string): string {
     }
 
     return many;
+}
+
+const WAITING_FORMS = [tx('Čeka :count kupac'), tx('Čekaju :count kupca'), tx('Čeka :count kupaca')] as const;
+
+/**
+ * "Čeka 1 kupac" / "Čekaju 3 kupca" / "Čeka 12 kupaca". Russian counts the
+ * way Serbian does; English only tells one from many.
+ */
+export function waitingBuyers(count: number): string {
+    const form = currentLocale() === 'en' ? (count === 1 ? WAITING_FORMS[0] : WAITING_FORMS[2]) : plural(count, ...WAITING_FORMS);
+
+    return t(form, { count });
 }
 
 const RELATIVE_UNITS: { seconds: number; unit: Intl.RelativeTimeFormatUnit; forms: [string, string, string] }[] = [

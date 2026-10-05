@@ -97,6 +97,12 @@ class SiteNotification extends Notification
         return new self('product.available', ['product' => $productName, 'producer' => $producerName], $url);
     }
 
+    /** Buyers asked to hear when this product is back; told to its producer. */
+    public static function productWanted(string $productName, int $waiting, string $url): self
+    {
+        return new self('product.wanted', ['product' => $productName, 'count' => $waiting], $url);
+    }
+
     public static function reviewReceived(string $producerName, string $url): self
     {
         return new self('review.received', ['producer' => $producerName], $url);

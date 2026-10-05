@@ -945,5 +945,13 @@
     "Dostava": "Доставка",
     "Dobar dan! Proizvod je dostupan. Javite koliko vam treba, pa ćemo se dogovoriti oko preuzimanja ili dostave.": "Здравствуйте! Товар есть в наличии. Напишите, сколько вам нужно, и мы договоримся о самовывозе или доставке.",
     "Šaljemo kurirskom službom na teritoriji cele Srbije. Paket obično stiže za jedan do dva radna dana, a poštarinu plaća kupac.": "Отправляем курьерской службой по всей Сербии. Посылка обычно приходит за один-два рабочих дня, доставку оплачивает покупатель.",
-    "Hvala na interesovanju! Trenutno nemamo na stanju. Javiću vam čim ponovo bude dostupno.": "Спасибо за интерес! Сейчас нет в наличии. Сообщу вам, как только снова появится."
+    "Hvala na interesovanju! Trenutno nemamo na stanju. Javiću vam čim ponovo bude dostupno.": "Спасибо за интерес! Сейчас нет в наличии. Сообщу вам, как только снова появится.",
+    "Čeka :count kupac": ":count покупатель ждёт",
+    "Čekaju :count kupca": ":count покупателя ждут",
+    "Čeka :count kupaca": ":count покупателей ждут",
+    "da im javimo kad proizvod ponovo stigne. Čim dopunite zalihe ili počne sezona, obavestićemo ih umesto vas.": "сообщения о том, что товар снова появился. Как только вы пополните запас или начнётся сезон, мы сообщим им за вас.",
+    "Prikaži sve proizvode": "Показать все товары",
+    "Prikaži samo te proizvode": "Показать только эти товары",
+    "Trenutno niko ne čeka nijedan proizvod.": "Сейчас никто не ждёт ни одного товара.",
+    "na proizvode kojih trenutno nema. Pogledajte koje.": "товаров, которых сейчас нет. Посмотрите, каких."
 }

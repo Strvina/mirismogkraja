@@ -2,9 +2,11 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
+import { waitingBuyers } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
+import { BellRing } from 'lucide-react';
 
 const STATUS_LABELS: Record<Product['status'], string> = {
     draft: tx('Nacrt'),
@@ -13,7 +15,19 @@ const STATUS_LABELS: Record<Product['status'], string> = {
     blocked: tx('Blokiran'),
 };
 
-export default function ProductsIndex({ producer, products }: { producer: Producer; products: Paginated<Product> }) {
+export default function ProductsIndex({
+    producer,
+    products,
+    waitingTotal,
+    onlyWanted,
+}: {
+    producer: Producer;
+    /** waiting_count: buyers who asked to hear when the product is back. */
+    products: Paginated<Product & { waiting_count: number }>;
+    /** The same, across all of the producer's products. */
+    waitingTotal: number;
+    onlyWanted: boolean;
+}) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t('Moji proizvođači'), href: '/moji-proizvodjaci' },
         { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
@@ -46,8 +60,34 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                     </Button>
                 </div>
 
+                {/* Demand a producer would otherwise never see: nobody writes
+                    about what is marked as gone. */}
+                {waitingTotal > 0 && (
+                    <div className="border-primary/30 bg-primary/5 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm">
+                        <p className="flex items-start gap-2">
+                            <BellRing className="text-primary mt-0.5 size-4 shrink-0" aria-hidden />
+                            <span>
+                                <strong>{waitingBuyers(waitingTotal)}</strong>{' '}
+                                {t('da im javimo kad proizvod ponovo stigne. Čim dopunite zalihe ili počne sezona, obavestićemo ih umesto vas.')}
+                            </span>
+                        </p>
+                        <Link
+                            href={
+                                onlyWanted
+                                    ? route('producers.products.index', producer.id)
+                                    : route('producers.products.index', { producer: producer.id, cekaju: 1 })
+                            }
+                            className="text-primary font-medium underline underline-offset-4"
+                        >
+                            {onlyWanted ? t('Prikaži sve proizvode') : t('Prikaži samo te proizvode')}
+                        </Link>
+                    </div>
+                )}
+
                 {products.data.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">{t('Nema još proizvoda.')}</p>
+                    <p className="text-muted-foreground text-sm">
+                        {onlyWanted ? t('Trenutno niko ne čeka nijedan proizvod.') : t('Nema još proizvoda.')}
+                    </p>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {products.data.map((product) => (
@@ -67,6 +107,12 @@ export default function ProductsIndex({ producer, products }: { producer: Produc
                                 <p className="text-muted-foreground mt-1 text-sm">
                                     {product.price} RSD / {product.unit} · {product.category && t(product.category.name)}
                                 </p>
+                                {product.waiting_count > 0 && (
+                                    <p className="text-primary mt-2 flex items-center gap-1.5 text-sm font-medium">
+                                        <BellRing className="size-4 shrink-0" aria-hidden />
+                                        {waitingBuyers(product.waiting_count)}
+                                    </p>
+                                )}
                                 <div className="mt-4 flex gap-2">
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.products.edit', [producer.id, product.id])}>{t('Izmeni')}</Link>

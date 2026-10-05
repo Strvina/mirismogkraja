@@ -30,7 +30,13 @@ class ProducerController extends Controller
 
         return Inertia::render('producers/index', [
             'producers' => $request->user()->producers()
-                ->withCount(['images', 'products as active_products_count' => fn ($products) => $products->where('status', 'active')])
+                ->withCount([
+                    'images',
+                    'products as active_products_count' => fn ($products) => $products->where('status', 'active'),
+                    // "Čeka vas X kupaca": people who asked to hear when a
+                    // product is back.
+                    'productAlerts as waiting_buyers_count',
+                ])
                 ->latest()
                 ->get()
                 // What would make each page more convincing to a buyer.
