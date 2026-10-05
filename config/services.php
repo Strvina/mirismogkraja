@@ -35,6 +35,16 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    // "Nastavi sa Google nalogom" on the sign-in and sign-up pages; off
+    // while either key is empty (see App\Services\GoogleAuthService). The
+    // redirect is a path, so it follows whichever host the site is on - the
+    // same full address has to be listed in the Google Cloud console.
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

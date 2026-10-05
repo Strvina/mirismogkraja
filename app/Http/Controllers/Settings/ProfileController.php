@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,6 +29,7 @@ class ProfileController extends Controller
     {
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
+            'hasPassword' => $request->user()->hasPassword(),
             'status' => $request->session()->get('status'),
         ]);
     }
@@ -64,12 +66,17 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'current_password'],
-        ]);
-
         /** @var User $user */
         $user = $request->user();
+
+        // The password confirms it is really them. An account opened with
+        // Google has none, so its owner types the account's e-mail address
+        // instead - a deliberate act, sent in the same field.
+        $request->validate([
+            'password' => $user->hasPassword() ? ['required', 'current_password'] : ['required', Rule::in([$user->email])],
+        ], [
+            'password.in' => __('Upišite e-mail adresu naloga da potvrdite brisanje.'),
+        ]);
 
         // Removing the last administrator would lock everyone out of the
         // admin panel with no way back in through the interface.
@@ -93,6 +100,9 @@ class ProfileController extends Controller
             $user->forceFill([
                 ...User::ANONYMISED,
                 'email' => "obrisan-{$user->id}@obrisan.local",
+                // Released like the address, so the same Google account can
+                // open a new account later.
+                'google_id' => null,
                 'password' => Hash::make(Str::random(64)),
                 'remember_token' => null,
             ])->save();

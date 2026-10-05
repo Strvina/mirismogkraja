@@ -3,6 +3,7 @@ import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 import Captcha from '@/components/captcha';
+import GoogleButton from '@/components/google-button';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -22,8 +23,11 @@ interface RegisterForm extends Record<string, string> {
 export default function Register({
     captchaSiteKey,
     referrer,
+    googleEnabled,
 }: {
     captchaSiteKey?: string | null;
+    /** Whether "Nastavi sa Google nalogom" is offered (its keys are set). */
+    googleEnabled?: boolean;
     /** The producer whose referral link brought the visitor here. */
     referrer?: string | null;
 }) {
@@ -136,6 +140,8 @@ export default function Register({
                         {t('Napravi nalog')}
                     </Button>
                 </div>
+
+                {googleEnabled && <GoogleButton />}
 
                 <div className="text-muted-foreground text-center text-sm">
                     {t('Već imate nalog?')}{' '}

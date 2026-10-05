@@ -14,7 +14,7 @@ Accounts. A user can be a buyer, the owner of one or more producers (seller), an
 | `name` | string |  |  |
 | `email` | string |  |  |
 | `email_verified_at` | datetime | yes |  |
-| `password` | string |  |  |
+| `password` | string | yes |  |
 | `remember_token` | string | yes |  |
 | `created_at` | datetime | yes |  |
 | `updated_at` | datetime | yes |  |
@@ -28,8 +28,11 @@ Accounts. A user can be a buyer, the owner of one or more producers (seller), an
 | `deleted_at` | datetime | yes |  |
 | `notify_messages_by_email` | tinyint(1) |  |  |
 | `locale` | string | yes |  |
+| `google_id` | string | yes | Google's permanent id for the account, when it signs in with Google |
 
-Indexes: unique (email)
+Indexes: unique (email); unique (google_id)
+
+`password` is empty for an account opened with Google until its owner sets one.
 
 ## producers
 

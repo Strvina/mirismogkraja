@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -23,6 +24,16 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    // Signing in or opening an account with Google. Answers 404 until the
+    // keys are set (see App\Services\GoogleAuthService::enabled).
+    Route::get('auth/google', [GoogleController::class, 'redirect'])
+        ->middleware('throttle:20,1')
+        ->name('auth.google');
+
+    Route::get('auth/google/callback', [GoogleController::class, 'callback'])
+        ->middleware('throttle:20,1')
+        ->name('auth.google.callback');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

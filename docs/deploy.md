@@ -85,6 +85,20 @@ sudo chown -R $USER:www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 ```
 
+### Prijava preko Google naloga (nije obavezno)
+
+Dugme „Nastavi sa Google nalogom“ se pojavljuje tek kada upišete ključeve. Besplatno je:
+
+1. Otvorite [console.cloud.google.com](https://console.cloud.google.com), napravite projekat.
+2. „APIs & Services“ → „OAuth consent screen“: tip „External“, naziv sajta, vaš mejl, pa „Publish app“.
+3. „Credentials“ → „Create credentials“ → „OAuth client ID“ → „Web application“.
+4. Pod „Authorized redirect URIs“ upišite tačno `https://vasdomen.rs/auth/google/callback`.
+5. Dobijeni „Client ID“ i „Client secret“ upišite u `.env` kao `GOOGLE_CLIENT_ID` i
+   `GOOGLE_CLIENT_SECRET`, pa pokrenite `php artisan optimize`.
+
+Sertifikati koje proizvođači šalju čuvaju se u `storage/app/private`, van javnog dela sajta. Taj
+folder ulazi u backup servera, ne u noćni backup baze, pa ga kopirajte zajedno sa `storage/app/public`.
+
 ## 4. Web server i HTTPS
 
 ```bash
