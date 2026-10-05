@@ -34,6 +34,11 @@ return [
         'published' => ['title' => 'Your review has been published', 'body' => 'Your review of “:producer” is now visible to everyone.'],
     ],
 
+    'post' => [
+        'published' => ['title' => ':producer has a new story', 'body' => '“:title” has just been published.'],
+        'blocked' => ['title' => 'A post has been taken down', 'body' => 'An administrator has taken “:title” off the site. Contact us if you think this is a mistake.'],
+    ],
+
     'certificate' => [
         'approved' => ['title' => 'Certificate confirmed', 'body' => '“:title” is now shown on your profile.'],
         'rejected' => ['title' => 'Certificate not accepted', 'body' => '“:title”: :reason'],
@@ -65,6 +70,7 @@ return [
 
     'admin' => [
         'producer-pending' => ['title' => 'New producer awaiting approval', 'body' => '“:producer” (:city).'],
+        'post-published' => ['title' => 'New story or recipe', 'body' => '“:producer” — :title.'],
         'certificate-pending' => ['title' => 'New certificate awaiting review', 'body' => '“:producer” — :title.'],
         'membership-requested' => ['title' => 'New membership payment', 'body' => '“:producer” — plan :plan, :amount RSD, reference :reference.'],
         'boost-requested' => ['title' => 'New boost payment', 'body' => '“:producer” — :name, :amount RSD, reference :reference.'],

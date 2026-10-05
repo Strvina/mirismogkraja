@@ -34,6 +34,11 @@ return [
         'published' => ['title' => 'Ваш отзыв опубликован', 'body' => 'Отзыв о «:producer» теперь виден всем.'],
     ],
 
+    'post' => [
+        'published' => ['title' => 'У :producer новая история', 'body' => '«:title» только что опубликовано.'],
+        'blocked' => ['title' => 'Публикация снята с сайта', 'body' => 'Администратор снял «:title» с сайта. Свяжитесь с нами, если считаете это ошибкой.'],
+    ],
+
     'certificate' => [
         'approved' => ['title' => 'Сертификат подтверждён', 'body' => '«:title» теперь виден в вашем профиле.'],
         'rejected' => ['title' => 'Сертификат не принят', 'body' => '«:title»: :reason'],
@@ -65,6 +70,7 @@ return [
 
     'admin' => [
         'producer-pending' => ['title' => 'Новый производитель ждёт одобрения', 'body' => '«:producer» (:city).'],
+        'post-published' => ['title' => 'Новая история или рецепт', 'body' => '«:producer» — :title.'],
         'certificate-pending' => ['title' => 'Новый сертификат ждёт проверки', 'body' => '«:producer» — :title.'],
         'membership-requested' => ['title' => 'Новая оплата членства', 'body' => '«:producer» — тариф :plan, :amount RSD, номер платежа :reference.'],
         'boost-requested' => ['title' => 'Новая оплата продвижения', 'body' => '«:producer» — :name, :amount RSD, номер платежа :reference.'],

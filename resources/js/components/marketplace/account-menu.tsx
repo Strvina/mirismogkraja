@@ -6,6 +6,7 @@ import { type SharedData, type User } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import {
     Bell,
+    BookOpen,
     CalendarHeart,
     ChevronDown,
     Heart,
@@ -44,6 +45,7 @@ export default function AccountMenu({ user }: { user: User }) {
     const browseLinks: MenuLink[] = [
         { href: route('marketplace.producers.index'), label: t('Proizvođači'), icon: Sprout, mobileOnly: true },
         { href: route('marketplace.products.index'), label: t('Proizvodi'), icon: Package, mobileOnly: true },
+        { href: route('marketplace.posts.index'), label: t('Priče i recepti'), icon: BookOpen, mobileOnly: true },
     ];
 
     const accountLinks: MenuLink[] = [

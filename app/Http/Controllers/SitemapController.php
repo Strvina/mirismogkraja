@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,6 +37,7 @@ class SitemapController extends Controller
                 route('sitemap.pages'),
                 ...$this->files('producers', Producer::published()),
                 ...$this->files('products', Product::published()),
+                ...$this->files('posts', Post::published()),
             ],
         ])->render());
     }
@@ -46,6 +48,7 @@ class SitemapController extends Controller
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.producers.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.products.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
+            ['loc' => route('marketplace.posts.index'), 'priority' => '0.7', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.founding'), 'priority' => '0.5', 'changefreq' => 'weekly'],
             // Categories with something in them.
             ...Category::query()
@@ -61,9 +64,11 @@ class SitemapController extends Controller
 
     public function section(string $section, int $page): Response
     {
-        [$query, $route, $priority] = $section === 'producers'
-            ? [Producer::published(), 'marketplace.producers.show', '0.8']
-            : [Product::published(), 'marketplace.products.show', '0.7'];
+        [$query, $route, $priority] = match ($section) {
+            'producers' => [Producer::published(), 'marketplace.producers.show', '0.8'],
+            'posts' => [Post::published(), 'marketplace.posts.show', '0.6'],
+            default => [Product::published(), 'marketplace.products.show', '0.7'],
+        };
 
         return $this->xml("sitemap:{$section}:{$page}", fn () => view('sitemap', [
             'urls' => $query

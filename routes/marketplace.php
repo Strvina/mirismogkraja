@@ -3,6 +3,7 @@
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\Marketplace\CatalogController;
 use App\Http\Controllers\Marketplace\FoundingProducerController;
+use App\Http\Controllers\Marketplace\PostController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
 use App\Http\Controllers\ProductAlertController;
@@ -21,6 +22,9 @@ Route::get('/katalog/{producer:slug}', CatalogController::class)->name('marketpl
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
 Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->name('marketplace.categories.show');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
+// Stories and recipes written by producers.
+Route::get('/price', [PostController::class, 'index'])->name('marketplace.posts.index');
+Route::get('/price/{post:slug}', [PostController::class, 'show'])->name('marketplace.posts.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/proizvodjac/{producer}/ocene', [ReviewController::class, 'store'])

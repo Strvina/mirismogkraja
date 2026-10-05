@@ -1,9 +1,10 @@
 import { CampaignCard, type CampaignSummary } from '@/components/marketplace/campaign-banner';
 import CardSlider from '@/components/marketplace/card-slider';
 import { HomeProducerCard, HomeProductCard, type HomeProducer, type HomeProduct } from '@/components/marketplace/home-cards';
+import PostCard from '@/components/marketplace/post-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { type SharedData } from '@/types';
+import { type PostSummary, type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Leaf, Sprout } from 'lucide-react';
 import { type ReactNode } from 'react';
@@ -83,6 +84,7 @@ export default function Welcome({
     newProducers,
     popularProducers,
     popularProducts,
+    latestPosts,
     categories,
 }: {
     campaigns: CampaignSummary[];
@@ -91,6 +93,7 @@ export default function Welcome({
     newProducers: HomeProducer[];
     popularProducers: HomeProducer[];
     popularProducts: HomeProduct[];
+    latestPosts: PostSummary[];
     categories: HomeCategory[];
 }) {
     const { auth } = usePage<SharedData>().props;
@@ -296,6 +299,23 @@ export default function Welcome({
                         <CardSlider label={t('Najtraženiji proizvodi')} itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]">
                             {popularProducts.map((product) => (
                                 <HomeProductCard key={product.id} product={product} />
+                            ))}
+                        </CardSlider>
+                    </Section>
+                )}
+
+                {latestPosts.length > 0 && (
+                    <Section
+                        id="price"
+                        eyebrow={t('Iz prve ruke')}
+                        title={t('Priče i recepti')}
+                        lead={t('Kako nastaje ono što kupujete i šta se od toga sprema — pišu sami proizvođači.')}
+                        moreHref={route('marketplace.posts.index')}
+                        moreLabel={t('Sve priče i recepti')}
+                    >
+                        <CardSlider label={t('Priče i recepti')} itemClassName="w-[80vw] sm:w-[360px] lg:w-[400px]">
+                            {latestPosts.map((post) => (
+                                <PostCard key={post.id} post={post} />
                             ))}
                         </CardSlider>
                     </Section>

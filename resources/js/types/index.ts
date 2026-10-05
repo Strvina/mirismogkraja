@@ -97,6 +97,20 @@ export interface ProducerMarket {
     note: string | null;
 }
 
+/** A story or recipe as a card in a list shows it. */
+export interface PostSummary {
+    id: number;
+    producer_id: number;
+    type: 'story' | 'recipe';
+    title: string;
+    slug: string;
+    /** The opening of the text. */
+    excerpt: string | null;
+    cover_image_path: string | null;
+    published_at: string | null;
+    producer?: { id: number; name: string; slug: string; city: string | null; logo_path: string | null };
+}
+
 export interface BreadcrumbItem {
     title: string;
     href: string;

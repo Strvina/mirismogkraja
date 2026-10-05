@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\AdminMembershipController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProducerChangeRequestController;
 use App\Http\Controllers\Admin\ProducerController;
 use App\Http\Controllers\Admin\ProductController;
@@ -38,6 +39,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/sertifikati', [CertificateController::class, 'index'])->name('certificates.index');
     Route::patch('/sertifikati/{certificate}/odobri', [CertificateController::class, 'approve'])->name('certificates.approve');
     Route::patch('/sertifikati/{certificate}/odbij', [CertificateController::class, 'reject'])->name('certificates.reject');
+
+    Route::get('/price', [PostController::class, 'index'])->name('posts.index');
+    Route::patch('/price/{post}/status', [PostController::class, 'updateStatus'])->name('posts.status');
+    Route::delete('/price/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
     Route::get('/zahtevi', [ProducerChangeRequestController::class, 'index'])->name('change-requests.index');
     Route::patch('/zahtevi/{changeRequest}/odobri', [ProducerChangeRequestController::class, 'approve'])->name('change-requests.approve');

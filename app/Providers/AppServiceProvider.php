@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
@@ -50,6 +51,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::morphMap([
             'producer' => Producer::class,
             'product' => Product::class,
+            // Old addresses of renamed posts are kept by this name.
+            'post' => Post::class,
             // Reports can name a user too.
             'user' => User::class,
         ]);

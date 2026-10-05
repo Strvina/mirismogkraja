@@ -118,6 +118,17 @@ class SiteNotification extends Notification
         return new self('review.published', ['producer' => $producerName], $url);
     }
 
+    /** A producer someone follows wrote a story or a recipe. */
+    public static function postPublished(string $producerName, string $title, string $url): self
+    {
+        return new self('post.published', ['producer' => $producerName, 'title' => $title], $url);
+    }
+
+    public static function postBlocked(string $title, string $url): self
+    {
+        return new self('post.blocked', ['title' => $title], $url);
+    }
+
     /** An admin has checked the document; the certificate is on the public page. */
     public static function certificateApproved(string $title, string $url): self
     {

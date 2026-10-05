@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
 use Illuminate\Support\Str;
@@ -91,6 +92,44 @@ class PageMeta
             'numberOfItems' => count($items),
             'itemListElement' => $items,
         ];
+    }
+
+    /**
+     * A story as an Article, a recipe as a Recipe - which is what lets a
+     * search result show it with its photo and ingredients. Expects the
+     * producer loaded.
+     *
+     * @return array<string, mixed>
+     */
+    public static function post(Post $post): array
+    {
+        $image = $post->cover_image_path ? Media::absoluteUrl($post->cover_image_path) : null;
+        $author = ['@type' => 'Organization', 'name' => $post->producer->name, 'url' => route('marketplace.producers.show', $post->producer->slug)];
+        $published = $post->published_at?->toAtomString();
+
+        $data = $post->isRecipe()
+            ? [
+                '@type' => 'Recipe',
+                'name' => $post->title,
+                'recipeIngredient' => $post->ingredientList() ?: null,
+                'recipeInstructions' => Str::limit(Str::squish($post->body), 5000),
+                'datePublished' => $published,
+            ]
+            : [
+                '@type' => 'Article',
+                'headline' => Str::limit($post->title, 110),
+                'datePublished' => $published,
+                'dateModified' => $post->updated_at?->toAtomString(),
+                'mainEntityOfPage' => route('marketplace.posts.show', $post->slug),
+            ];
+
+        return array_filter([
+            '@context' => 'https://schema.org',
+            ...$data,
+            'description' => $post->excerpt,
+            'image' => $image,
+            'author' => $author,
+        ], fn ($value) => $value !== null);
     }
 
     /** @return array{title: string, description: string, url: string, image: string|null, type: string} */
