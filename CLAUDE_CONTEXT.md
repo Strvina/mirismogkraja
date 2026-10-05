@@ -159,7 +159,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 
 - Urađeni su svi zadaci do 120. Poslednji talas (109–117): pijace, katalog, brzi odgovori, „čeka vas
   X kupaca", sertifikati, priče i recepti, preporuke, Google prijava, demo podaci i testovi.
-- Testovi: 502 PHP (3 preskočena bez GD-a) i 16 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 503 PHP (3 preskočena bez GD-a) i 16 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
   `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept).
