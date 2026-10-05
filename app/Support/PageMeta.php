@@ -63,6 +63,36 @@ class PageMeta
         ], fn ($value) => $value !== null);
     }
 
+    /**
+     * A producer's price list as a list of offers, each pointing at the
+     * product's own page (which carries the full Product data).
+     *
+     * @param  iterable<Product>  $products
+     * @return array<string, mixed>
+     */
+    public static function catalog(Producer $producer, iterable $products): array
+    {
+        $items = [];
+
+        foreach ($products as $position => $product) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $position + 1,
+                'name' => $product->name,
+                'url' => route('marketplace.products.show', $product->slug),
+            ];
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => $producer->name,
+            'url' => route('marketplace.catalog', $producer->slug),
+            'numberOfItems' => count($items),
+            'itemListElement' => $items,
+        ];
+    }
+
     /** @return array{title: string, description: string, url: string, image: string|null, type: string} */
     public static function make(string $title, ?string $description, ?string $imagePath = null, string $type = 'website'): array
     {

@@ -9,7 +9,13 @@ import { type PublicProducer } from './types';
  * (a partial reload), so it is never in the page's HTML for a scraper, and
  * each reveal or click is counted in the producer's statistics.
  */
-export default function ContactCard({ producer, phone }: { producer: PublicProducer; phone?: string | null }) {
+export default function ContactCard({
+    producer,
+    phone,
+}: {
+    producer: Pick<PublicProducer, 'id' | 'has_phone' | 'contact_email' | 'address'>;
+    phone?: string | null;
+}) {
     const [loading, setLoading] = useState(false);
     // Viber and WhatsApp open a chat with a mobile number, so they are only
     // offered when the number is one.

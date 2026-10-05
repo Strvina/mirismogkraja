@@ -914,5 +914,14 @@
     "Više": "Ещё",
     "Možete uneti najviše :max mesta.": "Можно добавить не более :max мест.",
     "Izaberite bar jedan dan.": "Выберите хотя бы один день.",
-    "Kraj mora biti posle početka.": "Окончание должно быть позже начала."
+    "Kraj mora biti posle početka.": "Окончание должно быть позже начала.",
+    ":name — ponuda i cene": ":name — ассортимент и цены",
+    "Ponuda i cene": "Ассортимент и цены",
+    "Ceo profil": "Весь профиль",
+    "Trenutno nema": "Сейчас нет в наличии",
+    "sezona": "сезон",
+    "Vaš katalog za deljenje": "Ваш каталог для отправки",
+    "Jedan link sa svim proizvodima i cenama. Pošaljite ga kupcima u Viber grupi, porukom ili na WhatsApp-u.": "Одна ссылка со всеми товарами и ценами. Отправьте её покупателям в группе Viber, сообщением или в WhatsApp.",
+    "Otvoren katalog": "Каталог открыт",
+    "Ponuda i cene na jednom mestu": "Весь ассортимент и цены на одной странице"
 }

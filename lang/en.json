@@ -901,5 +901,14 @@
     "Više": "More",
     "Možete uneti najviše :max mesta.": "You can enter at most :max places.",
     "Izaberite bar jedan dan.": "Choose at least one day.",
-    "Kraj mora biti posle početka.": "The end must be after the start."
+    "Kraj mora biti posle početka.": "The end must be after the start.",
+    ":name — ponuda i cene": ":name — products and prices",
+    "Ponuda i cene": "Products and prices",
+    "Ceo profil": "Full profile",
+    "Trenutno nema": "Not available right now",
+    "sezona": "season",
+    "Vaš katalog za deljenje": "Your catalogue to share",
+    "Jedan link sa svim proizvodima i cenama. Pošaljite ga kupcima u Viber grupi, porukom ili na WhatsApp-u.": "One link with all your products and prices. Send it to buyers in a Viber group, by text or on WhatsApp.",
+    "Otvoren katalog": "Catalogue opened",
+    "Ponuda i cene na jednom mestu": "All products and prices in one place"
 }

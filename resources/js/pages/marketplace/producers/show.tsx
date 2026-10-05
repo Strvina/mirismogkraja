@@ -125,7 +125,7 @@ export default function ProducerShow({
 
             <MarketList markets={markets} />
             <ProducerGallery images={gallery} />
-            <ProducerProducts producerId={producer.id} products={products} total={productsCount} />
+            <ProducerProducts producerId={producer.id} producerSlug={producer.slug} products={products} total={productsCount} />
             <ReviewsSection
                 producer={producer}
                 reviews={reviews}

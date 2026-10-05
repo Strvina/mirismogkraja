@@ -35,6 +35,10 @@ class ProducerMarketTest extends TestCase
             ->assertRedirect()
             ->assertSessionHasNoErrors();
 
+        $this->actingAs($producer->user)->get(route('producers.markets.index', $producer))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page->component('producers/markets')->has('markets', 1));
+
         $this->get(route('marketplace.producers.show', $producer->slug))
             ->assertOk()
             ->assertInertia(fn ($page) => $page

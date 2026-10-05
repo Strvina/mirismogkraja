@@ -35,16 +35,28 @@ export function ProducerGallery({ images }: { images: { id: number; path: string
 /** The newest products, and a link to all of them in the catalogue when there are more. */
 export function ProducerProducts({
     producerId,
+    producerSlug,
     products,
     total,
 }: {
     producerId: number;
+    producerSlug: string;
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     total: number;
 }) {
     return (
         <section className="mt-12">
-            <h2 className="font-serif text-2xl">{t('Proizvodi')}</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="font-serif text-2xl">{t('Proizvodi')}</h2>
+                {products.length > 0 && (
+                    <Link
+                        href={route('marketplace.catalog', producerSlug)}
+                        className="text-primary text-sm font-medium underline-offset-4 hover:underline"
+                    >
+                        {t('Ponuda i cene na jednom mestu')}
+                    </Link>
+                )}
+            </div>
             {products.length === 0 ? (
                 <p className="text-muted-foreground mt-2 text-sm">{t('Ovaj proizvođač još nema objavljene proizvode.')}</p>
             ) : (
