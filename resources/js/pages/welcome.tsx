@@ -118,6 +118,9 @@ export default function Welcome({
                         alt={t('Priprema domaćeg ajvara u tradicionalnoj kuhinji')}
                         width={1600}
                         height={1056}
+                        // The largest thing on the first screen: fetched ahead of
+                        // the scripts instead of after them.
+                        fetchPriority="high"
                         className="image-warm absolute inset-0 size-full object-cover object-[64%_center]"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_92%,transparent)_0%,color-mix(in_oklab,var(--charcoal)_68%,transparent)_42%,color-mix(in_oklab,var(--charcoal)_10%,transparent)_78%),linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_60%,transparent),transparent_52%)]" />

@@ -32,10 +32,14 @@ class ResponseTime
      */
     public function bucketFor(Producer $producer): ?string
     {
-        $hours = Cache::remember("response-time:{$producer->id}", self::CACHE_SECONDS, fn () => $this->medianHours($producer));
+        // "Too little to go on" is cached as false: the cache does not keep
+        // a null, and without that the producers with the fewest answers -
+        // every new one - would have their messages read on every view of
+        // their page and of each of their products.
+        $hours = Cache::remember("response-time:{$producer->id}", self::CACHE_SECONDS, fn () => $this->medianHours($producer) ?? false);
 
         return match (true) {
-            $hours === null => null,
+            $hours === false => null,
             $hours < 1 => 'hour',
             $hours < 6 => 'hours',
             $hours < 24 => 'day',

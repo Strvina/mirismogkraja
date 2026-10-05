@@ -5,9 +5,11 @@ namespace App\Http\Middleware;
 use App\Models\ProducerMessage;
 use App\Support\Media;
 use App\Support\NotificationText;
+use Closure;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Middleware;
+use Inertia\Support\Header;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -19,6 +21,44 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    /**
+     * Shared props a page asks for on their own: the header's two badges,
+     * re-checked every half minute, and the bell's list when it is opened.
+     *
+     * @var list<string>
+     */
+    private const STANDALONE = ['unreadMessages', 'unreadNotifications', 'recentNotifications'];
+
+    /**
+     * A partial reload that wants nothing but those props is answered here,
+     * without running the page's own controller. The header polls from
+     * whatever page is open, so otherwise every signed-in tab would rebuild
+     * its whole page - nineteen queries on the home page - twice a minute,
+     * to be handed two numbers that never came from that controller.
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        if ($this->asksOnlyForStandaloneProps($request)) {
+            $next = fn (Request $request) => Inertia::render((string) $request->header(Header::PARTIAL_COMPONENT))->toResponse($request);
+        }
+
+        return parent::handle($request, $next);
+    }
+
+    private function asksOnlyForStandaloneProps(Request $request): bool
+    {
+        if (! $request->isMethod('GET')
+            || ! $request->header(Header::INERTIA)
+            || blank($request->header(Header::PARTIAL_COMPONENT))
+            || filled($request->header(Header::PARTIAL_EXCEPT))) {
+            return false;
+        }
+
+        $only = array_filter(explode(',', (string) $request->header(Header::PARTIAL_ONLY)));
+
+        return $only !== [] && array_diff($only, self::STANDALONE) === [];
+    }
 
     /**
      * Define the props that are shared by default.
