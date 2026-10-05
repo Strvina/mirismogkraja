@@ -115,6 +115,25 @@ The producer's gallery.
 
 Indexes: (producer_id, order)
 
+## producer_markets
+
+"Gde me nađete": a market, fair or shop where the producer sells in person, and on which days. At most 8 per producer.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `producer_id` | integer |  | → producers.id (cascade) |
+| `name` | string |  |  |
+| `city` | string | yes |  |
+| `days` | json |  | ISO weekdays, 1 (Monday) to 7 (Sunday) |
+| `opens_at` | time | yes |  |
+| `closes_at` | time | yes |  |
+| `note` | string | yes |  |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: (producer_id)
+
 ## categories
 
 Product categories, with a public page each (`/kategorija/{slug}`).

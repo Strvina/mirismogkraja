@@ -86,6 +86,12 @@ class Producer extends Model
         return $this->hasMany(ProducerImage::class, 'producer_id')->orderBy('order');
     }
 
+    /** Where they sell in person, in the order they were entered. */
+    public function markets(): HasMany
+    {
+        return $this->hasMany(ProducerMarket::class)->orderBy('id');
+    }
+
     public function messages(): HasMany
     {
         return $this->hasMany(ProducerMessage::class, 'producer_id');

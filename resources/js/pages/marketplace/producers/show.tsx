@@ -4,6 +4,7 @@ import { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import ContactCard from '@/components/producer-page/contact-card';
 import LocationLinks from '@/components/producer-page/location-links';
+import MarketList from '@/components/producer-page/market-list';
 import ProducerHeader from '@/components/producer-page/producer-header';
 import { ProducerGallery, ProducerProducts } from '@/components/producer-page/producer-showcase';
 import ReviewsSection from '@/components/producer-page/reviews-section';
@@ -12,7 +13,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { t } from '@/lib/i18n';
 import { mediaUrl } from '@/lib/media';
-import { type Product, type SharedData } from '@/types';
+import { type ProducerMarket, type Product, type SharedData } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { Truck } from 'lucide-react';
 
@@ -20,6 +21,7 @@ import { Truck } from 'lucide-react';
 export default function ProducerShow({
     producer,
     gallery,
+    markets,
     products,
     productsCount,
     reviews,
@@ -42,6 +44,7 @@ export default function ProducerShow({
     /** Only after "Prikaži broj": fetched by a partial reload, never in the page's HTML. */
     phone?: string | null;
     gallery: { id: number; path: string; caption: string | null }[];
+    markets: ProducerMarket[];
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     /** All of the producer's published products; more than are shown above. */
     productsCount: number;
@@ -120,6 +123,7 @@ export default function ProducerShow({
                 </section>
             )}
 
+            <MarketList markets={markets} />
             <ProducerGallery images={gallery} />
             <ProducerProducts producerId={producer.id} products={products} total={productsCount} />
             <ReviewsSection

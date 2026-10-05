@@ -83,6 +83,20 @@ export interface Producer {
     updated_at: string;
 }
 
+/** A place the producer sells at in person. */
+export interface ProducerMarket {
+    id: number;
+    producer_id: number;
+    name: string;
+    city: string | null;
+    /** ISO weekdays, 1 (Monday) to 7 (Sunday). */
+    days: number[];
+    /** "07:00"; both set or both null. */
+    opens_at: string | null;
+    closes_at: string | null;
+    note: string | null;
+}
+
 export interface BreadcrumbItem {
     title: string;
     href: string;
