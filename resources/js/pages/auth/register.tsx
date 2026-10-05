@@ -19,7 +19,14 @@ interface RegisterForm extends Record<string, string> {
     captcha: string;
 }
 
-export default function Register({ captchaSiteKey }: { captchaSiteKey?: string | null }) {
+export default function Register({
+    captchaSiteKey,
+    referrer,
+}: {
+    captchaSiteKey?: string | null;
+    /** The producer whose referral link brought the visitor here. */
+    referrer?: string | null;
+}) {
     const [attempt, setAttempt] = useState(0);
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
@@ -43,6 +50,16 @@ export default function Register({ captchaSiteKey }: { captchaSiteKey?: string |
         <AuthLayout title={t('Napravite nalog')} description={t('Unesite podatke da biste napravili nalog')}>
             <Head title={t('Registracija')} />
             <form className="flex flex-col gap-5" onSubmit={submit}>
+                {referrer && (
+                    <p className="bg-olive-soft text-olive rounded-lg px-4 py-3 text-sm leading-6">
+                        {t(
+                            'Preporučio vas je proizvođač „:name”. Kada registrujete svog proizvođača i mi ga odobrimo, oboje dobijate mesec dana Premium članstva.',
+                            {
+                                name: referrer,
+                            },
+                        )}
+                    </p>
+                )}
                 <div className="grid gap-4">
                     <div className="grid gap-2">
                         <Label htmlFor="name">{t('Ime')}</Label>

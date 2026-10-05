@@ -13,6 +13,8 @@ type AdminProducer = Producer & {
     user: { id: number; name: string; email: string };
     products_count: number;
     current_membership: { plan: { id: number; name: string; level: number } | null } | null;
+    /** The producer whose referral link this one's owner signed up through; only while waiting for approval. */
+    referred_by: string | null;
 };
 
 const statusLabels: Record<Producer['status'], string> = {
@@ -157,6 +159,13 @@ export default function AdminProducersIndex({
                                     {producer.user.name} · {producer.user.email} · {producer.products_count} proizvoda
                                     {producer.city ? ` · ${producer.city}` : ''}
                                 </p>
+                                {producer.referred_by && (
+                                    <p className="text-olive mt-1 text-xs">
+                                        {t('Došao na preporuku proizvođača „:name”. Odobravanjem oboje dobijaju mesec dana Premium članstva.', {
+                                            name: producer.referred_by,
+                                        })}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="flex flex-wrap gap-2">

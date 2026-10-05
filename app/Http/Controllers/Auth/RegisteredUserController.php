@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\Turnstile;
-use App\Services\AuthRedirectService;
+use App\Services\ReferralService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,10 +21,12 @@ class RegisteredUserController extends Controller
     /**
      * Show the registration page.
      */
-    public function create(): Response
+    public function create(Request $request, ReferralService $referrals): Response
     {
         return Inertia::render('auth/register', [
             'captchaSiteKey' => Turnstile::siteKey(),
+            // Whose referral link brought the visitor here, if one did.
+            'referrer' => $referrals->referrerFrom($request)?->name,
         ]);
     }
 
@@ -33,7 +35,7 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request, AuthRedirectService $redirects): RedirectResponse
+    public function store(Request $request, ReferralService $referrals): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -49,6 +51,10 @@ class RegisteredUserController extends Controller
         ]);
 
         $user->assignRole('buyer');
+
+        // Arrived through a producer's referral link: noted now, rewarded
+        // only if this account's producer is later approved.
+        $referrals->attach($user, $request);
 
         event(new Registered($user));
 

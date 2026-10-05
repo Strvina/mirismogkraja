@@ -72,6 +72,18 @@ class SiteNotification extends Notification
         return new self('founding.granted', ['producer' => $producerName, 'number' => $number, 'ends_on' => $endsOn->toDateString()], $url);
     }
 
+    /** Someone they referred was approved: a month of Premium for the referrer. */
+    public static function referralRewarded(string $newProducerName, Carbon $endsOn, string $url): self
+    {
+        return new self('referral.rewarded', ['producer' => $newProducerName, 'ends_on' => $endsOn->toDateString()], $url);
+    }
+
+    /** The same month, for the producer who arrived through the link. */
+    public static function referralWelcome(string $referrerName, Carbon $endsOn, string $url): self
+    {
+        return new self('referral.welcome', ['producer' => $referrerName, 'ends_on' => $endsOn->toDateString()], $url);
+    }
+
     public static function changeRequestApproved(string $requestedName, string $url): self
     {
         return new self('change-request.approved', ['name' => $requestedName], $url);

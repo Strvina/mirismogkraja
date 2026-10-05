@@ -147,12 +147,13 @@ class SubscriptionService
     }
 
     /**
-     * A membership nobody pays for - the founding producers' first year.
+     * A membership nobody pays for - the founding producers' first year, or
+     * the month a referral earns ($days).
      * Recorded like any other, at 0 RSD, so it shows in the
      * admin panel, runs out on its own date and sends the same reminders;
      * nothing about it is special-cased later.
      */
-    public function grant(Producer $producer, SubscriptionPlan $plan): ProducerSubscription
+    public function grant(Producer $producer, SubscriptionPlan $plan, ?int $days = null): ProducerSubscription
     {
         $subscription = $producer->subscriptions()->create([
             'subscription_plan_id' => $plan->id,
@@ -163,7 +164,7 @@ class SubscriptionService
 
         // Quietly: the founding notification says what this is, and a
         // second "membership activated" beside it would only repeat it.
-        return $this->confirmPayment($subscription, null, notify: false);
+        return $this->confirmPayment($subscription, null, notify: false, days: $days);
     }
 
     /**
@@ -172,9 +173,10 @@ class SubscriptionService
      * already paid for.
      *
      * $confirmedBy is the admin who saw the payment; null when there was no
-     * payment to see.
+     * payment to see. $days is for a gift shorter than the plan's own term
+     * (a referral's month); a paid membership always runs the plan's length.
      */
-    public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy, bool $notify = true): ProducerSubscription
+    public function confirmPayment(ProducerSubscription $subscription, ?int $confirmedBy, bool $notify = true, ?int $days = null): ProducerSubscription
     {
         $subscription->loadMissing(['plan', 'producer']);
 
@@ -188,7 +190,7 @@ class SubscriptionService
         $subscription->update([
             'status' => ProducerSubscription::STATUS_ACTIVE,
             'starts_at' => $startsAt,
-            'ends_at' => $startsAt->copy()->addDays($subscription->plan->duration_days),
+            'ends_at' => $startsAt->copy()->addDays($days ?? $subscription->plan->duration_days),
             'confirmed_by' => $confirmedBy,
             'confirmed_at' => now(),
             'expiry_warned_at' => null,

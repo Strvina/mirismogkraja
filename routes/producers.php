@@ -7,6 +7,7 @@ use App\Http\Controllers\ProducerImageController;
 use App\Http\Controllers\ProducerMarketController;
 use App\Http\Controllers\ProducerStatisticsController;
 use App\Http\Controllers\QuickReplyController;
+use App\Http\Controllers\ReferralController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('producers.')->group(function () {
@@ -43,6 +44,9 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::put('/{producer}/price/{post}', [PostController::class, 'update'])->middleware('throttle:20,1')->name('posts.update');
     Route::delete('/{producer}/price/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
+    // "Preporuči proizvođača": the producer's link and what came of it.
+    Route::get('/{producer}/preporuke', [ReferralController::class, 'index'])->name('referrals.index');
+
     // Saved answers for the message box.
     Route::get('/{producer}/brzi-odgovori', [QuickReplyController::class, 'index'])->name('quick-replies.index');
     Route::post('/{producer}/brzi-odgovori', [QuickReplyController::class, 'store'])->middleware('throttle:30,1')->name('quick-replies.store');
@@ -50,6 +54,12 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::put('/{producer}/brzi-odgovori/{reply}', [QuickReplyController::class, 'update'])->middleware('throttle:30,1')->name('quick-replies.update');
     Route::delete('/{producer}/brzi-odgovori/{reply}', [QuickReplyController::class, 'destroy'])->name('quick-replies.destroy');
 });
+
+// A producer's referral link. Public: it is opened by someone without an
+// account. Limited, so codes cannot be guessed at speed.
+Route::get('/preporuka/{code}', [ReferralController::class, 'visit'])
+    ->middleware('throttle:30,1')
+    ->name('referrals.visit');
 
 // Contact clicks reported by a visitor's browser. Public, since
 // most visitors are not signed in; limited, since it only counts.
