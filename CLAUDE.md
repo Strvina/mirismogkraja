@@ -1,5 +1,11 @@
 # Projekat: Vrelina juga – marketplace za domaćinstva
 
+## Prvo pročitaj
+Pre svakog zadatka pročitaj `CLAUDE_CONTEXT.md`: stanje projekta, modeli, poslovna pravila, donete
+odluke i šta je ostalo. Odatle utvrdi gde treba raditi, pa čitaj samo fajlove koji su bitni za
+zadatak - ne analiziraj ceo projekat iznova. Posle svake značajne izmene (baza, dozvole, poslovna
+pravila, arhitektura, nova funkcionalnost) odmah ispravi taj fajl: zastarelo zameni, ne dopisuj.
+
 ## Šta je ovo
 Saas platforma koja promoviše male proizvođače i poljoprivredna gazdinstva i povezuje ih direktno sa
 kupcima. **Nije prodavnica**: nema korpe ni plaćanja na sajtu - kupac pošalje upit, a dogovor ide u
@@ -40,9 +46,11 @@ osnovu postojećih komponenti (isti radius, senke, spacing, boje dugmadi).
 - Komentare u kodu i commit poruke piši na engleskom, komunikaciju sa mnom na srpskom.
 - Git workflow: za SVAKI task napravi poseban branch (npr. `task/1.1-extend-users-migration`), radi i
   commituj tamo, pa nakon što se proveri da radi (testovi prolaze, ponašanje je ispravno) otvori
-  pravi GitHub Pull Request (`gh pr create`, sa "Closes #N" u opisu da se Issue automatski zatvori) i
-  spoji ga (`gh pr merge`). Ne komituj direktno na `master` i ne radi lokalni `git merge` bez PR-a -
-  ovo daje vidljivu evidenciju (diff, veza sa Issue-om) za svaki task na GitHub-u.
+  pravi GitHub Pull Request prema `master` (`gh pr create`, sa "Closes #N" u opisu kad postoji Issue,
+  da se automatski zatvori). **PR spajam ja, ne ti** - ne pokreći `gh pr merge`. Kad je više taskova
+  u nizu, svaki branch kreće od prethodnog, a ja ih spajam redom. Ne komituj direktno na `master` i
+  ne radi lokalni `git merge` bez PR-a - ovo daje vidljivu evidenciju (diff, veza sa Issue-om) za
+  svaki task na GitHub-u.
 
 ## Struktura baze
 Puna specifikacija tabela je u `docs/database.md` - drži se tih naziva tabela i kolona osim ako se
