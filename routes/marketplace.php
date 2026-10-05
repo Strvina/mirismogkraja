@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\Marketplace\CatalogController;
 use App\Http\Controllers\Marketplace\FoundingProducerController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
@@ -15,6 +16,8 @@ Route::get('/osnivaci', FoundingProducerController::class)->name('marketplace.fo
 Route::redirect('/prvih-100', '/osnivaci', 301);
 Route::get('/kampanja/{campaign:slug}', [CampaignController::class, 'show'])->name('campaigns.show');
 Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])->name('marketplace.producers.show');
+// A producer's price list, on an address short enough to send in a chat.
+Route::get('/katalog/{producer:slug}', CatalogController::class)->name('marketplace.catalog');
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
 Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->name('marketplace.categories.show');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');

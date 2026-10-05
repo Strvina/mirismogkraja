@@ -24,6 +24,8 @@ class ProducerStatistics
 
     public const QR_SCAN = 'qr_scan';
 
+    public const CATALOG_VIEW = 'catalog_view';
+
     /**
      * Contact actions a visitor's browser reports. Views are counted by the
      * server; these happen after the page has loaded, so they arrive on
@@ -38,6 +40,8 @@ class ProducerStatistics
         'email_click' => 'E-mail',
         // Recorded when the page is opened from the stall poster's QR code.
         self::QR_SCAN => 'Skeniran QR kod sa postera',
+        // Recorded when the shareable price list is opened.
+        self::CATALOG_VIEW => 'Otvoren katalog',
     ];
 
     /**

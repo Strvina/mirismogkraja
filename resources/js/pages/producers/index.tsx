@@ -1,3 +1,4 @@
+import ShareButtons from '@/components/marketplace/share-buttons';
 import ProducerMoreMenu from '@/components/producer-more-menu';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -116,6 +117,31 @@ export default function ProducersIndex({
                                                 </li>
                                             ))}
                                         </ul>
+                                    </div>
+                                )}
+
+                                {/* The price list has an address once the producer is public. */}
+                                {producer.status === 'active' && (
+                                    <div className="border-border/70 mt-4 rounded-lg border border-dashed p-3">
+                                        <p className="text-sm font-medium">{t('Vaš katalog za deljenje')}</p>
+                                        <p className="text-muted-foreground mt-1 text-xs leading-5">
+                                            {t(
+                                                'Jedan link sa svim proizvodima i cenama. Pošaljite ga kupcima u Viber grupi, porukom ili na WhatsApp-u.',
+                                            )}
+                                        </p>
+                                        <a
+                                            href={route('marketplace.catalog', producer.slug)}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-primary mt-2 block text-xs font-medium break-all underline underline-offset-2"
+                                        >
+                                            {route('marketplace.catalog', producer.slug)}
+                                        </a>
+                                        <ShareButtons
+                                            url={route('marketplace.catalog', producer.slug)}
+                                            title={t(':name — ponuda i cene', { name: producer.name })}
+                                            className="mt-3"
+                                        />
                                     </div>
                                 )}
 
