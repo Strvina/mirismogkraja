@@ -1206,5 +1206,22 @@
     "Poruka posetiocima (neobavezno)": "Message to visitors (optional)",
     "Na primer: Ovogodišnji ajvar je rasprodat, novi stiže u septembru.": "For example: This year's ajvar is sold out, the new batch arrives in September.",
     "Uključi pauzu": "Turn the pause on",
-    "Pauza je uključena: novi kupci ne mogu da vam pišu. Isključite je kad se vratite.": "The pause is on: new buyers cannot write to you. Turn it off when you are back."
+    "Pauza je uključena: novi kupci ne mogu da vam pišu. Isključite je kad se vratite.": "The pause is on: new buyers cannot write to you. Turn it off when you are back.",
+    "Novo od proizvođača koje pratite": "New from the producers you follow",
+    "Ove nedelje kod proizvođača koje pratite:": "This week from the producers you follow:",
+    "Novi proizvodi: :list": "New products: :list",
+    "Nove priče i recepti: :list": "New stories and recipes: :list",
+    "…i još :count proizvođača koje pratite.": "…and :count more producers you follow.",
+    "i još :count": "and :count more",
+    "Šta je sada u sezoni": "What is in season now",
+    "Ne želite nedeljni pregled? [Isključite ga ovde](:url).": "Do not want the weekly digest? [Turn it off here](:url).",
+    "Nedeljni pregled": "Weekly digest",
+    "Isključiti nedeljni pregled?": "Turn off the weekly digest?",
+    "Više vam nećemo slati nedeljni mejl o novostima kod proizvođača koje pratite. Obaveštenja na sajtu ostaju.": "We will no longer send you the weekly e-mail about the producers you follow. Notifications on the site stay.",
+    "Nedeljni pregled je isključen": "The weekly digest is off",
+    "Novosti ćete i dalje videti u obaveštenjima na sajtu. Pregled možete ponovo da uključite u podešavanjima profila.": "You will still see the news in your notifications on the site. You can turn the digest back on in your profile settings.",
+    "Nedeljni pregled od proizvođača koje pratim": "Weekly digest from the producers I follow",
+    "Jednom nedeljno, i samo kad neko koga pratite doda proizvod, priču ili recept.": "Once a week, and only when someone you follow adds a product, a story or a recipe.",
+    "Mejlovi koje šaljemo": "E-mails we send",
+    "Šaljemo mejl za potvrdu adrese i promenu lozinke, obaveštenje o novoj poruci, vest da je proizvod koji čekate stigao i — ako pratite nekog proizvođača — nedeljni pregled onoga što je dodao. Mejlove o porukama i nedeljni pregled isključujete u podešavanjima profila ili linkom na dnu svakog takvog mejla.": "We send an e-mail to confirm your address and to change your password, a notice of a new message, word that a product you are waiting for has arrived and — if you follow a producer — a weekly digest of what they added. You turn off message e-mails and the weekly digest in your profile settings or with the link at the bottom of each such e-mail."
 }

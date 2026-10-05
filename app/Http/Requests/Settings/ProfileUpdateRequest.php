@@ -33,6 +33,7 @@ class ProfileUpdateRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
             'notify_messages_by_email' => ['sometimes', 'boolean'],
+            'notify_weekly_digest' => ['sometimes', 'boolean'],
         ];
     }
 }

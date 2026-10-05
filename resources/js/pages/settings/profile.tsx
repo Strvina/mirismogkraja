@@ -46,6 +46,7 @@ export default function Profile({
         address: string;
         city: string;
         notify_messages_by_email: boolean;
+        notify_weekly_digest: boolean;
     }>({
         name: auth.user.name,
         email: auth.user.email,
@@ -53,6 +54,7 @@ export default function Profile({
         address: auth.user.address ?? '',
         city: auth.user.city ?? '',
         notify_messages_by_email: auth.user.notify_messages_by_email,
+        notify_weekly_digest: auth.user.notify_weekly_digest,
     });
 
     const submit: FormEventHandler = (e) => {
@@ -207,6 +209,21 @@ export default function Profile({
                                 <span className="text-sm font-medium">{t('Mejl kad dobijem novu poruku')}</span>
                                 <span className="text-muted-foreground text-xs">
                                     {t('Najviše jedan mejl po prepisci na nekoliko sati, i samo dok poruku ne pročitate na sajtu.')}
+                                </span>
+                            </span>
+                        </label>
+
+                        <label htmlFor="notify_weekly_digest" className="flex cursor-pointer items-start gap-3">
+                            <Checkbox
+                                id="notify_weekly_digest"
+                                checked={data.notify_weekly_digest}
+                                onCheckedChange={(checked) => setData('notify_weekly_digest', checked === true)}
+                                className="mt-0.5"
+                            />
+                            <span className="grid gap-1">
+                                <span className="text-sm font-medium">{t('Nedeljni pregled od proizvođača koje pratim')}</span>
+                                <span className="text-muted-foreground text-xs">
+                                    {t('Jednom nedeljno, i samo kad neko koga pratite doda proizvod, priču ili recept.')}
                                 </span>
                             </span>
                         </label>

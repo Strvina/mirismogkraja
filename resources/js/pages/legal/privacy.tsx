@@ -46,6 +46,15 @@ export default function Privacy() {
                 </section>
 
                 <section className="mt-10 space-y-4 leading-7">
+                    <h2 className="font-serif text-2xl">{t('Mejlovi koje šaljemo')}</h2>
+                    <p className="text-muted-foreground">
+                        {t(
+                            'Šaljemo mejl za potvrdu adrese i promenu lozinke, obaveštenje o novoj poruci, vest da je proizvod koji čekate stigao i — ako pratite nekog proizvođača — nedeljni pregled onoga što je dodao. Mejlove o porukama i nedeljni pregled isključujete u podešavanjima profila ili linkom na dnu svakog takvog mejla.',
+                        )}
+                    </p>
+                </section>
+
+                <section className="mt-10 space-y-4 leading-7">
                     <h2 className="font-serif text-2xl">{t('Brisanje naloga')}</h2>
                     <p className="text-muted-foreground">
                         {t(

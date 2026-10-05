@@ -27,6 +27,8 @@ Accounts. A user can be a buyer, the owner of one or more producers (seller), an
 | `blocked_at` | datetime | yes |  |
 | `deleted_at` | datetime | yes |  |
 | `notify_messages_by_email` | tinyint(1) |  |  |
+| `notify_weekly_digest` | tinyint(1) |  | wants the weekly e-mail about producers they follow (default on) |
+| `digest_sent_at` | datetime | yes | when the last weekly digest went out to them |
 | `locale` | string | yes |  |
 | `google_id` | string | yes | Google's permanent id for the account, when it signs in with Google |
 

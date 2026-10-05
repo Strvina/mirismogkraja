@@ -44,5 +44,9 @@ Schedule::call(fn () => app(ProducerPause::class)->resumeDue())
 // "You have a message" e-mails, for messages unread for a few minutes.
 Schedule::command('messages:email-unread')->everyFiveMinutes()->withoutOverlapping();
 
+// What followed producers added this week. Thursday morning: in time to
+// plan the weekend's market.
+Schedule::command('digest:send-weekly')->weeklyOn(4, '09:00')->withoutOverlapping();
+
 // "Javi mi kad stigne": products back in stock or in season.
 Schedule::command('products:send-alerts')->hourly()->withoutOverlapping();

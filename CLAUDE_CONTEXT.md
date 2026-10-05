@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 126).
+Poslednja izmena: 2026-10-05 (posle zadatka 127).
 
 ## 1. Šta je ovo
 
@@ -81,7 +81,7 @@ deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 priča, potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
-mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), čišćenje logova i obaveštenja.
+mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), nedeljni pregled pratiocima (četvrtak 09:00), čišćenje logova i obaveštenja.
 
 ## 6. Poslovna pravila
 
@@ -114,6 +114,10 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   ostaju javni, ali se ne može započeti **nov** razgovor; postojeći teku dalje. Sa datumom povratka pauza
   prestaje sama (i pre noćnog posla). Kad prestane, obaveštavaju se pratioci („Javi mi kad se vrati" je
   praćenje proizvođača).
+- **Nedeljni pregled** (`digest:send-weekly`): ide samo onome ko prati proizvođača koji je te nedelje
+  objavio proizvod, priču ili recept; nikad prazan i najviše jedan nedeljno. Podrazumevano uključen
+  (`users.notify_weekly_digest`), gasi se u profilu ili potpisanim linkom iz mejla. Nazivi koje pišu
+  proizvođači se u mejlu eskejpuju (mejl se renderuje iz Markdown-a).
 - **Stranice mesta** (`/mesto/{slug}`, `/mesto/{slug}/{kategorija}`, servis `Places`): nema tabele mesta.
   Mesto su svi načini pisanja grada koji daju isti slug („Niš" i „Nis"), i postoji samo dok se iz njega
   prodaje bar jedan objavljen proizvod; kombinacija mesto+kategorija bez proizvoda je 404. Keš 10 min.
@@ -134,7 +138,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 ## 8. Odluke i razlozi
 
 - **Jedna klasa obaveštenja**, čuva tip i činjenice, a rečenica se sastavlja pri čitanju, na jeziku
-  čitaoca. Mejlom idu samo: reset lozinke, potvrda adrese, nepročitane poruke, „stiglo je".
+  čitaoca. Mejlom idu samo: reset lozinke, potvrda adrese, nepročitane poruke, „stiglo je" i nedeljni pregled.
 - **Bez queue workera:** sporedni poslovi idu posle odgovora (`afterResponse`, `defer`), da sajt
   radi na najjeftinijem serveru.
 - **Slike** kroz `App\Support\Media` (disk `MEDIA_DISK`, umanjene kopije u `thumbs/`, EXIF rotacija).
