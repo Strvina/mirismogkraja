@@ -168,8 +168,11 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 - Google prijava je testirana samo sa lažnim odgovorom; pravi ključevi još ne postoje.
 - Katalog nije u mapi sajta; priče nemaju dugme „Prijavi".
 - Lokalni PHP nema GD (bez umanjenih kopija slika) ni zip.
-- `SubscriptionService::planFor` bira članarinu sa najdaljim krajem, pa uz poklonjeni Premium posle
-  plaćenog Pro-a može da prikaže Premium. Pogodnosti (`hasFeature`) se računaju ispravno.
+- **Otvoreno pitanje za vlasnika (članarine):** članarina plaćena ili poklonjena dok druga još traje
+  dobija početak tek kad tekuća istekne, ali se računa kao aktivna odmah (`scopeActive` gleda samo
+  kraj). Zato prelazak sa Basic na Premium daje Premium pogodnosti od danas do kraja oba perioda, a
+  `planFor` može da prikaže plan sa najdaljim krajem umesto onog koji trenutno teče. Ne menjati bez
+  odluke: da li viši paket počinje odmah, a samo obnova istog čeka na kraj tekućeg.
 - Uslovi korišćenja i politika privatnosti nisu pravno pregledani.
 
 ## 12. TODO
