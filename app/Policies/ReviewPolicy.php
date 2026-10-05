@@ -37,11 +37,13 @@ class ReviewPolicy
             return false;
         }
 
-        return ProducerMessage::query()
-            ->where('producer_id', $producer->id)
-            ->where('buyer_id', $user->id)
-            ->where('sender_id', $producer->user_id)
-            ->exists();
+        $thread = ProducerMessage::query()->where('producer_id', $producer->id)->where('buyer_id', $user->id);
+
+        // Both have to have written. A producer can now write first, in
+        // answer to a "Tražim" ad, and that alone is an offer, not a deal:
+        // the buyer has to have answered it.
+        return (clone $thread)->where('sender_id', $producer->user_id)->exists()
+            && (clone $thread)->where('sender_id', $user->id)->exists();
     }
 
     /** The producer reviewed answers in public, once the review is. */

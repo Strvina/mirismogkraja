@@ -40,6 +40,11 @@ return [
         'published' => ['title' => 'Ваш отзыв опубликован', 'body' => 'Отзыв о «:producer» теперь виден всем.'],
     ],
 
+    'wanted' => [
+        'posted' => ['title' => 'Покупатель ищет: :title', 'body' => 'Вы продаёте в этой категории. Напишите ему, пока объявление открыто.'],
+        'blocked' => ['title' => 'Объявление снято с сайта', 'body' => 'Администратор снял «:title» с сайта. Свяжитесь с нами, если считаете это ошибкой.'],
+    ],
+
     'post' => [
         'published' => ['title' => 'У :producer новая история', 'body' => '«:title» только что опубликовано.'],
         'blocked' => ['title' => 'Публикация снята с сайта', 'body' => 'Администратор снял «:title» с сайта. Свяжитесь с нами, если считаете это ошибкой.'],
@@ -83,6 +88,7 @@ return [
         'campaign-requested' => ['title' => 'Новая заявка на кампанию', 'body' => '«:producer» — :campaign, :amount RSD, номер платежа :reference.'],
         'review-pending' => ['title' => 'Новый отзыв ждёт одобрения', 'body' => 'О «:producer», оценка :rating/5.'],
         'report-opened' => ['title' => 'Новая жалоба', 'body' => ':subject — :reason_label.'],
+        'wanted-posted' => ['title' => 'Новое объявление «Ищу»', 'body' => ':author — :title.'],
         'change-requested' => ['title' => 'Запрос на изменение названия', 'body' => '«:current» хочет называться «:requested».'],
     ],
 ];

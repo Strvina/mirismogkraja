@@ -52,6 +52,7 @@ class SitemapController extends Controller
             ['loc' => route('marketplace.producers.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.products.index'), 'priority' => '0.9', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.posts.index'), 'priority' => '0.7', 'changefreq' => 'daily'],
+            ['loc' => route('wanted.index'), 'priority' => '0.6', 'changefreq' => 'daily'],
             ['loc' => route('marketplace.founding'), 'priority' => '0.5', 'changefreq' => 'weekly'],
             // Categories with something in them.
             ...Category::query()

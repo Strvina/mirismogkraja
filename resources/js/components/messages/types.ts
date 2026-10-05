@@ -7,6 +7,9 @@ export interface Message {
     // Set only on a message sent from a product page, so the reader can see
     // which listing the question was about.
     product: { id: number; name: string; slug: string; price: string; unit: string; image: string | null } | null;
+    // Set only on a producer's answer to a "Tražim" ad, so the buyer can see
+    // which of their ads it answers.
+    wanted_ad?: { id: number; title: string } | null;
 }
 
 /**

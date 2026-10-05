@@ -110,7 +110,7 @@ class ProducerMessageController extends Controller
             // "older messages" therefore means the next page.
             'messages' => tap(ProducerMessage::thread($producer, $buyer)
                 // Only each product's main photo: the thread shows one.
-                ->with(['sender:id,name,avatar_path', 'product:id,name,slug,price,unit', 'product.images' => fn ($images) => $images->orderBy('order')->limit(1)])
+                ->with(['sender:id,name,avatar_path', 'wantedAd:id,title', 'product:id,name,slug,price,unit', 'product.images' => fn ($images) => $images->orderBy('order')->limit(1)])
                 ->latest('id')
                 // Simple pagination: the page only needs to know whether
                 // there are older messages, and the thread is re-read every
@@ -134,6 +134,8 @@ class ProducerMessageController extends Controller
                         'unit' => $message->product->unit,
                         'image' => $message->product->images->first()?->path,
                     ],
+                    // A producer's answer to a "Tražim" ad says which one.
+                    'wanted_ad' => $message->wantedAd?->only(['id', 'title']),
                 ]), fn (Paginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
         ]);
     }

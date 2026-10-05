@@ -40,6 +40,11 @@ return [
         'published' => ['title' => 'Your review has been published', 'body' => 'Your review of “:producer” is now visible to everyone.'],
     ],
 
+    'wanted' => [
+        'posted' => ['title' => 'A buyer is looking for: :title', 'body' => 'You sell in that category. Write to them while the ad is open.'],
+        'blocked' => ['title' => 'An ad has been taken down', 'body' => 'An administrator has taken “:title” off the site. Contact us if you think this is a mistake.'],
+    ],
+
     'post' => [
         'published' => ['title' => ':producer has a new story', 'body' => '“:title” has just been published.'],
         'blocked' => ['title' => 'A post has been taken down', 'body' => 'An administrator has taken “:title” off the site. Contact us if you think this is a mistake.'],
@@ -83,6 +88,7 @@ return [
         'campaign-requested' => ['title' => 'New campaign sign-up', 'body' => '“:producer” — :campaign, :amount RSD, reference :reference.'],
         'review-pending' => ['title' => 'New review awaiting approval', 'body' => 'About “:producer”, rating :rating/5.'],
         'report-opened' => ['title' => 'New problem report', 'body' => ':subject — :reason_label.'],
+        'wanted-posted' => ['title' => 'New “Looking for” ad', 'body' => ':author — :title.'],
         'change-requested' => ['title' => 'Name change request', 'body' => '“:current” wants to be called “:requested”.'],
     ],
 ];

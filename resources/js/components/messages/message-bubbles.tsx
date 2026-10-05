@@ -48,6 +48,20 @@ export function MessageBubble({ message }: { message: Message }) {
                 className={cn('max-w-[85%] rounded-lg px-4 py-3 text-sm leading-6', message.mine ? 'bg-primary text-primary-foreground' : 'bg-muted')}
             >
                 {message.product && <ProductPreview product={message.product} mine={message.mine} />}
+                {message.wanted_ad && (
+                    <Link
+                        href={route('wanted.show', message.wanted_ad.id)}
+                        className={cn(
+                            'mb-2 block rounded-md border px-3 py-2 text-xs',
+                            message.mine ? 'border-primary-foreground/25 bg-primary-foreground/10' : 'border-border bg-background',
+                        )}
+                    >
+                        <span className={cn('block', message.mine ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                            {t('Odgovor na oglas')}
+                        </span>
+                        <span className="block truncate text-sm font-medium underline underline-offset-2">{message.wanted_ad.title}</span>
+                    </Link>
+                )}
                 <p className="whitespace-pre-line">{message.body}</p>
                 <p className={cn('mt-1.5 text-[0.65rem]', message.mine ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
                     {message.sender.name} · {formatRelativeTime(message.created_at)}

@@ -219,9 +219,44 @@ Messages between a buyer and a producer. A conversation is the pair (`producer_i
 | `created_at` | datetime | yes |  |
 | `updated_at` | datetime | yes |  |
 | `product_id` | integer | yes | → products.id (set null) |
+| `wanted_ad_id` | integer | yes | → wanted_ads.id (set null); set on a producer's answer to a "Tražim" ad |
 | `emailed_at` | datetime | yes |  |
 
 Indexes: (read_at, emailed_at, created_at); (producer_id, read_at); (buyer_id, read_at); (producer_id, buyer_id, created_at)
+
+## wanted_ads
+
+"Tražim": what a buyer is looking for, for producers to answer. `status` is open, closed (by the author) or blocked (by an admin). Shown while open and before `expires_at` (30 days). At most 3 open per person.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `user_id` | integer |  | → users.id (cascade) |
+| `category_id` | integer | yes | → categories.id (set null); producers selling in it are notified |
+| `title` | string |  | 120 |
+| `body` | text |  |  |
+| `quantity` | string | yes | free text, 60 |
+| `city` | string | yes |  |
+| `status` | string |  | open, closed, blocked |
+| `expires_at` | datetime |  |  |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: (status, expires_at); (user_id, status)
+
+## wanted_ad_responses
+
+That a producer has answered a "Tražim" ad. The answer itself is a row in `producer_messages`; this keeps it to one per producer per ad.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `wanted_ad_id` | integer |  | → wanted_ads.id (cascade) |
+| `producer_id` | integer |  | → producers.id (cascade) |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: unique (wanted_ad_id, producer_id)
 
 ## quick_replies
 

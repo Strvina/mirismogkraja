@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\SearchMissController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\WantedAdController;
 use App\Http\Controllers\Admin\WeeklyPickController;
 use App\Support\PaidItems;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/price', [PostController::class, 'index'])->name('posts.index');
     Route::patch('/price/{post}/status', [PostController::class, 'updateStatus'])->name('posts.status');
     Route::delete('/price/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+    Route::get('/oglasi', [WantedAdController::class, 'index'])->name('wanted.index');
+    Route::patch('/oglasi/{ad}/status', [WantedAdController::class, 'updateStatus'])->name('wanted.status');
+    Route::delete('/oglasi/{ad}', [WantedAdController::class, 'destroy'])->name('wanted.destroy');
 
     Route::get('/preporuke', [ReferralController::class, 'index'])->name('referrals.index');
 

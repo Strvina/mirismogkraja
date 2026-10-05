@@ -54,6 +54,7 @@ class NotificationCoverageTest extends TestCase
             'admin.certificate-pending', 'post.published', 'post.blocked', 'admin.post-published',
             'admin.producer-pending', 'admin.membership-requested', 'admin.boost-requested', 'admin.campaign-requested',
             'admin.review-pending', 'admin.report-opened', 'admin.change-requested',
+            'wanted.posted', 'wanted.blocked', 'admin.wanted-posted',
         ];
 
         foreach ($types as $type) {
