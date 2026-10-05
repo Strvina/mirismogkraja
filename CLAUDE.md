@@ -1,5 +1,11 @@
 # Projekat: Vrelina juga – marketplace za domaćinstva
 
+## Prvo pročitaj
+Pre svakog zadatka pročitaj `CLAUDE_CONTEXT.md`: stanje projekta, modeli, poslovna pravila, donete
+odluke i šta je ostalo. Odatle utvrdi gde treba raditi, pa čitaj samo fajlove koji su bitni za
+zadatak - ne analiziraj ceo projekat iznova. Posle svake značajne izmene (baza, dozvole, poslovna
+pravila, arhitektura, nova funkcionalnost) odmah ispravi taj fajl: zastarelo zameni, ne dopisuj.
+
 ## Šta je ovo
 Saas platforma koja promoviše male proizvođače i poljoprivredna gazdinstva i povezuje ih direktno sa
 kupcima. **Nije prodavnica**: nema korpe ni plaćanja na sajtu - kupac pošalje upit, a dogovor ide u
