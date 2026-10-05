@@ -6,6 +6,7 @@ import { Link, usePage } from '@inertiajs/react';
 const sidebarNavItems: NavItem[] = [
     { title: tx('Profil'), url: '/settings/profile', icon: null },
     { title: tx('Lozinka'), url: '/settings/password', icon: null },
+    { title: tx('Dvostruka potvrda'), url: '/settings/two-factor', icon: null },
     { title: tx('Izgled'), url: '/settings/appearance', icon: null },
 ];
 

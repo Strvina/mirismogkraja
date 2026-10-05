@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\AuthRedirectService;
 use App\Services\GoogleAuthService;
 use App\Services\ReferralService;
+use App\Services\TwoFactor;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,7 +42,7 @@ class GoogleController extends Controller
     }
 
     /** Google has sent the visitor back, with a code or with a refusal. */
-    public function callback(Request $request, GoogleAuthService $accounts, AuthRedirectService $redirects, ReferralService $referrals): RedirectResponse
+    public function callback(Request $request, GoogleAuthService $accounts, AuthRedirectService $redirects, ReferralService $referrals, TwoFactor $twoFactor): RedirectResponse
     {
         abort_unless(GoogleAuthService::enabled(), 404);
 
@@ -69,6 +70,12 @@ class GoogleController extends Controller
             // The same two steps as registering with a password.
             $referrals->attach($user, $request);
             event(new Registered($user));
+        }
+
+        // Google vouches for the address, not for the phone: an account
+        // with two-step sign-in still owes its code.
+        if ($user->hasTwoFactor()) {
+            return $twoFactor->challenge($request, $user, remember: true);
         }
 
         Auth::login($user, remember: true);

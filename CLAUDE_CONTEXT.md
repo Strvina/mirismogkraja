@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 130).
+Poslednja izmena: 2026-10-06 (posle zadatka 131).
 
 ## 1. Šta je ovo
 
@@ -139,6 +139,10 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Sve što pripada proizvođaču (pijace, brzi odgovori, sertifikati, objave, slike) proverava
   `authorize('update', $producer)` **i** da red pripada baš tom proizvođaču (inače 404).
 - Blokiran nalog se ne prijavljuje (`EnsureUserIsNotBlocked`).
+- **Dvostruka potvrda prijave** (TOTP, `pragmarx/google2fa`, servis `TwoFactor`): neobavezna, uključuje se u
+  „Moj nalog" u dva koraka (tajna važi tek kad je potvrdi prvi kod). Dok kod nije unet, sesija ne postoji -
+  ni posle lozinke ni posle Google prijave. Kod važi jednom; 8 rezervnih kodova; isključivanje traži lozinku.
+  Admin panel podseća admina koji je nema.
 - Admin rute nisu u Ziggy listi za ne-admine; zato prijava/odjava admina radi pun reload strane.
 
 ## 8. Odluke i razlozi

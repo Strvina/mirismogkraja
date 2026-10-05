@@ -17,15 +17,18 @@ use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('admin/dashboard', [
+            // The panel reminds an admin who signs in with a password alone.
+            'twoFactorEnabled' => $request->user()->hasTwoFactor(),
             'stats' => [
                 'users' => User::count(),
                 'producers' => Producer::count(),

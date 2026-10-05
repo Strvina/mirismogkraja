@@ -41,9 +41,30 @@ class LoginRequest extends FormRequest
      */
     public function authenticate(): void
     {
+        Auth::login($this->validateCredentials(), $this->boolean('remember'));
+    }
+
+    /**
+     * The account the e-mail and password belong to, without signing it
+     * in: an account with two-step sign-in still owes a code, and must not
+     * hold a session until it has given one.
+     *
+     * The same checks, in the same order, as signing in outright - rate
+     * limit, credentials, block.
+     *
+     * @throws ValidationException
+     */
+    public function validateCredentials(): User
+    {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $provider = Auth::guard('web')->getProvider();
+        $credentials = $this->only('email', 'password');
+
+        /** @var User|null $user */
+        $user = $provider->retrieveByCredentials($credentials);
+
+        if ($user === null || ! $provider->validateCredentials($user, $credentials)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -53,16 +74,15 @@ class LoginRequest extends FormRequest
 
         RateLimiter::clear($this->throttleKey());
 
-        /** @var User $user */
-        $user = Auth::user();
-
         if ($user->isBlocked()) {
-            Auth::logout();
-
             throw ValidationException::withMessages([
                 'email' => __('Ovaj nalog je blokiran.'),
             ]);
         }
+
+        $provider->rehashPasswordIfRequired($user, $credentials);
+
+        return $user;
     }
 
     /**

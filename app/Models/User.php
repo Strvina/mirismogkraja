@@ -69,6 +69,9 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         'password',
         'remember_token',
         'google_id',
+        // The signed-in user is sent to every page; these never are.
+        'two_factor_secret',
+        'two_factor_recovery_codes',
     ];
 
     /**
@@ -96,6 +99,9 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'notify_messages_by_email' => 'boolean',
             'notify_weekly_digest' => 'boolean',
             'digest_sent_at' => 'datetime',
+            'two_factor_secret' => 'encrypted',
+            'two_factor_recovery_codes' => 'encrypted:array',
+            'two_factor_confirmed_at' => 'datetime',
         ];
     }
 
@@ -108,6 +114,12 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     public function isBlocked(): bool
     {
         return $this->blocked_at !== null;
+    }
+
+    /** Signing in asks for a code from their authenticator app as well. */
+    public function hasTwoFactor(): bool
+    {
+        return $this->two_factor_confirmed_at !== null && $this->two_factor_secret !== null;
     }
 
     public function producers(): HasMany

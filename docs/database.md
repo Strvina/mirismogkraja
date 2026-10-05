@@ -29,6 +29,9 @@ Accounts. A user can be a buyer, the owner of one or more producers (seller), an
 | `notify_messages_by_email` | tinyint(1) |  |  |
 | `notify_weekly_digest` | tinyint(1) |  | wants the weekly e-mail about producers they follow (default on) |
 | `digest_sent_at` | datetime | yes | when the last weekly digest went out to them |
+| `two_factor_secret` | text | yes | authenticator secret, encrypted |
+| `two_factor_recovery_codes` | text | yes | recovery codes, encrypted; each is removed when used |
+| `two_factor_confirmed_at` | datetime | yes | set once the owner typed a code from the app; only then is a code asked at sign-in |
 | `locale` | string | yes |  |
 | `google_id` | string | yes | Google's permanent id for the account, when it signs in with Google |
 
