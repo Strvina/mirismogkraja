@@ -25,8 +25,8 @@ Everything below is configuration: the code already supports each step.
 | Sign | Change |
 |---|---|
 | Many visitors at the same time, slow pages | Redis for `CACHE_STORE`, `SESSION_DRIVER` and `QUEUE_CONNECTION`. `REDIS_CLIENT=predis` needs no PHP extension. |
-| More than one web server | `MEDIA_DISK=s3` (`composer require league/flysystem-aws-s3-v3`, set `AWS_*`), copy existing files to the bucket, and use Redis for sessions and cache so every server shares them. |
-| A queue worker is available | Follower notifications (`NotifyFollowersOfProduct`) can go to the queue instead of running after the response: change `->afterResponse()` to a plain `dispatch`. |
+| More than one web server | `MEDIA_DISK=s3` (`composer require league/flysystem-aws-s3-v3`, set `AWS_*`), copy existing files to the bucket, and use Redis for sessions and cache so every server shares them. Certificate documents are on the private `local` disk (`ProducerCertificate::DISK`): point that constant at a private bucket too, or keep `storage/app/private` on shared storage. |
+| A queue worker is available | Follower notifications (`NotifyFollowersOfProduct`, `NotifyFollowersOfPost`) can go to the queue instead of running after the response: change `->afterResponse()` to a plain `dispatch`. |
 | Images are a large share of traffic | Put a CDN in front of the bucket. `Media::baseUrl()` follows the disk's URL. |
 
 ## What already scales by design

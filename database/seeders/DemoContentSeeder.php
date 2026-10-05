@@ -5,9 +5,14 @@ namespace Database\Seeders;
 use App\Models\Campaign;
 use App\Models\CampaignParticipant;
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Producer;
+use App\Models\ProducerCertificate;
 use App\Models\ProducerMessage;
 use App\Models\Product;
+use App\Models\ProductAlert;
+use App\Models\QuickReply;
+use App\Models\Referral;
 use App\Models\Review;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
@@ -21,6 +26,8 @@ use App\Support\PaymentReference;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DemoContentSeeder extends Seeder
 {
@@ -101,6 +108,88 @@ class DemoContentSeeder extends Seeder
         $this->seedNotifications($producers);
         $this->seedMonetisation($producers);
         $this->seedStatistics($producers);
+        $this->seedProducerExtras($producers, $buyers);
+    }
+
+    /**
+     * What a producer adds around their products, so each of those screens
+     * has something on it: where they sell in person, a story and a recipe,
+     * saved answers, a certificate that has been checked and one that waits,
+     * a buyer waiting for something that is sold out, and a referral.
+     *
+     * @param  list<Producer>  $producers
+     * @param  list<User>  $buyers
+     */
+    private function seedProducerExtras(array $producers, array $buyers): void
+    {
+        [$farm, $dairy, $apiary] = $producers;
+
+        $farm->markets()->createMany([
+            ['name' => 'Zelena pijaca Leskovac, tezga 14', 'city' => 'Leskovac', 'days' => [3, 6], 'opens_at' => '06:30', 'closes_at' => '13:00'],
+            ['name' => 'Pijaca Tvrđava', 'city' => 'Niš', 'days' => [7], 'opens_at' => '07:00', 'closes_at' => '12:00', 'note' => 'Samo nedeljom, od maja do oktobra.'],
+        ]);
+        $apiary->markets()->create(['name' => 'Pijaca Kalča', 'city' => 'Niš', 'days' => [1, 2, 3, 4, 5, 6, 7], 'opens_at' => '08:00', 'closes_at' => '15:00']);
+
+        $posts = [
+            [$farm, Post::TYPE_STORY, 'Kako se suši leskovačka pršuta', 'Meso solimo ručno, krupnom solju, i ostavljamo ga da odleži dve nedelje pre nego što ode na dim. Sušimo ga na bukovom drvetu, polako, bez žurbe - prava pršuta ne zna za prečice. Posle dima sledi promaja na tavanu, gde stoji najmanje četiri meseca. Tek tada je spremna za sečenje i za vaš sto.', null],
+            [$dairy, Post::TYPE_RECIPE, 'Proja sa mladim sirom', "Umutite jaja, dodajte jogurt i ulje, pa polako umešajte kukuruzno brašno i prašak za pecivo. Sir izmrvite rukom i dodajte na kraju, da ostanu krupni komadi.\n\nSipajte u podmazan pleh i pecite na 200 stepeni oko 35 minuta, dok ne porumeni. Najbolja je topla, uz kiselo mleko.", "3 jaja\n400 ml jogurta\n100 ml ulja\n300 g kukuruznog brašna\n1 prašak za pecivo\n300 g mladog sira\nso"],
+            [$apiary, Post::TYPE_STORY, 'Zašto se pravi med kristališe', 'Kupci nas često pitaju da li je med koji se stegao pokvaren. Naprotiv: kristalizacija je znak da je med prirodan i da nije pregrevan. Livadski med se stegne za nekoliko meseci, bagremov ostaje tečan i duže od godinu dana. Ako vam više odgovara tečan, zagrejte teglu u toploj vodi, nikako iznad 40 stepeni.', null],
+        ];
+
+        foreach ($posts as $index => [$producer, $type, $title, $body, $ingredients]) {
+            $post = $producer->posts()->create([
+                'type' => $type,
+                'title' => $title,
+                'slug' => Str::slug($title),
+                'body' => $body,
+                'excerpt' => Post::excerptFrom($body),
+                'ingredients' => $ingredients,
+                'cover_image_path' => self::DEMO_IMAGE,
+                'product_id' => $producer->products()->where('status', 'active')->value('id'),
+                'status' => Post::STATUS_PUBLISHED,
+            ]);
+            $post->forceFill(['published_at' => now()->subDays($index * 3 + 1)])->save();
+        }
+
+        foreach (QuickReply::STARTERS as $title => $body) {
+            $farm->quickReplies()->create(['title' => $title, 'body' => $body]);
+        }
+
+        // A placeholder document each on the private disk, so "Preuzmi
+        // dokument" works and deleting one leaves the other.
+        $document = function (string $name): string {
+            Storage::disk(ProducerCertificate::DISK)->put($path = "certificates/demo-{$name}.pdf", "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n");
+
+            return $path;
+        };
+
+        $apiary->certificates()->create([
+            'type' => 'organic', 'title' => 'Sertifikat za organsku proizvodnju meda', 'issuer' => 'Organic Control System',
+            'issued_on' => now()->subMonths(4), 'expires_on' => now()->addMonths(8),
+            'file_path' => $document('organski'), 'status' => ProducerCertificate::STATUS_APPROVED, 'reviewed_at' => now()->subMonths(3),
+        ]);
+        $dairy->certificates()->create([
+            'type' => 'registered_farm', 'title' => 'Rešenje o upisu u Registar poljoprivrednih gazdinstava',
+            'file_path' => $document('gazdinstvo'), 'status' => ProducerCertificate::STATUS_PENDING,
+        ]);
+
+        // "Čeka vas X kupaca" on whatever is sold out.
+        $soldOut = Product::whereIn('producer_id', collect($producers)->pluck('id'))->where('status', 'active')->where('stock_quantity', 0)->limit(2)->get();
+
+        foreach ($soldOut as $product) {
+            foreach (array_slice($buyers, 0, 3) as $buyer) {
+                ProductAlert::firstOrCreate(['user_id' => $buyer->id, 'product_id' => $product->id]);
+            }
+        }
+
+        // One producer came on another's recommendation.
+        Referral::create([
+            'referrer_producer_id' => $farm->id,
+            'referred_user_id' => $producers[3]->user_id,
+            'referred_producer_id' => $producers[3]->id,
+            'status' => Referral::STATUS_REWARDED,
+            'rewarded_at' => now()->subWeeks(2),
+        ]);
     }
 
     /**

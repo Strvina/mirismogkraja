@@ -3,8 +3,12 @@
 namespace Tests\Feature;
 
 use App\Models\Producer;
+use App\Models\ProducerCertificate;
 use App\Models\ProducerMessage;
 use App\Models\Product;
+use App\Models\ProductAlert;
+use App\Models\QuickReply;
+use App\Models\Referral;
 use App\Models\Review;
 use App\Models\User;
 use Database\Seeders\CategoriesSeeder;
@@ -12,11 +16,20 @@ use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DemoContentSeederTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // The demo certificates' placeholder documents, kept off the real disk.
+        Storage::fake(ProducerCertificate::DISK);
+    }
 
     private function seedDemoContent(): void
     {
@@ -63,6 +76,27 @@ class DemoContentSeederTest extends TestCase
 
         $this->assertGreaterThan(0, User::role('buyer')->count());
         $this->assertGreaterThan(0, User::role('seller')->count());
+    }
+
+    /** The screens around a producer's products are not empty either. */
+    public function test_seeder_fills_what_producers_add_around_their_products(): void
+    {
+        $this->seed([RolesSeeder::class, CategoriesSeeder::class, SubscriptionPlansSeeder::class, DemoContentSeeder::class]);
+
+        $apiary = Producer::where('name', 'Pčelinjak Medovina')->sole();
+
+        $this->get(route('marketplace.producers.show', $apiary->slug))->assertInertia(fn ($page) => $page
+            ->has('markets', 1)
+            ->has('certificates', 1)
+            ->has('posts', 1));
+        $this->get(route('marketplace.posts.index'))->assertInertia(fn ($page) => $page->where('posts.total', 3));
+        $this->get('/')->assertInertia(fn ($page) => $page->has('latestPosts', 3));
+        $this->get(route('marketplace.catalog', $apiary->slug))->assertOk();
+
+        $this->assertSame(1, ProducerCertificate::where('status', ProducerCertificate::STATUS_PENDING)->count());
+        $this->assertGreaterThan(0, ProductAlert::count());
+        $this->assertSame(3, QuickReply::count());
+        $this->assertSame(1, Referral::count());
     }
 
     public function test_seeded_conversations_cover_answered_and_waiting_threads(): void
