@@ -9,6 +9,7 @@ use App\Models\User;
 use Database\Seeders\DemoContentSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -50,6 +51,9 @@ class SeedersTest extends TestCase
 
     public function test_a_local_setup_gets_the_demo_content_and_accounts(): void
     {
+        // The demo certificates' placeholder documents, kept off the real disk.
+        Storage::fake('local');
+
         $this->seed();
 
         $this->assertTrue(User::where('email', 'admin@gmail.com')->sole()->hasRole('admin'));

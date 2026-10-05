@@ -30,6 +30,8 @@ const env = {
     MAIL_MAILER: 'log',
     TURNSTILE_SITE_KEY: '',
     TURNSTILE_SECRET_KEY: '',
+    GOOGLE_CLIENT_ID: '',
+    GOOGLE_CLIENT_SECRET: '',
     VAPID_PUBLIC_KEY: '',
     VAPID_PRIVATE_KEY: '',
     SENTRY_LARAVEL_DSN: '',

@@ -12,10 +12,10 @@ potvrđuje uplatu.
 
 | Uloga | Šta može |
 | --- | --- |
-| **Posetilac** | Pretraga i filteri proizvoda i proizvođača, stranice kategorija, mapa i „Najbliži meni“, profili proizvođača, na srpskom, engleskom ili ruskom |
-| **Kupac** | Upit sa stranice proizvoda i dopisivanje, praćenje proizvođača, sačuvani proizvodi, „Javi mi kad stigne“, utisak o proizvođaču (tek kad mu se proizvođač javi), prijava problema |
-| **Proizvođač** | Svoja stranica i proizvodi (slike, sezona, zalihe), odgovori kupcima i na utiske, statistika, QR poster za tezgu, članarina, isticanje i kampanje |
-| **Admin** | Odobravanje proizvođača, moderacija utisaka, prijava i proizvoda, potvrda uplata, cene i paketi, proizvođač nedelje, log aktivnosti |
+| **Posetilac** | Pretraga i filteri proizvoda i proizvođača, stranice kategorija, mapa i „Najbliži meni“, profili proizvođača sa pijacama i sertifikatima, katalog sa cenama za deljenje, priče i recepti, na srpskom, engleskom ili ruskom |
+| **Kupac** | Nalog e-mailom ili preko Google naloga, upit sa stranice proizvoda i dopisivanje, praćenje proizvođača, sačuvani proizvodi, „Javi mi kad stigne“, utisak o proizvođaču (tek kad mu se proizvođač javi), prijava problema |
+| **Proizvođač** | Svoja stranica i proizvodi (slike, sezona, zalihe), odgovori kupcima (i sačuvani brzi odgovori) i na utiske, statistika, „čeka vas X kupaca“, pijace na kojima prodaje, sertifikati, priče i recepti, katalog za Viber, preporuke sa nagradom, QR poster za tezgu, članarina, isticanje i kampanje |
+| **Admin** | Odobravanje proizvođača, provera sertifikata, moderacija utisaka, prijava, proizvoda i priča, pregled preporuka, potvrda uplata, cene i paketi, proizvođač nedelje, log aktivnosti |
 
 Uloge se mogu kombinovati: proizvođač je i kupac kod drugih.
 

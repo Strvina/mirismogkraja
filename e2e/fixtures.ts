@@ -32,6 +32,8 @@ export { expect };
 /** Demo accounts from DemoContentSeeder. */
 export const accounts = {
     buyer: { email: 'marko@example.com', password: 'password' },
+    /** Owner of "Domaćinstvo Nićić": markets, quick replies and a story of its own. */
+    producer: { email: 'nicic@example.com', password: 'password' },
     admin: { email: 'admin@gmail.com', password: 'admin' },
 };
 
