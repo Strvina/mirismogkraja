@@ -25,10 +25,11 @@ import SearchBox from './search-box';
  * section is underlined rather than merely coloured, so it survives at a
  * glance and without relying on colour alone.
  *
- * Below md the inline links and icon row would wrap onto several rows, so
- * they collapse into the account menu (or, for guests, a small menu of their
- * own) instead; messages keep their own button there since a waiting reply is
- * the one thing people check mid-browse.
+ * Below lg the inline links and icon row do not fit on one row - at tablet
+ * width the longest label wrapped and the account button was pushed off the
+ * edge - so they collapse into the account menu (or, for guests, a small
+ * menu of their own) instead; messages keep their own button there since a
+ * waiting reply is the one thing people check mid-browse.
  */
 /**
  * How often a signed-in visitor's badges re-check. One request for both
@@ -74,7 +75,7 @@ export default function Navbar() {
             <div className="mx-auto flex h-16 max-w-[1380px] items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
                 <Brand />
 
-                <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm md:flex" aria-label={t('Glavna navigacija')}>
+                <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm lg:flex" aria-label={t('Glavna navigacija')}>
                     {sections.map((section) => {
                         const active = isActive(section.paths);
 
@@ -122,7 +123,7 @@ export default function Navbar() {
                     <LanguageSwitcher />
                     {auth.user ? (
                         <>
-                            <div className="mr-1 hidden items-center gap-4 md:flex">
+                            <div className="mr-1 hidden items-center gap-4 lg:flex">
                                 <MessagesLink className="text-foreground/70 hover:text-foreground" />
                                 <NotificationsBell className="text-foreground/70 hover:text-foreground" />
                                 <Link
@@ -142,7 +143,7 @@ export default function Navbar() {
                         <>
                             <DropdownMenu open={guestMenuOpen} onOpenChange={setGuestMenuOpen}>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="icon" className="md:hidden" aria-label={t('Meni')}>
+                                    <Button variant="outline" size="icon" className="lg:hidden" aria-label={t('Meni')}>
                                         <MenuIcon open={guestMenuOpen} />
                                     </Button>
                                 </DropdownMenuTrigger>
