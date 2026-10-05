@@ -32,6 +32,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // In the footer of every page, so it comes from one place.
+            'contactEmail' => config('platform.contact_email'),
             // Which language the page is in; the client loads its words.
             'locale' => app()->getLocale(),
             // Where images are served from, and whether new uploads get a

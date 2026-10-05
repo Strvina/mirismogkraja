@@ -1,26 +1,17 @@
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
 import { HowItWorks, linkedSlipId } from '@/components/marketplace/payment-status';
+import PlanCard, { type Plan } from '@/components/marketplace/plan-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
-import { formatDate, formatNumber } from '@/lib/format';
+import { formatDate } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { CalendarCheck, Check, MousePointerClick, ReceiptText } from 'lucide-react';
+import { CalendarCheck, MousePointerClick, ReceiptText } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Članarina'), href: '/clanarina' }];
-
-interface Plan {
-    id: number;
-    name: string;
-    description: string | null;
-    price_rsd: number;
-    duration_days: number;
-    features: string[] | null;
-    level: number;
-}
 
 interface ProducerMembership {
     id: number;
@@ -166,42 +157,15 @@ export default function Memberships({
                             const isCurrent = producer?.current_plan?.id === plan.id && producer?.active;
 
                             return (
-                                <article
-                                    key={plan.id}
-                                    className={cn(
-                                        'flex flex-col rounded-lg border p-5',
-                                        isCurrent ? 'border-olive bg-olive-soft/30' : 'border-border/70',
+                                <PlanCard key={plan.id} plan={plan} featureLabels={featureLabels} highlighted={Boolean(isCurrent)}>
+                                    {isCurrent ? (
+                                        <p className="text-olive text-sm font-medium">{t('Trenutno aktivan')}</p>
+                                    ) : (
+                                        <Button variant={plan.level > 0 ? 'default' : 'outline'} onClick={() => choose(plan.id)}>
+                                            {producer?.active ? t('Pređi na ovaj paket') : t('Izaberi paket')}
+                                        </Button>
                                     )}
-                                >
-                                    <h2 className="font-serif text-2xl">{plan.name}</h2>
-                                    <p className="mt-1 font-serif text-3xl">
-                                        {formatNumber(plan.price_rsd)}{' '}
-                                        <span className="text-muted-foreground font-sans text-sm">{t('RSD / god')}</span>
-                                    </p>
-
-                                    {plan.description && <p className="text-muted-foreground mt-3 text-sm leading-6">{t(plan.description)}</p>}
-
-                                    {plan.features && plan.features.length > 0 && (
-                                        <ul className="mt-4 space-y-2 text-sm">
-                                            {plan.features.map((feature) => (
-                                                <li key={feature} className="flex items-start gap-2">
-                                                    <Check className="text-olive mt-0.5 size-4 shrink-0" />
-                                                    {featureLabels[feature] ?? feature}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-
-                                    <div className="mt-auto pt-5">
-                                        {isCurrent ? (
-                                            <p className="text-olive text-sm font-medium">{t('Trenutno aktivan')}</p>
-                                        ) : (
-                                            <Button variant={plan.level > 0 ? 'default' : 'outline'} onClick={() => choose(plan.id)}>
-                                                {producer?.active ? t('Pređi na ovaj paket') : t('Izaberi paket')}
-                                            </Button>
-                                        )}
-                                    </div>
-                                </article>
+                                </PlanCard>
                             );
                         })}
                     </div>

@@ -1,9 +1,18 @@
 <?php
 
+use App\Http\Controllers\InfoPageController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+Route::controller(InfoPageController::class)->name('info.')->group(function () {
+    Route::get('/kako-radi', 'how')->name('how');
+    Route::get('/za-proizvodjace', 'producers')->name('producers');
+    Route::get('/o-nama', 'about')->name('about');
+    Route::get('/cesta-pitanja', 'faq')->name('faq');
+    Route::get('/kontakt', 'contact')->name('contact');
+});
 
 Route::get('/uslovi-koriscenja', fn () => Inertia::render('legal/terms'))->name('legal.terms');
 Route::get('/politika-privatnosti', fn () => Inertia::render('legal/privacy'))->name('legal.privacy');
