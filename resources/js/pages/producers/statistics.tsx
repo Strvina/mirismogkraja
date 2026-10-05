@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link } from '@inertiajs/react';
-import { Lock } from 'lucide-react';
+import { Download, Lock } from 'lucide-react';
 
 interface Stats {
     days: number;
@@ -188,6 +188,24 @@ export default function ProducerStatistics({
                     <>
                         <Dashboard stats={stats} clickLabels={clickLabels} interactive />
                         <WantedTerms terms={wanted ?? []} interactive />
+
+                        <section className="border-border/70 mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
+                            <div className="max-w-xl">
+                                <h2 className="font-serif text-2xl">{t('Vaši upiti kao tabela')}</h2>
+                                <p className="text-muted-foreground mt-1 text-sm leading-6">
+                                    {t(
+                                        'Jedan red po razgovoru: ko je pitao, za koji proizvod, kada, da li ste odgovorili i kako se završilo. Otvara se u Excelu.',
+                                    )}
+                                </p>
+                            </div>
+                            <Button asChild variant="outline">
+                                {/* A file, so a plain link rather than a page visit. */}
+                                <a href={route('producers.inquiries.export', producer.id)}>
+                                    <Download />
+                                    {t('Preuzmi upite (CSV)')}
+                                </a>
+                            </Button>
+                        </section>
                     </>
                 ) : (
                     <div className="relative">

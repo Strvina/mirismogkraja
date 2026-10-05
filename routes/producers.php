@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::post('/', [ProducerController::class, 'store'])->middleware('throttle:5,1')->name('store');
     Route::get('/{producer}/izmena', [ProducerController::class, 'edit'])->name('edit');
     Route::get('/{producer}/statistika', [ProducerStatisticsController::class, 'show'])->name('statistics');
+    Route::get('/{producer}/upiti.csv', [ProducerStatisticsController::class, 'exportInquiries'])->middleware('throttle:10,1')->name('inquiries.export');
     Route::get('/{producer}/poster.pdf', [ProducerController::class, 'poster'])->middleware('throttle:10,1')->name('poster');
     Route::put('/{producer}', [ProducerController::class, 'update'])->name('update');
     Route::delete('/{producer}', [ProducerController::class, 'destroy'])->name('destroy');
