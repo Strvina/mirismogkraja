@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Post;
 use App\Models\Report;
 use App\Models\User;
 use App\Notifications\SiteNotification;
@@ -14,7 +15,7 @@ use Illuminate\Validation\Rule;
 class ReportController extends Controller
 {
     /**
-     * Report a producer, a product or a user.
+     * Report a producer, a product, a story or recipe, or a user.
      *
      * The type arrives as a morph alias rather than a class name, so a
      * crafted request cannot name an arbitrary model; anything outside the
@@ -25,7 +26,7 @@ class ReportController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'reportable_type' => ['required', Rule::in(['producer', 'product', 'user'])],
+            'reportable_type' => ['required', Rule::in(Report::REPORTABLE)],
             'reportable_id' => ['required', 'integer'],
             'reason' => ['required', Rule::in(array_keys(Report::REASONS))],
             'message' => ['nullable', 'string', 'max:1000'],
@@ -33,6 +34,9 @@ class ReportController extends Controller
 
         $model = Relation::getMorphedModel($data['reportable_type']);
         $reported = $model::findOrFail($data['reportable_id']);
+
+        // Only what the reporter can actually see: a draft has an id too.
+        abort_if($reported instanceof Post && ! $reported->isPubliclyVisible(), 404);
 
         // Reporting yourself is not a complaint, it is noise.
         abort_if($reported instanceof User && $reported->is($request->user()), 403);
@@ -53,7 +57,7 @@ class ReportController extends Controller
         );
 
         Admins::notify(SiteNotification::forAdmins('report-opened', [
-            'subject' => $reported->name ?? '—',
+            'subject' => $reported->name ?? $reported->title ?? '—',
             'reason_label' => Report::REASONS[$report->reason] ?? $report->reason,
         ], route('admin.reports.index')));
 

@@ -7,6 +7,7 @@ use App\Jobs\NotifyFollowersOfPost;
 use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Models\Report;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -293,6 +294,35 @@ class PostTest extends TestCase
 
         $this->actingAs($this->admin)->delete(route('admin.posts.destroy', $post))->assertRedirect();
         $this->assertDatabaseMissing('posts', ['id' => $post->id]);
+    }
+
+    public function test_a_reader_can_report_a_published_post_and_the_admin_sees_what_it_is(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $post = $this->makePost($producer, ['title' => 'Čudotvorni lek']);
+        $draft = $this->makePost($producer, ['status' => 'draft']);
+        $reader = User::factory()->create();
+
+        $this->actingAs($reader)->get(route('marketplace.posts.show', $post->slug))
+            ->assertInertia(fn ($page) => $page->where('canReport', true)->has('reportReasons.neprimereno'));
+        // Nobody reports their own post, and a guest has to sign in first.
+        $this->actingAs($producer->user)->get(route('marketplace.posts.show', $post->slug))
+            ->assertInertia(fn ($page) => $page->where('canReport', false));
+
+        $this->actingAs($reader)->post(route('reports.store'), [
+            'reportable_type' => 'post', 'reportable_id' => $post->id, 'reason' => 'neprimereno',
+        ])->assertRedirect();
+
+        $this->assertTrue(Report::sole()->reportable->is($post));
+
+        // A draft has an id, but nobody outside can see it to complain about it.
+        $this->actingAs($reader)->post(route('reports.store'), [
+            'reportable_type' => 'post', 'reportable_id' => $draft->id, 'reason' => 'neprimereno',
+        ])->assertNotFound();
+
+        $this->actingAs($this->admin)->get(route('admin.reports.index'))->assertInertia(fn ($page) => $page
+            ->where('reports.data.0.subject.name', 'Čudotvorni lek')
+            ->where('reports.data.0.subject.url', route('marketplace.posts.show', $post->slug)));
     }
 
     public function test_the_list_has_a_ceiling(): void

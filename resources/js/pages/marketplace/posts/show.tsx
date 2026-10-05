@@ -1,4 +1,5 @@
 import PostCard, { POST_TYPE_LABELS } from '@/components/marketplace/post-card';
+import ReportButton from '@/components/marketplace/report-button';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -29,6 +30,8 @@ export default function PostShow({
     product,
     more,
     isPreview,
+    canReport,
+    reportReasons,
 }: {
     post: Post;
     producer: { id: number; name: string; slug: string; city: string | null; logo_path: string | null; description: string | null };
@@ -37,6 +40,8 @@ export default function PostShow({
     more: PostSummary[];
     /** The author looking at a post nobody else can see yet. */
     isPreview: boolean;
+    canReport: boolean;
+    reportReasons: Record<string, string>;
 }) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t('Priče i recepti'), href: '/price' },
@@ -115,9 +120,12 @@ export default function PostShow({
 
                 <div className="border-border/70 mt-10 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
                     <ShareButtons url={route('marketplace.posts.show', post.slug)} title={post.title} />
-                    <Button asChild variant="outline" size="sm">
-                        <Link href={route('marketplace.producers.show', producer.slug)}>{t('Upoznaj proizvođača')}</Link>
-                    </Button>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {canReport && <ReportButton type="post" id={post.id} reasons={reportReasons} />}
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={route('marketplace.producers.show', producer.slug)}>{t('Upoznaj proizvođača')}</Link>
+                        </Button>
+                    </div>
                 </div>
             </article>
 

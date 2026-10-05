@@ -48,6 +48,21 @@ class CatalogTest extends TestCase
         $response->assertSee('"@type":"ItemList"', false);
     }
 
+    public function test_price_lists_are_in_the_sitemap_once_there_is_something_on_them(): void
+    {
+        $selling = Producer::factory()->active()->create();
+        Product::factory()->for($selling)->create(['status' => 'active']);
+        $empty = Producer::factory()->active()->create();
+        Product::factory()->for($empty)->create(['status' => 'draft']);
+
+        $this->get('/sitemap.xml')->assertSee(route('sitemap.section', ['catalogs', 1]), false);
+
+        $this->get(route('sitemap.section', ['catalogs', 1]))
+            ->assertOk()
+            ->assertSee(route('marketplace.catalog', $selling->slug), false)
+            ->assertDontSee(route('marketplace.catalog', $empty->slug), false);
+    }
+
     public function test_a_producer_the_public_cannot_see_has_no_catalogue(): void
     {
         $this->get(route('marketplace.catalog', Producer::factory()->create(['status' => 'pending'])->slug))->assertNotFound();
