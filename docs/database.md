@@ -168,6 +168,21 @@ Messages between a buyer and a producer. A conversation is the pair (`producer_i
 
 Indexes: (read_at, emailed_at, created_at); (producer_id, read_at); (buyer_id, read_at); (producer_id, buyer_id, created_at)
 
+## quick_replies
+
+A producer's saved answers for the message box. At most 12 per producer; `{ime}` in the body stands for the buyer's name.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `producer_id` | integer |  | → producers.id (cascade) |
+| `title` | string |  |  |
+| `body` | text |  |  |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: (producer_id)
+
 ## conversation_blocks
 
 A closed conversation and which side closed it.

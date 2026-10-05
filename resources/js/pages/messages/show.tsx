@@ -3,7 +3,7 @@ import Composer from '@/components/messages/composer';
 import { MessageBubble, PendingBubble } from '@/components/messages/message-bubbles';
 import OutcomeBar from '@/components/messages/outcome-bar';
 import ThreadHeader from '@/components/messages/thread-header';
-import { type Message, type ThreadSide } from '@/components/messages/types';
+import { type Message, type QuickReply, type ThreadSide } from '@/components/messages/types';
 import { useAdaptivePoll } from '@/hooks/use-adaptive-poll';
 import { useFollowScroll } from '@/hooks/use-follow-scroll';
 import { useOptimisticSend } from '@/hooks/use-optimistic-send';
@@ -28,6 +28,7 @@ export default function MessageThread({
     reportReasons,
     outcome,
     outcomeLabels,
+    quickReplies,
 }: {
     producer: { id: number; name: string; slug: string; logo_path: string | null };
     buyer: { id: number; name: string; avatar_path: string | null };
@@ -40,6 +41,8 @@ export default function MessageThread({
     reportReasons: Record<string, string>;
     outcome: string | null;
     outcomeLabels: Record<string, string>;
+    /** The producer's saved answers; empty on the buyer's side. */
+    quickReplies: QuickReply[];
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -133,6 +136,16 @@ export default function MessageThread({
                             scroll.follow();
                             sending.send(text);
                         }}
+                        quickReplies={
+                            isOwner
+                                ? {
+                                      items: quickReplies,
+                                      manageHref: route('producers.quick-replies.index', producer.id),
+                                      // "Dobar dan, Milice" rather than the full name.
+                                      recipientName: buyer.name.split(' ')[0],
+                                  }
+                                : undefined
+                        }
                     />
                 )}
             </div>

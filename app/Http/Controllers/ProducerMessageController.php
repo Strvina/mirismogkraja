@@ -99,6 +99,11 @@ class ProducerMessageController extends Controller
                 ? InquiryOutcome::where('producer_id', $producer->id)->where('buyer_id', $buyer->id)->value('status')
                 : null,
             'outcomeLabels' => array_map(__(...), InquiryOutcome::STATUSES),
+            // The producer's saved answers, for their side of the thread
+            // only. A closure too: the poll never asks for it.
+            'quickReplies' => fn () => $producer->user_id === $request->user()->id
+                ? $producer->quickReplies()->get(['id', 'title', 'body'])
+                : [],
             'reportReasons' => array_map(__(...), Report::REASONS),
             // Newest first so opening a thread lands on the latest reply;
             // the page is flipped back to chronological order below, and
