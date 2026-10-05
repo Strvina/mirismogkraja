@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 131).
+Poslednja izmena: 2026-10-06 (posle zadatka 132).
 
 ## 1. Šta je ovo
 
@@ -183,12 +183,15 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 
 ## 10. Trenutno stanje
 
-- Urađeni su svi zadaci do 120. Poslednji talas (109–117): pijace, katalog, brzi odgovori, „čeka vas
-  X kupaca", sertifikati, priče i recepti, preporuke, Google prijava, demo podaci i testovi.
-- Testovi: 503 PHP (3 preskočena bez GD-a) i 16 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Urađeni su svi zadaci do 132. Talas 121–131 (PR-ovi #215–#225, nadovezani jedan na drugi): stranice o
+  sajtu, stranice mesta, „U sezoni", prijava priča i katalog u mapi sajta, redosled članarina, pauza,
+  nedeljni pregled, oglasi „Tražim", mejlovi proizvođaču, izvoz upita, dvostruka potvrda prijave.
+- Testovi: 563 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
-  `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept).
+  `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept);
+  `wanted-pause-places.spec.ts` (stranice o sajtu, mesto i sezona, oglas „Tražim" kroz tri uloge, pauza,
+  dvostruka potvrda sa pravim TOTP kodom).
   Test sajt piše mejlove u `storage/logs/mail.log` (log kanal `mail`), odakle test čita link.
 - **Sajt nikad nije pušten u rad.** Nema servera, domena ni stvarnih korisnika.
 

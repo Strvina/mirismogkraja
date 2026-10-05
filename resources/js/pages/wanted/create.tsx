@@ -68,7 +68,7 @@ export default function WantedCreate({
                     <InputError message={errors.title} />
                 </div>
 
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid items-start gap-5 sm:grid-cols-2">
                     <div className="grid gap-2">
                         <Label htmlFor="wanted-category">{t('Kategorija')}</Label>
                         <CompactSelect
