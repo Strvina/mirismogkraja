@@ -61,6 +61,12 @@ class SiteNotification extends Notification
         return new self('producer.verified', ['producer' => $producerName], $url);
     }
 
+    /** A producer someone follows is taking inquiries again after a pause. */
+    public static function producerResumed(string $producerName, string $url): self
+    {
+        return new self('producer.resumed', ['producer' => $producerName], $url);
+    }
+
     public static function producerBlocked(string $producerName, string $url): self
     {
         return new self('producer.blocked', ['producer' => $producerName], $url);

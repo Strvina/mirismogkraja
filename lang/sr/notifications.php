@@ -11,6 +11,7 @@ return [
         'approved' => ['title' => 'Vaš proizvođač je odobren', 'body' => '„:producer” je od sada vidljiv svima na sajtu.'],
         'verified' => ['title' => 'Vaš profil je proveren', 'body' => '„:producer” od sada nosi oznaku proverenog proizvođača.'],
         'blocked' => ['title' => 'Vaš proizvođač je skriven', 'body' => '„:producer” trenutno nije vidljiv na sajtu. Javite nam se ako mislite da je greška.'],
+        'resumed' => ['title' => ':producer ponovo prima upite', 'body' => 'Pauza je završena — možete da pišete.'],
     ],
 
     'founding' => [

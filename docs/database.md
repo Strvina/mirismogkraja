@@ -63,6 +63,9 @@ A producer's public page: name, story, contact, location, delivery methods, cove
 | `referral_code` | string | yes | the producer's referral link; made on first use |
 | `founding_joined_at` | datetime | yes |  |
 | `verified_at` | datetime | yes |  |
+| `paused_at` | datetime | yes | set while the producer takes no new inquiries (sold out, away) |
+| `paused_until` | date | yes | the day they said they are back; the pause ends by itself after it |
+| `pause_note` | string | yes | what visitors read during the pause (200) |
 
 Indexes: (status, name); unique (founding_number); unique (referral_code); (city); unique (slug)
 

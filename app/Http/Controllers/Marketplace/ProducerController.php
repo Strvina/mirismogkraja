@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\Producer;
 use App\Models\ProducerCertificate;
 use App\Models\ProducerMarket;
+use App\Models\ProducerMessage;
 use App\Models\Report;
 use App\Models\Review;
 use App\Services\BoostService;
@@ -209,6 +210,8 @@ class ProducerController extends Controller
                 ]),
                 'has_phone' => filled($producer->phone),
             ],
+            // Sold out or away: the page says so in place of an invitation to write.
+            'pause' => $producer->pauseForVisitors(),
             // The number itself only when a visitor clicks "Prikaži broj" (a
             // partial reload asks for it), as the privacy page promises -
             // not in every page's HTML for every crawler to collect.
@@ -275,7 +278,10 @@ class ProducerController extends Controller
                 ->first(),
             // The owner has no one to message on their own page; everyone
             // else signed in can open a thread with this producer.
-            'canMessage' => $user !== null && $producer->user_id !== $user->id,
+            // While the producer is paused, only someone already in a
+            // conversation with them.
+            'canMessage' => $user !== null && $producer->user_id !== $user->id
+                && (! $producer->isPaused() || ProducerMessage::thread($producer, $user)->exists()),
             // The owner answers reviews in public, right under them.
             'canReply' => $user !== null && $producer->user_id === $user->id,
             // Following is a standing request to hear about new listings,

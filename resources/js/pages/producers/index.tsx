@@ -8,7 +8,7 @@ import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { BellRing, Clock } from 'lucide-react';
+import { BellRing, CirclePause, Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji proizvođači'), href: '/moji-proizvodjaci' }];
 
@@ -35,7 +35,7 @@ export default function ProducersIndex({
     pendingChanges,
 }: {
     /** waiting_buyers_count: people who asked to hear when one of the products is back. */
-    producers: (Producer & { completeness: Completeness; waiting_buyers_count: number })[];
+    producers: (Producer & { completeness: Completeness; waiting_buyers_count: number; is_paused: boolean })[];
     pendingChanges: PendingChange[];
 }) {
     const destroy = async (producer: Producer) => {
@@ -76,6 +76,16 @@ export default function ProducersIndex({
                                     <span className="bg-muted rounded-full px-2 py-1 text-xs">{t(statusLabels[producer.status])}</span>
                                 </div>
                                 {producer.city && <p className="text-muted-foreground mt-1 text-sm">{producer.city}</p>}
+
+                                {producer.is_paused && (
+                                    <Link
+                                        href={route('producers.pause.edit', producer.id)}
+                                        className="border-gold/50 bg-cream-deep mt-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                                    >
+                                        <CirclePause className="text-gold size-4 shrink-0" aria-hidden />
+                                        <span>{t('Pauza je uključena: novi kupci ne mogu da vam pišu. Isključite je kad se vratite.')}</span>
+                                    </Link>
+                                )}
 
                                 {producer.waiting_buyers_count > 0 && (
                                     <Link

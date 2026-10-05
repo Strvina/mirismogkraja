@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Boost;
 use App\Models\Category;
 use App\Models\Producer;
+use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Report;
 use App\Services\BoostService;
@@ -223,7 +224,7 @@ class ProductController extends Controller
      */
     public function show(Request $request, Product $product, ProducerStatistics $statistics, ResponseTime $responseTime, Places $places): Response
     {
-        $product->load(['producer:id,user_id,name,slug,city,logo_path,status', 'category:id,name', 'images']);
+        $product->load(['producer:id,user_id,name,slug,city,logo_path,status,paused_at,paused_until,pause_note', 'category:id,name', 'images']);
 
         if (! $product->isPubliclyVisible()) {
             throw new NotFoundHttpException;
@@ -257,7 +258,15 @@ class ProductController extends Controller
             ],
             // The owner has no one to ask about their own listing; anyone else
             // signed in can open a thread from here.
-            'canInquire' => $user !== null && $product->producer->user_id !== $user->id,
+            // While the producer is paused, only for someone already in a
+            // conversation with them.
+            'canInquire' => $user !== null && $product->producer->user_id !== $user->id
+                && (! $product->producer->isPaused() || ProducerMessage::thread($product->producer, $user)->exists()),
+            // Sold out or away: instead of the form, an offer to follow the
+            // producer and hear when they are back.
+            'pause' => $product->producer->pauseForVisitors(),
+            'canFollow' => $user !== null && $product->producer->user_id !== $user->id,
+            'isFollowing' => $user !== null && $product->producer->isPaused() && $product->producer->followers()->whereKey($user->id)->exists(),
             'responseTime' => $responseTime->bucketFor($product->producer),
             // "Javi mi kad stigne", for a product not available right now.
             'available' => $product->isAvailable(),

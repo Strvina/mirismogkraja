@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import ReportButton from '@/components/marketplace/report-button';
 import ResponseTimeBadge, { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
 import ShareButtons from '@/components/marketplace/share-buttons';
@@ -21,6 +22,9 @@ export default function ProductShow({
     similar,
     place,
     canInquire,
+    pause,
+    canFollow,
+    isFollowing,
     responseTime,
     available,
     alertRequested,
@@ -33,6 +37,10 @@ export default function ProductShow({
     /** The producer's town as a page of its own, when it has one. */
     place: { slug: string; name: string } | null;
     canInquire: boolean;
+    /** The producer is sold out or away and takes no new inquiries. */
+    pause: Pause | null;
+    canFollow: boolean;
+    isFollowing: boolean;
     responseTime: ResponseTimeBucket | null;
     /** In stock and in season. */
     available: boolean;
@@ -134,6 +142,33 @@ export default function ProductShow({
                     {product.description && <p className="text-muted-foreground mt-6 leading-7 break-words">{product.description}</p>}
 
                     <div className="mt-6 space-y-3">
+                        {pause && !canInquire && (
+                            <PauseNotice pause={pause}>
+                                {canFollow ? (
+                                    isFollowing ? (
+                                        <p className="text-muted-foreground">{t('Pratite ovog proizvođača — javićemo vam kad se vrati.')}</p>
+                                    ) : (
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={() => router.post(route('producers.follow', product.producer.id), {}, { preserveScroll: true })}
+                                        >
+                                            {t('Javi mi kad se vrati')}
+                                        </Button>
+                                    )
+                                ) : (
+                                    !auth.user && (
+                                        <p className="text-muted-foreground">
+                                            <Link href={route('login')} className="text-foreground font-medium underline underline-offset-4">
+                                                {t('Prijavite se')}
+                                            </Link>{' '}
+                                            {t('i javićemo vam kad se vrati.')}
+                                        </p>
+                                    )
+                                )}
+                            </PauseNotice>
+                        )}
+
                         {canInquire && (
                             <>
                                 <p className="text-muted-foreground text-sm">
@@ -156,7 +191,8 @@ export default function ProductShow({
                                     {t('Pošalji upit')}
                                 </Button>
                             ) : (
-                                !auth.user && (
+                                !auth.user &&
+                                !pause && (
                                     <Button asChild>
                                         <Link href={route('login')}>{t('Prijavite se da pošaljete upit')}</Link>
                                     </Button>

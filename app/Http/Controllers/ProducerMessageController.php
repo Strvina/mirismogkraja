@@ -161,13 +161,22 @@ class ProducerMessageController extends Controller
     }
 
     /**
-     * Counts a first message to a producer against the day's allowance;
-     * a message in a conversation that already exists is not counted.
+     * What applies to a first message to a producer and not to one in a
+     * conversation that already exists: the producer has to be taking new
+     * inquiries, and it counts against the buyer's allowance for the day.
      */
     private function countNewConversation(User $buyer, Producer $producer): void
     {
         if (ProducerMessage::thread($producer, $buyer)->exists()) {
             return;
+        }
+
+        // The page says so and hides the form; this is for a form left open
+        // from before the pause.
+        if ($producer->isPaused()) {
+            throw ValidationException::withMessages([
+                'body' => __('Proizvođač trenutno ne prima nove upite. Zapratite ga i javićemo vam kad se vrati.'),
+            ]);
         }
 
         $key = 'new-conversations:'.$buyer->id;
