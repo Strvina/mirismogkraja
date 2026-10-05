@@ -28,6 +28,7 @@ return [
     'product' => [
         'published' => ['title' => ':producer ima nešto novo', 'body' => '„:product” je upravo objavljen.'],
         'available' => ['title' => 'Stiglo je: :product', 'body' => '„:product” od proizvođača „:producer” je ponovo dostupan. Javili smo vam jer ste to tražili.'],
+        'wanted' => ['title' => 'Kupci čekaju: :product', 'body' => 'Broj kupaca koji čekaju „:product”: :count. Čim ga dopunite ili počne sezona, javićemo im.'],
         'blocked' => ['title' => 'Proizvod je sklonjen', 'body' => 'Administrator je sklonio „:product” sa sajta. Javite nam se ako mislite da je greška.'],
     ],
 

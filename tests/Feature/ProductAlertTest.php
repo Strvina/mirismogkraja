@@ -80,7 +80,8 @@ class ProductAlertTest extends TestCase
         $this->actingAs($user)->post(route('products.alert', $product->slug));
 
         $this->artisan('products:send-alerts');
-        Notification::assertNothingSent();
+        // The producer has heard that someone is waiting; the buyer nothing yet.
+        Notification::assertNothingSentTo($user);
 
         $this->travelTo(now()->setDate(2026, 6, 1));
         $this->artisan('products:send-alerts');
