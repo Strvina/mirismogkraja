@@ -28,7 +28,7 @@ class SearchTest extends TestCase
     protected function tearDown(): void
     {
         if ($this->onMySql()) {
-            foreach (['products', 'producers', 'categories', 'users'] as $table) {
+            foreach (['products', 'producers', 'categories', 'users', 'search_misses'] as $table) {
                 DB::table($table)->delete();
             }
         }
@@ -65,6 +65,20 @@ class SearchTest extends TestCase
             ->where('matchingProducers.0.slug', $producer->slug));
 
         $this->get('/proizvodjaci?q=pčelarstvo')->assertInertia(fn ($page) => $page->has('producers.data', 1)->where('filters.q', 'pčelarstvo'));
+    }
+
+    /** Here rather than with the other search-miss tests: it needs rows a full-text search can see. */
+    public function test_a_search_that_finds_a_product_or_a_producer_is_not_counted_as_a_miss(): void
+    {
+        $producer = Producer::factory()->active()->create(['name' => 'Sirana Petrović']);
+        Product::factory()->for($producer)->create(['name' => 'Bagremov med', 'status' => 'active']);
+
+        // Finds a product; finds no product but the producer by name; finds nothing.
+        $this->get('/proizvodi?q=bagremov')->assertInertia(fn ($page) => $page->has('products.data', 1));
+        $this->get('/proizvodi?q=petrović')->assertInertia(fn ($page) => $page->has('products.data', 0)->has('matchingProducers', 1));
+        $this->get('/proizvodi?q=kajmak')->assertInertia(fn ($page) => $page->has('products.data', 0));
+
+        $this->assertSame(['kajmak'], DB::table('search_misses')->pluck('term')->all());
     }
 
     public function test_the_query_is_reduced_to_words_so_nothing_reaches_the_database_as_syntax(): void

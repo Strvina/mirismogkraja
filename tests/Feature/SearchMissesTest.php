@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Producer;
-use App\Models\Product;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Services\SearchMisses;
@@ -49,19 +48,6 @@ class SearchMissesTest extends TestCase
         $this->travel(1)->days();
         $this->search('kozji sir');
         $this->assertSame(3, $this->hits('kozji sir'));
-    }
-
-    public function test_a_search_that_finds_something_is_not_a_miss(): void
-    {
-        $producer = Producer::factory()->active()->create(['name' => 'Sirana Petrović']);
-        Product::factory()->for($producer)->create(['name' => 'Bagremov med', 'status' => 'active']);
-
-        // Finds a product.
-        $this->search('bagremov');
-        // Finds no product, but the producer by name.
-        $this->search('petrović');
-
-        $this->assertSame(0, DB::table('search_misses')->count());
     }
 
     public function test_an_empty_list_caused_by_another_filter_is_not_a_miss(): void
