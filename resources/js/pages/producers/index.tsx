@@ -1,3 +1,4 @@
+import ProducerMoreMenu from '@/components/producer-more-menu';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { ask } from '@/lib/confirm';
@@ -5,7 +6,7 @@ import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem, type Producer } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Clock, QrCode } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji proizvođači'), href: '/moji-proizvodjaci' }];
 
@@ -128,24 +129,7 @@ export default function ProducersIndex({
                                     <Button asChild variant="outline" size="sm">
                                         <Link href={route('producers.statistics', producer.id)}>{t('Statistika')}</Link>
                                     </Button>
-                                    {producer.status === 'active' && (
-                                        <Button asChild variant="outline" size="sm">
-                                            {/* A file, not a page: a plain link so the browser downloads it. */}
-                                            <a
-                                                href={route('producers.poster', producer.id)}
-                                                title={t('Odštampajte i zalepite na tezgu — kupci skeniraju i pišu vam.')}
-                                            >
-                                                <QrCode className="size-4" />
-                                                {t('QR poster za tezgu')}
-                                            </a>
-                                        </Button>
-                                    )}
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={route('boosts.index')}>{t('Isticanje')}</Link>
-                                    </Button>
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={route('campaigns.index')}>{t('Kampanje')}</Link>
-                                    </Button>
+                                    <ProducerMoreMenu producer={producer} />
                                     <Button variant="destructive" size="sm" onClick={() => destroy(producer)}>
                                         {t('Obriši')}
                                     </Button>

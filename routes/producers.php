@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProducerImageController;
+use App\Http\Controllers\ProducerMarketController;
 use App\Http\Controllers\ProducerStatisticsController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,12 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
 
     Route::post('/{producer}/galerija', [ProducerImageController::class, 'store'])->middleware('throttle:30,1')->name('images.store');
     Route::delete('/{producer}/galerija/{image}', [ProducerImageController::class, 'destroy'])->name('images.destroy');
+
+    // "Gde me nađete": markets and the days the producer is there.
+    Route::get('/{producer}/pijace', [ProducerMarketController::class, 'index'])->name('markets.index');
+    Route::post('/{producer}/pijace', [ProducerMarketController::class, 'store'])->middleware('throttle:30,1')->name('markets.store');
+    Route::put('/{producer}/pijace/{market}', [ProducerMarketController::class, 'update'])->middleware('throttle:30,1')->name('markets.update');
+    Route::delete('/{producer}/pijace/{market}', [ProducerMarketController::class, 'destroy'])->name('markets.destroy');
 });
 
 // Contact clicks reported by a visitor's browser. Public, since
