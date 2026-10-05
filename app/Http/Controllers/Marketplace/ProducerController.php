@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Marketplace;
 use App\Http\Controllers\Controller;
 use App\Models\Boost;
 use App\Models\Producer;
+use App\Models\ProducerCertificate;
 use App\Models\ProducerMarket;
 use App\Models\Report;
 use App\Models\Review;
@@ -223,6 +224,16 @@ class ProducerController extends Controller
             'responseTime' => $responseTime->bucketFor($producer),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
             'markets' => $producer->markets()->get(ProducerMarket::PUBLIC_COLUMNS),
+            // Checked by an admin and still in date. The claim only - the
+            // document behind it is never public.
+            'certificates' => $producer->certificates()
+                ->shown()
+                ->orderBy('type')
+                ->get(['id', 'type', 'title', 'issuer', 'expires_on'])
+                ->map(fn (ProducerCertificate $certificate) => [
+                    ...$certificate->toArray(),
+                    'type_label' => __(ProducerCertificate::TYPES[$certificate->type] ?? 'Drugo'),
+                ]),
             // The newest few; the rest are one click away in the catalogue,
             // filtered to this producer.
             'products' => $producer->products()

@@ -7,6 +7,7 @@ use App\Models\Boost;
 use App\Models\CampaignParticipant;
 use App\Models\InquiryOutcome;
 use App\Models\Producer;
+use App\Models\ProducerCertificate;
 use App\Models\ProducerChangeRequest;
 use App\Models\ProducerMessage;
 use App\Models\ProducerSubscription;
@@ -50,6 +51,7 @@ class DashboardController extends Controller
                 ['label' => __('uplata za isticanje čeka potvrdu'), 'count' => Boost::where('status', Boost::STATUS_PENDING)->count(), 'href' => route('admin.boosts.index')],
                 ['label' => __('prijava za kampanju čeka potvrdu'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_PENDING)->count(), 'href' => route('admin.campaigns.index')],
                 ['label' => __('utisaka čeka odobrenje'), 'count' => Review::pending()->count(), 'href' => route('admin.reviews.index', ['status' => 'pending'])],
+                ['label' => __('sertifikata čeka proveru'), 'count' => ProducerCertificate::where('status', ProducerCertificate::STATUS_PENDING)->count(), 'href' => route('admin.certificates.index')],
                 ['label' => __('zahteva za izmenu naziva'), 'count' => ProducerChangeRequest::pending()->count(), 'href' => route('admin.change-requests.index')],
                 ['label' => __('otvorenih prijava problema'), 'count' => Report::open()->count(), 'href' => route('admin.reports.index')],
             ],

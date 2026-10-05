@@ -16,6 +16,7 @@ import {
     Megaphone,
     Package,
     ScrollText,
+    ShieldCheck,
     Sprout,
     Star,
     Store,
@@ -27,6 +28,7 @@ import { type ReactNode, useState } from 'react';
 const sections = [
     { href: '/admin', label: tx('Evidencija'), icon: LayoutDashboard, exact: true },
     { href: '/admin/proizvodjaci', label: tx('Proizvođači'), icon: Sprout },
+    { href: '/admin/sertifikati', label: tx('Sertifikati'), icon: ShieldCheck },
     { href: '/admin/zahtevi', label: tx('Zahtevi za izmenu'), icon: FilePen },
     { href: '/admin/proizvodi', label: tx('Proizvodi'), icon: Package },
     { href: '/admin/kategorije', label: tx('Kategorije'), icon: FolderTree },

@@ -34,6 +34,11 @@ return [
         'published' => ['title' => 'Your review has been published', 'body' => 'Your review of “:producer” is now visible to everyone.'],
     ],
 
+    'certificate' => [
+        'approved' => ['title' => 'Certificate confirmed', 'body' => '“:title” is now shown on your profile.'],
+        'rejected' => ['title' => 'Certificate not accepted', 'body' => '“:title”: :reason'],
+    ],
+
     'weekly-pick' => ['title' => 'Producer of the week', 'body' => '“:producer” is producer of the week from :starts_on and will be featured on the home page.'],
 
     'membership' => [
@@ -60,6 +65,7 @@ return [
 
     'admin' => [
         'producer-pending' => ['title' => 'New producer awaiting approval', 'body' => '“:producer” (:city).'],
+        'certificate-pending' => ['title' => 'New certificate awaiting review', 'body' => '“:producer” — :title.'],
         'membership-requested' => ['title' => 'New membership payment', 'body' => '“:producer” — plan :plan, :amount RSD, reference :reference.'],
         'boost-requested' => ['title' => 'New boost payment', 'body' => '“:producer” — :name, :amount RSD, reference :reference.'],
         'campaign-requested' => ['title' => 'New campaign sign-up', 'body' => '“:producer” — :campaign, :amount RSD, reference :reference.'],

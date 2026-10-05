@@ -38,6 +38,11 @@ return [
         'published' => ['title' => 'Vaš utisak je objavljen', 'body' => 'Utisak o „:producer” je od sada vidljiv svima.'],
     ],
 
+    'certificate' => [
+        'approved' => ['title' => 'Sertifikat je potvrđen', 'body' => '„:title” je od sada vidljiv na vašem profilu.'],
+        'rejected' => ['title' => 'Sertifikat nije prihvaćen', 'body' => '„:title”: :reason'],
+    ],
+
     'weekly-pick' => ['title' => 'Proizvođač nedelje', 'body' => '„:producer” je proizvođač nedelje od :starts_on i biće istaknut na početnoj strani.'],
 
     'membership' => [
@@ -64,6 +69,7 @@ return [
 
     'admin' => [
         'producer-pending' => ['title' => 'Novi proizvođač čeka odobrenje', 'body' => '„:producer” (:city).'],
+        'certificate-pending' => ['title' => 'Novi sertifikat čeka proveru', 'body' => '„:producer” — :title.'],
         'membership-requested' => ['title' => 'Nova uplata za članarinu', 'body' => '„:producer” — paket :plan, :amount RSD, poziv na broj :reference.'],
         'boost-requested' => ['title' => 'Nova uplata za isticanje', 'body' => '„:producer” — :name, :amount RSD, poziv na broj :reference.'],
         'campaign-requested' => ['title' => 'Nova prijava za kampanju', 'body' => '„:producer” — :campaign, :amount RSD, poziv na broj :reference.'],

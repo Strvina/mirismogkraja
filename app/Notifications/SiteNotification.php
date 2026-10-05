@@ -118,6 +118,17 @@ class SiteNotification extends Notification
         return new self('review.published', ['producer' => $producerName], $url);
     }
 
+    /** An admin has checked the document; the certificate is on the public page. */
+    public static function certificateApproved(string $title, string $url): self
+    {
+        return new self('certificate.approved', ['title' => $title], $url);
+    }
+
+    public static function certificateRejected(string $title, string $reason, string $url): self
+    {
+        return new self('certificate.rejected', ['title' => $title, 'reason' => $reason], $url);
+    }
+
     public static function weeklyPick(string $producerName, Carbon $weekStartsOn, string $url): self
     {
         return new self('weekly-pick', ['producer' => $producerName, 'starts_on' => $weekStartsOn->toDateString()], $url);

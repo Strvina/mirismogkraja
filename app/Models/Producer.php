@@ -99,6 +99,20 @@ class Producer extends Model
         return $this->hasMany(ProducerMarket::class)->orderBy('id');
     }
 
+    protected static function booted(): void
+    {
+        // An archived producer's documents are not kept on file: they name
+        // a person, and nothing shows them any more. Deleted one by one, so
+        // each takes its file with it.
+        static::deleted(fn (self $producer) => $producer->certificates()->get()->each->delete());
+    }
+
+    /** Documents behind what the producer claims; public once approved. */
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(ProducerCertificate::class);
+    }
+
     /** Saved answers for the message box. */
     public function quickReplies(): HasMany
     {
