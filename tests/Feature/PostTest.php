@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\ThrottlePerRoute;
 use App\Jobs\NotifyFollowersOfPost;
 use App\Models\Post;
 use App\Models\Producer;
@@ -9,7 +10,6 @@ use App\Models\Product;
 use App\Models\User;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -177,7 +177,7 @@ class PostTest extends TestCase
 
     public function test_what_is_written_is_validated(): void
     {
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottlePerRoute::class);
 
         $producer = Producer::factory()->active()->create();
         $foreign = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);

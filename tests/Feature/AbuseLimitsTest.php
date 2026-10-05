@@ -9,6 +9,7 @@ use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Tests\TestCase;
@@ -38,6 +39,52 @@ class AbuseLimitsTest extends TestCase
         // every request, so an after-response job would run again later.
         Bus::assertDispatchedAfterResponseTimes(NotifyFollowersOfProduct::class, 1);
         $this->assertNotNull($product->fresh()->published_at);
+    }
+
+    /**
+     * "throttle:6,1" on one route and "throttle:30,1" on another are two
+     * counts, not one shared by everything the person does in that minute.
+     */
+    public function test_each_limited_route_keeps_its_own_count(): void
+    {
+        $this->seed(RolesSeeder::class);
+        $account = fn (int $number) => [
+            'name' => 'Nova Osoba',
+            'email' => "nova{$number}@example.com",
+            'password' => 'lozinka-koja-vazi-123',
+            'password_confirmation' => 'lozinka-koja-vazi-123',
+        ];
+
+        // A visitor opens a referral link more often than they may register in a minute...
+        foreach (range(1, 8) as $ignored) {
+            $this->get('/preporuka/abcd1234')->assertRedirect(route('register'));
+        }
+
+        // ...and can still register: that is a different count.
+        $this->post(route('register'), $account(1))->assertRedirect(route('verification.notice'));
+
+        // The registration limit itself still holds, per route.
+        $this->app['auth']->forgetGuards();
+        $this->flushSession();
+
+        foreach (range(2, 6) as $number) {
+            $this->post(route('register'), $account($number));
+            $this->app['auth']->forgetGuards();
+            $this->flushSession();
+        }
+
+        $this->post(route('register'), $account(7))->assertTooManyRequests();
+        $this->assertFalse(User::where('email', 'nova7@example.com')->exists());
+
+        // A signed-in person is counted the same way: by route.
+        $buyer = User::factory()->create();
+        $producer = Producer::factory()->active()->create();
+
+        foreach (range(1, 6) as $ignored) {
+            $this->actingAs($buyer)->post(route('statistics.click', [$producer, 'phone_reveal']))->assertNoContent();
+        }
+
+        $this->actingAs($buyer)->post(route('producers.store'), ['name' => 'Moj salaš'])->assertRedirect(route('producers.index'));
     }
 
     public function test_a_producer_has_a_ceiling_on_products(): void

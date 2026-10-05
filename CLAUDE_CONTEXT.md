@@ -130,6 +130,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
   Dokumenti sertifikata su na privatnom disku `local` i šalju se samo kroz rutu koja proverava ko pita.
 - **Pretraga:** MySQL FULLTEXT, LIKE na SQLite-u i za kratke reči (`App\Support\Search`).
 - **Statistika** su dnevni brojači, bez podataka o posetiocu; botovi i vlasnik se ne broje.
+- **Ograničenje broja zahteva** (`throttle:N,1`) broji po ruti (`ThrottlePerRoute`, alias `throttle`).
+  Laravelov podrazumevani brojač je jedan po korisniku za sve rute, pa je pet poruka u minutu blokiralo
+  i utisak i registraciju proizvođača. U testovima se gasi sa `withoutMiddleware(ThrottlePerRoute::class)`.
 - **CSP** sa nonce-om po zahtevu; samo-izveštavanje dok radi Vite dev server.
 - **Meta i JSON-LD** piše server u prvi HTML (`PageMeta`), jer nema SSR-a.
 - **Slug** se pri preimenovanju čuva u `slug_redirects` (301 sa stare adrese).
