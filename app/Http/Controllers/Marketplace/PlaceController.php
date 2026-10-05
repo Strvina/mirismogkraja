@@ -55,6 +55,8 @@ class PlaceController extends Controller
             ->whereHas('producer', fn ($query) => $query->whereIn('city', $place['spellings']))
             ->when($category, fn ($query) => $query->where('category_id', $category->id))
             ->latest()
+            // Products added in the same second keep one order from page to page.
+            ->orderByDesc('products.id')
             ->paginate(self::PER_PAGE)
             ->withQueryString();
 

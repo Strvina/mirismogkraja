@@ -6,6 +6,7 @@ use App\Models\Producer;
 use App\Models\ProducerSubscription;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Services\CancellationService;
 use App\Services\SubscriptionService;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\SubscriptionPlansSeeder;
@@ -162,6 +163,32 @@ class MembershipTest extends TestCase
         $this->assertSame('basic', $fresh->planFor($producer)->slug);
         $this->assertFalse($fresh->hasFeature($producer, 'statistics'));
         $this->assertTrue($basic->refresh()->isRunning());
+    }
+
+    /** An upgrade stopped half-way must not leave the producer with no plan while a paid one waits. */
+    public function test_cancelling_an_upgrade_brings_the_plan_behind_it_back_at_once(): void
+    {
+        $this->travelTo(now()->startOfDay());
+        $producer = Producer::factory()->active()->create();
+        $subscriptions = app(SubscriptionService::class);
+
+        $basic = $subscriptions->request($producer, $this->plan('basic'));
+        $subscriptions->confirmPayment($basic, null);
+        $this->travelTo(now()->addDays(100));
+        $premium = $subscriptions->request($producer, $this->plan('premium'));
+        $subscriptions->confirmPayment($premium, null);
+
+        // Twenty days into Premium, an admin stops it.
+        $this->travelTo(now()->addDays(20));
+        app(CancellationService::class)->cancel($premium->refresh());
+
+        $basic->refresh();
+        $this->assertTrue($basic->isRunning());
+        // The 265 days Basic had left when Premium took over are still all there.
+        $this->assertTrue($basic->starts_at->equalTo(now()));
+        $this->assertTrue($basic->ends_at->equalTo(now()->addDays(265)));
+        $this->assertSame('basic', app(SubscriptionService::class)->planFor($producer)->slug);
+        $this->assertFalse(app(SubscriptionService::class)->hasFeature($producer, 'statistics'));
     }
 
     /** A lower plan bought during a higher one waits its turn, and gives nothing away meanwhile. */

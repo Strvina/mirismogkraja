@@ -29,6 +29,7 @@ class WantedAdController extends Controller
                 ->withCount('responses')
                 ->when($status, fn ($query) => $query->where('status', $status))
                 ->latest()
+                ->orderByDesc('id')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (WantedAd $ad) => [

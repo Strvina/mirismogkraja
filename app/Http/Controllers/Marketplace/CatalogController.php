@@ -63,6 +63,8 @@ class CatalogController extends Controller
                 ...$producer->only(['id', 'name', 'slug', 'city', 'address', 'contact_email', 'logo_path', 'verified_at', 'delivery_methods']),
                 'has_phone' => filled($producer->phone),
             ],
+            // Sold out or away: the list still reads, and says nobody is answering just now.
+            'pause' => $producer->pauseForVisitors(),
             // Only on "Prikaži broj", as on the producer's page.
             'phone' => Inertia::optional(fn () => $producer->phone),
             'products' => $products->through(fn (Product $product) => [

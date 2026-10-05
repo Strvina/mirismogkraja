@@ -41,6 +41,8 @@ class SeasonController extends Controller
             ->withCardData()
             ->seasonal($number)
             ->latest()
+            // Products added in the same second keep one order from page to page.
+            ->orderByDesc('products.id')
             ->paginate(self::PER_PAGE)
             ->withQueryString();
 

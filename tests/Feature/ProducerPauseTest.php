@@ -91,6 +91,9 @@ class ProducerPauseTest extends TestCase
             ->assertInertia(fn ($page) => $page->where('pause.note', 'Na odmoru.')->where('canMessage', false)->where('canFollow', true));
         $this->actingAs($buyer)->get(route('marketplace.products.show', $this->product->slug))->assertOk()
             ->assertInertia(fn ($page) => $page->where('pause.note', 'Na odmoru.')->where('canInquire', false)->where('canFollow', true));
+        // The price list is what gets sent around in chats: it says so too.
+        $this->get(route('marketplace.catalog', $this->producer->slug))->assertOk()
+            ->assertInertia(fn ($page) => $page->where('pause.note', 'Na odmoru.'));
         $this->get(route('marketplace.products.index'))->assertInertia(fn ($page) => $page->has('products.data', 1));
 
         // A form left open from before the pause.
