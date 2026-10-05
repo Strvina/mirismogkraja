@@ -4,6 +4,7 @@ use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProducerImageController;
 use App\Http\Controllers\ProducerMarketController;
 use App\Http\Controllers\ProducerStatisticsController;
+use App\Http\Controllers\QuickReplyController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('producers.')->group(function () {
@@ -25,6 +26,13 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::post('/{producer}/pijace', [ProducerMarketController::class, 'store'])->middleware('throttle:30,1')->name('markets.store');
     Route::put('/{producer}/pijace/{market}', [ProducerMarketController::class, 'update'])->middleware('throttle:30,1')->name('markets.update');
     Route::delete('/{producer}/pijace/{market}', [ProducerMarketController::class, 'destroy'])->name('markets.destroy');
+
+    // Saved answers for the message box.
+    Route::get('/{producer}/brzi-odgovori', [QuickReplyController::class, 'index'])->name('quick-replies.index');
+    Route::post('/{producer}/brzi-odgovori', [QuickReplyController::class, 'store'])->middleware('throttle:30,1')->name('quick-replies.store');
+    Route::post('/{producer}/brzi-odgovori/predlozi', [QuickReplyController::class, 'storeStarters'])->middleware('throttle:6,1')->name('quick-replies.starters');
+    Route::put('/{producer}/brzi-odgovori/{reply}', [QuickReplyController::class, 'update'])->middleware('throttle:30,1')->name('quick-replies.update');
+    Route::delete('/{producer}/brzi-odgovori/{reply}', [QuickReplyController::class, 'destroy'])->name('quick-replies.destroy');
 });
 
 // Contact clicks reported by a visitor's browser. Public, since

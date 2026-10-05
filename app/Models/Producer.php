@@ -92,6 +92,12 @@ class Producer extends Model
         return $this->hasMany(ProducerMarket::class)->orderBy('id');
     }
 
+    /** Saved answers for the message box. */
+    public function quickReplies(): HasMany
+    {
+        return $this->hasMany(QuickReply::class)->orderBy('id');
+    }
+
     public function messages(): HasMany
     {
         return $this->hasMany(ProducerMessage::class, 'producer_id');

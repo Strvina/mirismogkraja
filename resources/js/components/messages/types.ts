@@ -28,3 +28,10 @@ export interface PendingMessage {
 }
 
 export type ThreadSide = 'producer' | 'buyer';
+
+/** A producer's saved answer. `{ime}` in the body stands for the buyer's name. */
+export interface QuickReply {
+    id: number;
+    title: string;
+    body: string;
+}
