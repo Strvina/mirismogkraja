@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 117).
+Poslednja izmena: 2026-10-06 (posle zadatka 119).
 
 ## 1. Šta je ovo
 
@@ -152,7 +152,11 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 
 - Urađeni su svi zadaci do 117. Poslednji talas (109–117): pijace, katalog, brzi odgovori, „čeka vas
   X kupaca", sertifikati, priče i recepti, preporuke, Google prijava, demo podaci i testovi.
-- Testovi: 495 PHP (3 preskočena bez GD-a) i 11 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 495 PHP (3 preskočena bez GD-a) i 16 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
+  adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
+  `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept).
+  Test sajt piše mejlove u `storage/logs/mail.log` (log kanal `mail`), odakle test čita link.
 - **Sajt nikad nije pušten u rad.** Nema servera, domena ni stvarnih korisnika.
 
 ## 11. Poznata ograničenja
