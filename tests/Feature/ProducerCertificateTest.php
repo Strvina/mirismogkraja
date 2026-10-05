@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\ThrottlePerRoute;
 use App\Models\Producer;
 use App\Models\ProducerCertificate;
 use App\Models\User;
@@ -9,7 +10,6 @@ use App\Support\NotificationText;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -169,7 +169,7 @@ class ProducerCertificateTest extends TestCase
     public function test_only_documents_are_accepted(): void
     {
         // More attempts than the route allows a person in a minute.
-        $this->withoutMiddleware(ThrottleRequests::class);
+        $this->withoutMiddleware(ThrottlePerRoute::class);
 
         $producer = Producer::factory()->active()->create();
         $this->actingAs($producer->user);
