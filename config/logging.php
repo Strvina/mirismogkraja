@@ -65,6 +65,15 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // A file of its own for mail "sent" by the log mailer
+        // (MAIL_LOG_CHANNEL=mail): the messages are easy to find, and the
+        // browser tests read the verification link from it.
+        'mail' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/mail.log'),
+            'level' => 'debug',
+        ],
+
         'daily' => [
             'driver' => 'daily',
             'path' => storage_path('logs/laravel.log'),

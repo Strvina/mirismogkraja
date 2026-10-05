@@ -28,6 +28,8 @@ const env = {
     CACHE_STORE: 'file',
     QUEUE_CONNECTION: 'sync',
     MAIL_MAILER: 'log',
+    // Into storage/logs/mail.log, where a test can read the link it was "sent".
+    MAIL_LOG_CHANNEL: 'mail',
     TURNSTILE_SITE_KEY: '',
     TURNSTILE_SECRET_KEY: '',
     GOOGLE_CLIENT_ID: '',
@@ -43,6 +45,7 @@ const php = process.env.PHP_BINARY ?? 'php';
 
 rmSync(database, { force: true });
 closeSync(openSync(database, 'w'));
+rmSync(path.join(root, 'storage', 'logs', 'mail.log'), { force: true });
 
 const seeded = spawnSync(php, ['artisan', 'migrate:fresh', '--seed', '--force'], { cwd: root, env, stdio: 'inherit' });
 
