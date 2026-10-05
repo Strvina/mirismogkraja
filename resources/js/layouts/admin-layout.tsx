@@ -18,6 +18,7 @@ import {
     Megaphone,
     Package,
     ScrollText,
+    SearchX,
     ShieldCheck,
     Sprout,
     Star,
@@ -43,6 +44,7 @@ const sections = [
     { href: '/admin/kampanje', label: tx('Kampanje'), icon: CalendarHeart },
     { href: '/admin/preporuke', label: tx('Preporuke'), icon: Gift },
     { href: '/admin/nedelja', label: tx('Proizvođač nedelje'), icon: Award },
+    { href: '/admin/pretrage', label: tx('Šta kupci traže'), icon: SearchX },
     { href: '/admin/logovi', label: tx('Logovi'), icon: ScrollText },
 ];
 

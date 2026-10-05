@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\SearchMissController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WeeklyPickController;
 use App\Support\PaidItems;
@@ -76,6 +77,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/prijave', [ReportController::class, 'index'])->name('reports.index');
     Route::patch('/prijave/{report}', [ReportController::class, 'update'])->name('reports.update');
+
+    Route::get('/pretrage', [SearchMissController::class, 'index'])->name('search-misses.index');
 
     Route::get('/logovi', [ActivityLogController::class, 'index'])->name('logs.index');
 

@@ -11,6 +11,7 @@ use App\Models\Report;
 use App\Services\BoostService;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
+use App\Services\SearchMisses;
 use App\Support\PageMeta;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
@@ -47,9 +48,9 @@ class ProductController extends Controller
      * producer behind it, story and phone number included - would make a
      * page of the catalog several times heavier than what it displays.
      */
-    public function index(Request $request, BoostService $boosts): Response
+    public function index(Request $request, BoostService $boosts, SearchMisses $misses): Response
     {
-        return $this->listing($request, $boosts);
+        return $this->listing($request, $boosts, $misses);
     }
 
     /**
@@ -57,14 +58,14 @@ class ProductController extends Controller
      * an address, a title and a description a search engine can show for
      * "domaći med" - a query-string filter has none of those.
      */
-    public function category(Request $request, Category $category, BoostService $boosts): Response
+    public function category(Request $request, Category $category, BoostService $boosts, SearchMisses $misses): Response
     {
         $request->merge(['category_id' => $category->id]);
 
-        return $this->listing($request, $boosts, $category);
+        return $this->listing($request, $boosts, $misses, $category);
     }
 
-    private function listing(Request $request, BoostService $boosts, ?Category $category = null): Response
+    private function listing(Request $request, BoostService $boosts, SearchMisses $misses, ?Category $category = null): Response
     {
         abort_if($request->integer('page') > self::MAX_PAGE, 404);
 
@@ -92,6 +93,21 @@ class ProductController extends Controller
                 ->limit(8)
                 ->get()
             : collect();
+
+        // A search for "Jovanović" is often for the producer, not a
+        // product: the few producers it matches are shown above the list.
+        $matchingProducers = $search === '' || ! $products->onFirstPage() ? collect() : Search::apply(Producer::published(), ['name', 'description'], $search)
+            ->limit(4)
+            ->get(['id', 'name', 'slug', 'city', 'logo_path']);
+
+        // Searched for and not on the site at all - no product, no producer,
+        // and no other filter that could be what emptied the list. Counted
+        // after the response is sent.
+        if ($search !== '' && $category === null && $products->total() === 0 && $matchingProducers->isEmpty() && ! $this->narrowed($request)) {
+            // As typed, not as cleaned for the query: an e-mail address with
+            // its "@" stripped would no longer look like one.
+            defer(fn () => $misses->record($request, $request->string('q')->toString()));
+        }
 
         $choices = $this->filterChoices();
 
@@ -121,11 +137,7 @@ class ProductController extends Controller
                 ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'sort']),
                 'q' => $search !== '' ? $search : null,
             ],
-            // A search for "Jovanović" is often for the producer, not a
-            // product: the few producers it matches are shown above the list.
-            'matchingProducers' => $search === '' || ! $products->onFirstPage() ? [] : Search::apply(Producer::published(), ['name', 'description'], $search)
-                ->limit(4)
-                ->get(['id', 'name', 'slug', 'city', 'logo_path']),
+            'matchingProducers' => $matchingProducers,
             'perPage' => $this->perPage($request),
             'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
@@ -163,6 +175,14 @@ class ProductController extends Controller
                 'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
             ];
         });
+    }
+
+    /** Whether anything besides the search words narrows the list. */
+    private function narrowed(Request $request): bool
+    {
+        return collect($request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'in_season']))
+            ->filter(fn ($value) => filled($value))
+            ->isNotEmpty();
     }
 
     private function filtered(Request $request): Builder

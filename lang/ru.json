@@ -1082,5 +1082,13 @@
     "Prijava preko Google naloga nije uspela. Pokušajte ponovo.": "Не удалось войти через Google. Попробуйте ещё раз.",
     "Upišite e-mail adresu naloga da potvrdite brisanje.": "Введите адрес электронной почты аккаунта, чтобы подтвердить удаление.",
     "Google nalog nema potvrđenu e-mail adresu, pa ne možemo da vas prijavimo preko njega.": "У этого аккаунта Google нет подтверждённого адреса почты, поэтому мы не можем войти через него.",
-    "Ovaj nalog je povezan sa drugim Google nalogom. Prijavite se e-mailom i lozinkom.": "Этот аккаунт связан с другим аккаунтом Google. Войдите по адресу почты и паролю."
+    "Ovaj nalog je povezan sa drugim Google nalogom. Prijavite se e-mailom i lozinkom.": "Этот аккаунт связан с другим аккаунтом Google. Войдите по адресу почты и паролю.",
+    "Šta kupci traže": "Что ищут покупатели",
+    "Pretrage kataloga koje nisu našle ni proizvod ni proizvođača. Brojimo ljude, ne klikove: isti posetilac se za isti pojam računa jednom dnevno, roboti se ne računaju, a o tome ko je tražio ne čuvamo ništa. Brojači se čuvaju :days dana.": "Поисковые запросы по каталогу, которые не нашли ни товара, ни производителя. Мы считаем людей, а не клики: один посетитель учитывается по одному запросу раз в день, роботы не учитываются, и о том, кто искал, ничего не сохраняется. Счётчики хранятся :days дней.",
+    "Poslednjih :days dana": "Последние :days дней",
+    "U ovom periodu svaka pretraga je nešto našla.": "За этот период каждый поиск что-то нашёл.",
+    "poslednji put :date": "последний раз :date",
+    "Kupci traže, a niko ne nudi": "Покупатели ищут, а никто не предлагает",
+    "Šta su posetioci tražili u poslednjih 30 dana, a nije bilo na sajtu. Ako pravite nešto od ovoga, dodajte proizvod.": "Что посетители искали за последние 30 дней и не нашли на сайте. Если вы делаете что-то из этого, добавьте товар.",
+    "Za sada nema takvih pretraga.": "Пока таких запросов нет."
 }

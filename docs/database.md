@@ -511,6 +511,19 @@ Daily counters per producer: profile and product views, contact clicks, QR scans
 
 Indexes: unique (producer_id, date, event, product_id)
 
+## search_misses
+
+"Šta kupci traže, a niko ne nudi": catalogue searches that found neither a product nor a producer, as daily counters per term. A visitor counts once a day per term; bots, terms under 3 characters and anything that looks like an e-mail address or phone number are not stored. Nothing about the visitor is kept. Rows older than 180 days are deleted nightly.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `term` | string |  | lower case, single spaces, at most 60 characters |
+| `date` | date |  |  |
+| `hits` | integer |  |  |
+
+Indexes: unique (date, term)
+
 ## settings
 
 Key-value settings edited in the admin panel (payment slip details, founding limit, boost prices).

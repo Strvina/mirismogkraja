@@ -52,7 +52,7 @@ class ProducerStatistics
     /** The same visitor counts once per page in this window, however often they reload. */
     private const REPEAT_WINDOW_MINUTES = 30;
 
-    private const BOTS = '/bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|viber|telegram|skype|curl|wget|python|headless|lighthouse/i';
+    public const BOTS = '/bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|viber|telegram|skype|curl|wget|python|headless|lighthouse/i';
 
     /**
      * Count one event, unless the request is not a person's visit: a bot,

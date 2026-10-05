@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ActivityLog;
+use App\Services\SearchMisses;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Schedule;
 
@@ -20,6 +21,11 @@ Schedule::call(fn () => DatabaseNotification::query()
     ->delete())
     ->dailyAt('03:45')
     ->name('prune-read-notifications');
+
+// Counters of searches that found nothing, past the time anyone reads them.
+Schedule::call(fn () => app(SearchMisses::class)->prune())
+    ->dailyAt('03:50')
+    ->name('prune-search-misses');
 
 // The database, nightly, before the other jobs touch it (see config/backup.php).
 $backup = Schedule::command('backup:database')->dailyAt('02:30')->withoutOverlapping();
