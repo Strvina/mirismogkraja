@@ -34,6 +34,11 @@ return [
         'published' => ['title' => 'Ваш отзыв опубликован', 'body' => 'Отзыв о «:producer» теперь виден всем.'],
     ],
 
+    'certificate' => [
+        'approved' => ['title' => 'Сертификат подтверждён', 'body' => '«:title» теперь виден в вашем профиле.'],
+        'rejected' => ['title' => 'Сертификат не принят', 'body' => '«:title»: :reason'],
+    ],
+
     'weekly-pick' => ['title' => 'Производитель недели', 'body' => '«:producer» — производитель недели с :starts_on и будет показан на главной странице.'],
 
     'membership' => [
@@ -60,6 +65,7 @@ return [
 
     'admin' => [
         'producer-pending' => ['title' => 'Новый производитель ждёт одобрения', 'body' => '«:producer» (:city).'],
+        'certificate-pending' => ['title' => 'Новый сертификат ждёт проверки', 'body' => '«:producer» — :title.'],
         'membership-requested' => ['title' => 'Новая оплата членства', 'body' => '«:producer» — тариф :plan, :amount RSD, номер платежа :reference.'],
         'boost-requested' => ['title' => 'Новая оплата продвижения', 'body' => '«:producer» — :name, :amount RSD, номер платежа :reference.'],
         'campaign-requested' => ['title' => 'Новая заявка на кампанию', 'body' => '«:producer» — :campaign, :amount RSD, номер платежа :reference.'],

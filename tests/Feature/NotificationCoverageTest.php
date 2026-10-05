@@ -49,6 +49,8 @@ class NotificationCoverageTest extends TestCase
             'membership.requested', 'membership.activated', 'membership.ending', 'membership.expired', 'membership.cancelled',
             'boost.requested', 'boost.activated', 'boost.ending', 'boost.expired', 'boost.cancelled',
             'campaign.requested', 'campaign.joined', 'campaign.cancelled',
+            'product.available', 'product.wanted', 'product.blocked', 'certificate.approved', 'certificate.rejected',
+            'admin.certificate-pending',
             'admin.producer-pending', 'admin.membership-requested', 'admin.boost-requested', 'admin.campaign-requested',
             'admin.review-pending', 'admin.report-opened', 'admin.change-requested',
         ];

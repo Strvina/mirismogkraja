@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { t } from '@/lib/i18n';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
-import { CalendarHeart, ChevronDown, MapPin, Megaphone, QrCode, Zap, type LucideIcon } from 'lucide-react';
+import { CalendarHeart, ChevronDown, MapPin, Megaphone, QrCode, ShieldCheck, Zap, type LucideIcon } from 'lucide-react';
 
 interface Item {
     label: string;
@@ -21,6 +21,7 @@ export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer
     const items: Item[] = [
         { label: t('Gde me nađete'), href: route('producers.markets.index', producer.id), icon: MapPin },
         { label: t('Brzi odgovori'), href: route('producers.quick-replies.index', producer.id), icon: Zap },
+        { label: t('Sertifikati'), href: route('producers.certificates.index', producer.id), icon: ShieldCheck },
         // The code on the poster opens the public page, which exists once approved.
         ...(producer.status === 'active'
             ? [{ label: t('QR poster za tezgu'), href: route('producers.poster', producer.id), icon: QrCode, download: true }]

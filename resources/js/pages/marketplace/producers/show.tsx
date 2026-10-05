@@ -2,6 +2,7 @@ import { type Paginated } from '@/components/marketplace/pagination';
 import { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
 import { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
+import CertificateList, { type PublicCertificate } from '@/components/producer-page/certificate-list';
 import ContactCard from '@/components/producer-page/contact-card';
 import LocationLinks from '@/components/producer-page/location-links';
 import MarketList from '@/components/producer-page/market-list';
@@ -22,6 +23,7 @@ export default function ProducerShow({
     producer,
     gallery,
     markets,
+    certificates,
     products,
     productsCount,
     reviews,
@@ -45,6 +47,8 @@ export default function ProducerShow({
     phone?: string | null;
     gallery: { id: number; path: string; caption: string | null }[];
     markets: ProducerMarket[];
+    /** Approved and in date; the documents themselves are never sent. */
+    certificates: PublicCertificate[];
     products: Pick<Product, 'id' | 'name' | 'slug' | 'price' | 'unit' | 'images'>[];
     /** All of the producer's published products; more than are shown above. */
     productsCount: number;
@@ -123,6 +127,7 @@ export default function ProducerShow({
                 </section>
             )}
 
+            <CertificateList certificates={certificates} />
             <MarketList markets={markets} />
             <ProducerGallery images={gallery} />
             <ProducerProducts producerId={producer.id} producerSlug={producer.slug} products={products} total={productsCount} />

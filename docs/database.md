@@ -134,6 +134,29 @@ Indexes: (producer_id, order)
 
 Indexes: (producer_id)
 
+## producer_certificates
+
+Documents behind what a producer claims (organic, protected origin, registered farm, award). `status` is pending → approved or rejected by an admin; only approved ones still in date show on the public page, as a line of text. The file is on the private disk and is sent only to its producer and to admins. At most 10 per producer; deleting the row deletes the file.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `producer_id` | integer |  | → producers.id (cascade) |
+| `type` | string |  | one of `ProducerCertificate::TYPES` |
+| `title` | string |  |  |
+| `issuer` | string | yes |  |
+| `issued_on` | date | yes |  |
+| `expires_on` | date | yes |  |
+| `file_path` | string |  | on the private `local` disk |
+| `status` | string |  | pending, approved, rejected |
+| `rejection_reason` | string | yes |  |
+| `reviewed_by` | integer | yes | → users.id (set null) |
+| `reviewed_at` | datetime | yes |  |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: (producer_id, status); (status, created_at); (reviewed_by)
+
 ## categories
 
 Product categories, with a public page each (`/kategorija/{slug}`).

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ProducerCertificateController;
 use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProducerImageController;
 use App\Http\Controllers\ProducerMarketController;
@@ -26,6 +27,12 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::post('/{producer}/pijace', [ProducerMarketController::class, 'store'])->middleware('throttle:30,1')->name('markets.store');
     Route::put('/{producer}/pijace/{market}', [ProducerMarketController::class, 'update'])->middleware('throttle:30,1')->name('markets.update');
     Route::delete('/{producer}/pijace/{market}', [ProducerMarketController::class, 'destroy'])->name('markets.destroy');
+
+    // Certificates: uploads are large and each one notifies the admins.
+    Route::get('/{producer}/sertifikati', [ProducerCertificateController::class, 'index'])->name('certificates.index');
+    Route::post('/{producer}/sertifikati', [ProducerCertificateController::class, 'store'])->middleware('throttle:6,1')->name('certificates.store');
+    Route::get('/{producer}/sertifikati/{certificate}/dokument', [ProducerCertificateController::class, 'file'])->middleware('throttle:60,1')->name('certificates.file');
+    Route::delete('/{producer}/sertifikati/{certificate}', [ProducerCertificateController::class, 'destroy'])->name('certificates.destroy');
 
     // Saved answers for the message box.
     Route::get('/{producer}/brzi-odgovori', [QuickReplyController::class, 'index'])->name('quick-replies.index');

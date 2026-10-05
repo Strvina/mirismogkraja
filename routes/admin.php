@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminCampaignController;
 use App\Http\Controllers\Admin\AdminCancellationController;
 use App\Http\Controllers\Admin\AdminMembershipController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CertificateController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProducerChangeRequestController;
 use App\Http\Controllers\Admin\ProducerController;
@@ -33,6 +34,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/proizvodi/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/proizvodi/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/proizvodi/masovno', [ProductController::class, 'bulk'])->name('products.bulk');
+
+    Route::get('/sertifikati', [CertificateController::class, 'index'])->name('certificates.index');
+    Route::patch('/sertifikati/{certificate}/odobri', [CertificateController::class, 'approve'])->name('certificates.approve');
+    Route::patch('/sertifikati/{certificate}/odbij', [CertificateController::class, 'reject'])->name('certificates.reject');
 
     Route::get('/zahtevi', [ProducerChangeRequestController::class, 'index'])->name('change-requests.index');
     Route::patch('/zahtevi/{changeRequest}/odobri', [ProducerChangeRequestController::class, 'approve'])->name('change-requests.approve');
