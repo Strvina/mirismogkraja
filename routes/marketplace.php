@@ -3,6 +3,7 @@
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\Marketplace\CatalogController;
 use App\Http\Controllers\Marketplace\FoundingProducerController;
+use App\Http\Controllers\Marketplace\PlaceController;
 use App\Http\Controllers\Marketplace\PostController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
@@ -22,6 +23,9 @@ Route::get('/katalog/{producer:slug}', CatalogController::class)->name('marketpl
 Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
 Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->name('marketplace.categories.show');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
+// A town's own page, and a category within it ("domaći med Niš").
+Route::get('/mesto/{place}', [PlaceController::class, 'show'])->name('marketplace.places.show');
+Route::get('/mesto/{place}/{category:slug}', [PlaceController::class, 'category'])->name('marketplace.places.category');
 // Stories and recipes written by producers.
 Route::get('/price', [PostController::class, 'index'])->name('marketplace.posts.index');
 Route::get('/price/{post:slug}', [PostController::class, 'show'])->name('marketplace.posts.show');

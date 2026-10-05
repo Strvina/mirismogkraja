@@ -19,6 +19,7 @@ type SimilarProduct = Pick<Product, 'id' | 'name' | 'slug' | 'images'>;
 export default function ProductShow({
     product,
     similar,
+    place,
     canInquire,
     responseTime,
     available,
@@ -29,6 +30,8 @@ export default function ProductShow({
 }: {
     product: FullProduct;
     similar: SimilarProduct[];
+    /** The producer's town as a page of its own, when it has one. */
+    place: { slug: string; name: string } | null;
     canInquire: boolean;
     responseTime: ResponseTimeBucket | null;
     /** In stock and in season. */
@@ -186,7 +189,16 @@ export default function ProductShow({
                             {product.producer.city && (
                                 <p className="text-muted-foreground flex items-center gap-1 text-xs">
                                     <MapPin className="size-3" />
-                                    {product.producer.city}
+                                    {place ? (
+                                        <Link
+                                            href={route('marketplace.places.show', place.slug)}
+                                            className="hover:text-foreground underline-offset-4 hover:underline"
+                                        >
+                                            {product.producer.city}
+                                        </Link>
+                                    ) : (
+                                        product.producer.city
+                                    )}
                                 </p>
                             )}
                             <ResponseTimeBadge bucket={responseTime} className="text-muted-foreground mt-1 text-xs" />

@@ -11,6 +11,7 @@ use App\Models\ProducerMarket;
 use App\Models\Report;
 use App\Models\Review;
 use App\Services\BoostService;
+use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SubscriptionService;
@@ -179,7 +180,7 @@ class ProducerController extends Controller
      * Show a producer's public page. Only 'active' producers (approved by
      * an admin) are publicly visible - pending/blocked ones 404.
      */
-    public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics, ResponseTime $responseTime): Response
+    public function show(Request $request, Producer $producer, SubscriptionService $subscriptions, ProducerStatistics $statistics, ResponseTime $responseTime, Places $places): Response
     {
         if ($producer->status !== 'active') {
             throw new NotFoundHttpException;
@@ -221,6 +222,8 @@ class ProducerController extends Controller
                 ),
                 'structured' => PageMeta::producer($producer, $averageRating, $reviewCount = $producer->reviews()->approved()->count()),
             ],
+            // The town as a link to everything sold from there.
+            'place' => $places->forCity($producer->city),
             'isPremium' => $subscriptions->hasFeature($producer, 'premium_badge'),
             'responseTime' => $responseTime->bucketFor($producer),
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),

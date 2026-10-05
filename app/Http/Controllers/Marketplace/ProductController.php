@@ -9,6 +9,7 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Report;
 use App\Services\BoostService;
+use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SearchMisses;
@@ -48,9 +49,9 @@ class ProductController extends Controller
      * producer behind it, story and phone number included - would make a
      * page of the catalog several times heavier than what it displays.
      */
-    public function index(Request $request, BoostService $boosts, SearchMisses $misses): Response
+    public function index(Request $request, BoostService $boosts, SearchMisses $misses, Places $places): Response
     {
-        return $this->listing($request, $boosts, $misses);
+        return $this->listing($request, $boosts, $misses, $places);
     }
 
     /**
@@ -58,14 +59,14 @@ class ProductController extends Controller
      * an address, a title and a description a search engine can show for
      * "domaći med" - a query-string filter has none of those.
      */
-    public function category(Request $request, Category $category, BoostService $boosts, SearchMisses $misses): Response
+    public function category(Request $request, Category $category, BoostService $boosts, SearchMisses $misses, Places $places): Response
     {
         $request->merge(['category_id' => $category->id]);
 
-        return $this->listing($request, $boosts, $misses, $category);
+        return $this->listing($request, $boosts, $misses, $places, $category);
     }
 
-    private function listing(Request $request, BoostService $boosts, SearchMisses $misses, ?Category $category = null): Response
+    private function listing(Request $request, BoostService $boosts, SearchMisses $misses, Places $places, ?Category $category = null): Response
     {
         abort_if($request->integer('page') > self::MAX_PAGE, 404);
 
@@ -130,6 +131,8 @@ class ProductController extends Controller
                 )
                 : PageMeta::make(__('Proizvodi | Vrelina juga'), __('Domaći proizvodi, direktno od ljudi koji ih prave.')),
             'category' => $category?->only(['id', 'name', 'slug']),
+            // Where this category is sold from, each a page of its own.
+            'places' => $category ? $places->withCategory($category) : [],
             'products' => $products->through($card),
             'featured' => $featured->map($card)->values(),
             ...$choices,
@@ -189,8 +192,7 @@ class ProductController extends Controller
     {
         return Product::query()
             ->published()
-            ->select(['id', 'producer_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'season_from', 'season_to', 'created_at'])
-            ->with(['images:id,product_id,path,order', 'producer:id,name,city'])
+            ->withCardData()
             ->when($request->filled('q'), fn ($query) => Search::apply($query, self::SEARCHED, $request->string('q')->toString()))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('producer_id', $producerId))
@@ -219,7 +221,7 @@ class ProductController extends Controller
      * Show a product's public page. Only 'active' products belonging to an
      * 'active' producer are publicly visible.
      */
-    public function show(Request $request, Product $product, ProducerStatistics $statistics, ResponseTime $responseTime): Response
+    public function show(Request $request, Product $product, ProducerStatistics $statistics, ResponseTime $responseTime, Places $places): Response
     {
         $product->load(['producer:id,user_id,name,slug,city,logo_path,status', 'category:id,name', 'images']);
 
@@ -242,6 +244,8 @@ class ProductController extends Controller
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
             'similar' => $similar,
+            // The producer's town as a link to everything sold from there.
+            'place' => $places->forCity($product->producer->city),
             'meta' => [
                 ...PageMeta::make(
                     "{$product->name} - {$product->producer->name}",
