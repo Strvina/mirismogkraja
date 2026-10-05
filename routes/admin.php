@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\ProducerChangeRequestController;
 use App\Http\Controllers\Admin\ProducerController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ReferralController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\UserController;
@@ -43,6 +44,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/price', [PostController::class, 'index'])->name('posts.index');
     Route::patch('/price/{post}/status', [PostController::class, 'updateStatus'])->name('posts.status');
     Route::delete('/price/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+    Route::get('/preporuke', [ReferralController::class, 'index'])->name('referrals.index');
 
     Route::get('/zahtevi', [ProducerChangeRequestController::class, 'index'])->name('change-requests.index');
     Route::patch('/zahtevi/{changeRequest}/odobri', [ProducerChangeRequestController::class, 'approve'])->name('change-requests.approve');

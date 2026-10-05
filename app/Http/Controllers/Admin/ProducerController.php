@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProducerRequest;
 use App\Models\Producer;
+use App\Models\Referral;
 use App\Notifications\SiteNotification;
 use App\Services\FoundingProducerService;
+use App\Services\ReferralService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -33,6 +35,21 @@ class ProducerController extends Controller
             ->paginate(25)
             ->withQueryString();
 
+        // Who referred the producers still waiting, in one query for the
+        // page: approving one of them gives both sides a month of Premium,
+        // so the admin should see that before deciding.
+        $referrers = Referral::query()
+            ->where('status', Referral::STATUS_PENDING)
+            ->whereIn('referred_user_id', $producers->getCollection()->where('status', 'pending')->pluck('user_id'))
+            ->with('referrer:id,name')
+            ->get()
+            ->mapWithKeys(fn (Referral $referral) => [$referral->referred_user_id => $referral->referrer?->name]);
+
+        $producers->getCollection()->each(fn (Producer $producer) => $producer->setAttribute(
+            'referred_by',
+            $producer->status === 'pending' ? $referrers->get($producer->user_id) : null,
+        ));
+
         return Inertia::render('admin/producers/index', [
             'producers' => $producers,
             'pendingCount' => Producer::where('status', 'pending')->count(),
@@ -44,7 +61,7 @@ class ProducerController extends Controller
      * Admin sets a producer's status directly (approve pending -> active,
      * or block/unblock) - bypasses ProducerPolicy's owner-only rules.
      */
-    public function updateStatus(Request $request, Producer $producer, FoundingProducerService $founding): RedirectResponse
+    public function updateStatus(Request $request, Producer $producer, FoundingProducerService $founding, ReferralService $referrals): RedirectResponse
     {
         $data = $request->validate(['status' => ['required', 'in:pending,active,blocked']]);
 
@@ -55,6 +72,14 @@ class ProducerController extends Controller
         // is never approved does not use up a place.
         if ($producer->status === 'active') {
             $founding->claimNumberFor($producer);
+        }
+
+        // A producer who came through a referral link earns the month of
+        // Premium for both sides here, at approval - the one step of a
+        // referral that a person decides. Settled once per account, so
+        // approving again after a block gives nothing more.
+        if ($previous !== 'active' && $producer->status === 'active') {
+            $referrals->settleFor($producer);
         }
 
         // Only on an actual change, so re-saving the same status doesn't

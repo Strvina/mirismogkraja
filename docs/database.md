@@ -57,10 +57,11 @@ A producer's public page: name, story, contact, location, delivery methods, cove
 | `story` | text | yes |  |
 | `deleted_at` | datetime | yes |  |
 | `founding_number` | integer | yes |  |
+| `referral_code` | string | yes | the producer's referral link; made on first use |
 | `founding_joined_at` | datetime | yes |  |
 | `verified_at` | datetime | yes |  |
 
-Indexes: (status, name); unique (founding_number); (city); unique (slug)
+Indexes: (status, name); unique (founding_number); unique (referral_code); (city); unique (slug)
 
 ## products
 
@@ -396,6 +397,23 @@ A producer's membership: requested (pending_payment), active, expired or cancell
 | `updated_at` | datetime | yes |  |
 
 Indexes: unique (reference); (producer_id, status); (status, ends_at)
+
+## referrals
+
+"Preporuči proizvođača": an account opened through a producer's referral link (`producers.referral_code`). Written when the account is created; settled when the account's first producer is approved by an admin. `status` is pending, rewarded (both producers were granted 30 days of Premium), or the reason nothing was granted: cap_reached, same_person, expired, referrer_inactive.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `referrer_producer_id` | integer |  | → producers.id (cascade) |
+| `referred_user_id` | integer |  | → users.id (cascade); an account is referred once |
+| `referred_producer_id` | integer | yes | → producers.id (set null); a producer earns a reward once |
+| `status` | string |  |  |
+| `rewarded_at` | datetime | yes |  |
+| `created_at` | datetime | yes |  |
+| `updated_at` | datetime | yes |  |
+
+Indexes: unique (referred_user_id); unique (referred_producer_id); (referrer_producer_id, rewarded_at)
 
 ## boosts
 

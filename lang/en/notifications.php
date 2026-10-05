@@ -16,6 +16,11 @@ return [
         ],
     ],
 
+    'referral' => [
+        'rewarded' => ['title' => 'Your referral paid off', 'body' => '“:producer” joined on your recommendation. You have a month of Premium membership, until :ends_on.'],
+        'welcome' => ['title' => 'A month of Premium membership, on us', 'body' => 'You came on the recommendation of “:producer”, so your Premium runs until :ends_on.'],
+    ],
+
     'change-request' => [
         'approved' => ['title' => 'Name change approved', 'body' => 'Your producer is now called “:name”.'],
         'rejected' => ['title' => 'Name change not approved', 'body' => 'The name “:name” was not accepted, so the current one stays. Contact us if you need help.'],

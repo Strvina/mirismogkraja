@@ -20,6 +20,11 @@ return [
         ],
     ],
 
+    'referral' => [
+        'rewarded' => ['title' => 'Preporuka se isplatila', 'body' => '„:producer” se pridružio na vašu preporuku. Dobili ste mesec dana Premium članstva, do :ends_on.'],
+        'welcome' => ['title' => 'Mesec dana Premium članstva na poklon', 'body' => 'Došli ste na preporuku proizvođača „:producer”, pa vam Premium važi do :ends_on.'],
+    ],
+
     'change-request' => [
         'approved' => ['title' => 'Izmena naziva je odobrena', 'body' => 'Vaš proizvođač se od sada zove „:name”.'],
         'rejected' => ['title' => 'Izmena naziva nije odobrena', 'body' => 'Naziv „:name” nije prihvaćen, pa ostaje dosadašnji. Javite nam se ako vam treba pomoć.'],

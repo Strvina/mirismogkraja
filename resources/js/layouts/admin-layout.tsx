@@ -12,6 +12,7 @@ import {
     FilePen,
     Flag,
     FolderTree,
+    Gift,
     LayoutDashboard,
     LogOut,
     Megaphone,
@@ -40,6 +41,7 @@ const sections = [
     { href: '/admin/clanarine', label: tx('Članarine'), icon: Wallet },
     { href: '/admin/isticanja', label: tx('Isticanja'), icon: Megaphone },
     { href: '/admin/kampanje', label: tx('Kampanje'), icon: CalendarHeart },
+    { href: '/admin/preporuke', label: tx('Preporuke'), icon: Gift },
     { href: '/admin/nedelja', label: tx('Proizvođač nedelje'), icon: Award },
     { href: '/admin/logovi', label: tx('Logovi'), icon: ScrollText },
 ];
