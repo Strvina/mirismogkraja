@@ -1074,5 +1074,13 @@
     "Bez nagrade: dostignut godišnji broj": "Без награды: достигнут годовой лимит",
     "Bez nagrade: isti kontakt kao kod preporučioca": "Без награды: тот же контакт, что у рекомендателя",
     "Bez nagrade: preporuka je istekla": "Без награды: рекомендация истекла",
-    "Bez nagrade: preporučilac nije aktivan": "Без награды: рекомендатель не активен"
+    "Bez nagrade: preporučilac nije aktivan": "Без награды: рекомендатель не активен",
+    "Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Upišite e-mail adresu naloga da potvrdite da želite trajno da ga obrišete.": "После удаления аккаунта все связанные с ним данные будут удалены навсегда. Введите адрес электронной почты аккаунта, чтобы подтвердить удаление.",
+    "ili": "или",
+    "Nastavi sa Google nalogom": "Продолжить с Google",
+    "Prijavljujete se preko Google naloga, pa lozinku još nemate. Ako je postavite, moći ćete da se prijavite i e-mailom i lozinkom.": "Вы входите через аккаунт Google, поэтому пароля у вас пока нет. Если вы его зададите, сможете входить и по адресу почты с паролем.",
+    "Prijava preko Google naloga nije uspela. Pokušajte ponovo.": "Не удалось войти через Google. Попробуйте ещё раз.",
+    "Upišite e-mail adresu naloga da potvrdite brisanje.": "Введите адрес электронной почты аккаунта, чтобы подтвердить удаление.",
+    "Google nalog nema potvrđenu e-mail adresu, pa ne možemo da vas prijavimo preko njega.": "У этого аккаунта Google нет подтверждённого адреса почты, поэтому мы не можем войти через него.",
+    "Ovaj nalog je povezan sa drugim Google nalogom. Prijavite se e-mailom i lozinkom.": "Этот аккаунт связан с другим аккаунтом Google. Войдите по адресу почты и паролю."
 }

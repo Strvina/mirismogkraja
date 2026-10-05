@@ -12,7 +12,12 @@ import HeadingSmall from '@/components/heading-small';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { t } from '@/lib/i18n';
 
-export default function DeleteUser() {
+/**
+ * Deleting the account, confirmed with the password - or, for an account
+ * opened with Google that has none, by typing the account's e-mail address.
+ * Either way the answer travels in the same field.
+ */
+export default function DeleteUser({ hasPassword = true }: { hasPassword?: boolean }) {
     const passwordInput = useRef<HTMLInputElement>(null);
     const { data, setData, delete: destroy, processing, reset, errors, clearErrors } = useForm({ password: '' });
 
@@ -48,25 +53,29 @@ export default function DeleteUser() {
                     <DialogContent>
                         <DialogTitle>{t('Da li ste sigurni da želite da obrišete nalog?')}</DialogTitle>
                         <DialogDescription>
-                            {t(
-                                'Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Unesite lozinku da potvrdite da želite trajno da obrišete nalog.',
-                            )}
+                            {hasPassword
+                                ? t(
+                                      'Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Unesite lozinku da potvrdite da želite trajno da obrišete nalog.',
+                                  )
+                                : t(
+                                      'Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Upišite e-mail adresu naloga da potvrdite da želite trajno da ga obrišete.',
+                                  )}
                         </DialogDescription>
                         <form className="space-y-6" onSubmit={deleteUser}>
                             <div className="grid gap-2">
                                 <Label htmlFor="password" className="sr-only">
-                                    {t('Lozinka')}
+                                    {hasPassword ? t('Lozinka') : t('Email adresa')}
                                 </Label>
 
                                 <Input
                                     id="password"
-                                    type="password"
+                                    type={hasPassword ? 'password' : 'email'}
                                     name="password"
                                     ref={passwordInput}
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
-                                    placeholder={t('Lozinka')}
-                                    autoComplete="current-password"
+                                    placeholder={hasPassword ? t('Lozinka') : t('Email adresa')}
+                                    autoComplete={hasPassword ? 'current-password' : 'off'}
                                 />
 
                                 <InputError message={errors.password} />

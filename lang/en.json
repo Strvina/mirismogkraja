@@ -1061,5 +1061,13 @@
     "Bez nagrade: dostignut godišnji broj": "No reward: yearly limit reached",
     "Bez nagrade: isti kontakt kao kod preporučioca": "No reward: same contact as the referrer",
     "Bez nagrade: preporuka je istekla": "No reward: the referral expired",
-    "Bez nagrade: preporučilac nije aktivan": "No reward: the referrer is not active"
+    "Bez nagrade: preporučilac nije aktivan": "No reward: the referrer is not active",
+    "Kada obrišete nalog, svi podaci vezani za njega biće trajno uklonjeni. Upišite e-mail adresu naloga da potvrdite da želite trajno da ga obrišete.": "Once you delete your account, all data tied to it will be permanently removed. Type the account's e-mail address to confirm that you want to delete it for good.",
+    "ili": "or",
+    "Nastavi sa Google nalogom": "Continue with Google",
+    "Prijavljujete se preko Google naloga, pa lozinku još nemate. Ako je postavite, moći ćete da se prijavite i e-mailom i lozinkom.": "You sign in with your Google account, so you have no password yet. If you set one, you will also be able to sign in with your e-mail and password.",
+    "Prijava preko Google naloga nije uspela. Pokušajte ponovo.": "Signing in with Google did not work. Please try again.",
+    "Upišite e-mail adresu naloga da potvrdite brisanje.": "Type the account's e-mail address to confirm the deletion.",
+    "Google nalog nema potvrđenu e-mail adresu, pa ne možemo da vas prijavimo preko njega.": "That Google account has no verified e-mail address, so we cannot sign you in with it.",
+    "Ovaj nalog je povezan sa drugim Google nalogom. Prijavite se e-mailom i lozinkom.": "This account is linked to a different Google account. Sign in with your e-mail and password."
 }

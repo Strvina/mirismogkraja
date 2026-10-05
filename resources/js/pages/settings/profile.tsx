@@ -23,7 +23,16 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: boolean; status?: string }) {
+export default function Profile({
+    mustVerifyEmail,
+    status,
+    hasPassword,
+}: {
+    mustVerifyEmail: boolean;
+    status?: string;
+    /** False for an account opened with Google that has not set a password. */
+    hasPassword: boolean;
+}) {
     const { auth } = usePage<SharedData>().props;
     const [avatarPreview, setAvatarPreview] = useState<string | null>(auth.user.avatar_path ? thumbUrl(auth.user.avatar_path) : null);
 
@@ -237,7 +246,7 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     </form>
                 </div>
 
-                <DeleteUser />
+                <DeleteUser hasPassword={hasPassword} />
             </SettingsLayout>
         </MarketplaceLayout>
     );

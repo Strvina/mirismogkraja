@@ -67,7 +67,17 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
     protected $hidden = [
         'password',
         'remember_token',
+        'google_id',
     ];
+
+    /**
+     * False for an account opened with Google whose owner has not set a
+     * password yet: there is no current password to ask them for.
+     */
+    public function hasPassword(): bool
+    {
+        return $this->password !== null;
+    }
 
     /**
      * Get the attributes that should be cast.

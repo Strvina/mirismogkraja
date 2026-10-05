@@ -1,7 +1,8 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
+import GoogleButton from '@/components/google-button';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -20,14 +21,19 @@ interface LoginForm extends Record<string, string | boolean> {
 interface LoginProps {
     status?: string;
     canResetPassword: boolean;
+    /** Whether "Nastavi sa Google nalogom" is offered (its keys are set). */
+    googleEnabled: boolean;
 }
 
-export default function Login({ status, canResetPassword }: LoginProps) {
+export default function Login({ status, canResetPassword, googleEnabled }: LoginProps) {
     const { data, setData, post, processing, errors, reset } = useForm<LoginForm>({
         email: '',
         password: '',
         remember: false,
     });
+    // A sign-in with Google that did not work comes back here as a page
+    // load, so its message is on the page rather than on the form.
+    const pageErrors = usePage().props.errors as Record<string, string> | undefined;
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -55,7 +61,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                             onChange={(e) => setData('email', e.target.value)}
                             placeholder={t('email@example.com')}
                         />
-                        <InputError message={errors.email} />
+                        <InputError message={errors.email ?? pageErrors?.email} />
                     </div>
 
                     <div className="grid gap-2">
@@ -90,6 +96,8 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         {t('Prijavi se')}
                     </Button>
                 </div>
+
+                {googleEnabled && <GoogleButton />}
 
                 <div className="text-muted-foreground text-center text-sm">
                     {t('Nemate nalog?')}{' '}

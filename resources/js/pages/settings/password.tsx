@@ -19,7 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Password() {
+export default function Password({ hasPassword = true }: { hasPassword?: boolean }) {
     const passwordInput = useRef<HTMLInputElement>(null);
     const currentPasswordInput = useRef<HTMLInputElement>(null);
 
@@ -57,8 +57,16 @@ export default function Password() {
                 <div className="space-y-6">
                     <HeadingSmall title={t('Izmena lozinke')} description={t('Koristite dugu, nasumičnu lozinku da bi nalog ostao bezbedan')} />
 
+                    {!hasPassword && (
+                        <p className="bg-muted/50 rounded-lg px-4 py-3 text-sm leading-6">
+                            {t(
+                                'Prijavljujete se preko Google naloga, pa lozinku još nemate. Ako je postavite, moći ćete da se prijavite i e-mailom i lozinkom.',
+                            )}
+                        </p>
+                    )}
+
                     <form onSubmit={updatePassword} className="space-y-6">
-                        <div className="grid gap-2">
+                        <div className={cn('grid gap-2', !hasPassword && 'hidden')}>
                             <Label htmlFor="current_password">{t('Trenutna lozinka')}</Label>
 
                             <Input
