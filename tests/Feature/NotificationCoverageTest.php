@@ -43,7 +43,7 @@ class NotificationCoverageTest extends TestCase
     public function test_every_type_has_a_sentence(): void
     {
         $types = [
-            'producer.approved', 'producer.verified', 'producer.blocked', 'producer.resumed', 'founding.granted',
+            'producer.approved', 'producer.verified', 'producer.blocked', 'producer.resumed', 'producer.incomplete', 'founding.granted',
             'change-request.approved', 'change-request.rejected', 'product.published',
             'review.received', 'review.published', 'weekly-pick',
             'membership.requested', 'membership.activated', 'membership.ending', 'membership.expired', 'membership.cancelled',

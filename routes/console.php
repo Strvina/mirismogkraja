@@ -41,6 +41,9 @@ Schedule::call(fn () => app(ProducerPause::class)->resumeDue())
     ->dailyAt('06:00')
     ->name('resume-paused-producers');
 
+// A reminder to owners whose week-old page is still mostly empty.
+Schedule::command('producers:nudge-incomplete')->dailyAt('10:00')->withoutOverlapping();
+
 // "You have a message" e-mails, for messages unread for a few minutes.
 Schedule::command('messages:email-unread')->everyFiveMinutes()->withoutOverlapping();
 

@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 128).
+Poslednja izmena: 2026-10-05 (posle zadatka 129).
 
 ## 1. Šta je ovo
 
@@ -82,7 +82,7 @@ deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 priča / oglasa „Tražim", potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
-mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), nedeljni pregled pratiocima (četvrtak 09:00), čišćenje logova i obaveštenja.
+mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), nedeljni pregled pratiocima (četvrtak 09:00), podsetnik za nepotpun profil (10:00), čišćenje logova i obaveštenja.
 
 ## 6. Poslovna pravila
 
@@ -144,7 +144,8 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 ## 8. Odluke i razlozi
 
 - **Jedna klasa obaveštenja**, čuva tip i činjenice, a rečenica se sastavlja pri čitanju, na jeziku
-  čitaoca. Mejlom idu samo: reset lozinke, potvrda adrese, nepročitane poruke, „stiglo je" i nedeljni pregled.
+  čitaoca. Mejlom idu samo: reset lozinke, potvrda adrese, nepročitane poruke, „stiglo je", nedeljni pregled, a
+  proizvođaču i: članarina ili isticanje uskoro ističe, profil je posle nedelju dana ispod 70%.
 - **Bez queue workera:** sporedni poslovi idu posle odgovora (`afterResponse`, `defer`), da sajt
   radi na najjeftinijem serveru.
 - **Slike** kroz `App\Support\Media` (disk `MEDIA_DISK`, umanjene kopije u `thumbs/`, EXIF rotacija).

@@ -11,6 +11,7 @@ use App\Support\PaidItems;
 use App\Support\PaymentReference;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 /**
  * Memberships.
@@ -261,11 +262,19 @@ class SubscriptionService
             ->get();
 
         foreach ($ending as $subscription) {
-            $subscription->producer->user?->notify(SiteNotification::membershipEnding(
-                $subscription->plan->name,
-                $subscription->ends_at,
-                PaidItems::url($subscription),
-            ));
+            try {
+                // By e-mail as well: paying takes a trip to a bank counter,
+                // and a producer may not open the site inside two weeks.
+                $subscription->producer->user?->notify(SiteNotification::membershipEnding(
+                    $subscription->plan->name,
+                    $subscription->ends_at,
+                    PaidItems::url($subscription),
+                )->alsoByMail());
+            } catch (Throwable $e) {
+                // The bell has it by now; a mail server that is down must
+                // not stop the rest of the run or repeat the warning daily.
+                report($e);
+            }
 
             $subscription->update(['expiry_warned_at' => now()]);
         }
