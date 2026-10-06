@@ -80,7 +80,12 @@ class WantedAdController extends Controller
             ->pluck('producer_id');
 
         return Inertia::render('wanted/show', [
-            'meta' => PageMeta::make(__(':title | Tražim', ['title' => $ad->title]), $ad->body),
+            'meta' => [
+                ...PageMeta::make(__(':title | Tražim', ['title' => $ad->title]), $ad->body),
+                // A page that is gone in a month: the list of ads is what a
+                // search engine should keep, not each ad.
+                'robots' => 'noindex, follow',
+            ],
             'ad' => [
                 ...$this->card($ad),
                 'body' => $ad->body,

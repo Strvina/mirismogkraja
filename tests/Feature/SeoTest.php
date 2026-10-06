@@ -28,6 +28,46 @@ class SeoTest extends TestCase
         $this->get('/')->assertSee('<title inertia>Vrelina juga | Domaći proizvođači sa juga Srbije</title>', false);
     }
 
+    public function test_the_home_page_says_what_the_site_is_and_that_it_can_be_searched(): void
+    {
+        $this->get('/')
+            ->assertSee('"@type":"WebSite"', false)
+            ->assertSee('"@type":"Organization"', false)
+            ->assertSee('"urlTemplate":"'.url('/proizvodi').'?q={search_term_string}"', false);
+    }
+
+    public function test_a_product_a_category_and_a_place_say_where_they_sit(): void
+    {
+        $honey = Category::factory()->create(['name' => 'Med', 'slug' => 'med']);
+        $producer = Producer::factory()->active()->create(['city' => 'Niš']);
+        $product = Product::factory()->for($producer)->create(['name' => 'Bagremov med', 'slug' => 'bagremov-med', 'category_id' => $honey->id, 'status' => 'active']);
+
+        // Home > Proizvodi > Med > Bagremov med, next to the product's own data.
+        $this->get('/proizvod/bagremov-med')
+            ->assertSee('"@type":"Product"', false)
+            ->assertSee('"@type":"BreadcrumbList"', false)
+            ->assertSee('"position":3,"name":"Med","item":"'.url('/kategorija/med').'"', false)
+            ->assertSee('"position":4,"name":"Bagremov med","item":"'.url('/proizvod/bagremov-med').'"', false);
+
+        $this->get('/kategorija/med')->assertSee('"position":3,"name":"Med","item":"'.url('/kategorija/med').'"', false);
+        $this->get('/mesto/nis/med')
+            ->assertSee('"position":3,"name":"Niš","item":"'.url('/mesto/nis').'"', false)
+            ->assertSee('"position":4,"name":"Med","item":"'.url('/mesto/nis/med').'"', false);
+        // The unfiltered catalogue is the top of the path, not a step in one.
+        $this->get('/proizvodi')->assertDontSee('BreadcrumbList', false);
+    }
+
+    /** An ad is gone in a month; the list of ads is what a search engine should keep. */
+    public function test_a_single_wanted_ad_is_not_indexed_but_the_list_is(): void
+    {
+        $ad = User::factory()->create()->wantedAds()->create([
+            'title' => 'Tražim med', 'body' => 'Treba mi deset kilograma bagremovog meda.', 'status' => 'open', 'expires_at' => now()->addDays(30),
+        ]);
+
+        $this->get(route('wanted.show', $ad))->assertOk()->assertSee('<meta name="robots" content="noindex, follow">', false);
+        $this->get(route('wanted.index'))->assertOk()->assertDontSee('name="robots"', false);
+    }
+
     public function test_page_two_has_its_own_canonical_address_and_filters_do_not(): void
     {
         $this->get('/proizvodi?page=2&sort=price_asc')->assertSee('<link rel="canonical" href="'.url('/proizvodi').'?page=2">', false);
