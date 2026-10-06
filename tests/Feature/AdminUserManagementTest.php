@@ -126,7 +126,7 @@ class AdminUserManagementTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
-        $user->update(['blocked_at' => now()]);
+        $user->forceFill(['blocked_at' => now()])->save();
 
         // Any authenticated page will do; the middleware runs on all of them.
         $this->get(route('messages.index'))->assertRedirect(route('login'));

@@ -20,7 +20,7 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::get('/{producer}/statistika', [ProducerStatisticsController::class, 'show'])->name('statistics');
     Route::get('/{producer}/upiti.csv', [ProducerStatisticsController::class, 'exportInquiries'])->middleware('throttle:10,1')->name('inquiries.export');
     Route::get('/{producer}/poster.pdf', [ProducerController::class, 'poster'])->middleware('throttle:10,1')->name('poster');
-    Route::put('/{producer}', [ProducerController::class, 'update'])->name('update');
+    Route::put('/{producer}', [ProducerController::class, 'update'])->middleware('throttle:20,1')->name('update');
     Route::delete('/{producer}', [ProducerController::class, 'destroy'])->name('destroy');
 
     Route::post('/{producer}/galerija', [ProducerImageController::class, 'store'])->middleware('throttle:30,1')->name('images.store');

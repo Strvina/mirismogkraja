@@ -10,13 +10,13 @@ Route::middleware('auth')->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Route::get('settings/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('settings/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('settings/profile', [ProfileController::class, 'update'])->middleware('throttle:20,1')->name('profile.update');
     // POST, not PATCH: PHP only parses a multipart body for POST requests,
     // so a PATCH upload arrives with no file at all - the browser sends it,
     // $_FILES stays empty, and validation rejects it as missing. The test
     // suite could not catch this because Laravel's test client hands the
     // file to the request directly instead of going through PHP's parser.
-    Route::post('settings/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::post('settings/profile/avatar', [ProfileController::class, 'updateAvatar'])->middleware('throttle:10,1')->name('profile.avatar.update');
     // Both check the current password: limited like the login form.
     Route::delete('settings/profile', [ProfileController::class, 'destroy'])->middleware('throttle:6,1')->name('profile.destroy');
 

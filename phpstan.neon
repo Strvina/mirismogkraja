@@ -1,0 +1,15 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+# Static analysis of the application code: `composer analyse`, and on every
+# pull request.
+#
+# Level 1 finds what no test run can promise to: a misspelled class, method
+# or variable on a path the tests do not walk. Higher levels reason about
+# types, and the models do not describe theirs (no @property lists, untyped
+# relations) - at level 5 that is three hundred reports with no defect
+# behind any of them. Raising the level means typing the models first.
+parameters:
+    paths:
+        - app
+    level: 1
