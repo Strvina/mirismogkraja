@@ -1,6 +1,7 @@
 import Head from '@/components/head';
 import CardGrid from '@/components/marketplace/card-grid';
 import CompactSelect from '@/components/marketplace/compact-select';
+import EmptyState from '@/components/marketplace/empty-state';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
@@ -174,7 +175,21 @@ export default function ProducersIndex({
             )}
 
             {producers.data.length === 0 ? (
-                <p className="text-muted-foreground py-16 text-center text-sm">{t('Nema proizvođača za prikaz.')}</p>
+                <EmptyState
+                    className="mt-8"
+                    title={filters.q ? t('Nema proizvođača za „:query”', { query: filters.q }) : t('Nema proizvođača za prikaz.')}
+                    actions={
+                        (filters.q || filters.city) && (
+                            <Button type="button" variant="outline" onClick={() => visit({ q: null, city: null })}>
+                                {t('Prikaži sve proizvođače')}
+                            </Button>
+                        )
+                    }
+                >
+                    {filters.q
+                        ? t('Proverite kako je ime napisano, ili potražite proizvod umesto proizvođača.')
+                        : filters.city && t('Iz ovog mesta još niko nije otvorio stranicu.')}
+                </EmptyState>
             ) : (
                 <>
                     <CardGrid className={cn('gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4', featured.length === 0 && 'mt-8')}>

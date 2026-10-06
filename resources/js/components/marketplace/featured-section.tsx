@@ -41,13 +41,13 @@ export default function FeaturedSection({
                     label={title}
                     itemClassName={itemClassName}
                     header={
-                        <>
+                        <div className="flex min-w-0 items-center gap-2">
                             <Sparkles className="text-gold size-4 shrink-0" aria-hidden />
                             <h2 className="text-xs font-semibold tracking-[0.16em] uppercase">{title}</h2>
                             <InfoHint label={t('Šta znači „:title”?', { title })} title={title}>
                                 {explanation}
                             </InfoHint>
-                        </>
+                        </div>
                     }
                 >
                     {children}

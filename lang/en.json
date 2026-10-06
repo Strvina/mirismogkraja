@@ -1416,5 +1416,20 @@
     "Cenu određuje svaki proizvođač. Količinu, preuzimanje i dostavu dogovarate direktno sa njim.": "Each producer sets their own price. You agree the quantity, pick-up and delivery directly with them.",
     "Kupujem domaće proizvode": "Looking to buy homemade products",
     "Na ovoj stranici": "On this page",
-    "Na sajtu nema korpe ni plaćanja: pišete proizvođaču, a cenu, količinu i dostavu dogovarate direktno sa njim.": "There is no basket or payment on the site: you write to the producer and agree the price, quantity and delivery directly with them."
+    "Na sajtu nema korpe ni plaćanja: pišete proizvođaču, a cenu, količinu i dostavu dogovarate direktno sa njim.": "There is no basket or payment on the site: you write to the producer and agree the price, quantity and delivery directly with them.",
+    "Upišite naziv da biste nastavili.": "Enter a name to continue.",
+    "Još nemate stranicu proizvođača": "You don't have a producer page yet",
+    "Šta dobijate i koliko košta": "What you get and what it costs",
+    "Predstavite svoje gazdinstvo, dodajte proizvode i primajte upite kupaca. Prijava traje nekoliko minuta, a stranica je vidljiva čim je odobrimo.": "Present your farm, add products and receive buyers' inquiries. Signing up takes a few minutes, and the page is visible as soon as we approve it.",
+    "Nema proizvođača za „:query”": "No producers for “:query”",
+    "Prikaži sve proizvođače": "Show all producers",
+    "Proverite kako je ime napisano, ili potražite proizvod umesto proizvođača.": "Check how the name is spelled, or search for a product instead of a producer.",
+    "Iz ovog mesta još niko nije otvorio stranicu.": "Nobody from this town has opened a page yet.",
+    "Nema proizvoda za „:query”": "No products for “:query”",
+    "Poništi filtere": "Clear filters",
+    "Probajte sa manje filtera ili drugom rečju.": "Try fewer filters or a different word.",
+    "Još nema poruka": "No messages yet",
+    "Razgovor počinje upitom sa stranice proizvoda ili proizvođača. Sve što dogovorite sa proizvođačem ostaje ovde.": "A conversation starts with an inquiry from a product's or a producer's page. Everything you agree with the producer stays here.",
+    "Još ništa niste sačuvali": "You haven't saved anything yet",
+    "Srce na kartici proizvođača ili proizvoda čuva ga ovde, da ga sledeći put ne tražite ponovo.": "The heart on a producer's or a product's card saves it here, so you don't have to look for it again next time."
 }

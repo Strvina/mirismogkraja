@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 144).
+Poslednja izmena: 2026-10-06 (posle zadatka 145).
 
 ## 1. Šta je ovo
 
@@ -206,7 +206,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Javnoj strani se šalju samo kolone koje prikazuje (`only([...])`), nikad ceo model.
 - Dizajn: boje, fontovi i razmaci iz `docs/design-tokens.md`; nove strane liče na postojeće.
 - Sporedne akcije proizvođača idu u meni „Više" (`producer-more-menu.tsx`), ne kao nova dugmad.
-- Fajl za preuzimanje je običan `<a>`, ne Inertia `Link`.
+- Fajl za preuzimanje je običan `<a>`, ne Inertia `Link`. Prazna lista koristi `EmptyState` (šta tu ide i sledeći korak).
 - Javna stranica entiteta (proizvod, proizvođač, kategorija, mesto) ima vidljivu putanju: `breadcrumbs` u `MarketplaceLayout`.
 - Animacije idu kroz `lib/motion.ts` i `CardGrid`: nikad pri prvom učitavanju stranice (kvare LCP), samo transform/opacity, i gase se uz `prefers-reduced-motion`.
 

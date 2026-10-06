@@ -49,6 +49,8 @@ function Section({
     moreHref,
     moreLabel,
     children,
+    itemClassName,
+    trackClassName,
     className = '',
 }: {
     id?: string;
@@ -57,23 +59,38 @@ function Section({
     lead?: string;
     moreHref: string;
     moreLabel: string;
-    children: ReactNode;
+    /** The cards of the section's slider. */
+    children: ReactNode[];
+    itemClassName?: string;
+    trackClassName?: string;
     className?: string;
 }) {
     return (
         <section id={id} className={className}>
             <div className="mx-auto max-w-[1380px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-                <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-                    <div className="max-w-xl">
-                        <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{eyebrow}</p>
-                        <h2 className="font-serif text-4xl sm:text-5xl">{title}</h2>
-                        {lead && <p className="text-muted-foreground mt-3 leading-7">{lead}</p>}
-                    </div>
-                    <Link href={moreHref} className="border-foreground/30 flex items-center gap-2 border-b pb-1 text-sm font-semibold">
-                        {moreLabel} <ArrowRight className="size-4" />
-                    </Link>
-                </div>
-                {children}
+                {/* The heading, the link to the whole list and the slider's
+                    arrows share one line: a line of their own for the arrows
+                    put a gap between every heading and its cards. */}
+                <CardSlider
+                    label={title}
+                    itemClassName={itemClassName}
+                    trackClassName={trackClassName}
+                    arrowsClassName="mb-8 flex-wrap items-end gap-4"
+                    header={
+                        <div className="max-w-xl">
+                            <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{eyebrow}</p>
+                            <h2 className="font-serif text-4xl sm:text-5xl">{title}</h2>
+                            {lead && <p className="text-muted-foreground mt-3 leading-7">{lead}</p>}
+                        </div>
+                    }
+                    headerEnd={
+                        <Link href={moreHref} className="border-foreground/30 flex items-center gap-2 border-b pb-1 text-sm font-semibold">
+                            {moreLabel} <ArrowRight className="size-4" />
+                        </Link>
+                    }
+                >
+                    {children}
+                </CardSlider>
             </div>
         </section>
     );
@@ -173,44 +190,36 @@ export default function Welcome({
                     </div>
                 </section>
 
-                <section id="kategorije" className="mx-auto max-w-[1380px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
-                    <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-                        <div>
-                            <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{t('Istražite ukuse')}</p>
-                            <h2 className="font-serif text-4xl sm:text-5xl">{t('Šta tražite?')}</h2>
-                        </div>
+                <Section
+                    id="kategorije"
+                    eyebrow={t('Istražite ukuse')}
+                    title={t('Šta tražite?')}
+                    moreHref={route('marketplace.products.index')}
+                    moreLabel={t('Svi proizvodi')}
+                    itemClassName="w-[40vw] sm:w-[30vw] md:w-[220px] lg:w-[210px]"
+                    trackClassName="gap-3"
+                >
+                    {categories.map((category, index) => (
                         <Link
-                            href={route('marketplace.products.index')}
-                            className="border-foreground/30 flex items-center gap-2 border-b pb-1 text-sm font-semibold"
+                            key={category.id}
+                            href={route('marketplace.categories.show', category.slug)}
+                            className="group bg-muted relative block aspect-[4/5] overflow-hidden rounded-md"
                         >
-                            {t('Svi proizvodi')} <ArrowRight className="size-4" />
+                            <img
+                                src={categoryImages[index % categoryImages.length].image}
+                                alt=""
+                                width={600}
+                                height={750}
+                                loading="lazy"
+                                className={`image-warm size-full object-cover transition duration-700 group-hover:scale-105 ${categoryImages[index % categoryImages.length].position}`}
+                            />
+                            <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent_68%)]" />
+                            <h3 className="text-primary-foreground absolute inset-x-4 bottom-4 font-serif text-lg leading-tight">
+                                {t(category.name)}
+                            </h3>
                         </Link>
-                    </div>
-                    {/* One row that scrolls sideways at every width, with the
-                        same arrows as every other slider. */}
-                    <CardSlider label={t('Šta tražite?')} itemClassName="w-[40vw] sm:w-[30vw] md:w-[220px] lg:w-[210px]" trackClassName="gap-3">
-                        {categories.map((category, index) => (
-                            <Link
-                                key={category.id}
-                                href={route('marketplace.categories.show', category.slug)}
-                                className="group bg-muted relative block aspect-[4/5] overflow-hidden rounded-md"
-                            >
-                                <img
-                                    src={categoryImages[index % categoryImages.length].image}
-                                    alt=""
-                                    width={600}
-                                    height={750}
-                                    loading="lazy"
-                                    className={`image-warm size-full object-cover transition duration-700 group-hover:scale-105 ${categoryImages[index % categoryImages.length].position}`}
-                                />
-                                <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent_68%)]" />
-                                <h3 className="text-primary-foreground absolute inset-x-4 bottom-4 font-serif text-lg leading-tight">
-                                    {t(category.name)}
-                                </h3>
-                            </Link>
-                        ))}
-                    </CardSlider>
-                </section>
+                    ))}
+                </Section>
 
                 {/* Seasonal campaigns under way: one runs wide
                     beside its photograph, several share the row. */}
@@ -232,15 +241,14 @@ export default function Welcome({
                         moreHref={route('marketplace.producers.show', weeklyPick.producer.slug)}
                         moreLabel={t('Upoznajte ih')}
                         className="bg-cream-deep"
+                        itemClassName="w-[80vw] sm:w-[400px] lg:w-[440px]"
                     >
                         {/* The producer and their product, on the same slider as
                             everything else - arrows included. */}
-                        <CardSlider label={t('Proizvođač nedelje')} itemClassName="w-[80vw] sm:w-[400px] lg:w-[440px]">
-                            {[
-                                <HomeProducerCard key="producer" producer={weeklyPick.producer} />,
-                                ...(weeklyPick.product ? [<HomeProductCard key="product" product={weeklyPick.product} />] : []),
-                            ]}
-                        </CardSlider>
+                        {[
+                            <HomeProducerCard key="producer" producer={weeklyPick.producer} />,
+                            ...(weeklyPick.product ? [<HomeProductCard key="product" product={weeklyPick.product} />] : []),
+                        ]}
                     </Section>
                 )}
 
@@ -253,11 +261,9 @@ export default function Welcome({
                         moreLabel={t('Svi proizvođači')}
                         className="bg-gold/5 border-gold/30 border-y"
                     >
-                        <CardSlider label={t('Istaknuti proizvođači')}>
-                            {featuredProducers.map((producer) => (
-                                <HomeProducerCard key={producer.id} producer={producer} featured />
-                            ))}
-                        </CardSlider>
+                        {featuredProducers.map((producer) => (
+                            <HomeProducerCard key={producer.id} producer={producer} featured />
+                        ))}
                     </Section>
                 )}
 
@@ -271,11 +277,9 @@ export default function Welcome({
                         moreLabel={t('Svi proizvođači')}
                         className="bg-cream-deep"
                     >
-                        <CardSlider label={t('Novi proizvođači')}>
-                            {newProducers.map((producer) => (
-                                <HomeProducerCard key={producer.id} producer={producer} />
-                            ))}
-                        </CardSlider>
+                        {newProducers.map((producer) => (
+                            <HomeProducerCard key={producer.id} producer={producer} />
+                        ))}
                     </Section>
                 )}
 
@@ -287,11 +291,9 @@ export default function Welcome({
                         moreHref={route('marketplace.producers.index')}
                         moreLabel={t('Svi proizvođači')}
                     >
-                        <CardSlider label={t('Omiljeni proizvođači')}>
-                            {popularProducers.map((producer) => (
-                                <HomeProducerCard key={producer.id} producer={producer} />
-                            ))}
-                        </CardSlider>
+                        {popularProducers.map((producer) => (
+                            <HomeProducerCard key={producer.id} producer={producer} />
+                        ))}
                     </Section>
                 )}
 
@@ -303,12 +305,11 @@ export default function Welcome({
                         lead={t('Domaće ima svoje vreme. Ovo su proizvodi kojima je sezona baš u ovom mesecu.')}
                         moreHref={route('marketplace.season.index')}
                         moreLabel={t('Sve što je u sezoni')}
+                        itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]"
                     >
-                        <CardSlider label={t('Sada u sezoni')} itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]">
-                            {seasonalProducts.map((product) => (
-                                <HomeProductCard key={product.id} product={product} />
-                            ))}
-                        </CardSlider>
+                        {seasonalProducts.map((product) => (
+                            <HomeProductCard key={product.id} product={product} />
+                        ))}
                     </Section>
                 )}
 
@@ -321,12 +322,11 @@ export default function Welcome({
                         moreHref={route('marketplace.products.index')}
                         moreLabel={t('Svi proizvodi')}
                         className="bg-cream-deep"
+                        itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]"
                     >
-                        <CardSlider label={t('Najtraženiji proizvodi')} itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]">
-                            {popularProducts.map((product) => (
-                                <HomeProductCard key={product.id} product={product} />
-                            ))}
-                        </CardSlider>
+                        {popularProducts.map((product) => (
+                            <HomeProductCard key={product.id} product={product} />
+                        ))}
                     </Section>
                 )}
 
@@ -338,12 +338,11 @@ export default function Welcome({
                         lead={t('Kako nastaje ono što kupujete i šta se od toga sprema — pišu sami proizvođači.')}
                         moreHref={route('marketplace.posts.index')}
                         moreLabel={t('Sve priče i recepti')}
+                        itemClassName="w-[80vw] sm:w-[360px] lg:w-[400px]"
                     >
-                        <CardSlider label={t('Priče i recepti')} itemClassName="w-[80vw] sm:w-[360px] lg:w-[400px]">
-                            {latestPosts.map((post) => (
-                                <PostCard key={post.id} post={post} />
-                            ))}
-                        </CardSlider>
+                        {latestPosts.map((post) => (
+                            <PostCard key={post.id} post={post} />
+                        ))}
                     </Section>
                 )}
 

@@ -16,6 +16,7 @@ export default function CardSlider({
     children,
     label,
     header,
+    headerEnd,
     itemClassName = 'w-[78vw] sm:w-[340px] lg:w-[360px]',
     trackClassName,
     arrowsClassName,
@@ -24,6 +25,8 @@ export default function CardSlider({
     label: string;
     /** What the row is called, set on the arrows' own line instead of a line above it. */
     header?: ReactNode;
+    /** Set beside the arrows, at the far end of that line: a link to the whole list. */
+    headerEnd?: ReactNode;
     itemClassName?: string;
     /** Extra track classes, e.g. to turn it into a grid from some width up. */
     trackClassName?: string;
@@ -65,26 +68,29 @@ export default function CardSlider({
     return (
         <div className="relative">
             <div className={cn('mb-4 flex items-center gap-2', header ? 'justify-between' : 'justify-end', arrowsClassName)}>
-                {header && <div className="flex min-w-0 items-center gap-2">{header}</div>}
-                <div className="flex shrink-0 gap-2">
-                    <button
-                        type="button"
-                        onClick={() => scrollBy(-1)}
-                        disabled={atStart}
-                        aria-label={t(':label: prethodni', { label })}
-                        className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
-                    >
-                        <ChevronLeft className="size-4" />
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => scrollBy(1)}
-                        disabled={atEnd}
-                        aria-label={t(':label: sledeći', { label })}
-                        className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
-                    >
-                        <ChevronRight className="size-4" />
-                    </button>
+                {header}
+                <div className="flex shrink-0 items-center gap-5">
+                    {headerEnd}
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => scrollBy(-1)}
+                            disabled={atStart}
+                            aria-label={t(':label: prethodni', { label })}
+                            className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
+                        >
+                            <ChevronLeft className="size-4" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => scrollBy(1)}
+                            disabled={atEnd}
+                            aria-label={t(':label: sledeći', { label })}
+                            className="border-border/70 hover:bg-muted grid size-10 place-items-center rounded-full border transition-colors disabled:opacity-35 disabled:hover:bg-transparent"
+                        >
+                            <ChevronRight className="size-4" />
+                        </button>
+                    </div>
                 </div>
             </div>
 
