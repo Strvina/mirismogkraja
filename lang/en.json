@@ -1181,5 +1181,8 @@
     "Meseci": "Months",
     "Za ovaj mesec još nema sezonskih proizvoda.": "There are no seasonal products for this month yet.",
     "Sve što je u sezoni": "Everything in season",
-    "Objava": "Post"
+    "Objava": "Post",
+    "Zatim: :plan, od :from do :to.": "Then: :plan, from :from to :to.",
+    "Produži": "Extend",
+    "Viši paket počinje odmah, a neiskorišćeni dani tekućeg nastavljaju se posle njega. Produženje istog paketa nadovezuje se na kraj tekućeg, pa ranijom uplatom ne gubite ništa.": "A higher plan starts at once, and the unused days of the current one carry on after it. Extending the same plan continues from the end of the current one, so paying early loses you nothing."
 }

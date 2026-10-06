@@ -122,6 +122,97 @@ class MembershipTest extends TestCase
         $this->assertTrue($second->ends_at->greaterThan($firstEnd));
     }
 
+    /** An upgrade is in force at once, and the rest of the lower plan runs after it. */
+    public function test_an_upgrade_starts_now_and_the_lower_plan_resumes_after_it(): void
+    {
+        $this->travelTo(now()->startOfDay());
+        $producer = Producer::factory()->active()->create();
+        $subscriptions = app(SubscriptionService::class);
+
+        $basic = $subscriptions->request($producer, $this->plan('basic'));
+        $subscriptions->confirmPayment($basic, null);
+
+        // A hundred days in, with 265 of Basic left, they pay for Premium.
+        $this->travelTo(now()->addDays(100));
+        $premium = $subscriptions->request($producer, $this->plan('premium'));
+        $subscriptions->confirmPayment($premium, null);
+
+        $premium->refresh();
+        $basic->refresh();
+
+        $this->assertTrue($premium->starts_at->equalTo(now()));
+        $this->assertTrue($premium->ends_at->equalTo(now()->addDays(365)));
+        $this->assertTrue($basic->starts_at->equalTo($premium->ends_at));
+        $this->assertEquals(265, $basic->starts_at->diffInDays($basic->ends_at));
+
+        $this->assertSame('premium', $subscriptions->planFor($producer)->slug);
+        $this->assertTrue($subscriptions->hasFeature($producer, 'statistics'));
+
+        $this->actingAs($producer->user)->get(route('memberships.index'))->assertInertia(fn ($page) => $page
+            ->where('producers.0.current_plan.name', 'Premium')
+            ->where('producers.0.active.id', $premium->id)
+            ->has('producers.0.upcoming', 1)
+            ->where('producers.0.upcoming.0.plan', 'Basic'));
+
+        // Once Premium has run its year, Basic is back in force - without its benefits.
+        $this->travelTo($premium->ends_at->copy()->addDay());
+        $subscriptions->processExpiries();
+
+        $fresh = app(SubscriptionService::class);
+        $this->assertSame('basic', $fresh->planFor($producer)->slug);
+        $this->assertFalse($fresh->hasFeature($producer, 'statistics'));
+        $this->assertTrue($basic->refresh()->isRunning());
+    }
+
+    /** A lower plan bought during a higher one waits its turn, and gives nothing away meanwhile. */
+    public function test_a_downgrade_waits_for_the_higher_plan_to_end(): void
+    {
+        $producer = Producer::factory()->active()->create();
+        $subscriptions = app(SubscriptionService::class);
+
+        $pro = $subscriptions->request($producer, $this->plan('pro'));
+        $subscriptions->confirmPayment($pro, null);
+        $basic = $subscriptions->request($producer, $this->plan('basic'));
+        $subscriptions->confirmPayment($basic, null);
+
+        $this->assertTrue($basic->refresh()->starts_at->equalTo($pro->refresh()->ends_at));
+        $this->assertFalse($basic->isRunning());
+        // The plan in force, not the one with the furthest end date.
+        $this->assertSame('pro', $subscriptions->planFor($producer)->slug);
+        $this->assertTrue($subscriptions->hasFeature($producer, 'homepage'));
+    }
+
+    /** Pro on top of Premium on top of Basic: each lower one moves back, in order. */
+    public function test_everything_lower_moves_back_by_the_length_of_the_upgrade(): void
+    {
+        $this->travelTo(now()->startOfDay());
+        $producer = Producer::factory()->active()->create();
+        $subscriptions = app(SubscriptionService::class);
+
+        $premium = $subscriptions->request($producer, $this->plan('premium'));
+        $subscriptions->confirmPayment($premium, null);
+        $basic = $subscriptions->request($producer, $this->plan('basic'));
+        $subscriptions->confirmPayment($basic, null);
+
+        // A month of Premium as a gift, the way a referral rewards it: same
+        // plan, so it queues behind the paid year and ahead of Basic.
+        $gift = $subscriptions->grant($producer, $this->plan('premium'), 30);
+
+        $this->assertTrue($gift->refresh()->starts_at->equalTo(now()->addDays(365)));
+        $this->assertTrue($basic->refresh()->starts_at->equalTo(now()->addDays(395)));
+        $this->assertTrue($basic->ends_at->equalTo(now()->addDays(760)));
+
+        $pro = $subscriptions->request($producer, $this->plan('pro'));
+        $subscriptions->confirmPayment($pro, null);
+
+        $this->assertTrue($pro->refresh()->starts_at->equalTo(now()));
+        $this->assertTrue($premium->refresh()->starts_at->equalTo(now()->addDays(365)));
+        $this->assertTrue($premium->ends_at->equalTo(now()->addDays(730)));
+        $this->assertTrue($gift->refresh()->starts_at->equalTo(now()->addDays(730)));
+        $this->assertTrue($basic->refresh()->starts_at->equalTo(now()->addDays(760)));
+        $this->assertSame('pro', $subscriptions->planFor($producer)->slug);
+    }
+
     public function test_only_an_admin_can_confirm_a_payment(): void
     {
         $this->seed(RolesSeeder::class);

@@ -1194,5 +1194,8 @@
     "Meseci": "Месяцы",
     "Za ovaj mesec još nema sezonskih proizvoda.": "На этот месяц сезонных продуктов пока нет.",
     "Sve što je u sezoni": "Всё, что в сезоне",
-    "Objava": "Публикация"
+    "Objava": "Публикация",
+    "Zatim: :plan, od :from do :to.": "Затем: :plan, с :from по :to.",
+    "Produži": "Продлить",
+    "Viši paket počinje odmah, a neiskorišćeni dani tekućeg nastavljaju se posle njega. Produženje istog paketa nadovezuje se na kraj tekućeg, pa ranijom uplatom ne gubite ništa.": "Более высокий пакет начинает действовать сразу, а неиспользованные дни текущего продолжатся после него. Продление того же пакета отсчитывается от конца текущего, поэтому ранняя оплата ничего не отнимает."
 }

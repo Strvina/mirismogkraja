@@ -19,6 +19,8 @@ interface ProducerMembership {
     status: string;
     current_plan: { id: number; name: string; level: number } | null;
     active: { id: number; ends_at: string } | null;
+    /** Paid for and waiting behind the active one, in the order they will run. */
+    upcoming: { id: number; plan: string | null; starts_at: string; ends_at: string }[];
     pending: { id: number; created_at: string; plan: string | null; slip: PaymentSlip; download_url: string } | null;
 }
 
@@ -125,12 +127,21 @@ export default function Memberships({
                     {producer?.active && (
                         <div
                             id={`clanarina-${producer.active.id}`}
-                            className="border-olive/30 bg-olive-soft text-olive target:ring-gold/60 mt-8 flex scroll-mt-24 flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-sm target:ring-2"
+                            className="border-olive/30 bg-olive-soft text-olive target:ring-gold/60 mt-8 scroll-mt-24 space-y-1 rounded-lg border p-4 text-sm target:ring-2"
                         >
                             <p>
                                 {t('Aktivan paket:')} <strong>{producer.current_plan?.name}</strong> —{' '}
                                 {t('važi do :date', { date: formatDate(producer.active.ends_at) })}.
                             </p>
+                            {producer.upcoming.map((item) => (
+                                <p key={item.id}>
+                                    {t('Zatim: :plan, od :from do :to.', {
+                                        plan: item.plan,
+                                        from: formatDate(item.starts_at),
+                                        to: formatDate(item.ends_at),
+                                    })}
+                                </p>
+                            ))}
                         </div>
                     )}
 
@@ -159,7 +170,13 @@ export default function Memberships({
                             return (
                                 <PlanCard key={plan.id} plan={plan} featureLabels={featureLabels} highlighted={Boolean(isCurrent)}>
                                     {isCurrent ? (
-                                        <p className="text-olive text-sm font-medium">{t('Trenutno aktivan')}</p>
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <p className="text-olive text-sm font-medium">{t('Trenutno aktivan')}</p>
+                                            {/* Paying early costs nothing: the new year starts where this one ends. */}
+                                            <Button variant="outline" size="sm" onClick={() => choose(plan.id)}>
+                                                {t('Produži')}
+                                            </Button>
+                                        </div>
                                     ) : (
                                         <Button variant={plan.level > 0 ? 'default' : 'outline'} onClick={() => choose(plan.id)}>
                                             {producer?.active ? t('Pređi na ovaj paket') : t('Izaberi paket')}
@@ -171,6 +188,12 @@ export default function Memberships({
                     </div>
 
                     <p className="text-muted-foreground mt-8 max-w-xl text-sm leading-6">
+                        {t(
+                            'Viši paket počinje odmah, a neiskorišćeni dani tekućeg nastavljaju se posle njega. Produženje istog paketa nadovezuje se na kraj tekućeg, pa ranijom uplatom ne gubite ništa.',
+                        )}
+                    </p>
+
+                    <p className="text-muted-foreground mt-3 max-w-xl text-sm leading-6">
                         {t(
                             'Kada članarina istekne, vaša stranica ostaje na sajtu i zadržava sve što ste uneli — gubite samo dodatne pogodnosti paketa dok ne obnovite.',
                         )}
