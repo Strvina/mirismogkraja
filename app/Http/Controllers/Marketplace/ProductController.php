@@ -130,10 +130,16 @@ class ProductController extends Controller
 
         return Inertia::render('marketplace/products/index', [
             'meta' => $category
-                ? PageMeta::make(
-                    __(':category | Vrelina juga', ['category' => $name]),
-                    __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name]),
-                )
+                ? [
+                    ...PageMeta::make(
+                        __(':category | Vrelina juga', ['category' => $name]),
+                        __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name]),
+                    ),
+                    'structured' => PageMeta::breadcrumbs([
+                        [__('Proizvodi'), route('marketplace.products.index')],
+                        [$name, route('marketplace.categories.show', $category->slug)],
+                    ]),
+                ]
                 : PageMeta::make(__('Proizvodi | Vrelina juga'), __('Domaći proizvodi, direktno od ljudi koji ih prave.')),
             'category' => $category?->only(['id', 'name', 'slug']),
             // Where this category is sold from, each a page of its own.
@@ -228,7 +234,7 @@ class ProductController extends Controller
      */
     public function show(Request $request, Product $product, ProducerStatistics $statistics, ResponseTime $responseTime, Places $places): Response
     {
-        $product->load(['producer:id,user_id,name,slug,city,logo_path,status,paused_at,paused_until,pause_note', 'category:id,name', 'images']);
+        $product->load(['producer:id,user_id,name,slug,city,logo_path,status,paused_at,paused_until,pause_note', 'category:id,name,slug', 'images']);
 
         if (! $product->isPubliclyVisible()) {
             throw new NotFoundHttpException;
@@ -258,7 +264,15 @@ class ProductController extends Controller
                     $product->images->first()?->path,
                     'product',
                 ),
-                'structured' => PageMeta::product($product),
+                // What it is and what it costs, and where it sits in the catalogue.
+                'structured' => [
+                    PageMeta::product($product),
+                    PageMeta::breadcrumbs(array_filter([
+                        [__('Proizvodi'), route('marketplace.products.index')],
+                        $product->category ? [__($product->category->name), route('marketplace.categories.show', $product->category->slug)] : null,
+                        [$product->name, route('marketplace.products.show', $product->slug)],
+                    ])),
+                ],
             ],
             // The owner has no one to ask about their own listing; anyone else
             // signed in can open a thread from here.

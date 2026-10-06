@@ -13,6 +13,9 @@
         @if ($meta)
             <meta name="description" content="{{ $meta['description'] }}">
             <link rel="canonical" href="{{ $meta['url'] }}">
+            @if (! empty($meta['robots']))
+                <meta name="robots" content="{{ $meta['robots'] }}">
+            @endif
             <meta property="og:site_name" content="{{ config('app.name') }}">
             <meta property="og:type" content="{{ $meta['type'] }}">
             <meta property="og:title" content="{{ $meta['title'] }}">

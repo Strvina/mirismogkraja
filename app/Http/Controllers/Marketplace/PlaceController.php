@@ -75,15 +75,22 @@ class PlaceController extends Controller
         $categoryName = $category ? __($category->name) : null;
 
         return Inertia::render('marketplace/places/show', [
-            'meta' => $category
-                ? PageMeta::make(
-                    __(':category — :place | Vrelina juga', ['category' => $categoryName, 'place' => $place['name']]),
-                    __('„:category” od domaćih proizvođača iz mesta :place. Pišite im direktno, bez posrednika.', ['category' => $categoryName, 'place' => $place['name']]),
-                )
-                : PageMeta::make(
-                    __('Domaći proizvodi — :place | Vrelina juga', ['place' => $place['name']]),
-                    __('Domaći proizvodi i proizvođači iz mesta :place. Pišite im direktno, bez posrednika.', ['place' => $place['name']]),
-                ),
+            'meta' => [
+                ...($category
+                    ? PageMeta::make(
+                        __(':category — :place | Vrelina juga', ['category' => $categoryName, 'place' => $place['name']]),
+                        __('„:category” od domaćih proizvođača iz mesta :place. Pišite im direktno, bez posrednika.', ['category' => $categoryName, 'place' => $place['name']]),
+                    )
+                    : PageMeta::make(
+                        __('Domaći proizvodi — :place | Vrelina juga', ['place' => $place['name']]),
+                        __('Domaći proizvodi i proizvođači iz mesta :place. Pišite im direktno, bez posrednika.', ['place' => $place['name']]),
+                    )),
+                'structured' => PageMeta::breadcrumbs(array_filter([
+                    [__('Proizvodi'), route('marketplace.products.index')],
+                    [$place['name'], route('marketplace.places.show', $place['slug'])],
+                    $category ? [$categoryName, route('marketplace.places.category', [$place['slug'], $category->slug])] : null,
+                ])),
+            ],
             'place' => ['slug' => $place['slug'], 'name' => $place['name']],
             'category' => $category?->only(['id', 'name', 'slug']),
             'categories' => $places->categoriesIn($place),

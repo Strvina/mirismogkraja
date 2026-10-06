@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 136).
+Poslednja izmena: 2026-10-06 (posle zadatka 137).
 
 ## 1. Šta je ovo
 
@@ -162,7 +162,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   Laravelov podrazumevani brojač je jedan po korisniku za sve rute, pa je pet poruka u minutu blokiralo
   i utisak i registraciju proizvođača. U testovima se gasi sa `withoutMiddleware(ThrottlePerRoute::class)`.
 - **CSP** sa nonce-om po zahtevu; samo-izveštavanje dok radi Vite dev server.
-- **Meta i JSON-LD** piše server u prvi HTML (`PageMeta`), jer nema SSR-a.
+- **Meta i JSON-LD** piše server u prvi HTML (`PageMeta`), jer nema SSR-a. Početna nosi `WebSite` sa
+  pretragom i `Organization`; proizvod, kategorija i mesto nose `BreadcrumbList`. `meta.robots` (npr.
+  `noindex, follow` na pojedinačnom oglasu „Tražim") ispisuje se samo kad je zadat.
 - **Slug** se pri preimenovanju čuva u `slug_redirects` (301 sa stare adrese).
 - **Google prijava:** prihvata se samo adresa koju je Google potvrdio; provera `state` i PKCE. Pri
   vezivanju na nalog sa nepotvrđenom adresom brišu se lozinka i sesije tog naloga.
@@ -194,7 +196,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Urađeni su svi zadaci do 132. Talas 121–131 (PR-ovi #215–#225, nadovezani jedan na drugi): stranice o
   sajtu, stranice mesta, „U sezoni", prijava priča i katalog u mapi sajta, redosled članarina, pauza,
   nedeljni pregled, oglasi „Tražim", mejlovi proizvođaču, izvoz upita, dvostruka potvrda prijave.
-- Testovi: 570 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 573 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
   `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept);

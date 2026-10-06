@@ -133,6 +133,66 @@ class PageMeta
     }
 
     /**
+     * The site itself, for the home page: who is behind it, and that its
+     * catalogue can be searched - which is what lets a search engine offer
+     * a search box under the site's own result.
+     *
+     * @return array<string, mixed>
+     */
+    public static function website(): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => url('/').'#organization',
+                    'name' => config('app.name'),
+                    'url' => url('/'),
+                    'logo' => url('logo.svg'),
+                    'email' => config('platform.contact_email'),
+                ],
+                [
+                    '@type' => 'WebSite',
+                    'name' => config('app.name'),
+                    'url' => url('/'),
+                    'inLanguage' => app()->getLocale(),
+                    'publisher' => ['@id' => url('/').'#organization'],
+                    'potentialAction' => [
+                        '@type' => 'SearchAction',
+                        'target' => ['@type' => 'EntryPoint', 'urlTemplate' => route('marketplace.products.index').'?q={search_term_string}'],
+                        'query-input' => 'required name=search_term_string',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Where a page sits - "Proizvodi > Med > Bagremov med" - so a search
+     * result can show that path instead of a bare address. The home page is
+     * always the first step and is not passed in.
+     *
+     * @param  list<array{0: string, 1: string}>  $trail  Name and address of each step, outermost first.
+     * @return array<string, mixed>
+     */
+    public static function breadcrumbs(array $trail): array
+    {
+        $steps = [[config('app.name'), url('/')], ...$trail];
+
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => array_map(fn (array $step, int $index) => [
+                '@type' => 'ListItem',
+                'position' => $index + 1,
+                'name' => $step[0],
+                'item' => $step[1],
+            ], $steps, array_keys($steps)),
+        ];
+    }
+
+    /**
      * Questions and answers as an FAQPage, which a search result can show
      * unfolded under the link.
      *

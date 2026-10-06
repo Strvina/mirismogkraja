@@ -70,10 +70,13 @@ class HomeController extends Controller
         $subscriptions->markPremium($everyone);
 
         return Inertia::render('welcome', [
-            'meta' => PageMeta::make(
-                __('Vrelina juga | Domaći proizvođači sa juga Srbije'),
-                __('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije.'),
-            ),
+            'meta' => [
+                ...PageMeta::make(
+                    __('Vrelina juga | Domaći proizvođači sa juga Srbije'),
+                    __('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije.'),
+                ),
+                'structured' => PageMeta::website(),
+            ],
             // Seasonal campaigns under way, announced at the top of the page.
             'campaigns' => Campaign::running()
                 ->withCount(['participants as producers_count' => fn ($query) => $query->where('status', CampaignParticipant::STATUS_ACTIVE)])
