@@ -45,7 +45,7 @@ export function ProducerProducts({
     total: number;
 }) {
     return (
-        <section className="mt-12">
+        <section id="proizvodi" className="mt-12 scroll-mt-28">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-serif text-2xl">{t('Proizvodi')}</h2>
                 {products.length > 0 && (

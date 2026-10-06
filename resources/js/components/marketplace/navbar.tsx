@@ -106,6 +106,19 @@ export default function Navbar() {
                             </Link>
                         );
                     })}
+                    {/* For someone who has not used the site yet, and where the header has room for it. */}
+                    {!auth.user && (
+                        <Link
+                            href={route('info.how')}
+                            aria-current={isActive(['/kako-radi']) ? 'page' : undefined}
+                            className={cn(
+                                'hidden py-1 font-medium transition-colors xl:inline',
+                                isActive(['/kako-radi']) ? 'text-foreground' : 'text-foreground/65 hover:text-foreground',
+                            )}
+                        >
+                            {t('Kako radi')}
+                        </Link>
+                    )}
                 </nav>
 
                 <div className="ml-auto flex items-center gap-2 sm:gap-3">

@@ -96,7 +96,7 @@ export default function ReviewsSection({
     signedIn: boolean;
 }) {
     return (
-        <section className="mt-12 max-w-2xl">
+        <section id="utisci" className="mt-12 max-w-2xl scroll-mt-28">
             <h2 className="font-serif text-2xl">{t('Utisci kupaca')}</h2>
 
             {/* The author's own review, still with a moderator, sits where it

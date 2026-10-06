@@ -140,6 +140,20 @@ class SubcategoryTest extends TestCase
         $this->get('/')->assertInertia(fn ($page) => $page->has('categories', 1)->where('categories.0.slug', 'zimnica'));
     }
 
+    public function test_the_catalogue_offers_the_general_categories_that_have_something(): void
+    {
+        $other = Category::factory()->create(['name' => 'Ostalo', 'slug' => 'ostalo']);
+        $this->product($other);
+        $this->product($this->ajvar);
+        Category::factory()->create(['name' => 'Voće', 'slug' => 'voce']);
+
+        $this->get('/proizvodi')->assertInertia(fn ($page) => $page
+            // Zimnica through its subcategory; nothing for the empty one; "Ostalo" last.
+            ->has('browse', 2)
+            ->where('browse.0.slug', 'zimnica')
+            ->where('browse.1.slug', 'ostalo'));
+    }
+
     public function test_the_options_of_a_select_box_come_as_a_tree(): void
     {
         Category::factory()->create(['name' => 'Voće']);
