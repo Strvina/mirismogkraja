@@ -198,7 +198,11 @@ class ProducerController extends Controller
         });
 
         $user = $request->user();
-        $averageRating = round((float) ($producer->reviews()->approved()->avg('rating') ?? 0), 1);
+        // The average and the count in one read; the count also saves the
+        // review list below from counting the same rows again.
+        $rating = $producer->reviews()->approved()->toBase()->selectRaw('avg(rating) as average, count(*) as total')->first();
+        $averageRating = round((float) ($rating->average ?? 0), 1);
+        $reviewCount = (int) $rating->total;
 
         return Inertia::render('marketplace/producers/show', [
             // What the page prints. Not the owner's account id, the stored
@@ -223,7 +227,7 @@ class ProducerController extends Controller
                     $producer->cover_image_path ?? $producer->logo_path,
                     'profile',
                 ),
-                'structured' => PageMeta::producer($producer, $averageRating, $reviewCount = $producer->reviews()->approved()->count()),
+                'structured' => PageMeta::producer($producer, $averageRating, $reviewCount),
             ],
             // The town as a link to everything sold from there.
             'place' => $places->forCity($producer->city),
@@ -260,10 +264,13 @@ class ProducerController extends Controller
             // Ordered and stamped by when they were written, not by when a
             // moderator got to them: the date on a review is the day its
             // author had the experience.
-            'reviews' => $producer->reviews()->approved()
+            'reviews' => Review::query()
+                ->where('producer_id', $producer->id)
+                ->approved()
                 ->with('user:id,name,avatar_path')
                 ->latest()
-                ->paginate(10)
+                // Counted above already.
+                ->paginate(10, total: $reviewCount)
                 ->withQueryString(),
             'averageRating' => $averageRating,
             'canReview' => $user?->can('create', [Review::class, $producer]) ?? false,

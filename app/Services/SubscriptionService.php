@@ -9,6 +9,7 @@ use App\Notifications\SiteNotification;
 use App\Support\Admins;
 use App\Support\PaidItems;
 use App\Support\PaymentReference;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Throwable;
@@ -30,6 +31,9 @@ class SubscriptionService
 {
     /** @var array<string, list<int>> */
     private array $planIdsByFeature = [];
+
+    /** @var EloquentCollection<int, SubscriptionPlan>|null */
+    private ?EloquentCollection $plans = null;
 
     /**
      * The plan a producer's benefits are currently based on: the one in
@@ -94,8 +98,11 @@ class SubscriptionService
      */
     private function planIdsWith(string $feature): array
     {
-        return $this->planIdsByFeature[$feature] ??= SubscriptionPlan::query()
-            ->get(['id', 'features'])
+        // The plans themselves are read once, whichever features are asked
+        // about: the home page asks about two.
+        $this->plans ??= SubscriptionPlan::query()->get(['id', 'features']);
+
+        return $this->planIdsByFeature[$feature] ??= $this->plans
             ->filter(fn (SubscriptionPlan $plan) => $plan->has($feature))
             ->modelKeys();
     }

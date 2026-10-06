@@ -32,7 +32,9 @@ Everything below is configuration: the code already supports each step.
 ## What already scales by design
 
 - Every list is paginated on the server. Filters and sorting run in the database on indexed columns.
-- The unread badges are indexed counts. One poll every 30 s refreshes both, and an open conversation slows from 3 s to 20 s when it goes quiet.
+- The unread badges are indexed counts. One poll every 30 s refreshes both, and an open conversation slows from 3 s to 20 s when it goes quiet. The poll is answered by `HandleInertiaRequests` itself, without running the controller of the page it comes from.
+- What a page costs does not depend on how much it shows: `QueryBudgetTest` reads each public list with two producers and with ten and fails if the number of queries differs.
+- A producer's response time is worked out from their messages at most every six hours, also when there is too little to show a badge.
 - The home page popularity ranking is cached for 10 minutes. Only the ids are cached, and the cards are read fresh.
 - The sitemap is an index of files with 10,000 addresses each, cached for an hour.
 - Notifications to followers are sent in chunks after the response. Read notifications are pruned after six months.
