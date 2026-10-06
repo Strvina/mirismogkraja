@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /** No page grows with the size of the site. */
@@ -52,6 +53,14 @@ class ListSizesTest extends TestCase
         $this->get('/proizvodi?page=501')->assertNotFound();
         $this->get('/proizvodjaci?page=501')->assertNotFound();
         $this->get('/proizvodi?page=500')->assertOk();
+
+        // Every public list has the same ceiling, set on its route.
+        foreach ([
+            'marketplace.products.index', 'marketplace.categories.show', 'marketplace.places.show', 'marketplace.places.category',
+            'marketplace.producers.index', 'marketplace.season.show', 'marketplace.posts.index', 'wanted.index',
+        ] as $name) {
+            $this->assertContains('deep-pages', Route::getRoutes()->getByName($name)->gatherMiddleware(), $name);
+        }
     }
 
     public function test_the_filter_choices_are_worked_out_once_for_everyone(): void

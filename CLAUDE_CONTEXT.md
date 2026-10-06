@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 146).
+Poslednja izmena: 2026-10-06 (posle zadatka 147).
 
 ## 1. Šta je ovo
 
@@ -203,7 +203,8 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - `Cache::remember` ne pamti `null`: kad je „nema podataka" čest ishod, kešira se `false` (vidi `ResponseTime`).
 - Deljeni propovi koji se traže sami (`unreadMessages`, `unreadNotifications`, `recentNotifications`) stižu iz
   `HandleInertiaRequests` bez pokretanja kontrolera stranice; nov takav prop dodati u `STANDALONE`.
-- Javnoj strani se šalju samo kolone koje prikazuje (`only([...])`), nikad ceo model.
+- Javnoj strani se šalju samo kolone koje prikazuje (`only([...])`), nikad ceo model. Kartica proizvoda u
+  listi ide kroz `ProductCards::for($korisnik)`; javna lista na ruti nosi `deep-pages` (nema strane posle 500).
 - Van produkcije Eloquent je strog (`AppServiceProvider`): lenjo učitana relacija (N+1) i polje koje nije
   `fillable` bacaju izuzetak, pa to hvataju testovi. Ono što forma ne sme da postavi (`blocked_at`,
   `published_at`) nije `fillable` i upisuje se sa `forceFill`.

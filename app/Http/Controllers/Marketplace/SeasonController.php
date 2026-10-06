@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Services\SeasonCalendar;
 use App\Support\PageMeta;
+use App\Support\ProductCards;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -34,8 +35,6 @@ class SeasonController extends Controller
     {
         $number = $calendar->month($month) ?? abort(404);
 
-        abort_if($request->integer('page') > ProductController::MAX_PAGE, 404);
-
         $products = Product::query()
             ->published()
             ->withCardData()
@@ -45,10 +44,6 @@ class SeasonController extends Controller
             ->orderByDesc('products.id')
             ->paginate(self::PER_PAGE)
             ->withQueryString();
-
-        $favoritedIds = $request->user()?->favorites()
-            ->where('favoritable_type', 'product')
-            ->pluck('favoritable_id') ?? collect();
 
         $name = $calendar->name($number);
         $withProducts = $calendar->monthsWithProducts();
@@ -63,10 +58,7 @@ class SeasonController extends Controller
             'months' => collect(SeasonCalendar::SLUGS)
                 ->map(fn (string $slug, int $each) => ['number' => $each, 'slug' => $slug, 'has_products' => in_array($each, $withProducts, true)])
                 ->values(),
-            'products' => $products->through(fn (Product $product) => [
-                ...$product->toArray(),
-                'is_favorited' => $favoritedIds->contains($product->id),
-            ]),
+            'products' => $products->through(ProductCards::for($request->user())),
         ]);
     }
 }

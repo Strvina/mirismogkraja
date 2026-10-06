@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Services\Places;
 use App\Services\SubscriptionService;
 use App\Support\PageMeta;
+use App\Support\ProductCards;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -47,8 +48,6 @@ class PlaceController extends Controller
      */
     private function page(Request $request, array $place, ?Category $category, Places $places, SubscriptionService $subscriptions): Response
     {
-        abort_if($request->integer('page') > ProductController::MAX_PAGE, 404);
-
         $products = Product::query()
             ->published()
             ->withCardData()
@@ -59,10 +58,6 @@ class PlaceController extends Controller
             ->orderByDesc('products.id')
             ->paginate(self::PER_PAGE)
             ->withQueryString();
-
-        $favoritedIds = $request->user()?->favorites()
-            ->where('favoritable_type', 'product')
-            ->pluck('favoritable_id') ?? collect();
 
         // The people behind the products, on the place's own page only: a
         // category page is about the product.
@@ -97,10 +92,7 @@ class PlaceController extends Controller
             'category' => $category?->only(['id', 'name', 'slug', 'search_name']),
             'categories' => $places->categoriesIn($place),
             'producers' => $producers,
-            'products' => $products->through(fn (Product $product) => [
-                ...$product->toArray(),
-                'is_favorited' => $favoritedIds->contains($product->id),
-            ]),
+            'products' => $products->through(ProductCards::for($request->user())),
         ]);
     }
 

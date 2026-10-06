@@ -23,8 +23,6 @@ class WantedAdController extends Controller
 
     public function index(Request $request): Response
     {
-        abort_if($request->integer('page') > ProductController::MAX_PAGE, 404);
-
         $categoryId = $request->integer('kategorija');
         $city = $request->string('mesto')->toString();
         $user = $request->user();

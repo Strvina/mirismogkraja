@@ -5,7 +5,7 @@ use App\Http\Controllers\WantedAdController;
 use Illuminate\Support\Facades\Route;
 
 // "Tražim": buyers write what they are looking for, producers answer.
-Route::get('/trazim', [PublicWantedAdController::class, 'index'])->name('wanted.index');
+Route::get('/trazim', [PublicWantedAdController::class, 'index'])->middleware('deep-pages')->name('wanted.index');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/trazim/novi', [WantedAdController::class, 'create'])->name('wanted.create');

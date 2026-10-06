@@ -13,7 +13,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewReplyController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/proizvodjaci', [ProducerController::class, 'index'])->name('marketplace.producers.index');
+Route::get('/proizvodjaci', [ProducerController::class, 'index'])->middleware('deep-pages')->name('marketplace.producers.index');
 Route::get('/osnivaci', FoundingProducerController::class)->name('marketplace.founding');
 // The page's first address, from when there were a hundred places.
 Route::redirect('/prvih-100', '/osnivaci', 301);
@@ -21,17 +21,17 @@ Route::get('/kampanja/{campaign:slug}', [CampaignController::class, 'show'])->na
 Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])->name('marketplace.producers.show');
 // A producer's price list, on an address short enough to send in a chat.
 Route::get('/katalog/{producer:slug}', CatalogController::class)->name('marketplace.catalog');
-Route::get('/proizvodi', [ProductController::class, 'index'])->name('marketplace.products.index');
-Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->name('marketplace.categories.show');
+Route::get('/proizvodi', [ProductController::class, 'index'])->middleware('deep-pages')->name('marketplace.products.index');
+Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->middleware('deep-pages')->name('marketplace.categories.show');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
 // A town's own page, and a category within it ("domaći med Niš").
-Route::get('/mesto/{place}', [PlaceController::class, 'show'])->name('marketplace.places.show');
-Route::get('/mesto/{place}/{category:slug}', [PlaceController::class, 'category'])->name('marketplace.places.category');
+Route::get('/mesto/{place}', [PlaceController::class, 'show'])->middleware('deep-pages')->name('marketplace.places.show');
+Route::get('/mesto/{place}/{category:slug}', [PlaceController::class, 'category'])->middleware('deep-pages')->name('marketplace.places.category');
 // What is in season: this month, and each month on an address of its own.
 Route::get('/sezona', [SeasonController::class, 'index'])->name('marketplace.season.index');
-Route::get('/sezona/{month}', [SeasonController::class, 'show'])->name('marketplace.season.show');
+Route::get('/sezona/{month}', [SeasonController::class, 'show'])->middleware('deep-pages')->name('marketplace.season.show');
 // Stories and recipes written by producers.
-Route::get('/price', [PostController::class, 'index'])->name('marketplace.posts.index');
+Route::get('/price', [PostController::class, 'index'])->middleware('deep-pages')->name('marketplace.posts.index');
 Route::get('/price/{post:slug}', [PostController::class, 'show'])->name('marketplace.posts.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
