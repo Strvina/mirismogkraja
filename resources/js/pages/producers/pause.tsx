@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +7,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { type FormEventHandler } from 'react';
 
 const NOTE_MAX = 200;

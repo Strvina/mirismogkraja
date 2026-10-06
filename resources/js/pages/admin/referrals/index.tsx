@@ -1,9 +1,10 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 interface Referral {
     id: number;

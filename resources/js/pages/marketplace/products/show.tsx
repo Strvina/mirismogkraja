@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import Head from '@/components/head';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import ReportButton from '@/components/marketplace/report-button';
 import ResponseTimeBadge, { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
@@ -10,7 +11,7 @@ import { t } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
 import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
 import { type Producer, type Product, type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { BellRing, MapPin } from 'lucide-react';
 import { useState } from 'react';
 

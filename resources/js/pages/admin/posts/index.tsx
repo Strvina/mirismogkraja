@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { POST_TYPE_LABELS } from '@/components/marketplace/post-card';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type PostSummary } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { EyeOff, RotateCcw } from 'lucide-react';
 
 type Status = 'draft' | 'published' | 'blocked';

@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InfoHint from '@/components/info-hint';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
 import { HowItWorks, linkedSlipId, type PaymentStatus, PaymentStatusBadge } from '@/components/marketplace/payment-status';
@@ -6,7 +7,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatNumber } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { BadgeCheck, Check, MousePointerClick, Package, Receipt, Sparkles, Store } from 'lucide-react';
 import { useState } from 'react';
 

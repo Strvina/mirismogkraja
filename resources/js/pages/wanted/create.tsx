@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import CompactSelect from '@/components/marketplace/compact-select';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { categoryOptions } from '@/lib/categories';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Category } from '@/types';
-import { Head, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 import { type FormEventHandler } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [

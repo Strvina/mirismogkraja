@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import ProducerMoreMenu from '@/components/producer-more-menu';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import { waitingBuyers } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem, type Producer } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { BellRing, CirclePause, Clock } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji proizvođači'), href: '/moji-proizvodjaci' }];

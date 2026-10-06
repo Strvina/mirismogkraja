@@ -1,10 +1,11 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import PostCard from '@/components/marketplace/post-card';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type PostSummary } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { X } from 'lucide-react';
 
 const TABS: { vrsta: string | null; label: string }[] = [

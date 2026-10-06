@@ -1,6 +1,6 @@
+import Head from '@/components/head';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
-import { Head } from '@inertiajs/react';
 
 /**
  * What the site actually stores, written from the code rather than from a

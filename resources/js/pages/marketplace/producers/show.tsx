@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import { type Paginated } from '@/components/marketplace/pagination';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
@@ -17,7 +18,7 @@ import { deliveryMethodLabel } from '@/lib/delivery';
 import { t } from '@/lib/i18n';
 import { mediaUrl } from '@/lib/media';
 import { type PostSummary, type ProducerMarket, type Product, type SharedData } from '@/types';
-import { Head, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { Truck } from 'lucide-react';
 
 /** A producer's public page: who they are, how to reach them, what they make, what buyers say. */

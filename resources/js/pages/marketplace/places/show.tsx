@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
@@ -5,7 +6,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 interface PlaceCategory {
     id: number;

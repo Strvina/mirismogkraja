@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import PostForm, { type EditablePost } from './post-form';
 
 export default function PostsEdit({

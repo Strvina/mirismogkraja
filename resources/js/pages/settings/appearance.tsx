@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import Head from '@/components/head';
 
 import AppearanceTabs from '@/components/appearance-tabs';
 import HeadingSmall from '@/components/heading-small';

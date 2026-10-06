@@ -1,10 +1,11 @@
+import Head from '@/components/head';
 import { CampaignHero, type CampaignSummary } from '@/components/marketplace/campaign-banner';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 /** A seasonal campaign's page: the theme, and who takes part. */
 export default function CampaignShow({ campaign, producers }: { campaign: CampaignSummary; producers: ProducerCardProducer[] }) {

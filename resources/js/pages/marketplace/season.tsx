@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -5,7 +6,7 @@ import { t } from '@/lib/i18n';
 import { monthName } from '@/lib/season';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 interface SeasonMonth {
     number: number;

@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import CardSlider from '@/components/marketplace/card-slider';
 import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
@@ -10,7 +11,7 @@ import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type Category, type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 export default function ProductsIndex({
     products,

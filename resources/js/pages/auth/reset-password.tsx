@@ -1,4 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import Head from '@/components/head';
+import { useForm } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 

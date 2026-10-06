@@ -1,10 +1,11 @@
+import Head from '@/components/head';
 import PlanCard, { type Plan } from '@/components/marketplace/plan-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Check } from 'lucide-react';
 
 /**

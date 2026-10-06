@@ -47,6 +47,26 @@ class InfoPageController extends Controller
         ]);
     }
 
+    public function terms(): Response
+    {
+        return Inertia::render('legal/terms', [
+            'meta' => PageMeta::make(
+                __('Uslovi korišćenja | Vrelina juga'),
+                __('Pravila korišćenja sajta Vrelina juga, za kupce i za proizvođače.'),
+            ),
+        ]);
+    }
+
+    public function privacy(): Response
+    {
+        return Inertia::render('legal/privacy', [
+            'meta' => PageMeta::make(
+                __('Politika privatnosti | Vrelina juga'),
+                __('Koje podatke Vrelina juga prikuplja, zašto, i kako možete da ih vidite ili obrišete.'),
+            ),
+        ]);
+    }
+
     public function about(): Response
     {
         return Inertia::render('info/about', [

@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
@@ -7,7 +8,7 @@ import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type Producer, type Review, type User } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { Check, Star, X } from 'lucide-react';
 
 type ReviewWithRelations = Review & { user: User; producer: Producer };

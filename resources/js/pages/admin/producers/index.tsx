@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import AdminLayout from '@/layouts/admin-layout';
 import { t, tx } from '@/lib/i18n';
 import { type Producer } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { BadgeCheck, Ban, Check, Pencil, RotateCcw } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 

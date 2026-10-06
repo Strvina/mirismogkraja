@@ -1,6 +1,7 @@
 // Components
+import Head from '@/components/head';
 import { type SharedData } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 

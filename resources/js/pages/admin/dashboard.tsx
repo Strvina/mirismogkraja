@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { ShieldAlert } from 'lucide-react';
 
 type Stats = {

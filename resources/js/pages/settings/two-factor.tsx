@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import HeadingSmall from '@/components/heading-small';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
@@ -7,7 +8,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Link, useForm } from '@inertiajs/react';
 import { ShieldCheck } from 'lucide-react';
 import { type FormEventHandler } from 'react';
 
