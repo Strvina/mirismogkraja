@@ -124,6 +124,19 @@ class Product extends Model
             ->inSeason($month);
     }
 
+    /**
+     * Filed under a category or any of its subcategories: "Zimnica" lists
+     * the ajvar too.
+     */
+    public function scopeInCategory(Builder $query, int $categoryId): void
+    {
+        $column = $query->qualifyColumn('category_id');
+
+        $query->where(fn (Builder $either) => $either
+            ->where($column, $categoryId)
+            ->orWhereIn($column, Category::query()->select('id')->where('parent_id', $categoryId)));
+    }
+
     public function scopePublished(Builder $query): void
     {
         $query->where($query->qualifyColumn('status'), 'active')->whereHas('producer', fn (Builder $producer) => $producer->published());

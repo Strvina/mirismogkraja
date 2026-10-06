@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { categoryLabel } from '@/lib/categories';
 import { t } from '@/lib/i18n';
 import { shrinkImage } from '@/lib/shrink-image';
 import { type Category } from '@/types';
@@ -91,7 +92,7 @@ export default function ProducerProductsStep({
                                 <option value="">{t('Izaberite…')}</option>
                                 {categories.map((category) => (
                                     <option key={category.id} value={category.id}>
-                                        {t(category.name)}
+                                        {categoryLabel(category)}
                                     </option>
                                 ))}
                             </select>

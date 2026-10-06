@@ -2,6 +2,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminLayout from '@/layouts/admin-layout';
+import { categoryLabel } from '@/lib/categories';
 import { ask } from '@/lib/confirm';
 import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
@@ -136,7 +137,7 @@ export default function AdminProductsIndex({
                         <option value="">{t('Promeni kategoriju…')}</option>
                         {categories.map((category) => (
                             <option key={category.id} value={category.id}>
-                                {category.name}
+                                {categoryLabel(category)}
                             </option>
                         ))}
                     </select>

@@ -69,7 +69,7 @@ class ProducerController extends Controller
                 'remaining' => $founding->remaining(),
             ],
             // For the wizard's products step.
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::options(),
         ]);
     }
 

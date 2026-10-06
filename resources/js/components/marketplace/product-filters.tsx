@@ -2,6 +2,7 @@ import CompactSelect from '@/components/marketplace/compact-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { categoryOptions } from '@/lib/categories';
 import { t } from '@/lib/i18n';
 import { type Category } from '@/types';
 import { SlidersHorizontal, X } from 'lucide-react';
@@ -80,10 +81,7 @@ export default function ProductFilters({ filters, categories, producers, cities,
                             className="w-full"
                             value={filters.category_id ?? ''}
                             onChange={(value) => onChange({ category_id: value || undefined })}
-                            options={[
-                                { value: '', label: t('Sve kategorije') },
-                                ...categories.map((category) => ({ value: String(category.id), label: t(category.name) })),
-                            ]}
+                            options={[{ value: '', label: t('Sve kategorije') }, ...categoryOptions(categories)]}
                         />
                     </div>
 

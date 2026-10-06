@@ -2,6 +2,7 @@ import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { categoryLabel } from '@/lib/categories';
 import { t, tx } from '@/lib/i18n';
 import { monthName } from '@/lib/season';
 import { type Category, type Product } from '@/types';
@@ -82,7 +83,7 @@ export default function ProductForm({
                     <option value="">{t('Izaberi kategoriju')}</option>
                     {categories.map((c) => (
                         <option key={c.id} value={c.id}>
-                            {c.name}
+                            {categoryLabel(c)}
                         </option>
                     ))}
                 </select>

@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
  */
 class Places
 {
-    private const CACHE_KEY = 'places:v1';
+    private const CACHE_KEY = 'places:v2';
 
     private const CACHE_SECONDS = 600;
 
@@ -44,6 +44,13 @@ class Places
                 ->selectRaw('producers.city as city, products.category_id as category_id, count(*) as products')
                 ->get();
 
+            // A product filed under a subcategory counts for the category
+            // above it too: ajvar from Leskovac is zimnica from Leskovac.
+            $parents = Category::whereNotNull('parent_id')->pluck('parent_id', 'id');
+            $rows = $rows->concat($rows
+                ->filter(fn (object $row) => isset($parents[$row->category_id]))
+                ->map(fn (object $row) => (object) ['city' => $row->city, 'category_id' => $parents[$row->category_id], 'products' => $row->products, 'rolledUp' => true]));
+
             $places = [];
 
             foreach ($rows->groupBy(fn (object $row) => Str::slug($row->city)) as $slug => $group) {
@@ -51,14 +58,16 @@ class Places
                     continue;
                 }
 
-                $bySpelling = $group->groupBy('city')->map(fn ($spelling) => (int) $spelling->sum('products'))->sortDesc();
+                // Counted once each: without the rows repeated for a parent category.
+                $own = $group->filter(fn (object $row) => ! isset($row->rolledUp));
+                $bySpelling = $own->groupBy('city')->map(fn ($spelling) => (int) $spelling->sum('products'))->sortDesc();
 
                 $places[$slug] = [
                     'slug' => $slug,
                     // The spelling most of its products carry.
                     'name' => trim((string) $bySpelling->keys()->first()),
                     'spellings' => $bySpelling->keys()->map(fn ($spelling) => (string) $spelling)->all(),
-                    'products' => (int) $group->sum('products'),
+                    'products' => (int) $own->sum('products'),
                     'categories' => $group->groupBy('category_id')->map(fn ($category) => (int) $category->sum('products'))->all(),
                 ];
             }
@@ -89,14 +98,17 @@ class Places
     }
 
     /**
-     * The categories something is sold in from this place.
+     * The categories something is sold in from this place, each
+     * subcategory under its parent.
      *
      * @param  Place  $place
      * @return Collection<int, Category>
      */
     public function categoriesIn(array $place): Collection
     {
-        return Category::whereKey(array_keys($place['categories']))->orderBy('name')->get(['id', 'name', 'slug']);
+        return Category::inTreeOrder(
+            Category::whereKey(array_keys($place['categories']))->orderBy('name')->get(['id', 'name', 'slug', 'parent_id'])
+        );
     }
 
     /**

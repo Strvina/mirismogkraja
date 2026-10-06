@@ -11,6 +11,8 @@ interface PlaceCategory {
     id: number;
     name: string;
     slug: string;
+    /** The category as people search for it ("Domaći ajvar"). */
+    search_name?: string | null;
 }
 
 /**
@@ -44,7 +46,7 @@ export default function PlaceShow({
     ];
 
     const title = category
-        ? t(':category — :place', { category: t(category.name), place: place.name })
+        ? t(':category — :place', { category: t(category.search_name ?? category.name), place: place.name })
         : t('Domaći proizvodi — :place', { place: place.name });
 
     const chip = (active: boolean) =>

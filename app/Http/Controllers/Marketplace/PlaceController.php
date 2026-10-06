@@ -53,7 +53,7 @@ class PlaceController extends Controller
             ->published()
             ->withCardData()
             ->whereHas('producer', fn ($query) => $query->whereIn('city', $place['spellings']))
-            ->when($category, fn ($query) => $query->where('category_id', $category->id))
+            ->when($category, fn ($query) => $query->inCategory($category->id))
             ->latest()
             // Products added in the same second keep one order from page to page.
             ->orderByDesc('products.id')
@@ -73,12 +73,14 @@ class PlaceController extends Controller
         $subscriptions->markPremium($producers);
 
         $categoryName = $category ? __($category->name) : null;
+        // As people search for it: "Domaći ajvar — Leskovac".
+        $searchName = $category ? __($category->searchName()) : null;
 
         return Inertia::render('marketplace/places/show', [
             'meta' => [
                 ...($category
                     ? PageMeta::make(
-                        __(':category — :place | Vrelina juga', ['category' => $categoryName, 'place' => $place['name']]),
+                        __(':category — :place | Vrelina juga', ['category' => $searchName, 'place' => $place['name']]),
                         __('„:category” od domaćih proizvođača iz mesta :place. Pišite im direktno, bez posrednika.', ['category' => $categoryName, 'place' => $place['name']]),
                     )
                     : PageMeta::make(
@@ -92,7 +94,7 @@ class PlaceController extends Controller
                 ])),
             ],
             'place' => ['slug' => $place['slug'], 'name' => $place['name']],
-            'category' => $category?->only(['id', 'name', 'slug']),
+            'category' => $category?->only(['id', 'name', 'slug', 'search_name']),
             'categories' => $places->categoriesIn($place),
             'producers' => $producers,
             'products' => $products->through(fn (Product $product) => [

@@ -59,11 +59,13 @@ class ProductController extends Controller
     /**
      * A category's own page (/kategorija/med): the same list, filtered, with
      * an address, a title and a description a search engine can show for
-     * "domaći med" - a query-string filter has none of those.
+     * "domaći med" - a query-string filter has none of those. A category
+     * lists its subcategories' products with its own.
      */
     public function category(Request $request, Category $category, BoostService $boosts, SearchMisses $misses, Places $places): Response
     {
         $request->merge(['category_id' => $category->id]);
+        $category->load('parent:id,name,slug');
 
         return $this->listing($request, $boosts, $misses, $places, $category);
     }
@@ -128,21 +130,32 @@ class ProductController extends Controller
         ];
 
         $name = $category ? __($category->name) : null;
+        $parent = $category?->parent;
 
         return Inertia::render('marketplace/products/index', [
             'meta' => $category
                 ? [
                     ...PageMeta::make(
-                        __(':category | Vrelina juga', ['category' => $name]),
-                        __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name]),
+                        // Titled as people search for it: "Domaći ajvar".
+                        __(':category | Vrelina juga', ['category' => __($category->searchName())]),
+                        $category->intro ?: __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name]),
                     ),
-                    'structured' => PageMeta::breadcrumbs([
+                    'structured' => PageMeta::breadcrumbs(array_filter([
                         [__('Proizvodi'), route('marketplace.products.index')],
+                        $parent ? [__($parent->name), route('marketplace.categories.show', $parent->slug)] : null,
                         [$name, route('marketplace.categories.show', $category->slug)],
-                    ]),
+                    ])),
+                    // Nothing in it yet: a page to keep out of search results until there is.
+                    'robots' => $products->total() === 0 ? 'noindex, follow' : null,
                 ]
                 : PageMeta::make(__('Proizvodi | Vrelina juga'), __('Domaći proizvodi, direktno od ljudi koji ih prave.')),
-            'category' => $category?->only(['id', 'name', 'slug']),
+            'category' => $category ? [
+                ...$category->only(['id', 'name', 'slug', 'search_name', 'intro']),
+                'parent' => $parent?->only(['id', 'name', 'slug']),
+            ] : null,
+            // The narrower pages of the same family - "Ajvar" under
+            // "Zimnica" - the ones with something in them.
+            'subcategories' => $category ? $this->subcategories($category) : [],
             // Where this category is sold from, each a page of its own.
             'places' => $category ? $places->withCategory($category) : [],
             'products' => $products->through($card),
@@ -159,11 +172,21 @@ class ProductController extends Controller
     }
 
     /**
-     * Published products narrowed by the visitor's filters, with what a
-     * card shows. Shared by the results and the boosted row above them.
+     * The subcategories next to a category's page: its own, or - on a
+     * subcategory's page - its siblings. Only those with something published.
      *
-     * @return Builder<Product>
+     * @return array<int, array{id: int, name: string, slug: string}>
      */
+    private function subcategories(Category $category): array
+    {
+        return Category::query()
+            ->where('parent_id', $category->parent_id ?? $category->id)
+            ->whereHas('products', fn (Builder $products) => $products->published())
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug'])
+            ->toArray();
+    }
+
     /**
      * What the filter panel offers. The same for every visitor and slow to
      * change, while working it out reads the whole catalogue - so it is
@@ -184,7 +207,7 @@ class ProductController extends Controller
                 ->first();
 
             return [
-                'categories' => Category::orderBy('name')->get(['id', 'name'])->toArray(),
+                'categories' => Category::options(),
                 'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name'])->toArray(),
                 'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
                 'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
@@ -200,13 +223,19 @@ class ProductController extends Controller
             ->isNotEmpty();
     }
 
+    /**
+     * Published products narrowed by the visitor's filters, with what a
+     * card shows. Shared by the results and the boosted row above them.
+     *
+     * @return Builder<Product>
+     */
     private function filtered(Request $request): Builder
     {
         return Product::query()
             ->published()
             ->withCardData()
             ->when($request->filled('q'), fn ($query) => Search::apply($query, self::SEARCHED, $request->string('q')->toString()))
-            ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->where('category_id', $categoryId))
+            ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->inCategory($categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('producer_id', $producerId))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
                 'producer',
@@ -235,7 +264,7 @@ class ProductController extends Controller
      */
     public function show(Request $request, Product $product, ProducerStatistics $statistics, ResponseTime $responseTime, Places $places): Response
     {
-        $product->load(['producer:id,user_id,name,slug,city,logo_path,status,paused_at,paused_until,pause_note', 'category:id,name,slug', 'images']);
+        $product->load(['producer:id,user_id,name,slug,city,logo_path,status,paused_at,paused_until,pause_note', 'category:id,name,slug,parent_id', 'category.parent:id,name,slug', 'images']);
 
         if (! $product->isPubliclyVisible()) {
             throw new NotFoundHttpException;
@@ -272,6 +301,7 @@ class ProductController extends Controller
                     PageMeta::product($product),
                     PageMeta::breadcrumbs(array_filter([
                         [__('Proizvodi'), route('marketplace.products.index')],
+                        $product->category?->parent ? [__($product->category->parent->name), route('marketplace.categories.show', $product->category->parent->slug)] : null,
                         $product->category ? [__($product->category->name), route('marketplace.categories.show', $product->category->slug)] : null,
                         [$product->name, route('marketplace.products.show', $product->slug)],
                     ])),

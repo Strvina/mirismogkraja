@@ -49,6 +49,54 @@ class AdminCategoryManagementTest extends TestCase
         $this->assertDatabaseHas('categories', ['name' => 'Jabuke', 'parent_id' => $parent->id]);
     }
 
+    public function test_categories_are_two_levels_deep_and_no_deeper()
+    {
+        $admin = $this->admin();
+        $parent = Category::factory()->create();
+        $child = Category::factory()->create(['parent_id' => $parent->id]);
+        $other = Category::factory()->create();
+
+        // Under a subcategory.
+        $this->actingAs($admin)->post(route('admin.categories.store'), ['name' => 'Ljuti ajvar', 'parent_id' => $child->id])
+            ->assertSessionHasErrors('parent_id');
+        // A category with subcategories of its own, moved under another.
+        $this->actingAs($admin)->put(route('admin.categories.update', $parent), ['name' => $parent->name, 'parent_id' => $other->id])
+            ->assertSessionHasErrors('parent_id');
+
+        $this->assertDatabaseMissing('categories', ['name' => 'Ljuti ajvar']);
+        $this->assertNull($parent->refresh()->parent_id);
+    }
+
+    public function test_admin_edits_what_the_category_page_says_and_its_address_stays()
+    {
+        $admin = $this->admin();
+        $parent = Category::factory()->create();
+        $category = Category::factory()->create(['name' => 'Ajvar', 'slug' => 'ajvar']);
+
+        $this->actingAs($admin)->put(route('admin.categories.update', $category), [
+            'name' => 'Ajvar i pinđur',
+            'parent_id' => $parent->id,
+            'search_name' => 'Domaći ajvar',
+            'intro' => 'Od pečene paprike.',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'name' => 'Ajvar i pinđur',
+            // Renamed, and still where search engines and shared links point.
+            'slug' => 'ajvar',
+            'parent_id' => $parent->id,
+            'search_name' => 'Domaći ajvar',
+            'intro' => 'Od pečene paprike.',
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.categories.index'))->assertInertia(fn ($page) => $page
+            // Each subcategory right under its parent.
+            ->where('categories.0.id', $parent->id)
+            ->where('categories.1.id', $category->id)
+            ->where('categories.1.products_count', 0));
+    }
+
     public function test_category_cannot_be_its_own_parent()
     {
         $admin = $this->admin();

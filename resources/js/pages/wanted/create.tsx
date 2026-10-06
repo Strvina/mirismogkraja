@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { categoryOptions } from '@/lib/categories';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Category } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
@@ -75,10 +76,7 @@ export default function WantedCreate({
                             id="wanted-category"
                             value={data.category_id}
                             onChange={(value) => setData('category_id', value)}
-                            options={[
-                                { value: '', label: t('Ne znam / nešto drugo') },
-                                ...categories.map((category) => ({ value: String(category.id), label: t(category.name) })),
-                            ]}
+                            options={[{ value: '', label: t('Ne znam / nešto drugo') }, ...categoryOptions(categories)]}
                         />
                         <p className="text-muted-foreground text-xs">{t('Proizvođači iz te kategorije dobijaju obaveštenje o oglasu.')}</p>
                         <InputError message={errors.category_id} />

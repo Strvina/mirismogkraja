@@ -22,7 +22,7 @@ class WantedAdController extends Controller
     public function create(Request $request): Response
     {
         return Inertia::render('wanted/create', [
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::options(),
             // Where the buyer is, as a starting point they can change.
             'city' => $request->user()->city,
             // What the search that led here was for, when it found nothing.

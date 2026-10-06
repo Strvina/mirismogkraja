@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Category;
 use App\Models\Producer;
 use App\Models\User;
 use App\Models\WantedAd;
@@ -42,9 +43,26 @@ class NotifyProducersOfWantedAd
             ->whereKeyNot($this->ad->user_id)
             ->whereNull('blocked_at')
             ->whereIn('id', Producer::published()
-                ->whereHas('products', fn ($products) => $products->where('status', 'active')->where('category_id', $this->ad->category_id))
+                ->whereHas('products', fn ($products) => $products->where('status', 'active')->whereIn('category_id', $this->categoryIds()))
                 ->select('user_id'))
             ->select('id')
             ->chunkById(200, fn ($owners) => Notification::send($owners, $notification));
+    }
+
+    /**
+     * Whose products the ad is about: the category's own, its
+     * subcategories' - "Zimnica" is anyone making ajvar - and, for a
+     * subcategory, the general category above it, where the same product is
+     * filed by a producer who did not pick the narrower one.
+     *
+     * @return list<int>
+     */
+    private function categoryIds(): array
+    {
+        return [
+            $this->ad->category_id,
+            ...Category::where('parent_id', $this->ad->category_id)->pluck('id'),
+            ...array_filter([$this->ad->category?->parent_id]),
+        ];
     }
 }

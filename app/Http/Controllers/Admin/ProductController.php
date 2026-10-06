@@ -37,7 +37,7 @@ class ProductController extends Controller
         return Inertia::render('admin/products/index', [
             'products' => $products,
             'producers' => Producer::orderBy('name')->get(['id', 'name']),
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::options(),
             'statuses' => self::STATUSES,
             'filters' => $request->only(['search', 'producer_id', 'status']),
         ]);
