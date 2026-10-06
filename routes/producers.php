@@ -5,6 +5,7 @@ use App\Http\Controllers\ProducerCertificateController;
 use App\Http\Controllers\ProducerController;
 use App\Http\Controllers\ProducerImageController;
 use App\Http\Controllers\ProducerMarketController;
+use App\Http\Controllers\ProducerPauseController;
 use App\Http\Controllers\ProducerStatisticsController;
 use App\Http\Controllers\QuickReplyController;
 use App\Http\Controllers\ReferralController;
@@ -43,6 +44,10 @@ Route::middleware(['auth', 'verified'])->prefix('moji-proizvodjaci')->name('prod
     Route::get('/{producer}/price/{post}/izmena', [PostController::class, 'edit'])->name('posts.edit');
     Route::put('/{producer}/price/{post}', [PostController::class, 'update'])->middleware('throttle:20,1')->name('posts.update');
     Route::delete('/{producer}/price/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
+
+    // A pause: sold out or away. The page stays, new inquiries wait.
+    Route::get('/{producer}/pauza', [ProducerPauseController::class, 'edit'])->name('pause.edit');
+    Route::put('/{producer}/pauza', [ProducerPauseController::class, 'update'])->middleware('throttle:10,1')->name('pause.update');
 
     // "Preporuči proizvođača": the producer's link and what came of it.
     Route::get('/{producer}/preporuke', [ReferralController::class, 'index'])->name('referrals.index');

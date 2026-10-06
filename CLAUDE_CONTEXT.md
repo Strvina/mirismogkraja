@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 125).
+Poslednja izmena: 2026-10-05 (posle zadatka 126).
 
 ## 1. Šta je ovo
 
@@ -74,14 +74,14 @@ stranice o sajtu (`/kako-radi`, `/za-proizvodjace` sa cenama iz baze, `/cesta-pi
 omiljeni, „Javi mi kad stigne", utisak, prijava problema.
 
 **Proizvođač:** stranica i proizvodi, galerija, odgovori na poruke i utiske, brzi odgovori,
-statistika (Premium/Pro), „čeka vas X kupaca", pijace, sertifikati, priče i recepti, katalog za
+statistika (Premium/Pro), pauza, „čeka vas X kupaca", pijace, sertifikati, priče i recepti, katalog za
 deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 
 **Admin:** odobravanje proizvođača, provera sertifikata, moderacija utisaka / prijava (proizvođač, proizvod, objava, korisnik) / proizvoda /
 priča, potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
-mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišćenje logova i obaveštenja.
+mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), čišćenje logova i obaveštenja.
 
 ## 6. Poslovna pravila
 
@@ -110,6 +110,10 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
   nije našao ni proizvod ni proizvođača, i to samo kad nijedan drugi filter nije uključen. Dnevni
   brojači po pojmu: posetilac jednom dnevno, bez robota, bez mejlova i telefona. Admin vidi sve;
   proizvođač sa statistikom (Premium/Pro) vidi samo pojmove koje je tražilo bar dvoje ljudi.
+- **Pauza** (`producers.paused_at/paused_until/pause_note`, servis `ProducerPause`): stranica i proizvodi
+  ostaju javni, ali se ne može započeti **nov** razgovor; postojeći teku dalje. Sa datumom povratka pauza
+  prestaje sama (i pre noćnog posla). Kad prestane, obaveštavaju se pratioci („Javi mi kad se vrati" je
+  praćenje proizvođača).
 - **Stranice mesta** (`/mesto/{slug}`, `/mesto/{slug}/{kategorija}`, servis `Places`): nema tabele mesta.
   Mesto su svi načini pisanja grada koji daju isti slug („Niš" i „Nis"), i postoji samo dok se iz njega
   prodaje bar jedan objavljen proizvod; kombinacija mesto+kategorija bez proizvoda je 404. Keš 10 min.

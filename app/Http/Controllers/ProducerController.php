@@ -40,7 +40,10 @@ class ProducerController extends Controller
                 ->latest()
                 ->get()
                 // What would make each page more convincing to a buyer.
-                ->each(fn (Producer $producer) => $producer->setAttribute('completeness', ProfileCompleteness::for($producer))),
+                ->each(fn (Producer $producer) => $producer
+                    ->setAttribute('completeness', ProfileCompleteness::for($producer))
+                    // A pause is easy to forget once it is on.
+                    ->setAttribute('is_paused', $producer->isPaused())),
             // A rename of a published producer waits for an admin, so the
             // list says so - otherwise the name simply not changing reads as
             // the save having failed.

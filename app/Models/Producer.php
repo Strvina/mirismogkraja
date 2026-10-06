@@ -59,6 +59,8 @@ class Producer extends Model
             'delivery_methods' => 'array',
             'founding_joined_at' => 'datetime',
             'verified_at' => 'datetime',
+            'paused_at' => 'datetime',
+            'paused_until' => 'date',
             'lat' => 'decimal:7',
             'lng' => 'decimal:7',
             // withAvg() aggregates come back as strings on MySQL but numbers
@@ -207,6 +209,29 @@ class Producer extends Model
     public function isVerified(): bool
     {
         return $this->verified_at !== null;
+    }
+
+    /**
+     * Not taking new inquiries right now. A pause with a return date ends
+     * on that date whether or not the nightly job has cleared it yet, so a
+     * producer is never shown as away on the day they said they are back.
+     */
+    public function isPaused(): bool
+    {
+        return $this->paused_at !== null
+            && ($this->paused_until === null || $this->paused_until->copy()->endOfDay()->isFuture());
+    }
+
+    /**
+     * What a visitor is told about the pause, or null when there is none.
+     *
+     * @return array{until: string|null, note: string|null}|null
+     */
+    public function pauseForVisitors(): ?array
+    {
+        return $this->isPaused()
+            ? ['until' => $this->paused_until?->toDateString(), 'note' => $this->pause_note]
+            : null;
     }
 
     public function isFounding(): bool

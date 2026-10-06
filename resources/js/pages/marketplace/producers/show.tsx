@@ -1,4 +1,5 @@
 import { type Paginated } from '@/components/marketplace/pagination';
+import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
 import { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import ShareButtons from '@/components/marketplace/share-buttons';
@@ -32,6 +33,7 @@ export default function ProducerShow({
     averageRating,
     isPremium,
     place,
+    pause,
     responseTime,
     canReview,
     myPendingReview,
@@ -62,6 +64,8 @@ export default function ProducerShow({
     isPremium: boolean;
     /** The producer's town as a page of its own, when it has one. */
     place: { slug: string; name: string } | null;
+    /** Sold out or away: no new inquiries until they are back. */
+    pause: Pause | null;
     responseTime: ResponseTimeBucket | null;
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
@@ -104,6 +108,18 @@ export default function ProducerShow({
                 reportReasons={reportReasons}
                 place={place}
             />
+
+            {pause && (
+                <PauseNotice pause={pause} className="mt-5 max-w-2xl">
+                    {canFollow && (
+                        <p className="text-muted-foreground">
+                            {isFollowing
+                                ? t('Pratite ovog proizvođača — javićemo vam kad se vrati.')
+                                : t('Zapratite proizvođača i javićemo vam kad se vrati.')}
+                        </p>
+                    )}
+                </PauseNotice>
+            )}
 
             <div className="mt-4">
                 <ShareButtons url={typeof window === 'undefined' ? '' : window.location.href} title={producer.name} />

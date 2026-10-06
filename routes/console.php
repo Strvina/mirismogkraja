@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ActivityLog;
+use App\Services\ProducerPause;
 use App\Services\SearchMisses;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Schedule;
@@ -33,6 +34,12 @@ $backup = Schedule::command('backup:database')->dailyAt('02:30')->withoutOverlap
 if ($notify = config('backup.notify')) {
     $backup->emailOutputOnFailure($notify);
 }
+
+// Producers whose pause had a return date that has passed: back to taking
+// inquiries, and their followers are told. Early, before anyone writes.
+Schedule::call(fn () => app(ProducerPause::class)->resumeDue())
+    ->dailyAt('06:00')
+    ->name('resume-paused-producers');
 
 // "You have a message" e-mails, for messages unread for a few minutes.
 Schedule::command('messages:email-unread')->everyFiveMinutes()->withoutOverlapping();
