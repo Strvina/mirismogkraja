@@ -57,6 +57,11 @@ class SitemapController extends Controller
                 ->pluck('slug')
                 ->map(fn (string $slug) => ['loc' => route('marketplace.categories.show', $slug), 'priority' => '0.8', 'changefreq' => 'daily'])
                 ->all(),
+            ['loc' => route('info.how'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => route('info.producers'), 'priority' => '0.6', 'changefreq' => 'monthly'],
+            ['loc' => route('info.faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],
+            ['loc' => route('info.about'), 'priority' => '0.4', 'changefreq' => 'yearly'],
+            ['loc' => route('info.contact'), 'priority' => '0.4', 'changefreq' => 'yearly'],
             ['loc' => route('legal.terms'), 'priority' => '0.3', 'changefreq' => 'yearly'],
             ['loc' => route('legal.privacy'), 'priority' => '0.3', 'changefreq' => 'yearly'],
         ]])->render());

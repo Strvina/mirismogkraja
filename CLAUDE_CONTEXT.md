@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 120).
+Poslednja izmena: 2026-10-05 (posle zadatka 121).
 
 ## 1. Šta je ovo
 
@@ -67,7 +67,8 @@ Morph alijasi (`AppServiceProvider`): `producer`, `product`, `post`, `user`.
 ## 5. Funkcionalnosti
 
 **Posetilac:** pretraga i filteri, stranice kategorija, mapa i „Najbliži meni", profil proizvođača
-(pijace, sertifikati, priče, utisci), katalog sa cenama `/katalog/{slug}`, priče i recepti `/price`.
+(pijace, sertifikati, priče, utisci), katalog sa cenama `/katalog/{slug}`, priče i recepti `/price`,
+stranice o sajtu (`/kako-radi`, `/za-proizvodjace` sa cenama iz baze, `/cesta-pitanja`, `/o-nama`, `/kontakt`).
 
 **Kupac:** nalog e-mailom ili Google-om, upit sa stranice proizvoda, poruke, praćenje proizvođača,
 omiljeni, „Javi mi kad stigne", utisak, prijava problema.

@@ -130,6 +130,8 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    /** The address visitors write to (footer, contact page). */
+    contactEmail: string;
     auth: Auth;
     unreadMessages: number;
     unreadNotifications: number;

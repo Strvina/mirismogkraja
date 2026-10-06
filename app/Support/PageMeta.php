@@ -132,6 +132,29 @@ class PageMeta
         ], fn ($value) => $value !== null);
     }
 
+    /**
+     * Questions and answers as an FAQPage, which a search result can show
+     * unfolded under the link.
+     *
+     * @param  list<array{title: string, items: list<array{question: string, answer: string}>}>  $groups
+     * @return array<string, mixed>
+     */
+    public static function faq(array $groups): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => collect($groups)
+                ->flatMap(fn (array $group) => $group['items'])
+                ->map(fn (array $item) => [
+                    '@type' => 'Question',
+                    'name' => $item['question'],
+                    'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['answer']],
+                ])
+                ->all(),
+        ];
+    }
+
     /** @return array{title: string, description: string, url: string, image: string|null, type: string} */
     public static function make(string $title, ?string $description, ?string $imagePath = null, string $type = 'website'): array
     {

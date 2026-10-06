@@ -7,6 +7,11 @@
  */
 return [
     /*
+     * The address visitors write to, shown in the footer and on /kontakt.
+     */
+    'contact_email' => env('PLATFORM_CONTACT_EMAIL', 'zdravo@vrelinajuga.rs'),
+
+    /*
      * Where payments by bank slip go - printed on every slip and built into
      * its QR code.
      */
