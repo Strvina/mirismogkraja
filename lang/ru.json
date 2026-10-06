@@ -1219,5 +1219,22 @@
     "Poruka posetiocima (neobavezno)": "Сообщение посетителям (необязательно)",
     "Na primer: Ovogodišnji ajvar je rasprodat, novi stiže u septembru.": "Например: айвар этого года распродан, новый будет в сентябре.",
     "Uključi pauzu": "Включить паузу",
-    "Pauza je uključena: novi kupci ne mogu da vam pišu. Isključite je kad se vratite.": "Пауза включена: новые покупатели не могут вам писать. Выключите её, когда вернётесь."
+    "Pauza je uključena: novi kupci ne mogu da vam pišu. Isključite je kad se vratite.": "Пауза включена: новые покупатели не могут вам писать. Выключите её, когда вернётесь.",
+    "Novo od proizvođača koje pratite": "Новое у производителей, на которых вы подписаны",
+    "Ove nedelje kod proizvođača koje pratite:": "На этой неделе у производителей, на которых вы подписаны:",
+    "Novi proizvodi: :list": "Новые продукты: :list",
+    "Nove priče i recepti: :list": "Новые истории и рецепты: :list",
+    "…i još :count proizvođača koje pratite.": "…и ещё производители, на которых вы подписаны: :count.",
+    "i još :count": "и ещё :count",
+    "Šta je sada u sezoni": "Что сейчас в сезоне",
+    "Ne želite nedeljni pregled? [Isključite ga ovde](:url).": "Не хотите получать еженедельный обзор? [Отключите его здесь](:url).",
+    "Nedeljni pregled": "Еженедельный обзор",
+    "Isključiti nedeljni pregled?": "Отключить еженедельный обзор?",
+    "Više vam nećemo slati nedeljni mejl o novostima kod proizvođača koje pratite. Obaveštenja na sajtu ostaju.": "Мы больше не будем присылать еженедельное письмо о новостях производителей, на которых вы подписаны. Уведомления на сайте остаются.",
+    "Nedeljni pregled je isključen": "Еженедельный обзор отключён",
+    "Novosti ćete i dalje videti u obaveštenjima na sajtu. Pregled možete ponovo da uključite u podešavanjima profila.": "Новости вы по-прежнему увидите в уведомлениях на сайте. Обзор можно снова включить в настройках профиля.",
+    "Nedeljni pregled od proizvođača koje pratim": "Еженедельный обзор от производителей, на которых я подписан",
+    "Jednom nedeljno, i samo kad neko koga pratite doda proizvod, priču ili recept.": "Раз в неделю и только когда кто-то из тех, на кого вы подписаны, добавит продукт, историю или рецепт.",
+    "Mejlovi koje šaljemo": "Письма, которые мы отправляем",
+    "Šaljemo mejl za potvrdu adrese i promenu lozinke, obaveštenje o novoj poruci, vest da je proizvod koji čekate stigao i — ako pratite nekog proizvođača — nedeljni pregled onoga što je dodao. Mejlove o porukama i nedeljni pregled isključujete u podešavanjima profila ili linkom na dnu svakog takvog mejla.": "Мы отправляем письмо для подтверждения адреса и смены пароля, уведомление о новом сообщении, сообщение о том, что продукт, которого вы ждёте, появился, и — если вы подписаны на производителя — еженедельный обзор того, что он добавил. Письма о сообщениях и еженедельный обзор отключаются в настройках профиля или по ссылке внизу каждого такого письма."
 }

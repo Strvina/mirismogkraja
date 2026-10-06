@@ -47,6 +47,7 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         'lng',
         'blocked_at',
         'notify_messages_by_email',
+        'notify_weekly_digest',
     ];
 
     /**
@@ -93,6 +94,8 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
             'lng' => 'decimal:7',
             'blocked_at' => 'datetime',
             'notify_messages_by_email' => 'boolean',
+            'notify_weekly_digest' => 'boolean',
+            'digest_sent_at' => 'datetime',
         ];
     }
 
