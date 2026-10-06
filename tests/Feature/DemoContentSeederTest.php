@@ -97,6 +97,11 @@ class DemoContentSeederTest extends TestCase
         $this->assertGreaterThan(0, ProductAlert::count());
         $this->assertSame(3, QuickReply::count());
         $this->assertSame(1, Referral::count());
+
+        // Something in season this month, whenever the demo is seeded, and two buyers looking for something.
+        $this->get('/')->assertInertia(fn ($page) => $page->has('seasonalProducts'));
+        $this->assertGreaterThan(0, Product::published()->seasonal()->count());
+        $this->get(route('wanted.index'))->assertInertia(fn ($page) => $page->has('ads.data', 2)->where('ads.data.1.responses_count', 1));
     }
 
     public function test_seeded_conversations_cover_answered_and_waiting_threads(): void

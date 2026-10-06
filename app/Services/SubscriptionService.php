@@ -245,6 +245,40 @@ class SubscriptionService
     }
 
     /**
+     * A membership was stopped before its end. Whatever waits behind it
+     * moves up by the time it left unused - otherwise an upgrade that is
+     * cancelled would leave the producer without any plan while the one
+     * they had paid for sits queued for a date that no longer means
+     * anything.
+     */
+    public function closeGapLeftBy(ProducerSubscription $stopped): void
+    {
+        if ($stopped->starts_at === null || $stopped->ends_at === null || $stopped->ends_at->isPast()) {
+            return;
+        }
+
+        $unused = (int) max(now(), $stopped->starts_at)->diffInSeconds($stopped->ends_at);
+
+        DB::transaction(function () use ($stopped, $unused) {
+            $behind = $stopped->producer
+                ->subscriptions()
+                ->active()
+                ->whereKeyNot($stopped->id)
+                ->where('starts_at', '>=', $stopped->ends_at)
+                ->lockForUpdate()
+                ->get();
+
+            foreach ($behind as $subscription) {
+                $subscription->update([
+                    'starts_at' => $subscription->starts_at->copy()->subSeconds($unused),
+                    'ends_at' => $subscription->ends_at->copy()->subSeconds($unused),
+                    'expiry_warned_at' => null,
+                ]);
+            }
+        });
+    }
+
+    /**
      * Warn about memberships that are about to run out, and close the ones
      * that already have. Run daily; both steps are written so that running
      * it twice in a day changes nothing the second time.

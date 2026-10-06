@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 133).
+Poslednja izmena: 2026-10-06 (posle zadatka 134).
 
 ## 1. Šta je ovo
 
@@ -101,7 +101,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - **Redosled članarina** (odluka vlasnika, 2026-10-05): isti ili niži paket čeka kraj tekućeg (obnova
   se nadovezuje); **viši paket počinje odmah**, a ostatak nižeg se pomera iza njega, bez gubitka dana.
   Pogodnosti daje samo članarina koja trenutno teče (`running`), ne ona koja čeka red (`active` = plaćena
-  i nije istekla).
+  i nije istekla). Kad admin otkaže članarinu pre kraja, one iza nje se pomeraju unapred za neiskorišćeno vreme.
 - Plaćeno isticanje je uvek u posebnom, označenom redu; redovna lista ostaje po abecedi.
 - **Telefon** proizvođača nije u HTML-u stranice; dohvata se tek na „Prikaži broj".
 - **Sertifikat** je javan tek kad ga admin potvrdi i dok mu ne istekne rok. Javno je samo naziv,
@@ -175,6 +175,8 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   postoji u `lang/en.json` i `lang/ru.json` (`LocalizationTest`).
 - Poruke o greškama validacije su bez naziva polja („Ovo polje je obavezno.").
 - Kontroler ostaje tanak; logika u servisu. Provera vlasništva pre svake izmene.
+- Paginirana lista uvek ima i `id` kao poslednji kriterijum redosleda, da se redovi sa istim vremenom ili
+  cenom ne premeštaju između stranica.
 - Liste se uvek paginiraju; brojevi preko `withCount`, veze preko `with` (bez N+1). `QueryBudgetTest` pada
   ako javna lista sa deset redova izvrši više upita nego sa dva.
 - `Cache::remember` ne pamti `null`: kad je „nema podataka" čest ishod, kešira se `false` (vidi `ResponseTime`).
@@ -190,7 +192,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Urađeni su svi zadaci do 132. Talas 121–131 (PR-ovi #215–#225, nadovezani jedan na drugi): stranice o
   sajtu, stranice mesta, „U sezoni", prijava priča i katalog u mapi sajta, redosled članarina, pauza,
   nedeljni pregled, oglasi „Tražim", mejlovi proizvođaču, izvoz upita, dvostruka potvrda prijave.
-- Testovi: 567 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 568 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
   `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept);

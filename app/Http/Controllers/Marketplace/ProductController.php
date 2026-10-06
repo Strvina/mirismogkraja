@@ -80,6 +80,10 @@ class ProductController extends Controller
             // A search with no sort chosen: best matches first.
             ->when($search !== '' && ! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => Search::orderByRelevance($query, self::SEARCHED, $search))
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
+            // Whatever the order, a tie is broken the same way every time:
+            // two products at one price, or added in the same second, must
+            // not swap places between page 1 and page 2.
+            ->orderByDesc('id')
             ->paginate($this->perPage($request))
             ->withQueryString();
 

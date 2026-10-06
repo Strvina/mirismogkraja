@@ -40,6 +40,8 @@ class WantedAdController extends Controller
                 ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
                 ->when($city !== '', fn ($query) => $query->where('city', $city))
                 ->latest()
+                // Ads posted in the same second keep one order from page to page.
+                ->orderByDesc('id')
                 ->paginate(self::PER_PAGE)
                 ->withQueryString()
                 ->through(fn (WantedAd $ad) => $this->card($ad)),

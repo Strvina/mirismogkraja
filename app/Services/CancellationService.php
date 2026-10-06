@@ -15,6 +15,8 @@ use App\Support\PaidItems;
  */
 class CancellationService
 {
+    public function __construct(private readonly SubscriptionService $subscriptions) {}
+
     public function cancel(ProducerSubscription|Boost|CampaignParticipant $item): void
     {
         $wasActive = $item->status === 'active';
@@ -24,6 +26,12 @@ class CancellationService
         // An unpaid request simply goes; something running is news.
         if (! $wasActive) {
             return;
+        }
+
+        // Memberships run one after another: what was queued behind the
+        // stopped one takes its place now.
+        if ($item instanceof ProducerSubscription) {
+            $this->subscriptions->closeGapLeftBy($item);
         }
 
         $item->producer?->user?->notify(match (true) {

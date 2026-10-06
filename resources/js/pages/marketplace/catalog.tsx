@@ -1,4 +1,5 @@
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import ContactCard from '@/components/producer-page/contact-card';
 import MarketList from '@/components/producer-page/market-list';
@@ -55,6 +56,7 @@ export default function Catalog({
     products,
     markets,
     canMessage,
+    pause,
 }: {
     producer: CatalogProducer;
     /** Only after "Prikaži broj": fetched by a partial reload. */
@@ -62,6 +64,8 @@ export default function Catalog({
     products: Paginated<CatalogProduct>;
     markets: ProducerMarket[];
     canMessage: boolean;
+    /** Sold out or away: no new inquiries until they are back. */
+    pause: Pause | null;
 }) {
     const title = t(':name — ponuda i cene', { name: producer.name });
 
@@ -112,6 +116,8 @@ export default function Catalog({
             <div className="mt-4">
                 <ShareButtons url={route('marketplace.catalog', producer.slug)} title={title} />
             </div>
+
+            {pause && <PauseNotice pause={pause} className="mt-5 max-w-2xl" />}
 
             <ContactCard producer={producer} phone={phone} />
 

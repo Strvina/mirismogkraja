@@ -16,11 +16,13 @@ use App\Models\Referral;
 use App\Models\Review;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Models\WantedAd;
 use App\Models\WeeklyPick;
 use App\Notifications\SiteNotification;
 use App\Services\BoostService;
 use App\Services\FoundingProducerService;
 use App\Services\SubscriptionService;
+use App\Services\WantedAdService;
 use App\Support\Media;
 use App\Support\PaymentReference;
 use Illuminate\Database\Seeder;
@@ -190,6 +192,38 @@ class DemoContentSeeder extends Seeder
             'status' => Referral::STATUS_REWARDED,
             'rewarded_at' => now()->subWeeks(2),
         ]);
+
+        // "U sezoni": one product of each producer has its season now,
+        // whenever the demo is seeded, so the month's page and the home
+        // page's row are never empty.
+        foreach ($producers as $producer) {
+            $producer->products()->oldest('id')->first()?->update([
+                'season_from' => now()->subMonth()->month,
+                'season_to' => now()->addMonth()->month,
+            ]);
+        }
+
+        // "Tražim": what two buyers are looking for. The farm has answered
+        // the first, so the ad shows who wrote and the thread shows the ad.
+        $peppers = $buyers[1]->wantedAds()->create([
+            'category_id' => Category::where('name', 'Meso i suhomesnato')->value('id'),
+            'title' => 'Domaća slanina i čvarci za slavu',
+            'body' => 'Treba mi oko pet kilograma sušene slanine i dva kilograma čvaraka do kraja meseca. Mogu da dođem po robu u Leskovac ili Niš.',
+            'quantity' => '5 kg + 2 kg',
+            'city' => 'Niš',
+            'status' => WantedAd::STATUS_OPEN,
+            'expires_at' => now()->addDays(WantedAd::DAYS_OPEN - 3),
+        ]);
+        $buyers[2]->wantedAds()->create([
+            'category_id' => Category::where('name', 'Povrće')->value('id'),
+            'title' => 'Paprika za ajvar, 50 kg',
+            'body' => 'Tražim crvenu papriku roga za ajvar, pedesetak kilograma, sredinom septembra. Bitno mi je da nije prskana pred berbu.',
+            'quantity' => '50 kg',
+            'city' => 'Vranje',
+            'status' => WantedAd::STATUS_OPEN,
+            'expires_at' => now()->addDays(WantedAd::DAYS_OPEN - 1),
+        ]);
+        app(WantedAdService::class)->respond($peppers, $farm, 'Dobar dan, imamo sušenu slaninu od ove zime i sveže čvarke svake subote. Slanina je 1.400 dinara kilogram, čvarci 1.800. Možete preuzeti na Zelenoj pijaci u Leskovcu.');
     }
 
     /**
