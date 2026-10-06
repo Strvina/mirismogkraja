@@ -1429,5 +1429,20 @@
     "Cenu određuje svaki proizvođač. Količinu, preuzimanje i dostavu dogovarate direktno sa njim.": "Цену устанавливает каждый производитель. Количество, самовывоз и доставку вы обсуждаете напрямую с ним.",
     "Kupujem domaće proizvode": "Куплю домашние продукты",
     "Na ovoj stranici": "На этой странице",
-    "Na sajtu nema korpe ni plaćanja: pišete proizvođaču, a cenu, količinu i dostavu dogovarate direktno sa njim.": "На сайте нет корзины и оплаты: вы пишете производителю и договариваетесь о цене, количестве и доставке напрямую с ним."
+    "Na sajtu nema korpe ni plaćanja: pišete proizvođaču, a cenu, količinu i dostavu dogovarate direktno sa njim.": "На сайте нет корзины и оплаты: вы пишете производителю и договариваетесь о цене, количестве и доставке напрямую с ним.",
+    "Upišite naziv da biste nastavili.": "Введите название, чтобы продолжить.",
+    "Još nemate stranicu proizvođača": "У вас пока нет страницы производителя",
+    "Šta dobijate i koliko košta": "Что вы получаете и сколько это стоит",
+    "Predstavite svoje gazdinstvo, dodajte proizvode i primajte upite kupaca. Prijava traje nekoliko minuta, a stranica je vidljiva čim je odobrimo.": "Представьте своё хозяйство, добавьте товары и получайте запросы покупателей. Регистрация занимает несколько минут, а страница видна сразу после одобрения.",
+    "Nema proizvođača za „:query”": "Нет производителей по запросу «:query»",
+    "Prikaži sve proizvođače": "Показать всех производителей",
+    "Proverite kako je ime napisano, ili potražite proizvod umesto proizvođača.": "Проверьте написание имени или поищите товар вместо производителя.",
+    "Iz ovog mesta još niko nije otvorio stranicu.": "Из этого места пока никто не открыл страницу.",
+    "Nema proizvoda za „:query”": "Нет товаров по запросу «:query»",
+    "Poništi filtere": "Сбросить фильтры",
+    "Probajte sa manje filtera ili drugom rečju.": "Попробуйте меньше фильтров или другое слово.",
+    "Još nema poruka": "Сообщений пока нет",
+    "Razgovor počinje upitom sa stranice proizvoda ili proizvođača. Sve što dogovorite sa proizvođačem ostaje ovde.": "Разговор начинается с запроса со страницы товара или производителя. Всё, о чём вы договоритесь с производителем, остаётся здесь.",
+    "Još ništa niste sačuvali": "Вы пока ничего не сохранили",
+    "Srce na kartici proizvođača ili proizvoda čuva ga ovde, da ga sledeći put ne tražite ponovo.": "Сердечко на карточке производителя или товара сохраняет его здесь, чтобы в следующий раз не искать заново."
 }

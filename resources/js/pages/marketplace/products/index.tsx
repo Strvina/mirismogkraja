@@ -1,11 +1,13 @@
 import Head from '@/components/head';
 import CardGrid from '@/components/marketplace/card-grid';
 import CompactSelect from '@/components/marketplace/compact-select';
+import EmptyState from '@/components/marketplace/empty-state';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
 import SearchBox from '@/components/marketplace/search-box';
+import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
@@ -254,22 +256,29 @@ export default function ProductsIndex({
                     )}
 
                     {products.data.length === 0 ? (
-                        <div className="py-16 text-center">
-                            <p className="text-muted-foreground text-sm">{t('Nema proizvoda za odabrane filtere.')}</p>
-                            {/* Nothing here answers the search: let the
-                                buyer say what they want and have producers
-                                come to them. */}
-                            {filters.q && (
-                                <p className="mt-3 text-sm">
-                                    <Link
-                                        href={auth.user ? route('wanted.create', { q: filters.q }) : route('wanted.index')}
-                                        className="text-primary font-medium underline-offset-4 hover:underline"
-                                    >
-                                        {t('Napišite šta tražite, pa neka se proizvođači jave vama')}
-                                    </Link>
-                                </p>
-                            )}
-                        </div>
+                        <EmptyState
+                            title={filters.q ? t('Nema proizvoda za „:query”', { query: filters.q }) : t('Nema proizvoda za odabrane filtere.')}
+                            actions={
+                                <>
+                                    <Button type="button" variant="outline" onClick={reset}>
+                                        {t('Poništi filtere')}
+                                    </Button>
+                                    {/* Nothing here answers the search: let the
+                                        buyer say what they want and have
+                                        producers come to them. */}
+                                    {filters.q && (
+                                        <Link
+                                            href={auth.user ? route('wanted.create', { q: filters.q }) : route('wanted.index')}
+                                            className="text-primary text-sm font-medium underline-offset-4 hover:underline"
+                                        >
+                                            {t('Napišite šta tražite, pa neka se proizvođači jave vama')}
+                                        </Link>
+                                    )}
+                                </>
+                            }
+                        >
+                            {t('Probajte sa manje filtera ili drugom rečju.')}
+                        </EmptyState>
                     ) : (
                         <>
                             <CardGrid className="grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">

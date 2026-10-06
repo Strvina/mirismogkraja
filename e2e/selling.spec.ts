@@ -30,3 +30,21 @@ test('a buyer becomes a producer through the sign-up steps', async ({ page }) =>
     await expect(page).toHaveURL(/\/moji-proizvodjaci$/);
     await expect(page.getByRole('heading', { name })).toBeVisible();
 });
+
+test('on a phone each sign-up step starts at its top', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    // Without the glide, so where the page ends up is settled at once.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await logIn(page, accounts.buyer);
+    await page.goto('/moji-proizvodjaci/novo');
+
+    // A button that will not press says why.
+    await expect(page.getByText('Upišite naziv da biste nastavili.')).toBeVisible();
+    await page.getByLabel('Naziv proizvođača').fill('Probno gazdinstvo');
+
+    // "Dalje" is at the foot of a long first step, and the second is short:
+    // left where it was, the phone would show the footer.
+    await page.getByRole('button', { name: 'Dalje' }).click();
+    await expect(page.getByRole('list', { name: 'Koraci' })).toBeInViewport();
+    await expect(page.getByLabel('Telefon za kontakt')).toBeInViewport();
+});

@@ -1,5 +1,7 @@
 import Head from '@/components/head';
+import EmptyState from '@/components/marketplace/empty-state';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
+import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
@@ -35,7 +37,17 @@ export default function MessagesIndex({ threads }: { threads: Paginated<Thread> 
             <h1 className="font-serif text-4xl sm:text-5xl">{t('Poruke')}</h1>
 
             {threads.data.length === 0 ? (
-                <p className="text-muted-foreground mt-6 text-sm">{t('Još nema poruka. Poruku proizvođaču možete poslati sa njegovog profila.')}</p>
+                <EmptyState
+                    className="mt-8 max-w-2xl"
+                    title={t('Još nema poruka')}
+                    actions={
+                        <Button asChild variant="outline">
+                            <Link href={route('marketplace.products.index')}>{t('Pogledaj proizvode')}</Link>
+                        </Button>
+                    }
+                >
+                    {t('Razgovor počinje upitom sa stranice proizvoda ili proizvođača. Sve što dogovorite sa proizvođačem ostaje ovde.')}
+                </EmptyState>
             ) : (
                 <div className="border-border/70 mt-8 max-w-2xl divide-y rounded-lg border">
                     {threads.data.map((thread) => (

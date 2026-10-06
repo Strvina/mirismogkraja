@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import EmptyState from '@/components/marketplace/empty-state';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import ProducerMoreMenu from '@/components/producer-more-menu';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,23 @@ export default function ProducersIndex({
                 </div>
 
                 {producers.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">{t('Još uvek nemaš registrovanog proizvođača.')}</p>
+                    <EmptyState
+                        title={t('Još nemate stranicu proizvođača')}
+                        actions={
+                            <>
+                                <Button asChild>
+                                    <Link href={route('producers.create')}>{t('Otvori stranicu proizvođača')}</Link>
+                                </Button>
+                                <Link href={route('info.producers')} className="text-sm font-medium underline underline-offset-4">
+                                    {t('Šta dobijate i koliko košta')}
+                                </Link>
+                            </>
+                        }
+                    >
+                        {t(
+                            'Predstavite svoje gazdinstvo, dodajte proizvode i primajte upite kupaca. Prijava traje nekoliko minuta, a stranica je vidljiva čim je odobrimo.',
+                        )}
+                    </EmptyState>
                 ) : (
                     <div className="grid gap-4 md:grid-cols-2">
                         {producers.map((producer) => (

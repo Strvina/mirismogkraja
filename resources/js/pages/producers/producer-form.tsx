@@ -5,9 +5,10 @@ import { type ProducerFormData } from '@/components/producer-form/types';
 import { firstStepWithError, StepIndicator, STEPS } from '@/components/producer-form/wizard-steps';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
+import { scrollBackToStart } from '@/lib/motion';
 import { type Category, type Producer } from '@/types';
 import { useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 import ProducerProductsStep from './producer-products-step';
 
 /**
@@ -56,6 +57,20 @@ export default function ProducerForm({
     });
     const { data, setData, post, put, processing, errors } = form;
     const [step, setStep] = useState(0);
+
+    // A step is left by the button at its foot, and the next one is rarely
+    // as long: without this a phone shows the foot of the new step, or the
+    // footer below it, and the step's first field has to be scrolled up to.
+    const formRef = useRef<HTMLFormElement>(null);
+    const shownStep = useRef(step);
+
+    useEffect(() => {
+        if (shownStep.current !== step && formRef.current) {
+            scrollBackToStart(formRef.current);
+        }
+
+        shownStep.current = step;
+    }, [step]);
 
     // The name is the only field the server insists on, so it is the only
     // one the wizard refuses to move past.
@@ -118,7 +133,7 @@ export default function ProducerForm({
     const isLastStep = step === STEPS.length - 1;
 
     return (
-        <form onSubmit={submit} className="max-w-xl space-y-6">
+        <form ref={formRef} onSubmit={submit} className="max-w-xl space-y-6">
             <StepIndicator step={step} />
 
             <p className="text-muted-foreground text-sm">{t(STEPS[step].hint)}</p>
@@ -147,7 +162,12 @@ export default function ProducerForm({
                     </Button>
                 )}
 
-                <span className="text-muted-foreground text-xs">{t('Korak :current od :total', { current: step + 1, total: STEPS.length })}</span>
+                {/* A button that will not press owes a reason. */}
+                <span className="text-muted-foreground text-xs">
+                    {step === 0 && !canLeaveFirstStep
+                        ? t('Upišite naziv da biste nastavili.')
+                        : t('Korak :current od :total', { current: step + 1, total: STEPS.length })}
+                </span>
             </div>
         </form>
     );
