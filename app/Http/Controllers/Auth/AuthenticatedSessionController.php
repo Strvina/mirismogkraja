@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthRedirectService;
 use App\Services\GoogleAuthService;
+use App\Services\TwoFactor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -37,9 +38,17 @@ class AuthenticatedSessionController extends Controller
      * with the visitor's list and every admin page calling route() would
      * fail.
      */
-    public function store(LoginRequest $request, AuthRedirectService $redirects): SymfonyResponse
+    public function store(LoginRequest $request, AuthRedirectService $redirects, TwoFactor $twoFactor): SymfonyResponse
     {
-        $request->authenticate();
+        $user = $request->validateCredentials();
+
+        // The password was right, but this account also asks for a code:
+        // nobody is signed in until they have given it.
+        if ($user->hasTwoFactor()) {
+            return $twoFactor->challenge($request, $user, $request->boolean('remember'));
+        }
+
+        Auth::login($user, $request->boolean('remember'));
 
         $request->session()->regenerate();
 

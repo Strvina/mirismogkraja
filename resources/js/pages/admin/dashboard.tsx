@@ -2,6 +2,7 @@ import AdminLayout from '@/layouts/admin-layout';
 import { formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { Head, Link } from '@inertiajs/react';
+import { ShieldAlert } from 'lucide-react';
 
 type Stats = {
     users: number;
@@ -20,7 +21,20 @@ type Outcomes = {
     topProducts: { name: string; slug: string; count: number }[];
 };
 
-export default function AdminDashboard({ stats, todo, revenue, outcomes }: { stats: Stats; todo: Todo[]; revenue: Revenue[]; outcomes: Outcomes }) {
+export default function AdminDashboard({
+    stats,
+    todo,
+    revenue,
+    outcomes,
+    twoFactorEnabled,
+}: {
+    stats: Stats;
+    todo: Todo[];
+    revenue: Revenue[];
+    outcomes: Outcomes;
+    /** Whether the admin looking at this has two-step sign-in on. */
+    twoFactorEnabled: boolean;
+}) {
     const tiles: { label: string; value: string }[] = [
         { label: t('Korisnici'), value: String(stats.users) },
         { label: t('Proizvođači'), value: String(stats.producers) },
@@ -35,6 +49,20 @@ export default function AdminDashboard({ stats, todo, revenue, outcomes }: { sta
         <AdminLayout title={t('Evidencija')}>
             <Head title={t('Admin')} />
             <div className="flex flex-col gap-8">
+                {/* This account confirms payments and blocks people: a
+                    password alone should not be all that guards it. */}
+                {!twoFactorEnabled && (
+                    <Link
+                        href={route('two-factor.edit')}
+                        className="border-gold/50 bg-cream-deep flex items-start gap-3 rounded-lg border p-4 text-sm leading-6"
+                    >
+                        <ShieldAlert className="text-gold mt-0.5 size-5 shrink-0" aria-hidden />
+                        <span>
+                            <strong>{t('Admin nalog štiti samo lozinka.')}</strong> {t('Uključite dvostruku potvrdu prijave — traje dva minuta.')}
+                        </span>
+                    </Link>
+                )}
+
                 {/* What needs someone to act comes first; the totals are
                     only there to be looked at. */}
                 <section>
