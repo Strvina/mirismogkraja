@@ -38,6 +38,7 @@ Everything below is configuration: the code already supports each step.
 - The home page popularity ranking is cached for 10 minutes. Only the ids are cached, and the cards are read fresh.
 - The sitemap is an index of files with 10,000 addresses each, cached for an hour.
 - Notifications to followers are sent in chunks after the response. Read notifications are pruned after six months.
+- `deploy/nginx.conf` compresses scripts, styles, JSON and SVG (nginx alone compresses only HTML) and caches hashed assets for a year. Lighthouse on a product page, desktop preset, local server without any compression: FCP 0.8 s, LCP 1.4 s, performance 94-95; accessibility, best practices and SEO 100.
 - Translations load as a lazy chunk, only for English and Russian visitors. Leaflet, the QR library and the map tiles load only when used.
 
 ## Browser tests
