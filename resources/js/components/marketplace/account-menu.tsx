@@ -15,6 +15,7 @@ import {
     Megaphone,
     MessageCircle,
     Package,
+    Search,
     Sprout,
     UserRound,
     Wallet,
@@ -46,6 +47,7 @@ export default function AccountMenu({ user }: { user: User }) {
         { href: route('marketplace.producers.index'), label: t('Proizvođači'), icon: Sprout, mobileOnly: true },
         { href: route('marketplace.products.index'), label: t('Proizvodi'), icon: Package, mobileOnly: true },
         { href: route('marketplace.posts.index'), label: t('Priče i recepti'), icon: BookOpen, mobileOnly: true },
+        { href: route('wanted.index'), label: t('Tražim'), icon: Search, mobileOnly: true },
     ];
 
     const accountLinks: MenuLink[] = [
@@ -70,7 +72,7 @@ export default function AccountMenu({ user }: { user: User }) {
     }
 
     const renderLink = (link: MenuLink) => (
-        <DropdownMenuItem key={link.href} asChild className={link.mobileOnly ? 'md:hidden' : undefined}>
+        <DropdownMenuItem key={link.href} asChild className={link.mobileOnly ? 'lg:hidden' : undefined}>
             <Link href={link.href} className="cursor-pointer justify-between gap-3 py-2">
                 <span className="flex items-center gap-2.5">
                     <link.icon className="text-muted-foreground size-4" />
@@ -89,12 +91,12 @@ export default function AccountMenu({ user }: { user: User }) {
         <DropdownMenu open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
-                    <span className="md:hidden">
+                    <span className="lg:hidden">
                         <MenuIcon open={open} />
                     </span>
-                    <span className="hidden max-w-24 truncate md:inline">{user.name.split(' ')[0]}</span>
-                    <ChevronDown className={`hidden size-3.5 transition-transform duration-300 md:inline ${open ? 'rotate-180' : ''}`} />
-                    {unreadMessages + unreadNotifications > 0 && <span className="bg-primary size-1.5 rounded-full md:hidden" aria-hidden />}
+                    <span className="hidden max-w-24 truncate lg:inline">{user.name.split(' ')[0]}</span>
+                    <ChevronDown className={`hidden size-3.5 transition-transform duration-300 lg:inline ${open ? 'rotate-180' : ''}`} />
+                    {unreadMessages + unreadNotifications > 0 && <span className="bg-primary size-1.5 rounded-full lg:hidden" aria-hidden />}
                     <span className="sr-only">{t('Meni')}</span>
                 </Button>
             </DropdownMenuTrigger>
@@ -116,7 +118,7 @@ export default function AccountMenu({ user }: { user: User }) {
 
                 <DropdownMenuSeparator />
 
-                <div className="md:hidden">
+                <div className="lg:hidden">
                     {browseLinks.map(renderLink)}
                     <DropdownMenuSeparator />
                 </div>
