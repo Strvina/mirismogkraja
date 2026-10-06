@@ -47,7 +47,7 @@ export default function ProductCard({
         <Link
             href={route('marketplace.products.show', product.slug)}
             className={cn(
-                'group bg-background flex flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg',
+                'group bg-background flex h-full flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg',
                 featured ? 'border-gold/60 ring-gold/25 ring-1' : 'border-border/70 hover:border-border',
             )}
         >
