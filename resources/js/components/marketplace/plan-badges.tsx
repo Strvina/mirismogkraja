@@ -8,11 +8,13 @@ export function PremiumBadge({ className }: { className?: string }) {
         <span
             title={t('Proizvođač sa Premium članstvom')}
             className={cn(
-                'border-gold/40 text-gold inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-sans text-[0.68rem] font-semibold tracking-[0.06em] uppercase',
+                // Gold for the rule and the crown only: as small text on the
+                // page's cream it is too faint to read.
+                'border-gold/50 text-foreground/80 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-sans text-[0.68rem] font-semibold tracking-[0.06em] uppercase',
                 className,
             )}
         >
-            <Crown className="size-3" aria-hidden />
+            <Crown className="text-gold size-3" aria-hidden />
             Premium
         </span>
     );

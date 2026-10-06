@@ -11,11 +11,11 @@ import { type ReactNode } from 'react';
 
 import { t } from '@/lib/i18n';
 import { monthName } from '@/lib/season';
-import heroImage from '../assets/hero-ajvar.jpg';
-import cheeseImage from '../assets/producer-cheese.jpg';
-import honeyImage from '../assets/producer-honey.jpg';
-import productsImage from '../assets/products-table.jpg';
-import storyImage from '../assets/story-hands.jpg';
+import heroImage from '../assets/hero-ajvar.webp';
+import cheeseImage from '../assets/producer-cheese.webp';
+import honeyImage from '../assets/producer-honey.webp';
+import productsImage from '../assets/products-table.webp';
+import storyImage from '../assets/story-hands.webp';
 
 // Categories have no image of their own in the database, so the tiles cycle
 // through the landing page's own photography.

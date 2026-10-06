@@ -13,6 +13,12 @@
         @if ($meta)
             <meta name="description" content="{{ $meta['description'] }}">
             <link rel="canonical" href="{{ $meta['url'] }}">
+            {{-- The page's main photograph. React draws the <img> only once
+                 the scripts have run; named here, the browser fetches it
+                 alongside them instead of after. --}}
+            @if (! empty($meta['preload']))
+                <link rel="preload" as="image" href="{{ $meta['preload'] }}" fetchpriority="high">
+            @endif
             @if (! empty($meta['robots']))
                 <meta name="robots" content="{{ $meta['robots'] }}">
             @endif

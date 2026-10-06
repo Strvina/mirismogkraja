@@ -97,6 +97,16 @@ final class Media
         return self::diskName() === 'public' ? '/storage' : rtrim(self::disk()->url(''), '/');
     }
 
+    /**
+     * The address the page itself uses for an image - the same string the
+     * browser builds (mediaUrl in resources/js/lib/media.ts), so a preload
+     * of it and the <img> that follows are one request, not two.
+     */
+    public static function url(string $path): string
+    {
+        return self::baseUrl().'/'.$path;
+    }
+
     /** A full address, for places outside the page such as og:image. */
     public static function absoluteUrl(string $path): string
     {

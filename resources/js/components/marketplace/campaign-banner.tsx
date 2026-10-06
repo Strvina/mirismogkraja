@@ -1,4 +1,4 @@
-import heroImage from '@/assets/hero-ajvar.jpg';
+import heroImage from '@/assets/hero-ajvar.webp';
 import { formatDate } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';

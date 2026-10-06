@@ -35,7 +35,9 @@ export default function CompactSelect({
         <DropdownMenu>
             <DropdownMenuTrigger
                 id={id}
-                aria-label={label}
+                // With the chosen option in it: the name read out has to
+                // contain what the button shows.
+                aria-label={label ? `${label}: ${current?.label ?? ''}` : undefined}
                 className={cn(
                     'border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 data-[state=open]:border-ring inline-flex h-9 min-w-0 items-center justify-between gap-2 rounded-md border px-3 text-sm shadow-xs transition focus-visible:ring-[3px] focus-visible:outline-none',
                     className,

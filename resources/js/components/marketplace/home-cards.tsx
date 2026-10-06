@@ -41,7 +41,13 @@ export function HomeProducerCard({ producer, featured = false }: { producer: Hom
 
     return (
         <article className="group border-border/70 hover:border-border bg-background flex h-full flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg">
-            <Link href={href} className="bg-muted relative block aspect-[16/10] overflow-hidden">
+            {/* The photograph says nothing a screen reader can read out, so
+                the link is named after the producer it leads to. */}
+            <Link
+                href={href}
+                aria-label={featured ? `${producer.name} — ${t('Istaknuto')}` : producer.name}
+                className="bg-muted relative block aspect-[16/10] overflow-hidden"
+            >
                 {producer.cover_image_path ? (
                     <img
                         src={thumbUrl(producer.cover_image_path)}
