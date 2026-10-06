@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import CardGrid from '@/components/marketplace/card-grid';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -78,11 +79,11 @@ export default function Season({
                 </div>
             ) : (
                 <>
-                    <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+                    <CardGrid className="mt-10 grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
                         {products.data.map((product) => (
                             <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} />
                         ))}
-                    </div>
+                    </CardGrid>
                     <Pagination meta={products} />
                 </>
             )}

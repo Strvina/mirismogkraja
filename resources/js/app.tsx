@@ -8,6 +8,8 @@ import ConfirmHost from './components/confirm-host';
 import { initializeTheme } from './hooks/use-appearance';
 import { loadLocale } from './lib/i18n';
 import { configureMedia, installThumbnailFallback } from './lib/media';
+// Loaded with the app, so it hears the very first click.
+import './lib/motion';
 import { revalidateOnHistoryNavigation } from './lib/revalidate-on-history-navigation';
 
 declare global {

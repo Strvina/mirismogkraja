@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import CardGrid from '@/components/marketplace/card-grid';
 import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
@@ -271,11 +272,11 @@ export default function ProductsIndex({
                         </div>
                     ) : (
                         <>
-                            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                            <CardGrid className="grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
                                 {products.data.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} />
                                 ))}
-                            </div>
+                            </CardGrid>
 
                             <Pagination meta={products} />
                         </>

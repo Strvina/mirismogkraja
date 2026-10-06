@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import CardGrid from '@/components/marketplace/card-grid';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import PostCard from '@/components/marketplace/post-card';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -66,11 +67,11 @@ export default function PostsIndex({
             {posts.data.length === 0 ? (
                 <p className="text-muted-foreground mt-10 text-sm">{t('Ovde još nema ničega. Navratite uskoro.')}</p>
             ) : (
-                <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <CardGrid className="mt-8 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {posts.data.map((post) => (
                         <PostCard key={post.id} post={post} />
                     ))}
-                </div>
+                </CardGrid>
             )}
 
             <Pagination meta={posts} />
