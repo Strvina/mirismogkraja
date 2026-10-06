@@ -16,7 +16,7 @@ export default function MarketList({ markets }: { markets: ProducerMarket[] }) {
     const today = todayWeekday();
 
     return (
-        <section className="mt-12 max-w-2xl">
+        <section id="pijace" className="mt-12 max-w-2xl scroll-mt-28">
             <h2 className="font-serif text-2xl">{t('Gde me nađete')}</h2>
             <ul className="mt-4 grid gap-3 sm:grid-cols-2">
                 {markets.map((market) => (

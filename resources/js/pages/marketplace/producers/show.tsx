@@ -15,9 +15,9 @@ import ReviewsSection from '@/components/producer-page/reviews-section';
 import { type PublicProducer } from '@/components/producer-page/types';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
-import { t } from '@/lib/i18n';
+import { t, tx } from '@/lib/i18n';
 import { mediaUrl } from '@/lib/media';
-import { type PostSummary, type ProducerMarket, type Product, type SharedData } from '@/types';
+import { type BreadcrumbItem, type PostSummary, type ProducerMarket, type Product, type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Truck } from 'lucide-react';
 
@@ -81,8 +81,22 @@ export default function ProducerShow({
 }) {
     const { auth } = usePage<SharedData>().props;
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: tx('Proizvođači'), href: route('marketplace.producers.index') },
+        ...(place ? [{ title: place.name, href: route('marketplace.places.show', place.slug) }] : []),
+        { title: producer.name, href: route('marketplace.producers.show', producer.slug) },
+    ];
+
+    // The sections further down that this producer actually has.
+    const jumps = [
+        { id: 'proizvodi', label: `${t('Proizvodi')} (${productsCount})` },
+        ...(markets.length > 0 ? [{ id: 'pijace', label: t('Gde me nađete') }] : []),
+        ...(posts.length > 0 ? [{ id: 'price', label: t('Priče i recepti') }] : []),
+        { id: 'utisci', label: `${t('Utisci')} (${reviews.total})` },
+    ];
+
     return (
-        <MarketplaceLayout>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head title={producer.name} />
 
             {producer.cover_image_path && (
@@ -127,6 +141,22 @@ export default function ProducerShow({
             <div className="mt-4">
                 <ShareButtons url={typeof window === 'undefined' ? '' : window.location.href} title={producer.name} />
             </div>
+
+            {/* The page is long, and what a buyer came for - the products -
+                is most of the way down it. */}
+            {jumps.length > 1 && (
+                <nav aria-label={t('Na ovoj stranici')} className="mt-6 flex flex-wrap gap-2">
+                    {jumps.map((jump) => (
+                        <a
+                            key={jump.id}
+                            href={`#${jump.id}`}
+                            className="border-border/70 hover:border-primary/40 hover:bg-muted/40 rounded-full border px-3.5 py-1.5 text-sm transition-colors"
+                        >
+                            {jump.label}
+                        </a>
+                    ))}
+                </nav>
+            )}
 
             <ContactCard producer={producer} phone={phone} />
             <LocationLinks producer={producer} />

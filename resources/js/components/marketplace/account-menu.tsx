@@ -9,6 +9,7 @@ import {
     BookOpen,
     CalendarHeart,
     ChevronDown,
+    CircleHelp,
     Heart,
     LayoutDashboard,
     LogOut,
@@ -48,6 +49,7 @@ export default function AccountMenu({ user }: { user: User }) {
         { href: route('marketplace.products.index'), label: t('Proizvodi'), icon: Package, mobileOnly: true },
         { href: route('marketplace.posts.index'), label: t('Priče i recepti'), icon: BookOpen, mobileOnly: true },
         { href: route('wanted.index'), label: t('Tražim'), icon: Search, mobileOnly: true },
+        { href: route('info.how'), label: t('Kako radi'), icon: CircleHelp, mobileOnly: true },
     ];
 
     const accountLinks: MenuLink[] = [

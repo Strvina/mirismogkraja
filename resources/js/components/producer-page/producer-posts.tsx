@@ -10,7 +10,7 @@ export default function ProducerPosts({ posts, producerSlug }: { posts: PostSumm
     }
 
     return (
-        <section className="mt-12">
+        <section id="price" className="mt-12 scroll-mt-28">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h2 className="font-serif text-2xl">{t('Priče i recepti')}</h2>
                 <Link

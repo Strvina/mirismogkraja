@@ -7,10 +7,10 @@ import ProductFilters, { type ProductFilterValues } from '@/components/marketpla
 import SearchBox from '@/components/marketplace/search-box';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
-import { t } from '@/lib/i18n';
+import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
-import { type Category, type SharedData } from '@/types';
+import { type BreadcrumbItem, type Category, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 
 export default function ProductsIndex({
@@ -24,6 +24,7 @@ export default function ProductsIndex({
     perPage,
     perPageOptions,
     category,
+    browse,
     subcategories,
     prices,
     places,
@@ -49,6 +50,8 @@ export default function ProductsIndex({
         intro: string | null;
         parent: { id: number; name: string; slug: string } | null;
     } | null;
+    /** The general categories with something in them, for the catalogue's own page. */
+    browse: { id: number; name: string; slug: string }[];
     /** On a category's page: the narrower pages of its family, each with something in it. */
     subcategories: { id: number; name: string; slug: string }[];
     /** On a category's page: what it costs, per unit, from the listings themselves. */
@@ -81,8 +84,16 @@ export default function ProductsIndex({
             active ? 'border-primary bg-olive-soft text-olive' : 'border-border/70 hover:border-primary/40 hover:bg-muted/40',
         );
 
+    const breadcrumbs: BreadcrumbItem[] = category
+        ? [
+              { title: tx('Proizvodi'), href: route('marketplace.products.index') },
+              ...(category.parent ? [{ title: category.parent.name, href: route('marketplace.categories.show', category.parent.slug) }] : []),
+              { title: category.name, href: route('marketplace.categories.show', category.slug) },
+          ]
+        : [];
+
     return (
-        <MarketplaceLayout>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head />
 
             <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
@@ -100,6 +111,17 @@ export default function ProductsIndex({
                     </Link>
                     {subcategories.map((item) => (
                         <Link key={item.id} href={route('marketplace.categories.show', item.slug)} className={chip(category.id === item.id)}>
+                            {t(item.name)}
+                        </Link>
+                    ))}
+                </nav>
+            )}
+
+            {/* The catalogue's own page: the general categories, each a page of its own. */}
+            {!category && browse.length > 0 && (
+                <nav aria-label={t('Kategorije')} className="mt-6 flex flex-wrap gap-2">
+                    {browse.map((item) => (
+                        <Link key={item.id} href={route('marketplace.categories.show', item.slug)} className={chip(false)}>
                             {t(item.name)}
                         </Link>
                     ))}

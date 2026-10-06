@@ -59,6 +59,6 @@ class ListSizesTest extends TestCase
         Product::factory()->for(Producer::factory()->active())->create(['status' => 'active', 'price' => 250]);
 
         $this->get('/proizvodi')->assertInertia(fn ($page) => $page->where('priceBounds.max', 250));
-        $this->assertTrue(Cache::has('catalog:filter-choices'));
+        $this->assertTrue(Cache::has('catalog:filter-choices:v2'));
     }
 }

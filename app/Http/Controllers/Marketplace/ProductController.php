@@ -204,11 +204,11 @@ class ProductController extends Controller
      * change, while working it out reads the whole catalogue - so it is
      * worked out once every few minutes, not on every page and filter.
      *
-     * @return array{categories: array<int, mixed>, producers: array<int, mixed>, cities: array<int, string>, priceBounds: array{min: float, max: float}}
+     * @return array{categories: array<int, mixed>, browse: array<int, mixed>, producers: array<int, mixed>, cities: array<int, string>, priceBounds: array{min: float, max: float}}
      */
     private function filterChoices(): array
     {
-        return Cache::remember('catalog:filter-choices', self::FILTERS_SECONDS, function () {
+        return Cache::remember('catalog:filter-choices:v2', self::FILTERS_SECONDS, function () {
             // Cities straight off Producer, not by loading every product.
             $sellingProducers = Producer::published()
                 ->whereHas('products', fn ($query) => $query->where('status', 'active'));
@@ -220,6 +220,12 @@ class ProductController extends Controller
 
             return [
                 'categories' => Category::options(),
+                // The general categories with something in them: the way
+                // into the catalogue by kind. "Ostalo" last, whatever the alphabet says.
+                'browse' => Category::query()->roots()->stocked()->orderBy('name')->get(['id', 'name', 'slug'])
+                    ->sortBy(fn (Category $category) => $category->slug === 'ostalo')
+                    ->values()
+                    ->toArray(),
                 'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name'])->toArray(),
                 'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
                 'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],

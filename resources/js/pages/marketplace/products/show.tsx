@@ -7,10 +7,10 @@ import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
-import { t } from '@/lib/i18n';
+import { t, tx } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
 import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
-import { type Producer, type Product, type SharedData } from '@/types';
+import { type BreadcrumbItem, type Producer, type Product, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { BellRing, MapPin } from 'lucide-react';
 import { useState } from 'react';
@@ -64,6 +64,15 @@ export default function ProductShow({
     const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
     const mainImage = images[0];
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: tx('Proizvodi'), href: route('marketplace.products.index') },
+        ...(product.category?.parent
+            ? [{ title: product.category.parent.name, href: route('marketplace.categories.show', product.category.parent.slug) }]
+            : []),
+        ...(product.category ? [{ title: product.category.name, href: route('marketplace.categories.show', product.category.slug) }] : []),
+        { title: product.name, href: route('marketplace.products.show', product.slug) },
+    ];
+
     const sendInquiry = () => {
         if (!message.trim()) {
             return;
@@ -77,7 +86,7 @@ export default function ProductShow({
     };
 
     return (
-        <MarketplaceLayout>
+        <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head />
 
             <div className="grid gap-10 lg:grid-cols-2">
@@ -94,21 +103,7 @@ export default function ProductShow({
                 </div>
 
                 <div>
-                    {product.category && (
-                        <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">
-                            {product.category.parent && (
-                                <>
-                                    <Link href={route('marketplace.categories.show', product.category.parent.slug)} className="hover:underline">
-                                        {t(product.category.parent.name)}
-                                    </Link>
-                                    {' / '}
-                                </>
-                            )}
-                            <Link href={route('marketplace.categories.show', product.category.slug)} className="hover:underline">
-                                {t(product.category.name)}
-                            </Link>
-                        </p>
-                    )}
+                    {product.category && <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">{t(product.category.name)}</p>}
                     <h1 className="mt-2 font-serif text-3xl break-words sm:text-4xl">{product.name}</h1>
                     <p className="mt-3 font-serif text-2xl">
                         {formatPrice(product.price)} <span className="text-muted-foreground font-sans text-sm">/ {product.unit}</span>
@@ -231,6 +226,17 @@ export default function ProductShow({
                             {canReport && <ReportButton type="product" id={product.id} reasons={reportReasons} />}
                         </div>
 
+                        {/* Someone who came from a search expects a basket.
+                            Said here, before they go looking for one. */}
+                        {!auth.user && (
+                            <p className="text-muted-foreground text-sm leading-6">
+                                {t('Na sajtu nema korpe ni plaćanja: pišete proizvođaču, a cenu, količinu i dostavu dogovarate direktno sa njim.')}{' '}
+                                <Link href={route('info.how')} className="text-foreground font-medium underline underline-offset-4">
+                                    {t('Kako radi')}
+                                </Link>
+                            </p>
+                        )}
+
                         {/* A link to a jar of honey travels by Viber here, so
                             the buttons are plain links rather than an embedded
                             widget that would load tracking on every page. */}
@@ -249,7 +255,8 @@ export default function ProductShow({
                                 className="size-10 shrink-0 rounded-full object-cover"
                             />
                         )}
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-muted-foreground text-xs">{t('Proizvođač')}</p>
                             <p className="font-serif break-words">{product.producer.name}</p>
                             {product.producer.city && (
                                 <p className="text-muted-foreground flex items-center gap-1 text-xs">

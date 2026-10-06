@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 141).
+Poslednja izmena: 2026-10-06 (posle zadatka 143).
 
 ## 1. Šta je ovo
 
@@ -207,6 +207,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Dizajn: boje, fontovi i razmaci iz `docs/design-tokens.md`; nove strane liče na postojeće.
 - Sporedne akcije proizvođača idu u meni „Više" (`producer-more-menu.tsx`), ne kao nova dugmad.
 - Fajl za preuzimanje je običan `<a>`, ne Inertia `Link`.
+- Javna stranica entiteta (proizvod, proizvođač, kategorija, mesto) ima vidljivu putanju: `breadcrumbs` u `MarketplaceLayout`.
 
 ## 10. Trenutno stanje
 
