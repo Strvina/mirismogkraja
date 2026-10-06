@@ -11,6 +11,7 @@ class ProducerMessage extends Model
     protected $fillable = [
         'producer_id',
         'product_id',
+        'wanted_ad_id',
         'buyer_id',
         'sender_id',
         'body',
@@ -34,6 +35,12 @@ class ProducerMessage extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /** The "Tražim" ad a producer's first message answers, if it answers one. */
+    public function wantedAd(): BelongsTo
+    {
+        return $this->belongsTo(WantedAd::class);
     }
 
     /** The buyer side of the thread, whoever wrote the individual message. */

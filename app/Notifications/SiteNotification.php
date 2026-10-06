@@ -237,6 +237,19 @@ class SiteNotification extends Notification
      * notification asks for one.
      */
 
+    // ---------------------------------------------------------------- wanted ads
+
+    /** A buyer is looking for something a producer sells. */
+    public static function wantedAdPosted(string $title, string $url): self
+    {
+        return new self('wanted.posted', ['title' => $title], $url);
+    }
+
+    public static function wantedAdBlocked(string $title, string $url): self
+    {
+        return new self('wanted.blocked', ['title' => $title], $url);
+    }
+
     // ---------------------------------------------------------------- admin
 
     /** Something waiting on an admin; $kind names the queue it is in. */

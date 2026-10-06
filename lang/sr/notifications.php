@@ -44,6 +44,11 @@ return [
         'published' => ['title' => 'Vaš utisak je objavljen', 'body' => 'Utisak o „:producer” je od sada vidljiv svima.'],
     ],
 
+    'wanted' => [
+        'posted' => ['title' => 'Kupac traži: :title', 'body' => 'Prodajete u toj kategoriji. Javite mu se dok je oglas otvoren.'],
+        'blocked' => ['title' => 'Oglas je sklonjen', 'body' => 'Administrator je sklonio „:title” sa sajta. Javite nam se ako mislite da je greška.'],
+    ],
+
     'post' => [
         'published' => ['title' => ':producer ima novu priču', 'body' => '„:title” je upravo objavljeno.'],
         'blocked' => ['title' => 'Objava je sklonjena', 'body' => 'Administrator je sklonio „:title” sa sajta. Javite nam se ako mislite da je greška.'],
@@ -87,6 +92,7 @@ return [
         'campaign-requested' => ['title' => 'Nova prijava za kampanju', 'body' => '„:producer” — :campaign, :amount RSD, poziv na broj :reference.'],
         'review-pending' => ['title' => 'Novi utisak čeka odobrenje', 'body' => 'O proizvođaču „:producer”, ocena :rating/5.'],
         'report-opened' => ['title' => 'Nova prijava problema', 'body' => ':subject — :reason_label.'],
+        'wanted-posted' => ['title' => 'Nov oglas „Tražim”', 'body' => ':author — :title.'],
         'change-requested' => ['title' => 'Zahtev za izmenu naziva', 'body' => '„:current” želi da se zove „:requested”.'],
     ],
 ];

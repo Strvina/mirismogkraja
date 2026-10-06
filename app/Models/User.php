@@ -115,6 +115,12 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         return $this->hasMany(Producer::class);
     }
 
+    /** "Tražim": what this person has asked producers for. */
+    public function wantedAds(): HasMany
+    {
+        return $this->hasMany(WantedAd::class);
+    }
+
     public function messages(): HasMany
     {
         return $this->hasMany(ProducerMessage::class, 'buyer_id');

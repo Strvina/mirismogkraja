@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 127).
+Poslednja izmena: 2026-10-05 (posle zadatka 128).
 
 ## 1. Šta je ovo
 
@@ -56,6 +56,7 @@ Puna šema je u `docs/database.md`. Ukratko:
 - **Product** (`status`: draft, active, archived, blocked) — `images`, `alerts`, `inquiries`;
   sezona `season_from/season_to`, `stock_quantity`.
 - **ProducerMessage** — razgovor je par (proizvođač, kupac); nema posebne tabele razgovora.
+- **WantedAd** (`status`: open, closed, blocked; ističe posle 30 dana) i **WantedAdResponse** — oglasi „Tražim".
 - **Review** (pending/approved/rejected), **Report**, **ProducerChangeRequest** (promena naziva).
 - Plaćeno: **SubscriptionPlan**, **ProducerSubscription**, **Boost**, **Campaign**,
   **CampaignParticipant** (interfejs `Payable`).
@@ -71,14 +72,14 @@ Morph alijasi (`AppServiceProvider`): `producer`, `product`, `post`, `user`.
 stranice o sajtu (`/kako-radi`, `/za-proizvodjace` sa cenama iz baze, `/cesta-pitanja`, `/o-nama`, `/kontakt`).
 
 **Kupac:** nalog e-mailom ili Google-om, upit sa stranice proizvoda, poruke, praćenje proizvođača,
-omiljeni, „Javi mi kad stigne", utisak, prijava problema.
+omiljeni, „Javi mi kad stigne", utisak, prijava problema, oglas „Tražim" (`/trazim`).
 
 **Proizvođač:** stranica i proizvodi, galerija, odgovori na poruke i utiske, brzi odgovori,
 statistika (Premium/Pro), pauza, „čeka vas X kupaca", pijace, sertifikati, priče i recepti, katalog za
 deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 
 **Admin:** odobravanje proizvođača, provera sertifikata, moderacija utisaka / prijava (proizvođač, proizvod, objava, korisnik) / proizvoda /
-priča, potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
+priča / oglasa „Tražim", potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
 mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), nedeljni pregled pratiocima (četvrtak 09:00), čišćenje logova i obaveštenja.
@@ -88,7 +89,11 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Javno je samo ono što je `active` **i** čiji je proizvođač `active`. Svaki javni upit kreće od
   `Producer::published()` / `Product::published()` / `Post::published()`.
 - Novog proizvođača odobrava admin. Promena naziva odobrenog proizvođača čeka admina.
-- **Utisak** može da ostavi samo kupac kome je proizvođač odgovorio; jedan po proizvođaču; objavljuje
+- **Oglasi „Tražim"** (odluke vlasnika, 2026-10-05): oglas ide odmah na sajt, admin je obavešten i može da
+  ga skloni; odgovara svaki aktivan proizvođač, jednom po oglasu. Odgovor je obična poruka u razgovoru
+  proizvođač–kupac (`producer_messages.wanted_ad_id`), pa ovde proizvođač piše prvi. Obaveštenje dobijaju
+  proizvođači koji prodaju u kategoriji oglasa. Javno se vidi samo ime autora, ne i prezime.
+- **Utisak** može da ostavi samo kupac koji je pisao proizvođaču i kome je proizvođač odgovorio (oba smera); jedan po proizvođaču; objavljuje
   se posle moderacije.
 - **Osnivači:** prvih N odobrenih (podešavanje, podrazumevano 50) dobijaju trajan broj i godinu
   Premium-a besplatno. Broj se dodeljuje pri odobrenju.
@@ -123,13 +128,14 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   prodaje bar jedan objavljen proizvod; kombinacija mesto+kategorija bez proizvoda je 404. Keš 10 min.
 - **„Čeka vas X kupaca":** proizvođač dobija obaveštenje za prvog kupca, pa na 3, 5, 10, 25, 50, 100.
 - Ograničenja: 500 proizvoda, 20 slika u galeriji, 8 pijaca, 12 brzih odgovora, 10 sertifikata,
-  100 objava po proizvođaču; 20 novih razgovora dnevno po kupcu.
+  100 objava po proizvođaču; 20 novih razgovora dnevno po kupcu; 3 otvorena oglasa „Tražim" po kupcu,
+  20 odgovora na oglase dnevno po proizvođaču.
 
 ## 7. Autorizacija
 
 - Rute: `auth` + `verified` za sve što piše; `role:admin` za `/admin`.
 - Nalog dobija `buyer` pri registraciji, `seller` kad napravi prvog proizvođača.
-- Policy klase: `ProducerPolicy`, `ProductPolicy`, `ProducerMessagePolicy`, `ReviewPolicy`.
+- Policy klase: `ProducerPolicy`, `ProductPolicy`, `ProducerMessagePolicy`, `ReviewPolicy`, `WantedAdPolicy`.
 - Sve što pripada proizvođaču (pijace, brzi odgovori, sertifikati, objave, slike) proverava
   `authorize('update', $producer)` **i** da red pripada baš tom proizvođaču (inače 404).
 - Blokiran nalog se ne prijavljuje (`EnsureUserIsNotBlocked`).

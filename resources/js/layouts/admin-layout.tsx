@@ -35,6 +35,7 @@ const sections = [
     { href: '/admin/zahtevi', label: tx('Zahtevi za izmenu'), icon: FilePen },
     { href: '/admin/proizvodi', label: tx('Proizvodi'), icon: Package },
     { href: '/admin/price', label: tx('Priče i recepti'), icon: BookOpen },
+    { href: '/admin/oglasi', label: tx('Oglasi „Tražim”'), icon: Megaphone },
     { href: '/admin/kategorije', label: tx('Kategorije'), icon: FolderTree },
     { href: '/admin/korisnici', label: tx('Korisnici'), icon: Users },
     { href: '/admin/utisci', label: tx('Utisci'), icon: Star },
