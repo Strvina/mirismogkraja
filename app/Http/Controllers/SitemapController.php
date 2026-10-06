@@ -39,6 +39,7 @@ class SitemapController extends Controller
                 route('sitemap.pages'),
                 ...$this->files('producers', Producer::published()),
                 ...$this->files('products', Product::published()),
+                ...$this->files('catalogs', $this->catalogs()),
                 ...$this->files('posts', Post::published()),
             ],
         ])->render());
@@ -79,6 +80,7 @@ class SitemapController extends Controller
     {
         [$query, $route, $priority] = match ($section) {
             'producers' => [Producer::published(), 'marketplace.producers.show', '0.8'],
+            'catalogs' => [$this->catalogs(), 'marketplace.catalog', '0.6'],
             'posts' => [Post::published(), 'marketplace.posts.show', '0.6'],
             default => [Product::published(), 'marketplace.products.show', '0.7'],
         };
@@ -95,6 +97,17 @@ class SitemapController extends Controller
                     'changefreq' => 'weekly',
                 ]),
         ])->render());
+    }
+
+    /**
+     * Producers with a price list worth an address: at least one product on
+     * sale. /katalog of a producer with none is an empty page.
+     *
+     * @return Builder<Producer>
+     */
+    private function catalogs(): Builder
+    {
+        return Producer::published()->whereHas('products', fn (Builder $products) => $products->where('status', 'active'));
     }
 
     /**
@@ -124,7 +137,7 @@ class SitemapController extends Controller
     /**
      * One file per id range up to the highest published id.
      *
-     * @param  Builder<Producer>|Builder<Product>  $query
+     * @param  Builder<Producer>|Builder<Product>|Builder<Post>  $query
      * @return list<string>
      */
     private function files(string $section, Builder $query): array

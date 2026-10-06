@@ -22,11 +22,12 @@ Route::get('/politika-privatnosti', fn () => Inertia::render('legal/privacy'))->
 Route::get('/robots.txt', fn () => response("User-agent: *\nDisallow: /admin\n\nSitemap: ".route('sitemap')."\n", 200, ['Content-Type' => 'text/plain']))
     ->name('robots');
 
-// An index, the static pages, and the catalogue in files of 10,000 each.
+// An index, the static pages, and the catalogue in files of 10,000 each:
+// producers, products, each producer's price list, stories and recipes.
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
 Route::get('/sitemap-{section}-{page}.xml', [SitemapController::class, 'section'])
-    ->whereIn('section', ['producers', 'products', 'posts'])
+    ->whereIn('section', ['producers', 'products', 'catalogs', 'posts'])
     ->where('page', '[1-9][0-9]*')
     ->name('sitemap.section');
 

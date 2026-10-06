@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Marketplace;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Producer;
+use App\Models\Report;
 use App\Support\PageMeta;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -74,6 +75,9 @@ class PostController extends Controller
                 ->limit(3)
                 ->get(Post::CARD_COLUMNS),
             'isPreview' => ! $post->isPubliclyVisible(),
+            // Anyone signed in but the author, and only what is public.
+            'canReport' => $user !== null && $user->id !== $post->producer->user_id && $post->isPubliclyVisible(),
+            'reportReasons' => array_map(__(...), Report::REASONS),
             'meta' => [
                 ...PageMeta::make("{$post->title} — {$post->producer->name}", $post->excerpt, $post->cover_image_path ?? $post->producer->logo_path, 'article'),
                 'structured' => PageMeta::post($post),

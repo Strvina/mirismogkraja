@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * Someone telling the site that something is wrong with a producer, a
- * product or another user.
+ * product, a story or recipe, or another user.
  *
  * The platform never sees the deal itself, so this is the only channel
  * through which fraud, silence or abuse can reach an admin before it reaches
@@ -25,6 +25,13 @@ class Report extends Model
     public const STATUS_REVIEWED = 'reviewed';
 
     public const STATUS_DISMISSED = 'dismissed';
+
+    /**
+     * What can be reported, as morph aliases (see AppServiceProvider).
+     *
+     * @var list<string>
+     */
+    public const REPORTABLE = ['producer', 'product', 'post', 'user'];
 
     /** @var list<string> */
     public const STATUSES = [self::STATUS_OPEN, self::STATUS_REVIEWED, self::STATUS_DISMISSED];

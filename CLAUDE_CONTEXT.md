@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 123).
+Poslednja izmena: 2026-10-05 (posle zadatka 124).
 
 ## 1. Šta je ovo
 
@@ -77,7 +77,7 @@ omiljeni, „Javi mi kad stigne", utisak, prijava problema.
 statistika (Premium/Pro), „čeka vas X kupaca", pijace, sertifikati, priče i recepti, katalog za
 deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 
-**Admin:** odobravanje proizvođača, provera sertifikata, moderacija utisaka / prijava / proizvoda /
+**Admin:** odobravanje proizvođača, provera sertifikata, moderacija utisaka / prijava (proizvođač, proizvod, objava, korisnik) / proizvoda /
 priča, potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
@@ -173,7 +173,6 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 ## 11. Poznata ograničenja
 
 - Google prijava je testirana samo sa lažnim odgovorom; pravi ključevi još ne postoje.
-- Katalog nije u mapi sajta; priče nemaju dugme „Prijavi".
 - Lokalni PHP nema GD (bez umanjenih kopija slika) ni zip.
 - **Otvoreno pitanje za vlasnika (članarine):** članarina plaćena ili poklonjena dok druga još traje
   dobija početak tek kad tekuća istekne, ali se računa kao aktivna odmah (`scopeActive` gleda samo

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Models\Report;
@@ -78,6 +79,11 @@ class ReportController extends Controller
                 'label' => __('Proizvod'),
                 'name' => $subject->name,
                 'url' => route('marketplace.products.show', $subject->slug),
+            ],
+            $subject instanceof Post => [
+                'label' => __('Objava'),
+                'name' => $subject->title,
+                'url' => route('marketplace.posts.show', $subject->slug),
             ],
             $subject instanceof User => [
                 'label' => __('Korisnik'),
