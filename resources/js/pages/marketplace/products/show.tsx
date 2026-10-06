@@ -15,7 +15,13 @@ import { Link, router, usePage } from '@inertiajs/react';
 import { BellRing, MapPin } from 'lucide-react';
 import { useState } from 'react';
 
-type FullProduct = Product & { producer: Pick<Producer, 'id' | 'name' | 'slug' | 'city' | 'logo_path'> };
+type CategoryLink = { id: number; name: string; slug: string };
+
+type FullProduct = Omit<Product, 'category'> & {
+    producer: Pick<Producer, 'id' | 'name' | 'slug' | 'city' | 'logo_path'>;
+    /** Where it is filed, each level a link to its page. */
+    category?: CategoryLink & { parent?: CategoryLink | null };
+};
 type SimilarProduct = Pick<Product, 'id' | 'name' | 'slug' | 'images'>;
 
 export default function ProductShow({
@@ -72,7 +78,7 @@ export default function ProductShow({
 
     return (
         <MarketplaceLayout>
-            <Head title={product.name} />
+            <Head />
 
             <div className="grid gap-10 lg:grid-cols-2">
                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
@@ -88,7 +94,21 @@ export default function ProductShow({
                 </div>
 
                 <div>
-                    <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">{product.category && t(product.category.name)}</p>
+                    {product.category && (
+                        <p className="text-primary text-xs font-semibold tracking-[0.16em] uppercase">
+                            {product.category.parent && (
+                                <>
+                                    <Link href={route('marketplace.categories.show', product.category.parent.slug)} className="hover:underline">
+                                        {t(product.category.parent.name)}
+                                    </Link>
+                                    {' / '}
+                                </>
+                            )}
+                            <Link href={route('marketplace.categories.show', product.category.slug)} className="hover:underline">
+                                {t(product.category.name)}
+                            </Link>
+                        </p>
+                    )}
                     <h1 className="mt-2 font-serif text-3xl break-words sm:text-4xl">{product.name}</h1>
                     <p className="mt-3 font-serif text-2xl">
                         {formatPrice(product.price)} <span className="text-muted-foreground font-sans text-sm">/ {product.unit}</span>

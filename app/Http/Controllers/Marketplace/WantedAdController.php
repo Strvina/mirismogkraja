@@ -31,8 +31,9 @@ class WantedAdController extends Controller
 
         return Inertia::render('wanted/index', [
             'meta' => PageMeta::make(
-                __('Tražim | Vrelina juga'),
-                __('Kupci pišu šta traže, a domaći proizvođači im se javljaju. Napišite i vi šta vam treba.'),
+                // Nobody searches for "tražim": a buyer types "kupujem domaći med".
+                __('Kupujem domaće proizvode: oglasi kupaca | Vrelina juga'),
+                __('Oglasi kupaca koji traže domaće proizvode: med, sir, rakiju, zimnicu. Proizvođači im se javljaju direktno. Napišite i vi šta vam treba.'),
             ),
             'ads' => WantedAd::listed()
                 ->with(['user:id,name,blocked_at', 'category:id,name'])

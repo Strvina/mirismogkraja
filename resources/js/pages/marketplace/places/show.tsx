@@ -58,7 +58,7 @@ export default function PlaceShow({
 
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
-            <Head title={`${title} | Vrelina juga`} />
+            <Head />
 
             <h1 className="font-serif text-4xl sm:text-5xl">{title}</h1>
             <p className="text-muted-foreground mt-3 max-w-xl leading-7">

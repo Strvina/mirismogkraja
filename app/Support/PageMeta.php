@@ -243,7 +243,8 @@ class PageMeta
             'name' => $product->name,
             'description' => Str::limit(Str::squish(strip_tags((string) $product->description)), 500) ?: null,
             'image' => $product->images->map(fn ($image) => Media::absoluteUrl($image->path))->values()->all() ?: null,
-            'category' => $product->category?->name,
+            // "Zimnica > Ajvar" for a product filed under a subcategory.
+            'category' => $product->category ? implode(' > ', array_filter([$product->category->parent?->name, $product->category->name])) : null,
             'offers' => [
                 '@type' => 'Offer',
                 'price' => (string) $product->price,

@@ -59,7 +59,7 @@ class PlacePagesTest extends TestCase
 
         $this->get('/mesto/nis/med')
             ->assertOk()
-            ->assertSee('<title inertia>Med — Niš | Vrelina juga</title>', false)
+            ->assertSee('<title inertia>Med Niš: cena i prodaja | Vrelina juga</title>', false)
             ->assertInertia(fn ($page) => $page
                 ->where('category.slug', 'med')
                 ->has('products.data', 1)

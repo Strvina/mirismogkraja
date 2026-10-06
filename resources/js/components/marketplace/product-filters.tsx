@@ -79,7 +79,8 @@ export default function ProductFilters({ filters, categories, producers, cities,
                         <CompactSelect
                             id="filter-category"
                             className="w-full"
-                            value={filters.category_id ?? ''}
+                            // A category's own page sends its id as a number.
+                            value={filters.category_id ? String(filters.category_id) : ''}
                             onChange={(value) => onChange({ category_id: value || undefined })}
                             options={[{ value: '', label: t('Sve kategorije') }, ...categoryOptions(categories)]}
                         />

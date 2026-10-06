@@ -40,11 +40,11 @@ export default function WantedIndex({
 
     return (
         <MarketplaceLayout>
-            <Head title={t('Tražim | Vrelina juga')} />
+            <Head />
 
             <div className="flex flex-wrap items-end justify-between gap-6">
                 <div className="max-w-xl">
-                    <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{t('Kupci traže')}</p>
+                    <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{t('Kupujem domaće proizvode')}</p>
                     <h1 className="font-serif text-4xl sm:text-5xl">{t('Tražim')}</h1>
                     <p className="text-muted-foreground mt-3 leading-7">
                         {t('Ne nalazite ono što vam treba? Napišite šta tražite, a proizvođači koji to imaju javiće vam se u porukama.')}

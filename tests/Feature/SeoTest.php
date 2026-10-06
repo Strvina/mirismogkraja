@@ -103,7 +103,7 @@ class SeoTest extends TestCase
         Product::factory()->for($producer)->create(['category_id' => $other->id, 'status' => 'active']);
 
         $this->get('/kategorija/med')->assertOk()
-            ->assertSee('<title inertia>Med | Vrelina juga</title>', false)
+            ->assertSee('<title inertia>Med: cena i prodaja od proizvođača | Vrelina juga</title>', false)
             ->assertInertia(fn ($page) => $page->where('category.slug', 'med')->has('products.data', 1));
 
         $this->get(route('sitemap.pages'))->assertSee(route('marketplace.categories.show', 'med'), false);
