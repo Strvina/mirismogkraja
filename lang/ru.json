@@ -1290,5 +1290,14 @@
     "Opišite malo detaljnije šta vam treba (najmanje :min znakova).": "Опишите немного подробнее, что вам нужно (не менее :min знаков).",
     "Možete imati najviše :max otvorena oglasa. Zatvorite neki koji vam više ne treba.": "У вас может быть не более :max открытых объявлений. Закройте то, которое больше не нужно.",
     "Na ovaj oglas ste već odgovorili. Razgovor nastavite u porukama.": "Вы уже ответили на это объявление. Продолжите разговор в сообщениях.",
-    "Danas ste odgovorili na dosta oglasa. Na nove možete sutra, a započete razgovore možete da nastavite.": "Сегодня вы ответили на довольно много объявлений. На новые можно ответить завтра, а начатые разговоры можно продолжать."
+    "Danas ste odgovorili na dosta oglasa. Na nove možete sutra, a započete razgovore možete da nastavite.": "Сегодня вы ответили на довольно много объявлений. На новые можно ответить завтра, а начатые разговоры можно продолжать.",
+    "Prvi upit": "Первый запрос",
+    "Poslednja poruka": "Последнее сообщение",
+    "Odgovoreno": "Отвечено",
+    "Ishod": "Итог",
+    "Da": "Да",
+    "Ne": "Нет",
+    "Vaši upiti kao tabela": "Ваши запросы в виде таблицы",
+    "Jedan red po razgovoru: ko je pitao, za koji proizvod, kada, da li ste odgovorili i kako se završilo. Otvara se u Excelu.": "Одна строка на разговор: кто спрашивал, о каком продукте, когда, ответили ли вы и чем всё закончилось. Открывается в Excel.",
+    "Preuzmi upite (CSV)": "Скачать запросы (CSV)"
 }

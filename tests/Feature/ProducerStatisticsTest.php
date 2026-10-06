@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Producer;
+use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
@@ -124,6 +125,58 @@ class ProducerStatisticsTest extends TestCase
             ->where('stats.daily.29.views', 1)
             ->where('stats.topProducts.0.name', 'Bagremov med')
             ->where('stats.topProducts.0.views', 3));
+    }
+
+    public function test_a_premium_owner_downloads_their_inquiries_as_a_spreadsheet(): void
+    {
+        $producer = Producer::factory()->active()->create(['slug' => 'pcelarstvo']);
+        $honey = Product::factory()->for($producer)->create(['name' => 'Bagremov med']);
+        $service = app(SubscriptionService::class);
+        $service->confirmPayment($service->request($producer, SubscriptionPlan::where('slug', 'premium')->sole()), $producer->user_id);
+
+        $answered = User::factory()->create(['name' => 'Marko Marković']);
+        // A name that a spreadsheet would run as a formula.
+        $waiting = User::factory()->create(['name' => '=HYPERLINK("http://evil.test")']);
+        $message = fn (User $buyer, int $sender, ?int $product = null) => ProducerMessage::create([
+            'producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $sender, 'product_id' => $product, 'body' => 'Poruka',
+        ]);
+
+        $message($answered, $answered->id, $honey->id);
+        $message($answered, $producer->user_id);
+        $message($waiting, $waiting->id);
+        DB::table('inquiry_outcomes')->insert(['producer_id' => $producer->id, 'buyer_id' => $answered->id, 'status' => 'completed']);
+        // Somebody else's conversation stays out of it.
+        $other = Producer::factory()->active()->create();
+        ProducerMessage::create(['producer_id' => $other->id, 'buyer_id' => $answered->id, 'sender_id' => $answered->id, 'body' => 'Drugo']);
+
+        $response = $this->actingAs($producer->user)->get(route('producers.inquiries.export', $producer))->assertOk();
+        $this->assertStringContainsString('upiti-pcelarstvo-', $response->headers->get('Content-Disposition'));
+
+        $csv = $response->streamedContent();
+        $this->assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        $lines = array_map(fn (string $line) => str_getcsv($line, ';', '"', ''), array_filter(explode("\n", substr($csv, 3))));
+
+        $this->assertCount(3, $lines);
+        $this->assertSame('Kupac', $lines[0][0]);
+        $rows = collect($lines)->skip(1)->keyBy(fn (array $row) => $row[0]);
+        $this->assertSame(['Bagremov med', '2', 'Da', 'Realizovano'], array_slice($rows['Marko Marković'], 3));
+        $this->assertSame(['', '1', 'Ne', ''], array_slice($rows['\'=HYPERLINK("http://evil.test")'], 3));
+    }
+
+    public function test_the_export_is_part_of_the_plan_and_only_for_the_owner(): void
+    {
+        $producer = Producer::factory()->active()->create();
+
+        // Without the plan.
+        $this->actingAs($producer->user)->get(route('producers.inquiries.export', $producer))->assertForbidden();
+
+        $service = app(SubscriptionService::class);
+        $service->confirmPayment($service->request($producer, SubscriptionPlan::where('slug', 'premium')->sole()), $producer->user_id);
+
+        $this->actingAs(User::factory()->create())->get(route('producers.inquiries.export', $producer))->assertForbidden();
+        $this->app['auth']->forgetGuards();
+        $this->flushSession();
+        $this->get(route('producers.inquiries.export', $producer))->assertRedirect(route('login'));
     }
 
     /** Below the plan the page still opens - locked, and with no real figures in it. */

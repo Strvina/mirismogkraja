@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Producer;
+use App\Services\InquiryExport;
 use App\Services\ProducerStatistics;
 use App\Services\SearchMisses;
 use App\Services\SubscriptionService;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 use function Illuminate\Support\defer;
 
@@ -36,6 +38,30 @@ class ProducerStatisticsController extends Controller
             'wanted' => $unlocked ? $misses->top(30, 10, SearchMisses::SHARED_FROM) : null,
             'clickLabels' => array_map(__(...), ProducerStatistics::CLICKS),
         ]);
+    }
+
+    /**
+     * The producer's inquiries as a CSV file, part of the same plans as the
+     * statistics. Semicolons and a byte-order mark: that is what Excel in a
+     * Serbian locale opens straight into columns, with š and đ intact.
+     */
+    public function exportInquiries(Producer $producer, SubscriptionService $subscriptions, InquiryExport $export): StreamedResponse
+    {
+        $this->authorize('update', $producer);
+        abort_unless($subscriptions->hasFeature($producer, 'statistics'), 403);
+
+        $rows = [$export->headings(), ...$export->rows($producer)];
+
+        return response()->streamDownload(function () use ($rows) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+
+            foreach ($rows as $row) {
+                fputcsv($out, $row, ';', '"', '');
+            }
+
+            fclose($out);
+        }, 'upiti-'.$producer->slug.'-'.now()->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /**

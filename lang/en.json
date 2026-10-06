@@ -1277,5 +1277,14 @@
     "Opišite malo detaljnije šta vam treba (najmanje :min znakova).": "Describe what you need in a little more detail (at least :min characters).",
     "Možete imati najviše :max otvorena oglasa. Zatvorite neki koji vam više ne treba.": "You can have at most :max ads open. Close one you no longer need.",
     "Na ovaj oglas ste već odgovorili. Razgovor nastavite u porukama.": "You have already answered this ad. Continue the conversation in your messages.",
-    "Danas ste odgovorili na dosta oglasa. Na nove možete sutra, a započete razgovore možete da nastavite.": "You have answered quite a few ads today. You can answer new ones tomorrow, and continue the conversations you have started."
+    "Danas ste odgovorili na dosta oglasa. Na nove možete sutra, a započete razgovore možete da nastavite.": "You have answered quite a few ads today. You can answer new ones tomorrow, and continue the conversations you have started.",
+    "Prvi upit": "First inquiry",
+    "Poslednja poruka": "Last message",
+    "Odgovoreno": "Answered",
+    "Ishod": "Outcome",
+    "Da": "Yes",
+    "Ne": "No",
+    "Vaši upiti kao tabela": "Your inquiries as a spreadsheet",
+    "Jedan red po razgovoru: ko je pitao, za koji proizvod, kada, da li ste odgovorili i kako se završilo. Otvara se u Excelu.": "One row per conversation: who asked, about which product, when, whether you answered and how it ended. Opens in Excel.",
+    "Preuzmi upite (CSV)": "Download inquiries (CSV)"
 }

@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 129).
+Poslednja izmena: 2026-10-06 (posle zadatka 130).
 
 ## 1. Šta je ovo
 
@@ -75,7 +75,7 @@ stranice o sajtu (`/kako-radi`, `/za-proizvodjace` sa cenama iz baze, `/cesta-pi
 omiljeni, „Javi mi kad stigne", utisak, prijava problema, oglas „Tražim" (`/trazim`).
 
 **Proizvođač:** stranica i proizvodi, galerija, odgovori na poruke i utiske, brzi odgovori,
-statistika (Premium/Pro), pauza, „čeka vas X kupaca", pijace, sertifikati, priče i recepti, katalog za
+statistika i izvoz upita u CSV (Premium/Pro), pauza, „čeka vas X kupaca", pijace, sertifikati, priče i recepti, katalog za
 deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 
 **Admin:** odobravanje proizvođača, provera sertifikata, moderacija utisaka / prijava (proizvođač, proizvod, objava, korisnik) / proizvoda /
