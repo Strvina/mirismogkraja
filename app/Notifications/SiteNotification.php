@@ -67,6 +67,12 @@ class SiteNotification extends Notification
         return new self('producer.resumed', ['producer' => $producerName], $url);
     }
 
+    /** A week on, the page is still mostly empty. */
+    public static function producerIncomplete(string $producerName, int $percent, string $url): self
+    {
+        return new self('producer.incomplete', ['producer' => $producerName, 'percent' => $percent], $url);
+    }
+
     public static function producerBlocked(string $producerName, string $url): self
     {
         return new self('producer.blocked', ['producer' => $producerName], $url);

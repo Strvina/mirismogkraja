@@ -12,6 +12,7 @@ return [
         'verified' => ['title' => 'Vaš profil je proveren', 'body' => '„:producer” od sada nosi oznaku proverenog proizvođača.'],
         'blocked' => ['title' => 'Vaš proizvođač je skriven', 'body' => '„:producer” trenutno nije vidljiv na sajtu. Javite nam se ako mislite da je greška.'],
         'resumed' => ['title' => ':producer ponovo prima upite', 'body' => 'Pauza je završena — možete da pišete.'],
+        'incomplete' => ['title' => 'Profil „:producer” je popunjen :percent%', 'body' => 'Kupci češće pišu proizvođačima sa potpunim profilom. Pogledajte šta još nedostaje — treba vam nekoliko minuta.'],
     ],
 
     'founding' => [

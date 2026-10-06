@@ -8,6 +8,7 @@ return [
         'verified' => ['title' => 'Your profile has been verified', 'body' => '“:producer” now carries the verified producer badge.'],
         'blocked' => ['title' => 'Your producer has been hidden', 'body' => '“:producer” is not visible on the site right now. Contact us if you think this is a mistake.'],
         'resumed' => ['title' => ':producer is taking inquiries again', 'body' => 'The pause is over — you can write to them.'],
+        'incomplete' => ['title' => 'The profile of “:producer” is :percent% complete', 'body' => 'Buyers write more often to producers with a complete profile. See what is still missing — it takes a few minutes.'],
     ],
 
     'founding' => [

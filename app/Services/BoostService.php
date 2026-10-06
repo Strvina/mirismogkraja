@@ -12,6 +12,7 @@ use App\Support\PaymentReference;
 use App\Support\Settings;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Throwable;
 
 /**
  * Paid boosts.
@@ -145,7 +146,17 @@ class BoostService
             ->get();
 
         foreach ($ending as $boost) {
-            $boost->producer?->user?->notify(SiteNotification::boostEnding($boost->boostable?->name ?? '', $boost->ends_at, PaidItems::url($boost)));
+            try {
+                // By e-mail as well: with a day left, the bell alone is
+                // read too late to buy the next week.
+                $boost->producer?->user?->notify(
+                    SiteNotification::boostEnding($boost->boostable?->name ?? '', $boost->ends_at, PaidItems::url($boost))->alsoByMail()
+                );
+            } catch (Throwable $e) {
+                // The bell has it by now; see SubscriptionService.
+                report($e);
+            }
+
             $boost->update(['ending_warned_at' => now()]);
         }
 
