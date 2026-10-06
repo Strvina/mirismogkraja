@@ -86,7 +86,10 @@ class HomeController extends Controller
             'featuredProducers' => $this->mapProducers($featuredProducers, $tags),
             'newProducers' => $this->mapProducers($newProducers, $tags),
             'popularProducers' => $this->mapProducers($popularProducers, $tags),
-            'popularProducts' => $this->mapProducts(),
+            'popularProducts' => $this->mapProducts($this->popularProductIds()),
+            // What has its season this month; the section is left out while there is nothing.
+            'seasonalProducts' => $this->mapProducts($this->seasonalProductIds()),
+            'seasonMonth' => now()->month,
             // The newest stories and recipes; the section is left out while there are none.
             'latestPosts' => Post::published()
                 ->with('producer:id,name,slug,city,logo_path')
@@ -220,11 +223,31 @@ class HomeController extends Controller
     }
 
     /**
+     * The newest ten products whose season covers this month. Keyed by the
+     * month, so the list turns over with the calendar and not ten minutes
+     * into the first of the month.
+     *
+     * @return list<int>
+     */
+    private function seasonalProductIds(): array
+    {
+        return Cache::remember('home:seasonal-products:'.now()->month, self::RANKING_SECONDS, fn () => Product::published()
+            ->seasonal()
+            ->latest()
+            ->take(10)
+            ->get(['id'])
+            ->modelKeys());
+    }
+
+    /**
+     * @param  list<int>  $ids
      * @return Collection<int, array<string, mixed>>
      */
-    private function mapProducts(): Collection
+    private function mapProducts(array $ids): Collection
     {
-        $ids = $this->popularProductIds();
+        if ($ids === []) {
+            return collect();
+        }
 
         return $this->inOrder($this->productCards()->whereIn('id', $ids)->get(), $ids)
             ->map(fn (Product $product) => $this->mapProduct($product));

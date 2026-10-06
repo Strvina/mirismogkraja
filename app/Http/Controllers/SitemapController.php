@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
 use App\Services\Places;
+use App\Services\SeasonCalendar;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -43,7 +44,7 @@ class SitemapController extends Controller
         ])->render());
     }
 
-    public function pages(Places $places): Response
+    public function pages(Places $places, SeasonCalendar $calendar): Response
     {
         return $this->xml('sitemap:pages', fn () => view('sitemap', ['urls' => [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
@@ -59,6 +60,11 @@ class SitemapController extends Controller
                 ->map(fn (string $slug) => ['loc' => route('marketplace.categories.show', $slug), 'priority' => '0.8', 'changefreq' => 'daily'])
                 ->all(),
             ...$this->places($places),
+            // The months something is in season.
+            ...array_map(
+                fn (int $month) => ['loc' => route('marketplace.season.show', $calendar->slug($month)), 'priority' => '0.7', 'changefreq' => 'weekly'],
+                $calendar->monthsWithProducts(),
+            ),
             ['loc' => route('info.how'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('info.producers'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('info.faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],

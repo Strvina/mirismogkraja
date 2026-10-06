@@ -34,6 +34,9 @@ export default function Footer() {
                             <Link href={route('marketplace.products.index')} className="hover:opacity-70">
                                 {t('Proizvodi')}
                             </Link>
+                            <Link href={route('marketplace.season.index')} className="hover:opacity-70">
+                                {t('Sada u sezoni')}
+                            </Link>
                             <Link href={route('marketplace.posts.index')} className="hover:opacity-70">
                                 {t('Priče i recepti')}
                             </Link>

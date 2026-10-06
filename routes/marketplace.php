@@ -7,6 +7,7 @@ use App\Http\Controllers\Marketplace\PlaceController;
 use App\Http\Controllers\Marketplace\PostController;
 use App\Http\Controllers\Marketplace\ProducerController;
 use App\Http\Controllers\Marketplace\ProductController;
+use App\Http\Controllers\Marketplace\SeasonController;
 use App\Http\Controllers\ProductAlertController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewReplyController;
@@ -26,6 +27,9 @@ Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name
 // A town's own page, and a category within it ("domaći med Niš").
 Route::get('/mesto/{place}', [PlaceController::class, 'show'])->name('marketplace.places.show');
 Route::get('/mesto/{place}/{category:slug}', [PlaceController::class, 'category'])->name('marketplace.places.category');
+// What is in season: this month, and each month on an address of its own.
+Route::get('/sezona', [SeasonController::class, 'index'])->name('marketplace.season.index');
+Route::get('/sezona/{month}', [SeasonController::class, 'show'])->name('marketplace.season.show');
 // Stories and recipes written by producers.
 Route::get('/price', [PostController::class, 'index'])->name('marketplace.posts.index');
 Route::get('/price/{post:slug}', [PostController::class, 'show'])->name('marketplace.posts.show');

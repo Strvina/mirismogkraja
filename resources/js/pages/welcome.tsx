@@ -10,6 +10,7 @@ import { ArrowRight, Leaf, Sprout } from 'lucide-react';
 import { type ReactNode } from 'react';
 
 import { t } from '@/lib/i18n';
+import { monthName } from '@/lib/season';
 import heroImage from '../assets/hero-ajvar.jpg';
 import cheeseImage from '../assets/producer-cheese.jpg';
 import honeyImage from '../assets/producer-honey.jpg';
@@ -84,6 +85,8 @@ export default function Welcome({
     newProducers,
     popularProducers,
     popularProducts,
+    seasonalProducts,
+    seasonMonth,
     latestPosts,
     categories,
 }: {
@@ -93,6 +96,10 @@ export default function Welcome({
     newProducers: HomeProducer[];
     popularProducers: HomeProducer[];
     popularProducts: HomeProduct[];
+    /** Products whose season covers this month. */
+    seasonalProducts: HomeProduct[];
+    /** The month the server is in (1-12), so the heading matches the list. */
+    seasonMonth: number;
     latestPosts: PostSummary[];
     categories: HomeCategory[];
 }) {
@@ -281,6 +288,23 @@ export default function Welcome({
                         <CardSlider label={t('Omiljeni proizvođači')}>
                             {popularProducers.map((producer) => (
                                 <HomeProducerCard key={producer.id} producer={producer} />
+                            ))}
+                        </CardSlider>
+                    </Section>
+                )}
+
+                {seasonalProducts.length > 0 && (
+                    <Section
+                        id="sezona"
+                        eyebrow={t('Sada u sezoni')}
+                        title={t('U sezoni: :month', { month: monthName(seasonMonth, 'long') })}
+                        lead={t('Domaće ima svoje vreme. Ovo su proizvodi kojima je sezona baš u ovom mesecu.')}
+                        moreHref={route('marketplace.season.index')}
+                        moreLabel={t('Sve što je u sezoni')}
+                    >
+                        <CardSlider label={t('Sada u sezoni')} itemClassName="w-[58vw] sm:w-[260px] lg:w-[280px]">
+                            {seasonalProducts.map((product) => (
+                                <HomeProductCard key={product.id} product={product} />
                             ))}
                         </CardSlider>
                     </Section>

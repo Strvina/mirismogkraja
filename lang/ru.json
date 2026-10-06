@@ -1184,5 +1184,14 @@
     "Domaći proizvodi — :place": "Домашние продукты — :place",
     "Proizvođači iz mesta :place": "Производители из города :place",
     "Po mestima": "По городам",
-    "Po mestima:": "По городам:"
+    "Po mestima:": "По городам:",
+    "U sezoni: :month | Vrelina juga": "В сезоне: :month | Vrelina juga",
+    "Domaći proizvodi kojima je sezona u mesecu :month, direktno od proizvođača sa juga Srbije.": "Домашние продукты, у которых сезон приходится на :month, напрямую от производителей с юга Сербии.",
+    "U sezoni: :month": "В сезоне: :month",
+    "Sada u sezoni": "Сейчас в сезоне",
+    "Kalendar sezone": "Календарь сезона",
+    "Domaće ima svoje vreme. Ovo su proizvodi kojima je sezona baš u ovom mesecu.": "У домашнего своё время. Это продукты, у которых сезон именно в этом месяце.",
+    "Meseci": "Месяцы",
+    "Za ovaj mesec još nema sezonskih proizvoda.": "На этот месяц сезонных продуктов пока нет.",
+    "Sve što je u sezoni": "Всё, что в сезоне"
 }

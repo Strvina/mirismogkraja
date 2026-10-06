@@ -111,6 +111,19 @@ class Product extends Model
             ->orWhere(fn (Builder $wrapping) => $wrapping->whereColumn($from, '>', $to)->where(fn (Builder $either) => $either->where($from, '<=', $month)->orWhere($to, '>=', $month))));
     }
 
+    /**
+     * Has a season of its own, and the month (default: now) is in it. Unlike
+     * inSeason, a product sold all year does not count: this is for "what is
+     * in season", where listing everything would say nothing.
+     */
+    public function scopeSeasonal(Builder $query, ?int $month = null): void
+    {
+        $query
+            ->whereNotNull($query->qualifyColumn('season_from'))
+            ->whereNotNull($query->qualifyColumn('season_to'))
+            ->inSeason($month);
+    }
+
     public function scopePublished(Builder $query): void
     {
         $query->where($query->qualifyColumn('status'), 'active')->whereHas('producer', fn (Builder $producer) => $producer->published());
