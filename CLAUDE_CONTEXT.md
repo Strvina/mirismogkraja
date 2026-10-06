@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 119).
+Poslednja izmena: 2026-10-06 (posle zadatka 120).
 
 ## 1. Šta je ovo
 
@@ -77,7 +77,7 @@ statistika (Premium/Pro), „čeka vas X kupaca", pijace, sertifikati, priče i 
 deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 
 **Admin:** odobravanje proizvođača, provera sertifikata, moderacija utisaka / prijava / proizvoda /
-priča, potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, log aktivnosti.
+priča, potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
 mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišćenje logova i obaveštenja.
@@ -102,6 +102,10 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 - **Preporuka:** važi samo za nov nalog, jednom; obe strane dobijaju 30 dana Premium-a kad admin
   odobri prvog proizvođača tog naloga. Bez nagrade ako: isti telefon/e-mail, više od 12 nagrada
   godišnje, prošlo 90 dana, preporučilac nije aktivan. Razlog se čuva u `referrals.status`.
+- **Pretrage bez rezultata** (`SearchMisses`, tabela `search_misses`): beleži se pojam koji u katalogu
+  nije našao ni proizvod ni proizvođača, i to samo kad nijedan drugi filter nije uključen. Dnevni
+  brojači po pojmu: posetilac jednom dnevno, bez robota, bez mejlova i telefona. Admin vidi sve;
+  proizvođač sa statistikom (Premium/Pro) vidi samo pojmove koje je tražilo bar dvoje ljudi.
 - **„Čeka vas X kupaca":** proizvođač dobija obaveštenje za prvog kupca, pa na 3, 5, 10, 25, 50, 100.
 - Ograničenja: 500 proizvoda, 20 slika u galeriji, 8 pijaca, 12 brzih odgovora, 10 sertifikata,
   100 objava po proizvođaču; 20 novih razgovora dnevno po kupcu.
@@ -153,9 +157,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 
 ## 10. Trenutno stanje
 
-- Urađeni su svi zadaci do 117. Poslednji talas (109–117): pijace, katalog, brzi odgovori, „čeka vas
+- Urađeni su svi zadaci do 120. Poslednji talas (109–117): pijace, katalog, brzi odgovori, „čeka vas
   X kupaca", sertifikati, priče i recepti, preporuke, Google prijava, demo podaci i testovi.
-- Testovi: 495 PHP (3 preskočena bez GD-a) i 16 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 503 PHP (3 preskočena bez GD-a) i 16 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
   `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept).
@@ -167,8 +171,11 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
 - Google prijava je testirana samo sa lažnim odgovorom; pravi ključevi još ne postoje.
 - Katalog nije u mapi sajta; priče nemaju dugme „Prijavi".
 - Lokalni PHP nema GD (bez umanjenih kopija slika) ni zip.
-- `SubscriptionService::planFor` bira članarinu sa najdaljim krajem, pa uz poklonjeni Premium posle
-  plaćenog Pro-a može da prikaže Premium. Pogodnosti (`hasFeature`) se računaju ispravno.
+- **Otvoreno pitanje za vlasnika (članarine):** članarina plaćena ili poklonjena dok druga još traje
+  dobija početak tek kad tekuća istekne, ali se računa kao aktivna odmah (`scopeActive` gleda samo
+  kraj). Zato prelazak sa Basic na Premium daje Premium pogodnosti od danas do kraja oba perioda, a
+  `planFor` može da prikaže plan sa najdaljim krajem umesto onog koji trenutno teče. Ne menjati bez
+  odluke: da li viši paket počinje odmah, a samo obnova istog čeka na kraj tekućeg.
 - Uslovi korišćenja i politika privatnosti nisu pravno pregledani.
 
 ## 12. TODO

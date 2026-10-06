@@ -1069,5 +1069,13 @@
     "Prijava preko Google naloga nije uspela. Pokušajte ponovo.": "Signing in with Google did not work. Please try again.",
     "Upišite e-mail adresu naloga da potvrdite brisanje.": "Type the account's e-mail address to confirm the deletion.",
     "Google nalog nema potvrđenu e-mail adresu, pa ne možemo da vas prijavimo preko njega.": "That Google account has no verified e-mail address, so we cannot sign you in with it.",
-    "Ovaj nalog je povezan sa drugim Google nalogom. Prijavite se e-mailom i lozinkom.": "This account is linked to a different Google account. Sign in with your e-mail and password."
+    "Ovaj nalog je povezan sa drugim Google nalogom. Prijavite se e-mailom i lozinkom.": "This account is linked to a different Google account. Sign in with your e-mail and password.",
+    "Šta kupci traže": "What buyers look for",
+    "Pretrage kataloga koje nisu našle ni proizvod ni proizvođača. Brojimo ljude, ne klikove: isti posetilac se za isti pojam računa jednom dnevno, roboti se ne računaju, a o tome ko je tražio ne čuvamo ništa. Brojači se čuvaju :days dana.": "Catalogue searches that found neither a product nor a producer. We count people, not clicks: the same visitor counts once a day for a term, robots are not counted, and nothing is kept about who searched. The counters are kept for :days days.",
+    "Poslednjih :days dana": "Last :days days",
+    "U ovom periodu svaka pretraga je nešto našla.": "In this period every search found something.",
+    "poslednji put :date": "last on :date",
+    "Kupci traže, a niko ne nudi": "Buyers are looking, nobody is offering",
+    "Šta su posetioci tražili u poslednjih 30 dana, a nije bilo na sajtu. Ako pravite nešto od ovoga, dodajte proizvod.": "What visitors searched for in the last 30 days and did not find on the site. If you make any of this, add the product.",
+    "Za sada nema takvih pretraga.": "No such searches so far."
 }

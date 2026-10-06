@@ -29,6 +29,46 @@ const PREVIEW: Stats = {
     ],
 };
 
+interface WantedTerm {
+    term: string;
+    total: number;
+}
+
+/** Behind the lock, like the rest: an idea of the list, not the real one. */
+const PREVIEW_WANTED: WantedTerm[] = [
+    { term: 'kozji sir', total: 14 },
+    { term: 'domaći kajmak', total: 9 },
+    { term: 'sok od aronije', total: 6 },
+];
+
+/**
+ * "Kupci traže, a niko ne nudi": what people searched the catalogue for and
+ * did not find, on the whole site. A producer who makes one of these has
+ * buyers waiting before the product is even listed.
+ */
+function WantedTerms({ terms, interactive }: { terms: WantedTerm[]; interactive: boolean }) {
+    return (
+        <section className="mt-10">
+            <h2 className="font-serif text-2xl">{t('Kupci traže, a niko ne nudi')}</h2>
+            <p className="text-muted-foreground mt-2 max-w-xl text-sm leading-6">
+                {t('Šta su posetioci tražili u poslednjih 30 dana, a nije bilo na sajtu. Ako pravite nešto od ovoga, dodajte proizvod.')}
+            </p>
+            {terms.length === 0 ? (
+                <p className="text-muted-foreground mt-3 text-sm">{t('Za sada nema takvih pretraga.')}</p>
+            ) : (
+                <ul className="mt-4 flex flex-wrap gap-2">
+                    {terms.map((item) => (
+                        <li key={item.term} className="border-border/70 rounded-full border px-3 py-1.5 text-sm">
+                            {interactive ? item.term : <span>{item.term}</span>}
+                            <span className="text-muted-foreground ml-2 tabular-nums">{item.total}×</span>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </section>
+    );
+}
+
 function formatDay(date: string): string {
     return formatDate(date, { day: 'numeric', month: 'numeric' });
 }
@@ -106,11 +146,14 @@ export default function ProducerStatistics({
     producer,
     unlocked,
     stats,
+    wanted,
     clickLabels,
 }: {
     producer: { id: number; name: string; slug: string };
     unlocked: boolean;
     stats: Stats | null;
+    /** Searches that found nothing, site-wide; null behind the lock. */
+    wanted: WantedTerm[] | null;
     clickLabels: Record<string, string>;
 }) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -142,11 +185,15 @@ export default function ProducerStatistics({
 
             <div className="mt-8">
                 {unlocked && stats ? (
-                    <Dashboard stats={stats} clickLabels={clickLabels} interactive />
+                    <>
+                        <Dashboard stats={stats} clickLabels={clickLabels} interactive />
+                        <WantedTerms terms={wanted ?? []} interactive />
+                    </>
                 ) : (
                     <div className="relative">
                         <div aria-hidden className="pointer-events-none blur-sm select-none">
                             <Dashboard stats={PREVIEW} clickLabels={clickLabels} interactive={false} />
+                            <WantedTerms terms={PREVIEW_WANTED} interactive={false} />
                         </div>
                         <div className="absolute inset-0 grid place-items-start justify-center pt-16">
                             <div className="bg-background max-w-sm rounded-lg border p-6 text-center shadow-lg">

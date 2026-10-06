@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Producer;
 use App\Services\ProducerStatistics;
+use App\Services\SearchMisses;
 use App\Services\SubscriptionService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as HttpResponse;
@@ -19,7 +20,7 @@ class ProducerStatisticsController extends Controller
      * plans; below them the page still opens, as a locked preview that says
      * what the plan would show - and sends none of the real figures.
      */
-    public function show(Producer $producer, ProducerStatistics $statistics, SubscriptionService $subscriptions): Response
+    public function show(Producer $producer, ProducerStatistics $statistics, SubscriptionService $subscriptions, SearchMisses $misses): Response
     {
         $this->authorize('update', $producer);
 
@@ -29,6 +30,10 @@ class ProducerStatisticsController extends Controller
             'producer' => $producer->only(['id', 'name', 'slug']),
             'unlocked' => $unlocked,
             'stats' => $unlocked ? $statistics->summary($producer) : null,
+            // "Kupci traže, a niko ne nudi": part of the same plans. Only
+            // terms more than one person searched for, so nobody's one-off
+            // query is passed around.
+            'wanted' => $unlocked ? $misses->top(30, 10, SearchMisses::SHARED_FROM) : null,
             'clickLabels' => array_map(__(...), ProducerStatistics::CLICKS),
         ]);
     }
