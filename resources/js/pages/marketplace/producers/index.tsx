@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import CardSlider from '@/components/marketplace/card-slider';
 import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
@@ -9,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { Head, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { LocateFixed, Map as MapIcon } from 'lucide-react';
 import { useState } from 'react';
 

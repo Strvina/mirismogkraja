@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { shrinkImages } from '@/lib/shrink-image';
 import { type BreadcrumbItem, type Producer } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 import ProducerForm from './producer-form';

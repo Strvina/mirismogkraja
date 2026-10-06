@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { MapPin } from 'lucide-react';
 
 interface FoundingProducer {
@@ -23,9 +24,7 @@ interface FoundingProducer {
 export default function Founding({ producers, claimed, limit }: { producers: FoundingProducer[]; claimed: number; limit: number }) {
     return (
         <MarketplaceLayout>
-            <Head title={`${t('Prvih :count proizvođača', { count: limit })} | Vrelina juga`}>
-                <meta name="description" content={t('Proizvođači koji su prvi poverovali u domaću proizvodnju na Vrelini juga.')} />
-            </Head>
+            <Head title={`${t('Prvih :count proizvođača', { count: limit })} | Vrelina juga`} />
 
             <p className="text-primary mb-3 text-xs font-semibold tracking-[0.16em] uppercase">{t('Prvi koji su verovali')}</p>
             <h1 className="font-serif text-4xl sm:text-5xl">{t('Prvih :count proizvođača', { count: limit })}</h1>

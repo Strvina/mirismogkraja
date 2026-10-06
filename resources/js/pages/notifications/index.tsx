@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -5,7 +6,7 @@ import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Obaveštenja'), href: '/obavestenja' }];
 

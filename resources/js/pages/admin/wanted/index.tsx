@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
@@ -5,7 +6,7 @@ import { ask } from '@/lib/confirm';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { EyeOff, RotateCcw } from 'lucide-react';
 
 type Status = 'open' | 'closed' | 'blocked';

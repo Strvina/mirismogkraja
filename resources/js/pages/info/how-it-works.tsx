@@ -1,9 +1,10 @@
+import Head from '@/components/head';
 import { HowItWorks } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Handshake, MessageCircle, MessagesSquare, Search, Store, Wallet } from 'lucide-react';
 
 /**

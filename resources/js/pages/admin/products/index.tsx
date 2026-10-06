@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +8,7 @@ import { ask } from '@/lib/confirm';
 import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type Category, type Product } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 

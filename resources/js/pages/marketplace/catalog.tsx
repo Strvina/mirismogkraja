@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import ShareButtons from '@/components/marketplace/share-buttons';
@@ -12,7 +13,7 @@ import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { seasonLabel } from '@/lib/season';
 import { type ProducerMarket, type Product } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { BadgeCheck, MapPin, MessageCircle } from 'lucide-react';
 
 type CatalogProducer = Pick<

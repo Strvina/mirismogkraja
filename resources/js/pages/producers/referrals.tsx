@@ -1,10 +1,10 @@
+import Head from '@/components/head';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type Producer } from '@/types';
-import { Head } from '@inertiajs/react';
 import { Gift } from 'lucide-react';
 
 interface ReferralRow {

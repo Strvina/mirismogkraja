@@ -1,10 +1,11 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { ArrowRight, Check, X } from 'lucide-react';
 
 type Status = 'pending' | 'approved' | 'rejected';

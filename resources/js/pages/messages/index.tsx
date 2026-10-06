@@ -1,10 +1,11 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, usePoll } from '@inertiajs/react';
+import { Link, usePoll } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Poruke'), href: '/poruke' }];
 

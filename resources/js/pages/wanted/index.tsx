@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import CompactSelect from '@/components/marketplace/compact-select';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import WantedAdCard, { type WantedAdState, type WantedAdSummary } from '@/components/marketplace/wanted-ad-card';
@@ -6,7 +7,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { categoryOptions } from '@/lib/categories';
 import { t } from '@/lib/i18n';
 import { type Category, type SharedData } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
 
 interface Filters {

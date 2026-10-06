@@ -1,9 +1,10 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: tx('Moji omiljeni'), href: '/omiljeni' }];
 

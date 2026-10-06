@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import AdminLayout from '@/layouts/admin-layout';
 import { formatDate, formatRelativeTime } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Link, router, useForm } from '@inertiajs/react';
 import { Check, Download, X } from 'lucide-react';
 import { type FormEventHandler, useState } from 'react';
 

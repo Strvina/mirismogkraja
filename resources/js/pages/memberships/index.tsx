@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
 import { HowItWorks, linkedSlipId } from '@/components/marketplace/payment-status';
 import PlanCard, { type Plan } from '@/components/marketplace/plan-card';
@@ -7,7 +8,7 @@ import { formatDate } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { CalendarCheck, MousePointerClick, ReceiptText } from 'lucide-react';
 import { useState } from 'react';
 

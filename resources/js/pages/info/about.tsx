@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 /** Who the site is for and why it works the way it does. */
 export default function About() {

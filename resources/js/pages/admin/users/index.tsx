@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type SharedData, type User } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { router, usePage } from '@inertiajs/react';
 import { Ban, Check, Search, Store } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 

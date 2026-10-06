@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import CompactSelect from '@/components/marketplace/compact-select';
 import { WANTED_STATE_LABELS, WantedAdFacts, type WantedAdState, type WantedAdSummary } from '@/components/marketplace/wanted-ad-card';
@@ -8,7 +9,7 @@ import { formatDate, formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { EyeOff } from 'lucide-react';
 import { type FormEventHandler } from 'react';
 

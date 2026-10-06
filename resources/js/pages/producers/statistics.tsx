@@ -1,10 +1,11 @@
+import Head from '@/components/head';
 import InfoHint from '@/components/info-hint';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { Download, Lock } from 'lucide-react';
 
 interface Stats {

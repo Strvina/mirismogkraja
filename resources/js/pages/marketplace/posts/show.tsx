@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import PostCard, { POST_TYPE_LABELS } from '@/components/marketplace/post-card';
 import ReportButton from '@/components/marketplace/report-button';
 import ShareButtons from '@/components/marketplace/share-buttons';
@@ -7,7 +8,7 @@ import { formatDate, formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
 import { type BreadcrumbItem, type PostSummary, type Product } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import { EyeOff } from 'lucide-react';
 
 interface Post {

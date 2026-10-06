@@ -1,6 +1,6 @@
+import Head from '@/components/head';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
-import { Head } from '@inertiajs/react';
 
 /**
  * The terms, shaped by how the platform works: it has to be written down

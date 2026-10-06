@@ -52,7 +52,16 @@ class SitemapAndLegalPagesTest extends TestCase
 
     public function test_the_legal_pages_are_public(): void
     {
-        $this->get(route('legal.terms'))->assertOk()->assertInertia(fn ($page) => $page->component('legal/terms'));
-        $this->get(route('legal.privacy'))->assertOk()->assertInertia(fn ($page) => $page->component('legal/privacy'));
+        // Titled and described in the first HTML, like every public page.
+        $this->get(route('legal.terms'))->assertOk()
+            ->assertSee('<title inertia>Uslovi korišćenja | Vrelina juga</title>', false)
+            ->assertSee('<meta name="description" content="Pravila korišćenja sajta Vrelina juga, za kupce i za proizvođače.">', false)
+            ->assertInertia(fn ($page) => $page->component('legal/terms'));
+        $this->get(route('legal.privacy'))->assertOk()
+            ->assertSee('<title inertia>Politika privatnosti | Vrelina juga</title>', false)
+            ->assertInertia(fn ($page) => $page->component('legal/privacy'));
+        $this->get(route('marketplace.founding'))->assertOk()
+            ->assertSee(' proizvođača | Vrelina juga</title>', false)
+            ->assertSee('<link rel="canonical" href="'.route('marketplace.founding').'">', false);
     }
 }

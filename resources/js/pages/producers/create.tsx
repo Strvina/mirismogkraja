@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Category } from '@/types';
-import { Head, Link } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 import ProducerForm from './producer-form';
 
 const breadcrumbs: BreadcrumbItem[] = [

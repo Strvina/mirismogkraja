@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 139).
+Poslednja izmena: 2026-10-06 (posle zadatka 140).
 
 ## 1. Šta je ovo
 
@@ -174,6 +174,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   Laravelov podrazumevani brojač je jedan po korisniku za sve rute, pa je pet poruka u minutu blokiralo
   i utisak i registraciju proizvođača. U testovima se gasi sa `withoutMiddleware(ThrottlePerRoute::class)`.
 - **CSP** sa nonce-om po zahtevu; samo-izveštavanje dok radi Vite dev server.
+- **Naslov stranice** je onaj koji je napisao server (`meta.title`): stranice koriste `Head` iz
+  `@/components/head`, nikad Inertia `Head` (ESLint to brani), pa se stranica ne preimenuje kad se učita.
+  Stranica bez `meta` dobija svoj naslov i ime sajta. React u `<head>` ne dodaje ništa osim naslova.
 - **Meta i JSON-LD** piše server u prvi HTML (`PageMeta`), jer nema SSR-a. Početna nosi `WebSite` sa
   pretragom i `Organization`; proizvod, kategorija i mesto nose `BreadcrumbList`. `meta.robots` (npr.
   `noindex, follow` na pojedinačnom oglasu „Tražim") ispisuje se samo kad je zadat.

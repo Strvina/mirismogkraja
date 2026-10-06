@@ -27,6 +27,11 @@ export default [
                 { name: 'confirm', message: "Use ask() from '@/lib/confirm'." },
                 { name: 'alert', message: 'Show the message on the page instead.' },
             ],
+            // A page must not rename itself once it loads: the server's title stands.
+            'no-restricted-imports': [
+                'error',
+                { paths: [{ name: '@inertiajs/react', importNames: ['Head'], message: "Use Head from '@/components/head'." }] },
+            ],
         },
         settings: {
             react: {
@@ -42,6 +47,10 @@ export default [
             'react-hooks/rules-of-hooks': 'error',
             'react-hooks/exhaustive-deps': 'warn',
         },
+    },
+    {
+        files: ['resources/js/components/head.tsx'],
+        rules: { 'no-restricted-imports': 'off' },
     },
     {
         // The browser tests and their server script run in Node, not the page.

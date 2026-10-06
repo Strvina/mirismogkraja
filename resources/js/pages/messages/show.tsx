@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import ClosedNotice from '@/components/messages/closed-notice';
 import Composer from '@/components/messages/composer';
 import { MessageBubble, PendingBubble } from '@/components/messages/message-bubbles';
@@ -10,7 +11,7 @@ import { useOptimisticSend } from '@/hooks/use-optimistic-send';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem, type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 /**
  * One conversation, laid out the way a chat is: a panel of a fixed height

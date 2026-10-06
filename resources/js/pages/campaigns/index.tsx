@@ -1,4 +1,5 @@
 import heroImage from '@/assets/hero-ajvar.webp';
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
 import { HowItWorks, linkedSlipId, PaymentStatusBadge } from '@/components/marketplace/payment-status';
@@ -7,7 +8,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatDate, formatNumber } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { CalendarHeart, Check, Megaphone, MousePointerClick, Receipt } from 'lucide-react';
 import { useState } from 'react';
 

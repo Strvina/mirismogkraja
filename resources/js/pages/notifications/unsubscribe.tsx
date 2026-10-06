@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import { Button } from '@/components/ui/button';
 import AuthLayout from '@/layouts/auth-layout';
 import { t, tx } from '@/lib/i18n';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 
 /** What the page says, per kind of mail it turns off. */

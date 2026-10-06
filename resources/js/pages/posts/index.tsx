@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { POST_TYPE_LABELS } from '@/components/marketplace/post-card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { t, tx } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type PostSummary, type Producer } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 type OwnPost = PostSummary & { status: 'draft' | 'published' | 'blocked'; created_at: string };
 

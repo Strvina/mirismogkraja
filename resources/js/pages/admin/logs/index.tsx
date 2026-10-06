@@ -1,7 +1,8 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import AdminLayout from '@/layouts/admin-layout';
 import { intlLocale, t, tx } from '@/lib/i18n';
-import { Head, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 
 interface LogEntry {
     id: number;

@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import { CampaignCard, type CampaignSummary } from '@/components/marketplace/campaign-banner';
 import CardSlider from '@/components/marketplace/card-slider';
 import { HomeProducerCard, HomeProductCard, type HomeProducer, type HomeProduct } from '@/components/marketplace/home-cards';
@@ -5,7 +6,7 @@ import PostCard from '@/components/marketplace/post-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { type PostSummary, type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Leaf, Sprout } from 'lucide-react';
 import { type ReactNode } from 'react';
 
@@ -107,9 +108,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title={t('Vrelina juga | Domaći proizvođači sa juga Srbije')}>
-                <meta name="description" content={t('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju juga Srbije.')} />
-            </Head>
+            <Head title={t('Vrelina juga | Domaći proizvođači sa juga Srbije')} />
 
             <MarketplaceLayout fullBleed>
                 <section className="relative flex min-h-[620px] items-end overflow-hidden sm:min-h-[700px] lg:min-h-[min(820px,86vh)]">

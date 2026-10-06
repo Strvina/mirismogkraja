@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +9,7 @@ import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { formatDays, WEEKDAYS } from '@/lib/weekdays';
 import { type BreadcrumbItem, type Producer, type ProducerMarket } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { type FormEventHandler, useState } from 'react';
 

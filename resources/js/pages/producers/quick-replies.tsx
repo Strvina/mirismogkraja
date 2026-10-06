@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import { type QuickReply } from '@/components/messages/types';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { ask } from '@/lib/confirm';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type Producer } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
+import { router, useForm } from '@inertiajs/react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { type FormEventHandler, useState } from 'react';
 

@@ -1,3 +1,4 @@
+import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -5,7 +6,7 @@ import { ask } from '@/lib/confirm';
 import { waitingBuyers } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Producer, type Product } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 import { BellRing } from 'lucide-react';
 
 const STATUS_LABELS: Record<Product['status'], string> = {

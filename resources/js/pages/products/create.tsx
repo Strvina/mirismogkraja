@@ -1,7 +1,7 @@
+import Head from '@/components/head';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { type BreadcrumbItem, type Category, type Producer } from '@/types';
-import { Head } from '@inertiajs/react';
 import ProductForm from './product-form';
 
 export default function ProductsCreate({ producer, categories }: { producer: Producer; categories: Category[] }) {
