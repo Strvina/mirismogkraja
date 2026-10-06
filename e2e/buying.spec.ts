@@ -80,7 +80,7 @@ test('a page keeps the title the server wrote once it has loaded', async ({ page
 
     // Arrived at by a click, not a page load: still the server's title.
     await page.getByRole('banner').getByRole('link', { name: 'Proizvodi', exact: true }).click();
-    await expect(page).toHaveTitle('Proizvodi | Vrelina juga');
+    await expect(page).toHaveTitle('Domaći proizvodi: cene i prodaja od proizvođača | Vrelina juga');
 
     // A page the server gives no title to is titled by itself, with the site's name.
     await page.goto('/login');

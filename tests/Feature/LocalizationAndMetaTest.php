@@ -52,7 +52,7 @@ class LocalizationAndMetaTest extends TestCase
         $product = Product::factory()->for(Producer::factory()->active()->state(['name' => 'Mlekara Zapis']))->create(['name' => 'Sir iz kriške']);
 
         $this->get(route('marketplace.products.show', $product->slug))
-            ->assertSee('<meta property="og:title" content="Sir iz kriške - Mlekara Zapis">', false)
+            ->assertSee('<meta property="og:title" content="Sir iz kriške — cena i prodaja | Mlekara Zapis">', false)
             ->assertSee('<meta property="og:type" content="product">', false);
     }
 }

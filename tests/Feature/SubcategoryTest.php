@@ -50,7 +50,7 @@ class SubcategoryTest extends TestCase
 
         $this->get('/kategorija/zimnica')
             ->assertOk()
-            ->assertSee('<title inertia>Domaća zimnica | Vrelina juga</title>', false)
+            ->assertSee('<title inertia>Domaća zimnica: cena i prodaja od proizvođača | Vrelina juga</title>', false)
             ->assertInertia(fn ($page) => $page
                 ->has('products.data', 2)
                 ->where('category.search_name', 'Domaća zimnica')
@@ -61,7 +61,7 @@ class SubcategoryTest extends TestCase
 
         $this->get('/kategorija/ajvar')
             ->assertOk()
-            ->assertSee('<title inertia>Domaći ajvar | Vrelina juga</title>', false)
+            ->assertSee('<title inertia>Domaći ajvar: cena i prodaja od proizvođača | Vrelina juga</title>', false)
             ->assertInertia(fn ($page) => $page
                 ->has('products.data', 1)
                 ->where('products.data.0.id', $ajvar->id)
@@ -117,10 +117,10 @@ class SubcategoryTest extends TestCase
             ->where('categories.1.slug', 'ajvar'));
 
         $this->get('/mesto/leskovac/zimnica')->assertOk()
-            ->assertSee('<title inertia>Domaća zimnica — Leskovac | Vrelina juga</title>', false)
+            ->assertSee('<title inertia>Domaća zimnica Leskovac: cena i prodaja | Vrelina juga</title>', false)
             ->assertInertia(fn ($page) => $page->has('products.data', 1)->where('products.data.0.id', $ajvar->id));
         $this->get('/mesto/leskovac/ajvar')->assertOk()
-            ->assertSee('<title inertia>Domaći ajvar — Leskovac | Vrelina juga</title>', false);
+            ->assertSee('<title inertia>Domaći ajvar Leskovac: cena i prodaja | Vrelina juga</title>', false);
         $this->get('/mesto/leskovac/pindjur')->assertNotFound();
 
         $this->get('/kategorija/zimnica')->assertInertia(fn ($page) => $page->has('places', 2));

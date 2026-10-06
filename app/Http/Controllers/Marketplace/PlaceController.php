@@ -73,14 +73,14 @@ class PlaceController extends Controller
         $subscriptions->markPremium($producers);
 
         $categoryName = $category ? __($category->name) : null;
-        // As people search for it: "Domaći ajvar — Leskovac".
+        // As people search for it: "domaći ajvar Leskovac", then "cena" or "prodaja".
         $searchName = $category ? __($category->searchName()) : null;
 
         return Inertia::render('marketplace/places/show', [
             'meta' => [
                 ...($category
                     ? PageMeta::make(
-                        __(':category — :place | Vrelina juga', ['category' => $searchName, 'place' => $place['name']]),
+                        __(':category :place: cena i prodaja | Vrelina juga', ['category' => $searchName, 'place' => $place['name']]),
                         __('„:category” od domaćih proizvođača iz mesta :place. Pišite im direktno, bez posrednika.', ['category' => $categoryName, 'place' => $place['name']]),
                     )
                     : PageMeta::make(

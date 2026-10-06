@@ -10,12 +10,14 @@ use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Report;
 use App\Services\BoostService;
+use App\Services\CategoryPrices;
 use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SearchMisses;
 use App\Support\Media;
 use App\Support\PageMeta;
+use App\Support\Price;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -62,15 +64,15 @@ class ProductController extends Controller
      * "domaći med" - a query-string filter has none of those. A category
      * lists its subcategories' products with its own.
      */
-    public function category(Request $request, Category $category, BoostService $boosts, SearchMisses $misses, Places $places): Response
+    public function category(Request $request, Category $category, BoostService $boosts, SearchMisses $misses, Places $places, CategoryPrices $prices): Response
     {
         $request->merge(['category_id' => $category->id]);
         $category->load('parent:id,name,slug');
 
-        return $this->listing($request, $boosts, $misses, $places, $category);
+        return $this->listing($request, $boosts, $misses, $places, $category, $prices);
     }
 
-    private function listing(Request $request, BoostService $boosts, SearchMisses $misses, Places $places, ?Category $category = null): Response
+    private function listing(Request $request, BoostService $boosts, SearchMisses $misses, Places $places, ?Category $category = null, ?CategoryPrices $prices = null): Response
     {
         abort_if($request->integer('page') > self::MAX_PAGE, 404);
 
@@ -131,14 +133,19 @@ class ProductController extends Controller
 
         $name = $category ? __($category->name) : null;
         $parent = $category?->parent;
+        // As people search for it: "Domaći ajvar".
+        $searchName = $category ? __($category->searchName()) : null;
+        $priceRange = $category ? $prices?->summary($category) : null;
 
         return Inertia::render('marketplace/products/index', [
             'meta' => $category
                 ? [
                     ...PageMeta::make(
-                        // Titled as people search for it: "Domaći ajvar".
-                        __(':category | Vrelina juga', ['category' => __($category->searchName())]),
-                        $category->intro ?: __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name]),
+                        // The words typed after the product's name, more often than not.
+                        __(':category: cena i prodaja od proizvođača | Vrelina juga', ['category' => $searchName]),
+                        $category->intro ?: ($priceRange
+                            ? __(':category direktno od proizvođača sa juga Srbije. Cena: :price. Pišite proizvođaču, bez posrednika.', ['category' => $searchName, 'price' => $priceRange])
+                            : __('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', ['category' => $name])),
                     ),
                     'structured' => PageMeta::breadcrumbs(array_filter([
                         [__('Proizvodi'), route('marketplace.products.index')],
@@ -148,7 +155,10 @@ class ProductController extends Controller
                     // Nothing in it yet: a page to keep out of search results until there is.
                     'robots' => $products->total() === 0 ? 'noindex, follow' : null,
                 ]
-                : PageMeta::make(__('Proizvodi | Vrelina juga'), __('Domaći proizvodi, direktno od ljudi koji ih prave.')),
+                : PageMeta::make(
+                    __('Domaći proizvodi: cene i prodaja od proizvođača | Vrelina juga'),
+                    __('Domaći med, sir, rakija, zimnica i drugi proizvodi sa juga Srbije, sa cenama. Pišite proizvođaču direktno, bez posrednika.'),
+                ),
             'category' => $category ? [
                 ...$category->only(['id', 'name', 'slug', 'search_name', 'intro']),
                 'parent' => $parent?->only(['id', 'name', 'slug']),
@@ -156,6 +166,8 @@ class ProductController extends Controller
             // The narrower pages of the same family - "Ajvar" under
             // "Zimnica" - the ones with something in them.
             'subcategories' => $category ? $this->subcategories($category) : [],
+            // What it costs, from the listings themselves.
+            'prices' => $category && $prices ? $prices->for($category) : [],
             // Where this category is sold from, each a page of its own.
             'places' => $category ? $places->withCategory($category) : [],
             'products' => $products->through($card),
@@ -289,8 +301,14 @@ class ProductController extends Controller
             'place' => $places->forCity($product->producer->city),
             'meta' => [
                 ...PageMeta::make(
-                    "{$product->name} - {$product->producer->name}",
-                    $product->description,
+                    __(':product — cena i prodaja | :producer', ['product' => $product->name, 'producer' => $product->producer->name]),
+                    // Who, where and how much, before the producer's own words.
+                    __(':product, :producer:place. Cena: :price.', [
+                        'product' => $product->name,
+                        'producer' => $product->producer->name,
+                        'place' => $product->producer->city ? " ({$product->producer->city})" : '',
+                        'price' => Price::format($product->price)." RSD/{$product->unit}",
+                    ]).' '.$product->description,
                     $product->images->first()?->path,
                     'product',
                 ),

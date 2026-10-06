@@ -7,6 +7,7 @@ import ProductCard, { type ProductCardProduct } from '@/components/marketplace/p
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
 import SearchBox from '@/components/marketplace/search-box';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
@@ -25,6 +26,7 @@ export default function ProductsIndex({
     perPageOptions,
     category,
     subcategories,
+    prices,
     places,
     matchingProducers,
 }: {
@@ -50,6 +52,8 @@ export default function ProductsIndex({
     } | null;
     /** On a category's page: the narrower pages of its family, each with something in it. */
     subcategories: { id: number; name: string; slug: string }[];
+    /** On a category's page: what it costs, per unit, from the listings themselves. */
+    prices: { unit: string; from: number; to: number; products: number }[];
     /** On a category's page: the towns it is sold from. */
     places: { slug: string; name: string }[];
     /** On the first page of a search: the producers it matches. */
@@ -80,7 +84,7 @@ export default function ProductsIndex({
 
     return (
         <MarketplaceLayout>
-            <Head title={category ? t(':category | Vrelina juga', { category: heading }) : t('Proizvodi | Vrelina juga')} />
+            <Head />
 
             <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
             <p className="text-muted-foreground mt-3 max-w-lg leading-7">
@@ -257,6 +261,29 @@ export default function ProductsIndex({
                     )}
                 </div>
             </div>
+
+            {category && prices.length > 0 && (
+                <section className="border-border/70 mt-16 max-w-2xl border-t pt-10">
+                    <h2 className="font-serif text-2xl">{t(':category — cena', { category: heading })}</h2>
+                    <p className="text-muted-foreground mt-3 leading-7">
+                        {t('Cene kod proizvođača na Vrelini juga, prema proizvodima koji su sada u ponudi.')}
+                    </p>
+                    <ul className="mt-4 space-y-2">
+                        {prices.map((range) => (
+                            <li key={range.unit} className="flex flex-wrap items-baseline gap-x-3">
+                                <span className="font-serif text-xl">
+                                    {range.from === range.to ? formatPrice(range.from) : `${formatPrice(range.from)} – ${formatPrice(range.to)}`}
+                                    <span className="text-muted-foreground ml-1 font-sans text-sm">/ {range.unit}</span>
+                                </span>
+                                <span className="text-muted-foreground text-sm">{t('Proizvoda: :count', { count: range.products })}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <p className="text-muted-foreground mt-4 text-sm leading-6">
+                        {t('Cenu određuje svaki proizvođač. Količinu, preuzimanje i dostavu dogovarate direktno sa njim.')}
+                    </p>
+                </section>
+            )}
         </MarketplaceLayout>
     );
 }
