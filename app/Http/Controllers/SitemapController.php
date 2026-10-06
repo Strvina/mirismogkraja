@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Services\Places;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Cache;
@@ -42,7 +43,7 @@ class SitemapController extends Controller
         ])->render());
     }
 
-    public function pages(): Response
+    public function pages(Places $places): Response
     {
         return $this->xml('sitemap:pages', fn () => view('sitemap', ['urls' => [
             ['loc' => route('home'), 'priority' => '1.0', 'changefreq' => 'daily'],
@@ -57,6 +58,7 @@ class SitemapController extends Controller
                 ->pluck('slug')
                 ->map(fn (string $slug) => ['loc' => route('marketplace.categories.show', $slug), 'priority' => '0.8', 'changefreq' => 'daily'])
                 ->all(),
+            ...$this->places($places),
             ['loc' => route('info.how'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('info.producers'), 'priority' => '0.6', 'changefreq' => 'monthly'],
             ['loc' => route('info.faq'), 'priority' => '0.5', 'changefreq' => 'monthly'],
@@ -87,6 +89,30 @@ class SitemapController extends Controller
                     'changefreq' => 'weekly',
                 ]),
         ])->render());
+    }
+
+    /**
+     * Every place, and every category sold from it. Towns times categories
+     * stays in the hundreds, so they fit in the pages file.
+     *
+     * @return list<array{loc: string, priority: string, changefreq: string}>
+     */
+    private function places(Places $places): array
+    {
+        $slugs = Category::pluck('slug', 'id');
+        $urls = [];
+
+        foreach ($places->all() as $place) {
+            $urls[] = ['loc' => route('marketplace.places.show', $place['slug']), 'priority' => '0.8', 'changefreq' => 'daily'];
+
+            foreach (array_keys($place['categories']) as $categoryId) {
+                if (isset($slugs[$categoryId])) {
+                    $urls[] = ['loc' => route('marketplace.places.category', [$place['slug'], $slugs[$categoryId]]), 'priority' => '0.7', 'changefreq' => 'daily'];
+                }
+            }
+        }
+
+        return $urls;
     }
 
     /**

@@ -22,6 +22,7 @@ export default function ProductsIndex({
     perPage,
     perPageOptions,
     category,
+    places,
     matchingProducers,
 }: {
     products: Paginated<ProductCardProduct>;
@@ -35,6 +36,8 @@ export default function ProductsIndex({
     perPageOptions: number[];
     /** Set on a category's own page (/kategorija/...). */
     category: { id: number; name: string; slug: string } | null;
+    /** On a category's page: the towns it is sold from. */
+    places: { slug: string; name: string }[];
     /** On the first page of a search: the producers it matches. */
     matchingProducers: { id: number; name: string; slug: string; city: string | null; logo_path: string | null }[];
 }) {
@@ -60,6 +63,21 @@ export default function ProductsIndex({
                     ? t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
                     : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
             </p>
+
+            {category && places.length > 0 && (
+                <nav aria-label={t('Po mestima')} className="mt-6 flex flex-wrap items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">{t('Po mestima:')}</span>
+                    {places.map((place) => (
+                        <Link
+                            key={place.slug}
+                            href={route('marketplace.places.category', [place.slug, category.slug])}
+                            className="border-border/70 hover:border-primary/40 hover:bg-muted/40 rounded-full border px-3 py-1 transition-colors"
+                        >
+                            {place.name}
+                        </Link>
+                    ))}
+                </nav>
+            )}
 
             <SearchBox value={filters.q ?? ''} onSearch={(q) => update({ q: q || undefined })} className="mt-8 max-w-xl" />
 

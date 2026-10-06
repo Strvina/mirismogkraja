@@ -116,6 +116,20 @@ class Product extends Model
         $query->where($query->qualifyColumn('status'), 'active')->whereHas('producer', fn (Builder $producer) => $producer->published());
     }
 
+    /**
+     * What a catalogue card shows, and nothing else: the whole row - and the
+     * whole producer behind it, story and phone number included - would make
+     * a page of cards several times heavier than what it displays.
+     *
+     * @param  Builder<Product>  $query
+     */
+    public function scopeWithCardData(Builder $query): void
+    {
+        $query
+            ->select($query->qualifyColumns(['id', 'producer_id', 'name', 'slug', 'price', 'unit', 'stock_quantity', 'season_from', 'season_to', 'created_at']))
+            ->with(['images:id,product_id,path,order', 'producer:id,name,city']);
+    }
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

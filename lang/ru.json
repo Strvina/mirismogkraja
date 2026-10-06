@@ -1175,5 +1175,14 @@
     "Šta se dešava kada članarina istekne?": "Что происходит, когда членство истекает?",
     "Stranica ostaje na sajtu sa svime što ste uneli. Gubite samo dodatne pogodnosti paketa dok ne obnovite.": "Страница остаётся на сайте со всем, что вы внесли. Вы теряете только дополнительные преимущества пакета, пока не продлите его.",
     "Da li moram da izdajem račun kupcu?": "Должен ли я выдавать покупателю чек?",
-    "Prodaja je između vas i kupca, pa obaveze prema propisima ostaju na vama. Vrelina juga nije strana u kupoprodaji.": "Продажа происходит между вами и покупателем, поэтому обязанности по закону остаются на вас. Vrelina juga не является стороной сделки."
+    "Prodaja je između vas i kupca, pa obaveze prema propisima ostaju na vama. Vrelina juga nije strana u kupoprodaji.": "Продажа происходит между вами и покупателем, поэтому обязанности по закону остаются на вас. Vrelina juga не является стороной сделки.",
+    ":category — :place | Vrelina juga": ":category — :place | Vrelina juga",
+    "„:category” od domaćih proizvođača iz mesta :place. Pišite im direktno, bez posrednika.": "«:category» от домашних производителей из города :place. Пишите им напрямую, без посредников.",
+    "Domaći proizvodi — :place | Vrelina juga": "Домашние продукты — :place | Vrelina juga",
+    "Domaći proizvodi i proizvođači iz mesta :place. Pišite im direktno, bez posrednika.": "Домашние продукты и производители из города :place. Пишите им напрямую, без посредников.",
+    ":category — :place": ":category — :place",
+    "Domaći proizvodi — :place": "Домашние продукты — :place",
+    "Proizvođači iz mesta :place": "Производители из города :place",
+    "Po mestima": "По городам",
+    "Po mestima:": "По городам:"
 }

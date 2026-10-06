@@ -29,7 +29,10 @@ export default function ProducerHeader({
     isFavorited,
     canReport,
     reportReasons,
+    place,
 }: {
+    /** The producer's town as a page of its own, when it has one. */
+    place: { slug: string; name: string } | null;
     producer: PublicProducer;
     isPremium: boolean;
     responseTime: ResponseTimeBucket | null;
@@ -90,7 +93,16 @@ export default function ProducerHeader({
                     {producer.city && (
                         <span className="flex items-center gap-1.5">
                             <MapPin className="size-4 shrink-0" />
-                            {producer.city}
+                            {place ? (
+                                <Link
+                                    href={route('marketplace.places.show', place.slug)}
+                                    className="hover:text-foreground underline-offset-4 hover:underline"
+                                >
+                                    {producer.city}
+                                </Link>
+                            ) : (
+                                producer.city
+                            )}
                         </span>
                     )}
                     <ResponseTimeBadge bucket={responseTime} />

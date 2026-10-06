@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-05 (posle zadatka 121).
+Poslednja izmena: 2026-10-05 (posle zadatka 122).
 
 ## 1. Šta je ovo
 
@@ -66,7 +66,7 @@ Morph alijasi (`AppServiceProvider`): `producer`, `product`, `post`, `user`.
 
 ## 5. Funkcionalnosti
 
-**Posetilac:** pretraga i filteri, stranice kategorija, mapa i „Najbliži meni", profil proizvođača
+**Posetilac:** pretraga i filteri, stranice kategorija i mesta, mapa i „Najbliži meni", profil proizvođača
 (pijace, sertifikati, priče, utisci), katalog sa cenama `/katalog/{slug}`, priče i recepti `/price`,
 stranice o sajtu (`/kako-radi`, `/za-proizvodjace` sa cenama iz baze, `/cesta-pitanja`, `/o-nama`, `/kontakt`).
 
@@ -107,6 +107,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), čišće
   nije našao ni proizvod ni proizvođača, i to samo kad nijedan drugi filter nije uključen. Dnevni
   brojači po pojmu: posetilac jednom dnevno, bez robota, bez mejlova i telefona. Admin vidi sve;
   proizvođač sa statistikom (Premium/Pro) vidi samo pojmove koje je tražilo bar dvoje ljudi.
+- **Stranice mesta** (`/mesto/{slug}`, `/mesto/{slug}/{kategorija}`, servis `Places`): nema tabele mesta.
+  Mesto su svi načini pisanja grada koji daju isti slug („Niš" i „Nis"), i postoji samo dok se iz njega
+  prodaje bar jedan objavljen proizvod; kombinacija mesto+kategorija bez proizvoda je 404. Keš 10 min.
 - **„Čeka vas X kupaca":** proizvođač dobija obaveštenje za prvog kupca, pa na 3, 5, 10, 25, 50, 100.
 - Ograničenja: 500 proizvoda, 20 slika u galeriji, 8 pijaca, 12 brzih odgovora, 10 sertifikata,
   100 objava po proizvođaču; 20 novih razgovora dnevno po kupcu.

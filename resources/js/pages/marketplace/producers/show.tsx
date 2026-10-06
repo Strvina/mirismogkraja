@@ -31,6 +31,7 @@ export default function ProducerShow({
     reviews,
     averageRating,
     isPremium,
+    place,
     responseTime,
     canReview,
     myPendingReview,
@@ -59,6 +60,8 @@ export default function ProducerShow({
     reviews: Paginated<ReviewWithAuthor>;
     averageRating: number;
     isPremium: boolean;
+    /** The producer's town as a page of its own, when it has one. */
+    place: { slug: string; name: string } | null;
     responseTime: ResponseTimeBucket | null;
     canReview: boolean;
     myPendingReview: ReviewWithAuthor | null;
@@ -99,6 +102,7 @@ export default function ProducerShow({
                 isFavorited={isFavorited}
                 canReport={canReport}
                 reportReasons={reportReasons}
+                place={place}
             />
 
             <div className="mt-4">
