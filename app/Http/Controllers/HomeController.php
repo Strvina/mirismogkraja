@@ -101,8 +101,10 @@ class HomeController extends Controller
                 ->get(Post::CARD_COLUMNS),
             // Which categories have anything in them changes rarely, and
             // finding out means looking through the whole catalogue.
-            'categories' => Cache::remember('home:categories:v2', self::RANKING_SECONDS, fn () => Category::query()
-                ->whereHas('products', fn ($query) => $query->published())
+            'categories' => Cache::remember('home:categories:v3', self::RANKING_SECONDS, fn () => Category::query()
+                // The general ones; their subcategories are a click further.
+                ->roots()
+                ->stocked()
                 ->orderBy('name')
                 ->take(6)
                 ->get(['id', 'name', 'slug'])

@@ -3,6 +3,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import WantedAdCard, { type WantedAdState, type WantedAdSummary } from '@/components/marketplace/wanted-ad-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { categoryOptions } from '@/lib/categories';
 import { t } from '@/lib/i18n';
 import { type Category, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
@@ -76,10 +77,7 @@ export default function WantedIndex({
                             className="w-48"
                             value={filters.kategorija ? String(filters.kategorija) : ''}
                             onChange={(value) => update({ kategorija: value ? Number(value) : null })}
-                            options={[
-                                { value: '', label: t('Sve kategorije') },
-                                ...categories.map((category) => ({ value: String(category.id), label: t(category.name) })),
-                            ]}
+                            options={[{ value: '', label: t('Sve kategorije') }, ...categoryOptions(categories)]}
                         />
                         {cities.length > 0 && (
                             <CompactSelect

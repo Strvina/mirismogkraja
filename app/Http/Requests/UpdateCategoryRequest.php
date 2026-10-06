@@ -2,29 +2,38 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateCategoryRequest extends FormRequest
+class UpdateCategoryRequest extends StoreCategoryRequest
 {
-    public function authorize(): bool
-    {
-        return true; // gated by the 'role:admin' route middleware
-    }
-
     /**
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
+        $category = $this->route('category');
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            ...parent::rules(),
             'parent_id' => [
                 'nullable',
-                'exists:categories,id',
-                Rule::notIn([$this->route('category')->id]),
+                Rule::exists('categories', 'id')->whereNull('parent_id'),
+                Rule::notIn([$category->id]),
+                // Moving a category that has subcategories under another
+                // would make a third level.
+                Rule::prohibitedIf(fn () => $this->filled('parent_id') && $category->children()->exists()),
             ],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            ...parent::messages(),
+            'parent_id.prohibited' => __('Kategorija koja ima potkategorije ne može i sama postati potkategorija.'),
         ];
     }
 }

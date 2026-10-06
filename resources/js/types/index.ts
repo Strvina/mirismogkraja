@@ -7,6 +7,8 @@ export interface Auth {
 export interface Category {
     id: number;
     name: string;
+    /** Set on a subcategory ("Ajvar" under "Zimnica"). */
+    parent_id?: number | null;
 }
 
 export interface ProductImage {

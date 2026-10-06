@@ -56,7 +56,7 @@ class SitemapController extends Controller
             ['loc' => route('marketplace.founding'), 'priority' => '0.5', 'changefreq' => 'weekly'],
             // Categories with something in them.
             ...Category::query()
-                ->whereHas('products', fn ($query) => $query->published())
+                ->stocked()
                 ->orderBy('name')
                 ->pluck('slug')
                 ->map(fn (string $slug) => ['loc' => route('marketplace.categories.show', $slug), 'priority' => '0.8', 'changefreq' => 'daily'])

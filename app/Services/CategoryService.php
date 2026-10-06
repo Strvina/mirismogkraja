@@ -23,26 +23,20 @@ class CategoryService
      */
     public function update(Category $category, array $attributes): Category
     {
-        if ($attributes['name'] !== $category->name) {
-            $attributes['slug'] = $this->uniqueSlug($attributes['name'], ignore: $category);
-        }
-
+        // The address stays as it was made: a renamed category keeps the
+        // page search engines and shared links already point to.
         $category->update($attributes);
 
         return $category;
     }
 
-    private function uniqueSlug(string $name, ?Category $ignore = null): string
+    private function uniqueSlug(string $name): string
     {
         $base = Str::slug($name);
         $slug = $base;
         $suffix = 1;
 
-        while (
-            Category::where('slug', $slug)
-                ->when($ignore, fn ($query) => $query->whereKeyNot($ignore))
-                ->exists()
-        ) {
+        while (Category::where('slug', $slug)->exists()) {
             $slug = "{$base}-{$suffix}";
             $suffix++;
         }

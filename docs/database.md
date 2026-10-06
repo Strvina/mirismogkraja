@@ -194,7 +194,7 @@ Indexes: unique (slug); (status, published_at); (producer_id, status, published_
 
 ## categories
 
-Product categories, with a public page each (`/kategorija/{slug}`).
+Product categories, with a public page each (`/kategorija/{slug}`). Two levels at most: a category with a `parent_id` is a subcategory ("Ajvar" under "Zimnica") and cannot have subcategories of its own. A product is filed under either level; a category's page lists its subcategories' products too. The `slug` is set once and kept when the category is renamed.
 
 | Column | Type | Null | Notes |
 |---|---|---|---|
@@ -202,6 +202,8 @@ Product categories, with a public page each (`/kategorija/{slug}`).
 | `parent_id` | integer | yes | → categories.id (set null) |
 | `name` | string |  |  |
 | `slug` | string |  |  |
+| `search_name` | string | yes | the category as people search for it ("Domaći ajvar"); titles its page, the name where null |
+| `intro` | text | yes | the admin's paragraph at the top of the page, also its meta description; 1000 |
 | `created_at` | datetime | yes |  |
 | `updated_at` | datetime | yes |  |
 
@@ -235,7 +237,7 @@ Indexes: (read_at, emailed_at, created_at); (producer_id, read_at); (buyer_id, r
 |---|---|---|---|
 | `id` | integer |  | primary key |
 | `user_id` | integer |  | → users.id (cascade) |
-| `category_id` | integer | yes | → categories.id (set null); producers selling in it are notified |
+| `category_id` | integer | yes | → categories.id (set null); producers selling in it, in its subcategories or in its parent are notified |
 | `title` | string |  | 120 |
 | `body` | text |  |  |
 | `quantity` | string | yes | free text, 60 |

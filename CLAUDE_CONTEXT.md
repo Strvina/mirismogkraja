@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 138).
+Poslednja izmena: 2026-10-06 (posle zadatka 139).
 
 ## 1. Šta je ovo
 
@@ -92,7 +92,8 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - **Oglasi „Tražim"** (odluke vlasnika, 2026-10-05): oglas ide odmah na sajt, admin je obavešten i može da
   ga skloni; odgovara svaki aktivan proizvođač, jednom po oglasu. Odgovor je obična poruka u razgovoru
   proizvođač–kupac (`producer_messages.wanted_ad_id`), pa ovde proizvođač piše prvi. Obaveštenje dobijaju
-  proizvođači koji prodaju u kategoriji oglasa. Javno se vidi samo ime autora, ne i prezime.
+  proizvođači koji prodaju u kategoriji oglasa, njenim potkategorijama ili kategoriji iznad nje. Javno
+  se vidi samo ime autora, ne i prezime.
 - **Utisak** može da ostavi samo kupac koji je pisao proizvođaču i kome je proizvođač odgovorio (oba smera); jedan po proizvođaču; objavljuje
   se posle moderacije.
 - **Osnivači:** prvih N odobrenih (podešavanje, podrazumevano 50) dobijaju trajan broj i godinu
@@ -125,9 +126,16 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   potroši dnevnu kvotu jeftinog mejl paketa; ostali dobijaju sutradan. Podrazumevano uključen
   (`users.notify_weekly_digest`), gasi se u profilu ili potpisanim linkom iz mejla. Nazivi koje pišu
   proizvođači se u mejlu eskejpuju (mejl se renderuje iz Markdown-a).
+- **Kategorije su u dva nivoa** („Zimnica" → „Ajvar"; dublje ne može, to čuva validacija). Proizvod ima
+  jednu kategoriju, opštu ili potkategoriju; stranica i filter kategorije uključuju i potkategorije
+  (`Product::inCategory`). `search_name` je naziv kako ga ljudi kucaju („Domaći ajvar") i ide u naslov
+  stranice, `intro` je uvodni pasus i opis; oba uređuje admin. Adresa kategorije se ne menja pri
+  preimenovanju. Prazna stranica kategorije je `noindex` i nije u sitemap-u. Liste za izbor dolaze kao
+  stablo iz `Category::options()`. Potkategorije se zovu po vrsti, nikad po zaštićenom imenu porekla.
 - **Stranice mesta** (`/mesto/{slug}`, `/mesto/{slug}/{kategorija}`, servis `Places`): nema tabele mesta.
   Mesto su svi načini pisanja grada koji daju isti slug („Niš" i „Nis"), i postoji samo dok se iz njega
-  prodaje bar jedan objavljen proizvod; kombinacija mesto+kategorija bez proizvoda je 404. Keš 10 min.
+  prodaje bar jedan objavljen proizvod; kombinacija mesto+kategorija bez proizvoda je 404. Proizvod iz
+  potkategorije se broji i za kategoriju iznad nje. Keš 10 min.
 - **„Čeka vas X kupaca":** proizvođač dobija obaveštenje za prvog kupca, pa na 3, 5, 10, 25, 50, 100.
 - Ograničenja: 500 proizvoda, 20 slika u galeriji, 8 pijaca, 12 brzih odgovora, 10 sertifikata,
   100 objava po proizvođaču; 20 novih razgovora dnevno po kupcu; 3 otvorena oglasa „Tražim" po kupcu,

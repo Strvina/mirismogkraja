@@ -37,7 +37,10 @@ class WantedAdController extends Controller
             'ads' => WantedAd::listed()
                 ->with(['user:id,name,blocked_at', 'category:id,name'])
                 ->withCount('responses')
-                ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
+                // A category's ads and its subcategories': "Zimnica" shows the one asking for ajvar.
+                ->when($categoryId, fn ($query) => $query->where(fn ($either) => $either
+                    ->where('category_id', $categoryId)
+                    ->orWhereIn('category_id', Category::query()->select('id')->where('parent_id', $categoryId))))
                 ->when($city !== '', fn ($query) => $query->where('city', $city))
                 ->latest()
                 // Ads posted in the same second keep one order from page to page.
@@ -53,7 +56,7 @@ class WantedAdController extends Controller
                 ->limit(10)
                 ->get()
                 ->map(fn (WantedAd $ad) => [...$this->card($ad), 'state' => $this->state($ad)]),
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::options(),
             'cities' => WantedAd::listed()->whereNotNull('city')->distinct()->orderBy('city')->pluck('city'),
             'filters' => ['kategorija' => $categoryId ?: null, 'mesto' => $city !== '' ? $city : null],
         ]);

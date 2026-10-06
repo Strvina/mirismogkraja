@@ -45,7 +45,7 @@ class ProductController extends Controller
 
         return Inertia::render('products/create', [
             'producer' => $producer,
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::options(),
         ]);
     }
 
@@ -70,7 +70,7 @@ class ProductController extends Controller
         return Inertia::render('products/edit', [
             'producer' => $producer,
             'product' => $product->load('images'),
-            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::options(),
         ]);
     }
 

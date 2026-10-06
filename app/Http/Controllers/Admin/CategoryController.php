@@ -17,7 +17,8 @@ class CategoryController extends Controller
     public function index(): Response
     {
         return Inertia::render('admin/categories/index', [
-            'categories' => Category::with('parent:id,name')->withCount('products')->orderBy('name')->get(),
+            // Each subcategory under its parent, as the site shows them.
+            'categories' => Category::inTreeOrder(Category::withCount('products')->orderBy('name')->get()),
         ]);
     }
 

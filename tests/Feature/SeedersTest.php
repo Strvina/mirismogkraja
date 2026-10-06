@@ -32,7 +32,7 @@ class SeedersTest extends TestCase
         $this->artisan('db:seed', ['--force' => true])->assertSuccessful(); // A later deploy: nothing doubles.
 
         $this->assertSame(['admin', 'buyer', 'seller'], Role::orderBy('name')->pluck('name')->all());
-        $this->assertSame(9, Category::count());
+        $this->assertSame(12, Category::roots()->count());
         $this->assertSame(3, SubscriptionPlan::count());
         $this->assertSame(0, User::count());
         $this->assertSame(0, Producer::count());

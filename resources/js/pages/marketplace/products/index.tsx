@@ -8,6 +8,7 @@ import SearchBox from '@/components/marketplace/search-box';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
+import { cn } from '@/lib/utils';
 import { type Category, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 
@@ -22,6 +23,7 @@ export default function ProductsIndex({
     perPage,
     perPageOptions,
     category,
+    subcategories,
     places,
     matchingProducers,
 }: {
@@ -35,7 +37,18 @@ export default function ProductsIndex({
     perPage: number;
     perPageOptions: number[];
     /** Set on a category's own page (/kategorija/...). */
-    category: { id: number; name: string; slug: string } | null;
+    category: {
+        id: number;
+        name: string;
+        slug: string;
+        /** The category as people search for it ("Domaći ajvar"). */
+        search_name: string | null;
+        /** The owner's own paragraph for the top of the page. */
+        intro: string | null;
+        parent: { id: number; name: string; slug: string } | null;
+    } | null;
+    /** On a category's page: the narrower pages of its family, each with something in it. */
+    subcategories: { id: number; name: string; slug: string }[];
     /** On a category's page: the towns it is sold from. */
     places: { slug: string; name: string }[];
     /** On the first page of a search: the producers it matches. */
@@ -53,16 +66,41 @@ export default function ProductsIndex({
         router.get('/proizvodi', { sort: filters.sort, q: filters.q }, { preserveScroll: true });
     };
 
+    // Titled as people search for it, where the category says how.
+    const heading = category ? t(category.search_name ?? category.name) : t('Proizvodi');
+    // The family's general category: this one, or the one above it.
+    const general = category ? (category.parent ?? category) : null;
+
+    const chip = (active: boolean) =>
+        cn(
+            'rounded-full border px-3.5 py-1.5 text-sm transition-colors',
+            active ? 'border-primary bg-olive-soft text-olive' : 'border-border/70 hover:border-primary/40 hover:bg-muted/40',
+        );
+
     return (
         <MarketplaceLayout>
-            <Head title={category ? t(':category | Vrelina juga', { category: t(category.name) }) : t('Proizvodi | Vrelina juga')} />
+            <Head title={category ? t(':category | Vrelina juga', { category: heading }) : t('Proizvodi | Vrelina juga')} />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">{category ? t(category.name) : t('Proizvodi')}</h1>
+            <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
             <p className="text-muted-foreground mt-3 max-w-lg leading-7">
                 {category
-                    ? t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
+                    ? category.intro ||
+                      t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
                     : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
             </p>
+
+            {category && general && subcategories.length > 0 && (
+                <nav aria-label={t('Potkategorije')} className="mt-6 flex flex-wrap gap-2">
+                    <Link href={route('marketplace.categories.show', general.slug)} className={chip(category.id === general.id)}>
+                        {t(general.name)}
+                    </Link>
+                    {subcategories.map((item) => (
+                        <Link key={item.id} href={route('marketplace.categories.show', item.slug)} className={chip(category.id === item.id)}>
+                            {t(item.name)}
+                        </Link>
+                    ))}
+                </nav>
+            )}
 
             {category && places.length > 0 && (
                 <nav aria-label={t('Po mestima')} className="mt-6 flex flex-wrap items-center gap-2 text-sm">
