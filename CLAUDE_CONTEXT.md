@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 134).
+Poslednja izmena: 2026-10-06 (posle zadatka 136).
 
 ## 1. Šta je ovo
 
@@ -82,7 +82,7 @@ deljenje, preporuke, QR poster, članarina, isticanje, kampanje.
 priča / oglasa „Tražim", potvrda uplata, cene i paketi, proizvođač nedelje, preporuke, „Šta kupci traže", log aktivnosti.
 
 Zakazano (`routes/console.php`): isticanje članarina i isticanja (dnevno), backup baze (02:30),
-mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), nedeljni pregled pratiocima (četvrtak 09:00), podsetnik za nepotpun profil (10:00), čišćenje logova i obaveštenja.
+mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pauza sa datumom (06:00), nedeljni pregled pratiocima (čet–sub 09:00), podsetnik za nepotpun profil (10:00), čišćenje logova i obaveštenja.
 
 ## 6. Poslovna pravila
 
@@ -119,8 +119,10 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   ostaju javni, ali se ne može započeti **nov** razgovor; postojeći teku dalje. Sa datumom povratka pauza
   prestaje sama (i pre noćnog posla). Kad prestane, obaveštavaju se pratioci („Javi mi kad se vrati" je
   praćenje proizvođača).
-- **Nedeljni pregled** (`digest:send-weekly`): ide samo onome ko prati proizvođača koji je te nedelje
-  objavio proizvod, priču ili recept; nikad prazan i najviše jedan nedeljno. Podrazumevano uključen
+- **Nedeljni pregled** (`digest:send-weekly`, četvrtak–subota u 09:00): ide samo onome ko prati proizvođača
+  koji je te nedelje objavio proizvod, priču ili recept; nikad prazan, najviše jedan nedeljno i samo ono
+  što je novo od prethodnog. Jedno pokretanje šalje najviše `DIGEST_MAX_PER_RUN` (150) mejlova, da ne
+  potroši dnevnu kvotu jeftinog mejl paketa; ostali dobijaju sutradan. Podrazumevano uključen
   (`users.notify_weekly_digest`), gasi se u profilu ili potpisanim linkom iz mejla. Nazivi koje pišu
   proizvođači se u mejlu eskejpuju (mejl se renderuje iz Markdown-a).
 - **Stranice mesta** (`/mesto/{slug}`, `/mesto/{slug}/{kategorija}`, servis `Places`): nema tabele mesta.
@@ -192,7 +194,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Urađeni su svi zadaci do 132. Talas 121–131 (PR-ovi #215–#225, nadovezani jedan na drugi): stranice o
   sajtu, stranice mesta, „U sezoni", prijava priča i katalog u mapi sajta, redosled članarina, pauza,
   nedeljni pregled, oglasi „Tražim", mejlovi proizvođaču, izvoz upita, dvostruka potvrda prijave.
-- Testovi: 568 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 570 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
   `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept);

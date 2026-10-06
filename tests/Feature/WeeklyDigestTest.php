@@ -107,6 +107,60 @@ class WeeklyDigestTest extends TestCase
         Notification::assertSentToTimes($follower, WeeklyDigest::class, 2);
     }
 
+    /** A cheap mail plan caps a day's sending; the digest must leave room for password resets. */
+    public function test_one_run_sends_only_so_many_and_the_next_picks_up_the_rest(): void
+    {
+        Notification::fake();
+        config(['platform.digest.max_per_run' => 2]);
+        $producer = Producer::factory()->active()->create();
+        $this->product($producer, 'Ajvar');
+        $followers = collect(range(1, 5))->map(fn () => $this->follower($producer));
+
+        $sentTo = fn () => $followers->filter(fn (User $follower) => Notification::sent($follower, WeeklyDigest::class)->isNotEmpty())->count();
+
+        $this->artisan('digest:send-weekly');
+        $this->assertSame(2, $sentTo());
+
+        // The next two mornings.
+        $this->travel(1)->days();
+        $this->artisan('digest:send-weekly');
+        $this->assertSame(4, $sentTo());
+
+        $this->travel(1)->days();
+        $this->artisan('digest:send-weekly');
+        $this->assertSame(5, $sentTo());
+
+        // Everyone once, nobody twice.
+        $followers->each(fn (User $follower) => Notification::assertSentToTimes($follower, WeeklyDigest::class, 1));
+    }
+
+    /** Served on the last morning, due again on the first of next week: only what is new since. */
+    public function test_nobody_is_told_the_same_thing_twice(): void
+    {
+        Notification::fake();
+        $producer = Producer::factory()->active()->create();
+        $follower = $this->follower($producer);
+        $this->product($producer, 'Ajvar');
+
+        // Saturday.
+        $this->artisan('digest:send-weekly');
+        Notification::assertSentToTimes($follower, WeeklyDigest::class, 1);
+
+        // Thursday: the ajvar is still inside the last seven days, but they have heard of it.
+        $this->travel(5)->days();
+        $this->artisan('digest:send-weekly');
+        Notification::assertSentToTimes($follower, WeeklyDigest::class, 1);
+
+        $this->product($producer, 'Pinđur');
+        $this->artisan('digest:send-weekly');
+        Notification::assertSentToTimes($follower, WeeklyDigest::class, 2);
+
+        $latest = Notification::sent($follower, WeeklyDigest::class)->last();
+        $text = $this->textOf($latest, $follower);
+        $this->assertStringContainsString('Pinđur', $text);
+        $this->assertStringNotContainsString('Ajvar', $text);
+    }
+
     public function test_it_goes_only_to_people_who_can_and_want_to_get_it(): void
     {
         Notification::fake();

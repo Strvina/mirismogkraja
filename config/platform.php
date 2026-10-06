@@ -29,6 +29,16 @@ return [
     ],
 
     /*
+     * The weekly digest. One run sends at most this many mails and leaves
+     * the rest for the next morning: the cheapest mail plans cap a day's
+     * sending, and a digest that used the whole day's allowance would take
+     * the password resets and message notices down with it.
+     */
+    'digest' => [
+        'max_per_run' => (int) env('DIGEST_MAX_PER_RUN', 150),
+    ],
+
+    /*
      * How many producers get a founding number - and with it a free year
      * of Premium.
      */

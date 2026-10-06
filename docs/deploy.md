@@ -85,6 +85,19 @@ sudo chown -R $USER:www-data storage bootstrap/cache
 sudo chmod -R ug+rwx storage bootstrap/cache
 ```
 
+### Dvostruka potvrda za admin nalog (preporučeno)
+
+Admin nalog potvrđuje uplate i blokira naloge, pa ga ne treba štititi samo lozinkom. Odmah posle prve
+prijave otvorite „Moj nalog → Dvostruka potvrda“, skenirajte kod aplikacijom (Google Authenticator,
+Microsoft Authenticator, Aegis) i **prepišite rezervne kodove na papir**. Admin panel vas podseća dok
+to ne uradite.
+
+Ako izgubite i telefon i rezervne kodove, potvrda se skida sa servera:
+
+```bash
+php artisan tinker --execute="app(App\Services\TwoFactor::class)->disable(App\Models\User::where('email', 'vas@email.com')->firstOrFail());"
+```
+
 ### Prijava preko Google naloga (nije obavezno)
 
 Dugme „Nastavi sa Google nalogom“ se pojavljuje tek kada upišete ključeve. Besplatno je:
@@ -127,6 +140,27 @@ Dodajte red:
 ```
 * * * * * cd /var/www/vrelina-juga && php artisan schedule:run >> /dev/null 2>&1
 ```
+
+Šta se tada samo pokreće (vreme je po `APP_TIMEZONE`, podrazumevano Beograd):
+
+| Kada | Šta |
+|---|---|
+| na 5 minuta | mejl o nepročitanim porukama |
+| na sat | „Javi mi kad stigne“ za proizvode koji su ponovo dostupni |
+| 02:30 | backup baze |
+| 03:30–03:50 | brisanje starih logova, pročitanih obaveštenja i brojača pretraga |
+| 06:00 | kraj pauza kojima je prošao datum povratka; pratioci dobijaju obaveštenje |
+| 07:00 | članarine i isticanja: upozorenje pred istek (i mejlom) i zatvaranje isteklih |
+| 10:00 | podsetnik vlasniku stranice koja je posle nedelju dana i dalje skoro prazna |
+| četvrtak, petak i subota u 09:00 | nedeljni pregled pratiocima proizvođača koji su nešto objavili (svako ga dobija jednom nedeljno) |
+
+Spisak sa sledećim terminom svakog posla: `php artisan schedule:list`.
+
+**Koliko mejlova ide.** Besplatan Brevo paket šalje do 300 mejlova dnevno, a to mora da ostane i za
+mejlove o porukama i promenu lozinke. Zato nedeljni pregled u jednom pokretanju pošalje najviše 150
+mejlova (`DIGEST_MAX_PER_RUN` u `.env`), a ostali ga dobiju sutradan - tri jutra, dakle do 450
+korisnika nedeljno. Kada ih bude više, pređite na plaćeni paket i povećajte taj broj. Mejl koji nije
+poslat vidi se u `storage/logs` i u Sentry-ju.
 
 ## 6. Provera
 
