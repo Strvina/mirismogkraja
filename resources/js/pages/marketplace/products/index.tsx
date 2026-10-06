@@ -1,5 +1,4 @@
 import Head from '@/components/head';
-import CardSlider from '@/components/marketplace/card-slider';
 import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
@@ -122,7 +121,7 @@ export default function ProductsIndex({
                 </nav>
             )}
 
-            <SearchBox value={filters.q ?? ''} onSearch={(q) => update({ q: q || undefined })} className="mt-8 max-w-xl" />
+            <SearchBox value={filters.q ?? ''} onSearch={(q) => update({ q: q || undefined })} className="mt-6 max-w-xl" />
 
             {filters.q && (
                 <p className="text-muted-foreground mt-3 text-sm">
@@ -158,7 +157,7 @@ export default function ProductsIndex({
                 </div>
             )}
 
-            <div className="mt-10 flex flex-col gap-8 lg:flex-row lg:gap-12">
+            <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:gap-10">
                 <ProductFilters
                     filters={filters}
                     categories={categories}
@@ -178,7 +177,8 @@ export default function ProductsIndex({
                         </p>
 
                         <div className="flex flex-wrap items-center gap-3">
-                            <span className="flex items-center gap-2 text-sm">
+                            {/* On a phone the count and the order share one line; the page size is a desktop nicety. */}
+                            <span className="hidden items-center gap-2 text-sm sm:flex">
                                 <label htmlFor="per-page" className="text-muted-foreground">
                                     {t('Po strani:')}
                                 </label>
@@ -192,7 +192,7 @@ export default function ProductsIndex({
                             </span>
 
                             <span className="flex items-center gap-2 text-sm">
-                                <label htmlFor="sort" className="text-muted-foreground">
+                                <label htmlFor="sort" className="text-muted-foreground sr-only sm:not-sr-only">
                                     {t('Sortiraj:')}
                                 </label>
                                 <CompactSelect
@@ -213,6 +213,7 @@ export default function ProductsIndex({
                     {featured.length > 0 && (
                         <FeaturedSection
                             className=""
+                            itemClassName="w-[72vw] sm:w-[260px] lg:w-[280px]"
                             title={t('Istaknuti proizvodi')}
                             listLabel={t('Svi proizvodi')}
                             explanation={
@@ -223,11 +224,9 @@ export default function ProductsIndex({
                                 </>
                             }
                         >
-                            <CardSlider label={t('Istaknuti proizvodi')} itemClassName="w-[72vw] sm:w-[260px] lg:w-[280px]">
-                                {featured.map((product) => (
-                                    <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
-                                ))}
-                            </CardSlider>
+                            {featured.map((product) => (
+                                <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} featured />
+                            ))}
                         </FeaturedSection>
                     )}
 
