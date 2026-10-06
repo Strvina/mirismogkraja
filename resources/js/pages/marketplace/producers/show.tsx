@@ -88,6 +88,8 @@ export default function ProducerShow({
                 <img
                     src={mediaUrl(producer.cover_image_path)}
                     alt={producer.name}
+                    // The largest thing on the first screen (and preloaded by the server).
+                    fetchPriority="high"
                     className="image-warm mt-6 aspect-[16/9] w-full rounded-md object-cover sm:aspect-[16/6]"
                 />
             )}

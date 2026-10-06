@@ -64,7 +64,13 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                 featured ? 'border-gold/60 ring-gold/25 ring-1' : 'border-border/70 hover:border-border',
             )}
         >
-            <Link href={href} className="bg-muted relative block aspect-[16/9] overflow-hidden">
+            {/* The photograph says nothing a screen reader can read out, so
+                the link is named after the producer it leads to. */}
+            <Link
+                href={href}
+                aria-label={featured ? `${producer.name} — ${t('Istaknuto')}` : producer.name}
+                className="bg-muted relative block aspect-[16/9] overflow-hidden"
+            >
                 {producer.cover_image_path && (
                     <img
                         src={thumbUrl(producer.cover_image_path)}

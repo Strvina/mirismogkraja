@@ -1,4 +1,4 @@
-import heroImage from '@/assets/hero-ajvar.jpg';
+import heroImage from '@/assets/hero-ajvar.webp';
 import InputError from '@/components/input-error';
 import PaymentSlipDialog, { type PaymentSlip } from '@/components/marketplace/payment-slip-dialog';
 import { HowItWorks, linkedSlipId, PaymentStatusBadge } from '@/components/marketplace/payment-status';

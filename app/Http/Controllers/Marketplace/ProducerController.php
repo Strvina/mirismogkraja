@@ -16,6 +16,7 @@ use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SubscriptionService;
+use App\Support\Media;
 use App\Support\PageMeta;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
@@ -228,6 +229,8 @@ class ProducerController extends Controller
                     'profile',
                 ),
                 'structured' => PageMeta::producer($producer, $averageRating, $reviewCount),
+                // The cover photograph at the top of the page.
+                'preload' => $producer->cover_image_path ? Media::url($producer->cover_image_path) : null,
             ],
             // The town as a link to everything sold from there.
             'place' => $places->forCity($producer->city),

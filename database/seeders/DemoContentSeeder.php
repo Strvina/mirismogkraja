@@ -358,7 +358,10 @@ class DemoContentSeeder extends Seeder
             return;
         }
 
-        $contents = (string) file_get_contents(resource_path('js/assets/products-table.jpg'));
+        // The seeder's own copy, next to it: it used to borrow one of the
+        // landing page's photographs, and stopped working the day that file
+        // changed format.
+        $contents = (string) file_get_contents(database_path('seeders/demo/placeholder.jpg'));
         Media::disk()->put(self::DEMO_IMAGE, $contents);
         Media::makeThumbnail(self::DEMO_IMAGE, $contents);
     }

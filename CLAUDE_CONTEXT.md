@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 137).
+Poslednja izmena: 2026-10-06 (posle zadatka 138).
 
 ## 1. Šta je ovo
 
@@ -155,6 +155,10 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - **Bez queue workera:** sporedni poslovi idu posle odgovora (`afterResponse`, `defer`), da sajt
   radi na najjeftinijem serveru.
 - **Slike** kroz `App\Support\Media` (disk `MEDIA_DISK`, umanjene kopije u `thumbs/`, EXIF rotacija).
+  Fotografije dizajna u `resources/js/assets` su WebP (originali su u `design-reference/`). Glavnu sliku
+  stranice proizvoda i proizvođača server najavljuje u `<head>` (`meta.preload`, ista adresa kao `<img>`).
+- **Pristupačnost:** dugme sa vidljivim tekstom ima `aria-label` koji sadrži taj tekst; link koji drži samo
+  sliku ima naziv; `text-gold` nije za tekst na svetloj pozadini (premali kontrast).
   Dokumenti sertifikata su na privatnom disku `local` i šalju se samo kroz rutu koja proverava ko pita.
 - **Pretraga:** MySQL FULLTEXT, LIKE na SQLite-u i za kratke reči (`App\Support\Search`).
 - **Statistika** su dnevni brojači, bez podataka o posetiocu; botovi i vlasnik se ne broje.
@@ -196,7 +200,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Urađeni su svi zadaci do 132. Talas 121–131 (PR-ovi #215–#225, nadovezani jedan na drugi): stranice o
   sajtu, stranice mesta, „U sezoni", prijava priča i katalog u mapi sajta, redosled članarina, pauza,
   nedeljni pregled, oglasi „Tražim", mejlovi proizvođaču, izvoz upita, dvostruka potvrda prijave.
-- Testovi: 573 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
+- Testovi: 574 PHP (3 preskočena bez GD-a) i 21 u pregledaču; CI zelen na MySQL-u i SQLite-u.
 - Testovi u pregledaču prolaze cele lance kroz tri uloge: `full-cycle.spec.ts` (registracija → potvrda
   adrese → proizvođač → admin odobri → proizvod → upit → odgovor → utisak → admin objavi) i
   `producer-chains.spec.ts` (članarina do potvrde uplate, sertifikat, link preporuke, recept);

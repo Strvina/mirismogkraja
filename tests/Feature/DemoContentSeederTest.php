@@ -29,6 +29,11 @@ class DemoContentSeederTest extends TestCase
 
         // The demo certificates' placeholder documents, kept off the real disk.
         Storage::fake(ProducerCertificate::DISK);
+        // And the demo photograph: on an empty disk every time, so the
+        // seeder really copies it. Left on the real disk, the copy was
+        // skipped on any machine that had run it once - and a missing
+        // source file showed up only on a fresh one.
+        Storage::fake('public');
     }
 
     private function seedDemoContent(): void

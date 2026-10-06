@@ -14,6 +14,7 @@ use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SearchMisses;
+use App\Support\Media;
 use App\Support\PageMeta;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
@@ -264,6 +265,8 @@ class ProductController extends Controller
                     $product->images->first()?->path,
                     'product',
                 ),
+                // The main photograph, as the page asks for it.
+                'preload' => ($main = $product->images->first()?->path) ? Media::url($main) : null,
                 // What it is and what it costs, and where it sits in the catalogue.
                 'structured' => [
                     PageMeta::product($product),

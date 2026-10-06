@@ -57,6 +57,26 @@ class SeoTest extends TestCase
         $this->get('/proizvodi')->assertDontSee('BreadcrumbList', false);
     }
 
+    /** The main photograph is drawn by a script; named in the first response, it is fetched alongside the script. */
+    public function test_a_page_tells_the_browser_about_its_main_photograph_up_front(): void
+    {
+        $producer = Producer::factory()->active()->create(['cover_image_path' => 'producers/naslovna.jpg']);
+        $product = Product::factory()->for($producer)->create(['status' => 'active']);
+        $product->images()->createMany([['path' => 'products/prva.jpg', 'order' => 0], ['path' => 'products/druga.jpg', 'order' => 1]]);
+        $bare = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);
+
+        // The same address the page's own <img> will ask for, so it is one request.
+        $this->get(route('marketplace.products.show', $product->slug))
+            ->assertSee('<link rel="preload" as="image" href="/storage/products/prva.jpg" fetchpriority="high">', false)
+            ->assertDontSee('druga.jpg" fetchpriority', false);
+        $this->get(route('marketplace.producers.show', $producer->slug))
+            ->assertSee('<link rel="preload" as="image" href="/storage/producers/naslovna.jpg" fetchpriority="high">', false);
+
+        // Nothing to preload, nothing printed.
+        $this->get(route('marketplace.products.show', $bare->slug))->assertDontSee('rel="preload" as="image"', false);
+        $this->get(route('marketplace.producers.show', $bare->producer->slug))->assertDontSee('rel="preload" as="image"', false);
+    }
+
     /** An ad is gone in a month; the list of ads is what a search engine should keep. */
     public function test_a_single_wanted_ad_is_not_indexed_but_the_list_is(): void
     {

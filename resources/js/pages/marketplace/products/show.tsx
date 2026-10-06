@@ -75,7 +75,15 @@ export default function ProductShow({
 
             <div className="grid gap-10 lg:grid-cols-2">
                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
-                    {mainImage && <img src={mediaUrl(mainImage.path)} alt={product.name} className="image-warm size-full object-cover" />}
+                    {mainImage && (
+                        <img
+                            src={mediaUrl(mainImage.path)}
+                            alt={product.name}
+                            // The largest thing on the first screen (and preloaded by the server).
+                            fetchPriority="high"
+                            className="image-warm size-full object-cover"
+                        />
+                    )}
                 </div>
 
                 <div>
@@ -228,7 +236,8 @@ export default function ProductShow({
                                     {place ? (
                                         <Link
                                             href={route('marketplace.places.show', place.slug)}
-                                            className="hover:text-foreground underline-offset-4 hover:underline"
+                                            // Small text, so the padding is what makes it tappable.
+                                            className="hover:text-foreground -my-1.5 inline-block py-1.5 underline-offset-4 hover:underline"
                                         >
                                             {product.producer.city}
                                         </Link>
@@ -254,7 +263,8 @@ export default function ProductShow({
                                         <img
                                             loading="lazy"
                                             src={thumbUrl(p.images[0].path)}
-                                            alt={p.name}
+                                            // The name is the link's text, right below.
+                                            alt=""
                                             className="image-warm size-full object-cover transition group-hover:scale-105"
                                         />
                                     )}
