@@ -86,3 +86,18 @@ test('a page keeps the title the server wrote once it has loaded', async ({ page
     await page.goto('/login');
     await expect(page).toHaveTitle(/^Prijava - /);
 });
+
+test('another page of a list starts at the top of the list', async ({ page }) => {
+    // Without the glide, so where the page ends up is settled at once.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/proizvodi');
+
+    const pages = page.getByRole('navigation', { name: 'Stranice' });
+    await pages.scrollIntoViewIfNeeded();
+    await expect(page.getByText(/^Prikazano 1–/)).not.toBeInViewport();
+
+    // Left at the foot of the list, the reader would see no sign that it changed.
+    await pages.getByRole('link', { name: '2', exact: true }).click();
+    await expect(page).toHaveURL(/page=2/);
+    await expect(page.getByText(/^Prikazano 21–/)).toBeInViewport();
+});

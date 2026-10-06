@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import CardGrid from '@/components/marketplace/card-grid';
 import CompactSelect from '@/components/marketplace/compact-select';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import WantedAdCard, { type WantedAdState, type WantedAdSummary } from '@/components/marketplace/wanted-ad-card';
@@ -100,11 +101,11 @@ export default function WantedIndex({
                     </p>
                 ) : (
                     <>
-                        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <CardGrid className="mt-6 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {ads.data.map((ad) => (
                                 <WantedAdCard key={ad.id} ad={ad} />
                             ))}
-                        </div>
+                        </CardGrid>
                         <Pagination meta={ads} />
                     </>
                 )}

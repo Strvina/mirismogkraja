@@ -17,6 +17,7 @@ import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { deliveryMethodLabel } from '@/lib/delivery';
 import { t, tx } from '@/lib/i18n';
 import { mediaUrl } from '@/lib/media';
+import { scrollToStart } from '@/lib/motion';
 import { type BreadcrumbItem, type PostSummary, type ProducerMarket, type Product, type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { Truck } from 'lucide-react';
@@ -150,6 +151,16 @@ export default function ProducerShow({
                         <a
                             key={jump.id}
                             href={`#${jump.id}`}
+                            onClick={(event) => {
+                                const section = document.getElementById(jump.id);
+
+                                // A plain link still works where there is no script; with one, it glides.
+                                if (section) {
+                                    event.preventDefault();
+                                    scrollToStart(section);
+                                    history.replaceState(history.state, '', `#${jump.id}`);
+                                }
+                            }}
                             className="border-border/70 hover:border-primary/40 hover:bg-muted/40 rounded-full border px-3.5 py-1.5 text-sm transition-colors"
                         >
                             {jump.label}

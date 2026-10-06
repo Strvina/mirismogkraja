@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import CardGrid from '@/components/marketplace/card-grid';
 import CompactSelect from '@/components/marketplace/compact-select';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
@@ -150,7 +151,7 @@ export default function ProducersIndex({
                             : t('Još nijedan proizvođač nije označio lokaciju.')}
                     </p>
                 ) : (
-                    <PointsMap points={mapPoints} className="mt-4 h-96" />
+                    <PointsMap points={mapPoints} className="animate-in fade-in mt-4 h-96 duration-300" />
                 ))}
 
             {featured.length > 0 && (
@@ -176,11 +177,11 @@ export default function ProducersIndex({
                 <p className="text-muted-foreground py-16 text-center text-sm">{t('Nema proizvođača za prikaz.')}</p>
             ) : (
                 <>
-                    <div className={cn('grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4', featured.length === 0 && 'mt-8')}>
+                    <CardGrid className={cn('gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4', featured.length === 0 && 'mt-8')}>
                         {producers.data.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} />
                         ))}
-                    </div>
+                    </CardGrid>
                     <Pagination meta={producers} />
                 </>
             )}

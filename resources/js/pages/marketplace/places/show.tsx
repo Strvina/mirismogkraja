@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import CardGrid from '@/components/marketplace/card-grid';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
@@ -111,11 +112,11 @@ export default function PlaceShow({
                 <p className="text-muted-foreground mt-1 text-sm">
                     {t('Prikazano :from–:to od :total', { from: products.from, to: products.to, total: products.total })}
                 </p>
-                <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+                <CardGrid className="mt-5 grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
                     {products.data.map((product) => (
                         <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} />
                     ))}
-                </div>
+                </CardGrid>
                 <Pagination meta={products} />
             </section>
         </MarketplaceLayout>
