@@ -5,12 +5,37 @@ namespace App\Models;
 use App\Models\Concerns\KeepsOldSlugs;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $producer_id
+ * @property int $category_id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $description
+ * @property numeric-string $price
+ * @property string $unit
+ * @property int $stock_quantity
+ * @property int|null $season_from
+ * @property int|null $season_to
+ * @property string $status
+ * @property Carbon|null $published_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $producer
+ * @property-read Category|null $category
+ * @property-read Collection<int, ProductImage> $images
+ * @property-read Collection<int, ProductAlert> $alerts
+ * @property-read Collection<int, Favorite> $favorites
+ * @property-read Collection<int, ProducerMessage> $inquiries
+ */
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
@@ -39,6 +64,7 @@ class Product extends Model
         'status',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -49,6 +75,7 @@ class Product extends Model
         ];
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'producer_id');
@@ -64,12 +91,6 @@ class Product extends Model
         return $this->status === 'active' && $this->producer?->status === 'active';
     }
 
-    /**
-     * What the public may see: listed as active, by a producer that is
-     * itself published. The query twin of isPubliclyVisible().
-     *
-     * @param  Builder<Product>  $query
-     */
     /** The same rule as the inSeason scope, for a product already loaded. */
     public function isInSeason(?int $month = null): bool
     {
@@ -90,6 +111,7 @@ class Product extends Model
         return $this->stock_quantity > 0 && $this->isInSeason();
     }
 
+    /** @return HasMany<ProductAlert, $this> */
     public function alerts(): HasMany
     {
         return $this->hasMany(ProductAlert::class);
@@ -98,6 +120,8 @@ class Product extends Model
     /**
      * In season in the given month (default: now). Products without a
      * season are available all year; a range may wrap the new year.
+     *
+     * @param  Builder<Product>  $query
      */
     public function scopeInSeason(Builder $query, ?int $month = null): void
     {
@@ -115,6 +139,8 @@ class Product extends Model
      * Has a season of its own, and the month (default: now) is in it. Unlike
      * inSeason, a product sold all year does not count: this is for "what is
      * in season", where listing everything would say nothing.
+     *
+     * @param  Builder<Product>  $query
      */
     public function scopeSeasonal(Builder $query, ?int $month = null): void
     {
@@ -127,6 +153,8 @@ class Product extends Model
     /**
      * Filed under a category or any of its subcategories: "Zimnica" lists
      * the ajvar too.
+     *
+     * @param  Builder<Product>  $query
      */
     public function scopeInCategory(Builder $query, int $categoryId): void
     {
@@ -137,6 +165,12 @@ class Product extends Model
             ->orWhereIn($column, Category::query()->select('id')->where('parent_id', $categoryId)));
     }
 
+    /**
+     * What the public may see: listed as active, by a producer that is
+     * itself published. The query twin of isPubliclyVisible().
+     *
+     * @param  Builder<Product>  $query
+     */
     public function scopePublished(Builder $query): void
     {
         $query->where($query->qualifyColumn('status'), 'active')->whereHas('producer', fn (Builder $producer) => $producer->published());
@@ -156,16 +190,19 @@ class Product extends Model
             ->with(['images:id,product_id,path,order', 'producer:id,name,city']);
     }
 
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /** @return HasMany<ProductImage, $this> */
     public function images(): HasMany
     {
         return $this->hasMany(ProductImage::class)->orderBy('order');
     }
 
+    /** @return MorphMany<Favorite, $this> */
     public function favorites(): MorphMany
     {
         return $this->morphMany(Favorite::class, 'favoritable');
@@ -175,6 +212,8 @@ class Product extends Model
      * Messages that were opened from this product's page. Together with
      * favourites these are the only real interest signals the platform
      * records - there is no order to count, by design.
+     *
+     * @return HasMany<ProducerMessage, $this>
      */
     public function inquiries(): HasMany
     {

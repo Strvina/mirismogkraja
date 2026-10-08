@@ -6,10 +6,24 @@ use App\Contracts\Payable;
 use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * A producer's place in a campaign. Paid by bank slip, so it waits for an
  * admin like a membership or a boost does.
+ *
+ * @property int $id
+ * @property int $campaign_id
+ * @property int $producer_id
+ * @property string $status
+ * @property string $reference
+ * @property int $amount_rsd
+ * @property int|null $confirmed_by
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Campaign|null $campaign
+ * @property-read Producer|null $producer
  */
 class CampaignParticipant extends Model implements Payable
 {
@@ -34,16 +48,19 @@ class CampaignParticipant extends Model implements Payable
         'confirmed_at',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return ['confirmed_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<Campaign, $this> */
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'producer_id');

@@ -6,7 +6,21 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int|null $user_id
+ * @property string $user_name
+ * @property string $action
+ * @property string $subject_type
+ * @property int $subject_id
+ * @property string|null $subject_label
+ * @property array<string, mixed>|null $changes
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
+ */
 class ActivityLog extends Model
 {
     use MassPrunable;
@@ -28,6 +42,7 @@ class ActivityLog extends Model
         'changes',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -35,6 +50,7 @@ class ActivityLog extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
