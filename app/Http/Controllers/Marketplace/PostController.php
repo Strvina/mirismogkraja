@@ -16,8 +16,6 @@ class PostController extends Controller
 {
     public function index(Request $request): Response
     {
-        abort_if($request->integer('page') > ProductController::MAX_PAGE, 404);
-
         $type = Post::TYPE_FILTERS[$request->string('vrsta')->toString()] ?? null;
         // "Sve priče ovog proizvođača", from the producer's page.
         $producer = $request->filled('proizvodjac')

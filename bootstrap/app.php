@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserIsNotBlocked;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RefuseDeepPages;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\ThrottlePerRoute;
@@ -43,6 +44,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             // Each throttled route keeps its own count (see ThrottlePerRoute).
             'throttle' => ThrottlePerRoute::class,
+            // On the public lists: no page past the few hundredth.
+            'deep-pages' => RefuseDeepPages::class,
             'role' => RoleMiddleware::class,
             'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,

@@ -39,8 +39,6 @@ class ProducerController extends Controller
      */
     public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
     {
-        abort_if($request->integer('page') > ProductController::MAX_PAGE, 404);
-
         $city = $request->string('city')->toString();
         $search = Search::clean($request->string('q')->toString());
 

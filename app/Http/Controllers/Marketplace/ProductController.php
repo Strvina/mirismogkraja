@@ -18,6 +18,7 @@ use App\Services\SearchMisses;
 use App\Support\Media;
 use App\Support\PageMeta;
 use App\Support\Price;
+use App\Support\ProductCards;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -32,12 +33,6 @@ class ProductController extends Controller
 {
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
-
-    /**
-     * Deeper than this a list is not being read, only crawled - and an
-     * OFFSET that deep makes the database walk every row before it.
-     */
-    public const MAX_PAGE = 500;
 
     /** How long the filter choices (categories, producers, cities, prices) are kept. */
     private const FILTERS_SECONDS = 600;
@@ -74,8 +69,6 @@ class ProductController extends Controller
 
     private function listing(Request $request, BoostService $boosts, SearchMisses $misses, Places $places, ?Category $category = null, ?CategoryPrices $prices = null): Response
     {
-        abort_if($request->integer('page') > self::MAX_PAGE, 404);
-
         $sort = $request->string('sort')->toString();
         $search = Search::clean($request->string('q')->toString());
 
@@ -122,14 +115,7 @@ class ProductController extends Controller
 
         $choices = $this->filterChoices();
 
-        $favoritedIds = $request->user()?->favorites()
-            ->where('favoritable_type', 'product')
-            ->pluck('favoritable_id') ?? collect();
-
-        $card = fn (Product $product) => [
-            ...$product->toArray(),
-            'is_favorited' => $favoritedIds->contains($product->id),
-        ];
+        $card = ProductCards::for($request->user());
 
         $name = $category ? __($category->name) : null;
         $parent = $category?->parent;
