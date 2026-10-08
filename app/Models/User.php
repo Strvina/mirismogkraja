@@ -45,7 +45,6 @@ class User extends Authenticatable implements HasLocalePreference, MustVerifyEma
         'city',
         'lat',
         'lng',
-        'blocked_at',
         'notify_messages_by_email',
         'notify_weekly_digest',
     ];

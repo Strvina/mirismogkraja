@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->group(function () {
     Route::get('/obavestenja', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/obavestenja/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
-    Route::post('/obavestenja/procitano', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::post('/obavestenja/procitano', [NotificationController::class, 'readAll'])->middleware('throttle:30,1')->name('notifications.read-all');
 });
 
 // From the link in an e-mail the site sends on its own; signed, so no sign-in needed.

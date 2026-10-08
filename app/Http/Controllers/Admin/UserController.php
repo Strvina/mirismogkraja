@@ -81,7 +81,7 @@ class UserController extends Controller
             throw ValidationException::withMessages(['user' => __('Ne možeš blokirati sopstveni nalog.')]);
         }
 
-        $user->update(['blocked_at' => $user->isBlocked() ? null : now()]);
+        $user->forceFill(['blocked_at' => $user->isBlocked() ? null : now()])->save();
 
         return back();
     }

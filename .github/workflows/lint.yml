@@ -38,6 +38,12 @@ jobs:
       - name: Pint
         run: vendor/bin/pint --test
 
+      # A misspelled class, method or variable on a path no test walks.
+      - name: PHPStan
+        run: |
+          cp .env.example .env
+          vendor/bin/phpstan analyse --memory-limit=1G --no-progress
+
       - name: Prettier
         run: npm run format:check
 

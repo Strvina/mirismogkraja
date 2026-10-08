@@ -47,6 +47,12 @@ rmSync(database, { force: true });
 closeSync(openSync(database, 'w'));
 rmSync(path.join(root, 'storage', 'logs', 'mail.log'), { force: true });
 
+// The database is new on every run, and what the site remembers beside it
+// has to be as well: the daily limits are counted in the cache, by ids that
+// are the same in every fresh database - so the twentieth run of a day
+// found the demo producer "over its limit" and could not even seed.
+spawnSync(php, ['artisan', 'cache:clear'], { cwd: root, env, stdio: 'inherit' });
+
 const seeded = spawnSync(php, ['artisan', 'migrate:fresh', '--seed', '--force'], { cwd: root, env, stdio: 'inherit' });
 
 if (seeded.status !== 0) {

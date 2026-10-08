@@ -20,8 +20,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // sides together; the old address still leads there.
     Route::redirect('/poruke-proizvodjaca', '/poruke')->name('messages.inbox');
     Route::get('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'show'])->withTrashed()->name('messages.thread');
-    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/blokada', [ConversationController::class, 'toggleBlock'])->withTrashed()->name('messages.block');
-    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/ishod', [ConversationController::class, 'setOutcome'])->withTrashed()->name('messages.outcome');
+    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/blokada', [ConversationController::class, 'toggleBlock'])->withTrashed()->middleware('throttle:30,1')->name('messages.block');
+    Route::patch('/poruke-proizvodjaca/{producer}/{buyer}/ishod', [ConversationController::class, 'setOutcome'])->withTrashed()->middleware('throttle:30,1')->name('messages.outcome');
     Route::post('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')
         ->withTrashed()->name('messages.thread.store');

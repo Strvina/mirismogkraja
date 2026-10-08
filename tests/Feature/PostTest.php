@@ -59,7 +59,8 @@ class PostTest extends TestCase
             'body' => $this->body(),
             'excerpt' => Post::excerptFrom($this->body()),
             'status' => 'published',
-            ...$attributes,
+            // The date is set below: it is not something a form may send.
+            ...collect($attributes)->except('published_at'),
         ]);
 
         $post->forceFill(['published_at' => $attributes['published_at'] ?? ($post->status === 'draft' ? null : now())])->save();

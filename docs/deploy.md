@@ -126,6 +126,8 @@ sudo certbot --nginx -d vasdomen.rs -d www.vasdomen.rs      # besplatan HTTPS, s
 
 Sajt mora da radi preko HTTPS-a, jer kolačići sesije na produkciji idu samo preko HTTPS-a.
 
+**Ako je ispred servera Cloudflare (narandžasti oblak) ili neki drugi proxy:** u `.env` upišite `TRUSTED_PROXIES=*`, pa `php artisan optimize`. Bez toga sajt svakog posetioca vidi kao istu adresu (svi dele jedno ograničenje broja zahteva) i misli da ga čitaju preko običnog HTTP-a. Ako nginx sam gleda ka internetu, kao u ovom uputstvu, ostavite prazno.
+
 ## 5. Zakazani poslovi (cron)
 
 Bez cron-a se ne dešava sledeće: članarine i isticanja ne ističu, mejlovi o porukama i „Javi mi kad

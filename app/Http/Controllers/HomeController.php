@@ -207,8 +207,8 @@ class HomeController extends Controller
             ->orderByDesc('inquiries_count')
             ->latest()
             ->take(10)
-            ->get(['id'])
-            ->modelKeys());
+            ->pluck('id')
+            ->all());
     }
 
     /**
@@ -240,8 +240,8 @@ class HomeController extends Controller
             ->seasonal()
             ->latest()
             ->take(10)
-            ->get(['id'])
-            ->modelKeys());
+            ->pluck('id')
+            ->all());
     }
 
     /**
