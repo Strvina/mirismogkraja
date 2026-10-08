@@ -101,6 +101,9 @@ class MessageInboxController extends Controller
             ->get()
             ->keyBy('id');
 
+        // Every id asked for above was just read from the same table; a
+        // key that is not there throws, it does not come back as null.
+        /** @var LengthAwarePaginator<int, array{message: ProducerMessage, unread: int}> */
         return $aggregates->through(fn ($row) => [
             'message' => $messages[$row->last_message_id],
             // SQLite hands sum() back as a string.

@@ -10,6 +10,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property int $producer_id
+ * @property int $rating
+ * @property string|null $comment
+ * @property string|null $image_path
+ * @property string $status
+ * @property Carbon|null $approved_at
+ * @property string|null $reply
+ * @property Carbon|null $replied_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
+ * @property-read Producer|null $producer
+ */
 class Review extends Model
 {
     /** @use HasFactory<ReviewFactory> */
@@ -34,6 +50,7 @@ class Review extends Model
         'approved_at',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -42,12 +59,14 @@ class Review extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         // A deleted account's published review stays, under its anonymised name.
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'producer_id');

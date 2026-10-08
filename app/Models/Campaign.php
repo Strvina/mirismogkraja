@@ -4,12 +4,26 @@ namespace App\Models;
 
 use App\Models\Concerns\KeepsOldSlugs;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * A seasonal campaign: a themed page and a homepage banner for
  * its dates, with the producers who paid to join.
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $description
+ * @property Carbon $starts_on
+ * @property Carbon $ends_on
+ * @property int $price_rsd
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, CampaignParticipant> $participants
  */
 class Campaign extends Model
 {
@@ -25,6 +39,7 @@ class Campaign extends Model
         'is_active',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -34,6 +49,7 @@ class Campaign extends Model
         ];
     }
 
+    /** @return HasMany<CampaignParticipant, $this> */
     public function participants(): HasMany
     {
         return $this->hasMany(CampaignParticipant::class);

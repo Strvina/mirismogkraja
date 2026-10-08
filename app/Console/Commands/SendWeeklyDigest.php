@@ -22,6 +22,9 @@ use Throwable;
  * is the request to hear from them - and never an empty mail. What is new
  * is read once for everyone, not per person: two queries for the week, then
  * each reader's part is picked out of it.
+ *
+ * @phpstan-type NewsItem array{name: string, url: string, at: int}
+ * @phpstan-type ProducerNews array{name: string, url: string, products: array<int, NewsItem>, posts: array<int, NewsItem>}
  */
 class SendWeeklyDigest extends Command
 {
@@ -74,7 +77,7 @@ class SendWeeklyDigest extends Command
         return self::SUCCESS;
     }
 
-    /** @param  Collection<int, array<string, mixed>>  $news */
+    /** @param  Collection<array-key, ProducerNews>  $news */
     private function mail(User $user, Collection $news): bool
     {
         // Only what they have not been told: someone mailed on Saturday is
@@ -118,7 +121,7 @@ class SendWeeklyDigest extends Command
      * item with when ("at"). Only what is public now: a product hidden since
      * is not news.
      *
-     * @return Collection<int, array{name: string, url: string, products: list<array{name: string, url: string, at: int}>, posts: list<array{name: string, url: string, at: int}>}>
+     * @return Collection<array-key, ProducerNews>
      */
     private function news(): Collection
     {

@@ -16,7 +16,6 @@ use App\Models\Report;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -111,7 +110,7 @@ class DashboardController extends Controller
      * All-time and this month's confirmed income from one kind of payment,
      * in a single query.
      *
-     * @param  Builder<Model>  $payments
+     * @param  Builder<ProducerSubscription>|Builder<Boost>|Builder<CampaignParticipant>  $payments
      * @return array{total: int, month: int}
      */
     private function earned(Builder $payments): array

@@ -111,12 +111,6 @@ class ProducerController extends Controller
     }
 
     /**
-     * Published producers, in the city if one is chosen, with what their
-     * card shows.
-     *
-     * @return Builder<Producer>
-     */
-    /**
      * The visitor's position for "near me", rounded to about a kilometre -
      * close enough to sort by, and all that ends up in the address bar.
      *
@@ -139,7 +133,9 @@ class ProducerController extends Controller
      * longitude shrunk by the cosine of the latitude - is exact enough for
      * ordering within a country, and is plain arithmetic any database runs.
      *
+     * @param  Builder<Producer>  $query
      * @param  array{lat: float, lng: float}  $near
+     * @return Builder<Producer>
      */
     private function orderByDistance(Builder $query, array $near): Builder
     {
@@ -168,6 +164,12 @@ class ProducerController extends Controller
         return (int) round(6371 * 2 * asin(min(1, sqrt($a))));
     }
 
+    /**
+     * Published producers, in the city if one is chosen, with what their
+     * card shows.
+     *
+     * @return Builder<Producer>
+     */
     private function cards(string $city, string $search = ''): Builder
     {
         return Producer::published()

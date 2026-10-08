@@ -6,6 +6,7 @@ use App\Models\ProducerMessage;
 use App\Models\User;
 use App\Notifications\UnreadMessages;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Throwable;
 
@@ -59,7 +60,10 @@ class EmailUnreadMessages extends Command
         return self::SUCCESS;
     }
 
-    /** @param  Collection<int, ProducerMessage>  $group */
+    /**
+     * @param  EloquentCollection<int, ProducerMessage>  $group
+     * @param  Collection<array-key, User>  $buyers
+     */
     private function mail(Collection $group, Collection $buyers): bool
     {
         $latest = $group->last();

@@ -60,6 +60,9 @@ class SearchMisses
      */
     public function top(int $days = 30, int $limit = 50, int $atLeast = 1): Collection
     {
+        // Rows of a base query are plain objects, so their columns have no
+        // type the analyser could read.
+        /** @var Collection<int, array{term: string, total: int, last_on: string}> */
         return DB::table('search_misses')
             ->where('date', '>=', now()->subDays($days - 1)->toDateString())
             ->selectRaw('term, sum(hits) as total, max(date) as last_on')

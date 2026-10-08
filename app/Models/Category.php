@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection as SupportCollection;
 
 /**
@@ -16,6 +17,18 @@ use Illuminate\Support\Collection as SupportCollection;
  * "Ajvar". A product is filed under either - the general one when no
  * subcategory fits - and a category's page lists its subcategories' products
  * along with its own.
+ *
+ * @property int $id
+ * @property int|null $parent_id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $search_name
+ * @property string|null $intro
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Category|null $parent
+ * @property-read Collection<int, Category> $children
+ * @property-read Collection<int, Product> $products
  */
 class Category extends Model
 {
@@ -30,16 +43,19 @@ class Category extends Model
         'intro',
     ];
 
+    /** @return BelongsTo<Category, $this> */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'parent_id');
     }
 
+    /** @return HasMany<Category, $this> */
     public function children(): HasMany
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
 
+    /** @return HasMany<Product, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);
@@ -96,7 +112,7 @@ class Category extends Model
      * keeping the order they came in otherwise. A subcategory whose parent
      * is not among them stays where a top-level one would be.
      *
-     * @param  Collection<int, Category>  $categories
+     * @param  Collection<int, covariant Category>  $categories
      * @return SupportCollection<int, Category>
      */
     public static function inTreeOrder(Collection $categories): SupportCollection

@@ -10,6 +10,16 @@ use Illuminate\Support\Carbon;
 /**
  * One week's "Proizvođač nedelje". A week is identified by its
  * Monday, and has at most one pick.
+ *
+ * @property int $id
+ * @property int $producer_id
+ * @property int|null $product_id
+ * @property Carbon $starts_on
+ * @property int|null $created_by
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $producer
+ * @property-read Product|null $product
  */
 class WeeklyPick extends Model
 {
@@ -23,17 +33,20 @@ class WeeklyPick extends Model
         'created_by',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         // Sent to the page as a bare date: it names a week, not a moment.
         return ['starts_on' => 'date:Y-m-d'];
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'producer_id');
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);

@@ -4,15 +4,32 @@ namespace App\Models;
 
 use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 /**
  * "Tražim": what a buyer is looking for, written so that producers can
  * answer. The reverse of a product page - there the producer offers and the
  * buyer asks; here the buyer asks first.
+ *
+ * @property int $id
+ * @property int $user_id
+ * @property int|null $category_id
+ * @property string $title
+ * @property string $body
+ * @property string|null $quantity
+ * @property string|null $city
+ * @property string $status
+ * @property Carbon $expires_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
+ * @property-read Category|null $category
+ * @property-read Collection<int, WantedAdResponse> $responses
  */
 class WantedAd extends Model
 {
@@ -39,21 +56,25 @@ class WantedAd extends Model
 
     protected $fillable = ['category_id', 'title', 'body', 'quantity', 'city', 'status', 'expires_at'];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return ['expires_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Category, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
     }
 
+    /** @return HasMany<WantedAdResponse, $this> */
     public function responses(): HasMany
     {
         return $this->hasMany(WantedAdResponse::class);

@@ -8,11 +8,30 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
 /**
  * A paid boost: a producer's profile, or one of their products,
  * in the labelled "Istaknuto" row for a number of days. Paid by bank slip,
  * so it waits for an admin like a membership does.
+ *
+ * @property int $id
+ * @property int $producer_id
+ * @property string $boostable_type
+ * @property int $boostable_id
+ * @property string $status
+ * @property string $reference
+ * @property int $amount_rsd
+ * @property int $days
+ * @property Carbon|null $starts_at
+ * @property Carbon|null $ends_at
+ * @property int|null $confirmed_by
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $ending_warned_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $producer
+ * @property-read Producer|Product|null $boostable
  */
 class Boost extends Model implements Payable
 {
@@ -49,6 +68,7 @@ class Boost extends Model implements Payable
         'confirmed_at',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -59,11 +79,13 @@ class Boost extends Model implements Payable
         ];
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'producer_id');
     }
 
+    /** @return MorphTo<Model, $this> */
     public function boostable(): MorphTo
     {
         return $this->morphTo();
