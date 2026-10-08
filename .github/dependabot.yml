@@ -1,0 +1,62 @@
+# Dependency updates as pull requests against master, once a week.
+#
+# Minor and patch releases of one package manager arrive together, as a
+# single pull request. A new major version comes on its own, because it
+# usually needs changes in the code. No more than five pull requests per
+# package manager are open at a time; the rest wait until one is closed.
+
+version: 2
+
+updates:
+  - package-ecosystem: composer
+    directory: /
+    target-branch: master
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Belgrade
+    open-pull-requests-limit: 5
+    # composer.json is rewritten only when its constraint does not allow
+    # the new version; otherwise the pull request changes the lock file alone.
+    versioning-strategy: increase-if-necessary
+    # A release has to be a week old: one that was published by mistake or
+    # with malicious code is usually withdrawn within days.
+    cooldown:
+      default-days: 7
+    groups:
+      php:
+        patterns: ['*']
+        update-types: [minor, patch]
+
+  - package-ecosystem: npm
+    directory: /
+    target-branch: master
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Belgrade
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    cooldown:
+      default-days: 7
+    groups:
+      javascript:
+        patterns: ['*']
+        update-types: [minor, patch]
+
+  # The actions the workflows in .github/workflows run. There are few of
+  # them, so every update goes into one pull request.
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: master
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Belgrade
+    open-pull-requests-limit: 2
+    groups:
+      actions:
+        patterns: ['*']
