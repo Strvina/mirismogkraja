@@ -3,6 +3,7 @@
  * Ziggy, the missing pieces of the browser, and a clean slate after each
  * test.
  */
+import { answer } from '@/lib/confirm';
 import { loadLocale } from '@/lib/i18n';
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
@@ -25,6 +26,11 @@ vi.mock('@inertiajs/react', async () => {
 Object.assign(globalThis, { route });
 installBrowser();
 
+// Testing Library waits on a real timer after every user action and inside
+// waitFor(); under fake timers it moves the clock itself, but only through a
+// global called `jest`. Without this a click under vi.useFakeTimers() hangs.
+Object.assign(globalThis, { jest: { advanceTimersByTime: (ms: number) => vi.advanceTimersByTime(ms) } });
+
 let consoleError: MockInstance<typeof console.error>;
 
 beforeEach(() => {
@@ -36,6 +42,8 @@ beforeEach(() => {
 
 afterEach(async () => {
     cleanup();
+    // A question left open would greet the next test's dialog host.
+    answer(false);
 
     const reported = consoleError.mock.calls.map((call) => call.map(String).join(' '));
 

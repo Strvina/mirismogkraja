@@ -28,8 +28,9 @@ export default defineConfig({
         // Only this tree: the browser tests in e2e/ belong to Playwright.
         include: ['resources/js/__tests__/**/*.test.{ts,tsx}'],
         setupFiles: ['resources/js/__tests__/support/setup.ts'],
-        // Dates are shown in the reader's own time zone, so the tests fix one.
-        env: { TZ: 'Europe/Belgrade' },
+        // Dates are shown in the reader's own time zone, so the tests fix one;
+        // and the site's name comes from a .env file a CI runner does not have.
+        env: { TZ: 'Europe/Belgrade', VITE_APP_NAME: 'Vrelina juga' },
         restoreMocks: true,
     },
 });
