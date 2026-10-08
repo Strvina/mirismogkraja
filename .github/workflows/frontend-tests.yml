@@ -1,0 +1,34 @@
+name: frontend-tests
+
+on:
+  push:
+    branches:
+      - master
+  # Every pull request, whatever its base: work is reviewed on integration
+  # branches before it reaches master.
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # The React code on its own (resources/js/__tests__, Vitest): forms, filters,
+  # the message thread and the helpers, with no PHP and no browser.
+  vitest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Tests
+        run: npm test
