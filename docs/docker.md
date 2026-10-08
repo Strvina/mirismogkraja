@@ -5,7 +5,7 @@ The whole site on one machine with one command: nginx, PHP-FPM, MySQL, Redis, a 
 ## Requirements
 
 - Docker with Compose v2 or newer: Docker Desktop on Windows and macOS, or Docker Engine with the Compose plugin on Linux. `docker compose version` shows whether it is there.
-- About 2 GB of free memory and 2 GB of disk space.
+- About 2 GB of free memory and 3 GB of disk space (the two images of the site are about 600 MB together, MySQL and Redis come on top, and so does what the build keeps for the next time).
 - Port 8080 free on the machine. Another port can be chosen, see [Settings](#settings).
 
 Nothing else has to be installed: no PHP, Node, MySQL or Redis, and no `.env` has to be made.
@@ -18,7 +18,7 @@ From the project folder:
 docker compose up -d --build
 ```
 
-The first run builds the images, which takes a few minutes, then creates the tables and fills them with the demo content. When the command returns, the site is at **http://localhost:8080**.
+The first run builds the images, then creates the tables and fills them with the demo content. On CI all of it takes about three minutes; a slow connection or machine makes it longer. When the command returns, the site is at **http://localhost:8080**.
 
 The same command is used after every change to the code or to the settings: it rebuilds what changed and restarts the containers. Data is kept.
 
@@ -82,7 +82,9 @@ The PHP test suite runs in a container, on its own in-memory SQLite database, ex
 docker compose exec app php artisan test
 ```
 
-It does not touch the stack's MySQL or Redis. This holds because the application reads its settings from a `.env` file inside the container and not from the container's environment: `phpunit.xml` takes precedence over a file, but not over real environment variables. For the same reason, do not run `php artisan config:cache` or `php artisan optimize` in the stack: with a cached configuration the tests would use MySQL and empty it.
+The image has GD, so the thumbnail tests that are skipped on a PHP without it run here.
+
+The suite does not touch the stack's MySQL or Redis. This holds because the application reads its settings from a `.env` file inside the container and not from the container's environment: `phpunit.xml` takes precedence over a file, but not over real environment variables. For the same reason, do not run `php artisan config:cache` or `php artisan optimize` in the stack: with a cached configuration the tests would use MySQL and empty it.
 
 The browser tests (Playwright) and the code style checks need Node and are run on the machine, as described in the README.
 
