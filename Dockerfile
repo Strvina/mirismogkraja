@@ -14,8 +14,11 @@ FROM php:${PHP_VERSION}-fpm-alpine AS runtime
 
 # The libraries stay; the compilers and headers that build the extensions
 # are removed in the same layer, so they never reach the image.
-#   icu-data-full   Alpine ships English only, and the site is Serbian
-#   mariadb-client  the nightly backup:database command shells out to it
+#   icu-data-full        Alpine ships English only, and the site is Serbian
+#   mariadb-client       the nightly backup:database command shells out to it
+#   mariadb-connector-c  has the client's part of MySQL 8's way of checking
+#                        a password (caching_sha2_password), which Alpine
+#                        does not install along with the client
 RUN apk add --no-cache \
         freetype \
         icu-data-full \
@@ -25,6 +28,7 @@ RUN apk add --no-cache \
         libwebp \
         libzip \
         mariadb-client \
+        mariadb-connector-c \
     && apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         freetype-dev \
