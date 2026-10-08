@@ -58,10 +58,16 @@ WORKDIR /var/www/html
 # The secret is optional (docker-compose.yml takes it from COMPOSER_AUTH).
 # GitHub limits downloads from addresses many people share, such as CI's;
 # with a token Composer is let through, and a secret, unlike a build
-# argument, is not kept in the image.
+# argument, is not kept in the image. Normally there is none, and Composer
+# is then not given the variable at all, rather than an empty one.
+#
+# What Composer downloads is kept between builds, outside the image.
 COPY composer.json composer.lock ./
-RUN --mount=type=secret,id=composer_auth,env=COMPOSER_AUTH \
-    composer install --no-interaction --no-progress --prefer-dist --no-scripts --no-autoloader
+RUN --mount=type=secret,id=composer_auth \
+    --mount=type=cache,target=/tmp/composer-cache \
+    if [ -s /run/secrets/composer_auth ]; then export COMPOSER_AUTH="$(cat /run/secrets/composer_auth)"; fi \
+    && COMPOSER_CACHE_DIR=/tmp/composer-cache \
+        composer install --no-interaction --no-progress --prefer-dist --no-scripts --no-autoloader
 
 COPY . .
 

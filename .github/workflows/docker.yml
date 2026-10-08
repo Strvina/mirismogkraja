@@ -61,10 +61,14 @@ jobs:
         run: bash docker/smoke-test.sh
 
       # Stopped and started again on the same volumes: the entrypoint must
-      # recognise a database that is already filled, and keep the key. This
-      # time without the token, as on anyone's own machine - the build has
-      # to accept that the secret is not there.
-      - name: Second Start Keeps the Data
+      # recognise a database that is already filled, and keep the key.
+      #
+      # This time exactly as on anyone's own machine: COMPOSER_AUTH is not
+      # set, and the secret behind it is therefore not there. A build that
+      # only reused its layers would never ask for the secret, so one byte
+      # is added to composer.json: the dependencies are installed again,
+      # from what Composer kept of the first build.
+      - name: Second Start Keeps the Data, Without the Composer Token
         run: |
           state() {
             docker compose exec -T app php artisan tinker --execute='echo "users:", App\Models\User::count(), " producers:", App\Models\Producer::count();'
@@ -75,7 +79,11 @@ jobs:
           echo "$before"
 
           docker compose down
-          docker compose up -d --build --wait --wait-timeout 300
+
+          echo >> composer.json
+          set -o pipefail
+          env -u COMPOSER_AUTH docker compose up -d --build --wait --wait-timeout 300 2>&1 | tee build.log
+          grep -q 'Installing laravel/framework' build.log || { echo "The dependencies were not installed again." >&2; exit 1; }
 
           after=$(state)
           echo "$after"
