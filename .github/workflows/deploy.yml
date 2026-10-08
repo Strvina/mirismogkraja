@@ -1,0 +1,174 @@
+name: deploy
+
+# Puts master on the server once its checks are green, by running
+# deploy/deploy.sh there over SSH.
+#
+# Switched off until the repository variable DEPLOY_ENABLED is "true": with
+# no server and no secrets yet, every run ends as skipped, not as failed.
+
+on:
+  # Started by the end of a `tests` run, from the copy of this file on
+  # master - so a pull request can neither change what runs here nor reach
+  # the secrets.
+  workflow_run:
+    workflows: [tests]
+    types: [completed]
+    branches: [master]
+  # The "Run workflow" button, to repeat a deployment by hand. It passes the
+  # same checks as an automatic one.
+  workflow_dispatch:
+
+permissions: {}
+
+# One deployment at a time. A second one waits for the first to finish; of
+# several waiting, only the newest is kept.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # Decides whether this commit may go live. Has no secrets and does not
+  # touch the server.
+  verify:
+    # `branches` above matches a fork's branch called master too, so the
+    # event that started the tests and the repository they ran in are
+    # checked here.
+    if: >-
+      vars.DEPLOY_ENABLED == 'true' && (
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master') ||
+      (github.event_name == 'workflow_run' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'master' &&
+      github.event.workflow_run.head_repository.full_name == github.repository)
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+    outputs:
+      deploy: ${{ steps.checks.outputs.deploy }}
+      sha: ${{ steps.checks.outputs.sha }}
+
+    steps:
+      # The event only says that `tests` ended. Both workflows are looked up
+      # for this exact commit, so a green test run next to a failed linter
+      # deploys nothing, and neither does a commit pushed with "skip ci".
+      - name: Checks of this commit
+        id: checks
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          result_of() {
+            gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/$1/runs" \
+              -f head_sha="$DEPLOY_SHA" -f branch=master -f event=push -F per_page=100 \
+              --jq '.workflow_runs | sort_by(.created_at) | last
+                | if . == null then "missing" elif .status == "completed" then .conclusion else "running" end'
+          }
+
+          echo "sha=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
+          deadline=$((SECONDS + 900))
+
+          for workflow in tests.yml lint.yml; do
+            result=$(result_of "$workflow")
+
+            # The linter is normally done long before the tests; this is
+            # for the day it is not.
+            while [[ "$result" == running ]]; do
+              if (( SECONDS >= deadline )); then
+                echo "::error::$workflow is still running for $DEPLOY_SHA after 15 minutes. Run this workflow again when it has finished."
+                exit 1
+              fi
+              sleep 20
+              result=$(result_of "$workflow")
+            done
+
+            if [[ "$result" != success ]]; then
+              echo "::warning::Not deployed: $workflow is '$result' for $DEPLOY_SHA."
+              echo "deploy=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "deploy=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: verify
+    if: needs.verify.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions: {}
+    # The secrets live in this environment; required reviewers can be added
+    # to it later without changing this file.
+    environment:
+      name: production
+      url: ${{ vars.DEPLOY_URL }}
+    env:
+      DEPLOY_SHA: ${{ needs.verify.outputs.sha }}
+
+    steps:
+      - name: SSH key and the server's host key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          : "${DEPLOY_SSH_KEY:?The secret DEPLOY_SSH_KEY is not set}"
+          : "${DEPLOY_KNOWN_HOSTS:?The secret DEPLOY_KNOWN_HOSTS is not set}"
+
+          umask 077
+          mkdir -p ~/.ssh
+          # A value pasted on Windows carries carriage returns, and ssh
+          # rejects a key that has them.
+          printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" | tr -d '\r' > ~/.ssh/deploy_known_hosts
+
+      # The server is trusted only by the host key stored in the secret: an
+      # unknown or changed key ends the run instead of being accepted.
+      - name: Deploy
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          : "${DEPLOY_HOST:?The secret DEPLOY_HOST is not set}"
+          : "${DEPLOY_PORT:?The secret DEPLOY_PORT is not set}"
+          : "${DEPLOY_USER:?The secret DEPLOY_USER is not set}"
+          : "${DEPLOY_PATH:?The secret DEPLOY_PATH is not set}"
+
+          ssh -T -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/deploy_known_hosts" \
+            -o GlobalKnownHostsFile=/dev/null \
+            -o ConnectTimeout=20 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=4 \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            "$(printf '%q/deploy/deploy.sh %q' "$DEPLOY_PATH" "$DEPLOY_SHA")" < /dev/null
+
+      # The script can end well and the site still be down (a full disk, a
+      # stopped PHP), so the answer is asked from outside, as a visitor
+      # would get it.
+      - name: Health check
+        env:
+          DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+        run: |
+          : "${DEPLOY_URL:?The variable DEPLOY_URL is not set}"
+          url="${DEPLOY_URL%/}/up"
+
+          for attempt in {1..10}; do
+            status=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 "$url" || true)
+            if [[ "$status" == 200 ]]; then
+              echo "$url answered 200."
+              echo "Deployed \`${DEPLOY_SHA:0:7}\` to $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Attempt $attempt: $url answered $status."
+            sleep 6
+          done
+
+          echo "::error::The site did not come back: $url answered $status instead of 200. On the server, look in storage/logs and run deploy/deploy.sh again."
+          exit 1
