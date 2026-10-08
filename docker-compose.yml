@@ -13,6 +13,8 @@ x-php: &php
     build:
         context: .
         target: app
+        secrets:
+            - composer_auth
     image: vrelina-juga/app
     restart: unless-stopped
     environment:
@@ -27,6 +29,9 @@ services:
         build:
             context: .
             target: web
+            # Its public/ comes out of the app image, so it builds that too.
+            secrets:
+                - composer_auth
         image: vrelina-juga/web
         restart: unless-stopped
         ports:
@@ -128,6 +133,13 @@ services:
             timeout: 3s
             retries: 5
             start_period: 30s
+
+secrets:
+    # For the build only, and optional: a GitHub token for Composer, in the
+    # form Composer itself reads from COMPOSER_AUTH. Needed where GitHub
+    # limits anonymous downloads, as it does for CI (docs/docker.md).
+    composer_auth:
+        environment: COMPOSER_AUTH
 
 volumes:
     # Uploads, logs, backups and the application key.

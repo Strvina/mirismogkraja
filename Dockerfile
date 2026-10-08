@@ -50,8 +50,14 @@ WORKDIR /var/www/html
 
 # The two files alone first: the download is then repeated only when the
 # dependencies change, not on every change to the code.
+#
+# The secret is optional (docker-compose.yml takes it from COMPOSER_AUTH).
+# GitHub limits downloads from addresses many people share, such as CI's;
+# with a token Composer is let through, and a secret, unlike a build
+# argument, is not kept in the image.
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --no-progress --prefer-dist --no-scripts --no-autoloader
+RUN --mount=type=secret,id=composer_auth,env=COMPOSER_AUTH \
+    composer install --no-interaction --no-progress --prefer-dist --no-scripts --no-autoloader
 
 COPY . .
 

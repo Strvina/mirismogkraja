@@ -43,7 +43,13 @@ jobs:
 
       # The documented command. --wait only adds that the step ends when
       # every container is running and, where it has a check, healthy.
+      #
+      # The token is for Composer: GitHub answers 429 to anonymous downloads
+      # from the runners' shared addresses. It reaches the build as a
+      # secret and is in no image.
       - name: Build and Start
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ github.token }}"}}'
         run: docker compose up -d --build --wait --wait-timeout 600
 
       - name: Containers and Images
@@ -55,7 +61,9 @@ jobs:
         run: bash docker/smoke-test.sh
 
       # Stopped and started again on the same volumes: the entrypoint must
-      # recognise a database that is already filled, and keep the key.
+      # recognise a database that is already filled, and keep the key. This
+      # time without the token, as on anyone's own machine - the build has
+      # to accept that the secret is not there.
       - name: Second Start Keeps the Data
         run: |
           state() {
@@ -67,7 +75,7 @@ jobs:
           echo "$before"
 
           docker compose down
-          docker compose up -d --wait --wait-timeout 300
+          docker compose up -d --build --wait --wait-timeout 300
 
           after=$(state)
           echo "$after"
