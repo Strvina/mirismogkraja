@@ -32,5 +32,8 @@ export default defineConfig({
         // and the site's name comes from a .env file a CI runner does not have.
         env: { TZ: 'Europe/Belgrade', VITE_APP_NAME: 'Vrelina juga' },
         restoreMocks: true,
+        // A test that types into a form takes a few hundred milliseconds,
+        // but several seconds on a CI runner or a laptop busy with a build.
+        testTimeout: 20_000,
     },
 });

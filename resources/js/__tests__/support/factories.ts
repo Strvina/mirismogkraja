@@ -7,6 +7,7 @@ import { type ProducerCardProducer } from '@/components/marketplace/producer-car
 import { type ProductCardProduct } from '@/components/marketplace/product-card';
 import { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import { type Message } from '@/components/messages/types';
+import { type PublicProducer } from '@/components/producer-page/types';
 import { type Category, type Producer, type Product, type User } from '@/types';
 
 let sequence = 0;
@@ -64,6 +65,32 @@ export function makeProducer(overrides: Partial<Producer> = {}): Producer {
         status: 'active',
         created_at: '2026-01-10T08:00:00Z',
         updated_at: '2026-01-10T08:00:00Z',
+        ...overrides,
+    };
+}
+
+/** The producer as their public page receives it. */
+export function makePublicProducer(overrides: Partial<PublicProducer> = {}): PublicProducer {
+    const { id, name, slug, founding_number, verified_at, description, story, address, city, contact_email, delivery_methods, lat, lng, ...rest } =
+        makeProducer();
+
+    return {
+        id,
+        name,
+        slug,
+        founding_number,
+        verified_at,
+        description,
+        story,
+        address,
+        city,
+        contact_email,
+        delivery_methods,
+        lat,
+        lng,
+        cover_image_path: rest.cover_image_path,
+        logo_path: rest.logo_path,
+        has_phone: false,
         ...overrides,
     };
 }

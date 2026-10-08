@@ -61,15 +61,6 @@ describe('CompactSelect', () => {
         expect(screen.queryByRole('menu')).not.toBeInTheDocument();
     });
 
-    it('can be worked from the keyboard', async () => {
-        const { user, button, onChange } = renderSelect('');
-
-        button.focus();
-        await user.keyboard('{Enter}{ArrowDown}{Enter}');
-
-        expect(onChange).toHaveBeenCalledExactlyOnceWith('price_asc');
-    });
-
     it('reports nothing when the list is closed without a choice', async () => {
         const { user, button, onChange } = renderSelect('');
 

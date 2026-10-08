@@ -16,9 +16,13 @@ export function renderOnPage(ui: ReactElement, page: Parameters<typeof setPage>[
     return { user: createUser(), ...render(ui) };
 }
 
-/** A user whose pauses between actions follow the test's clock when that clock is a fake one. */
+/**
+ * A user who does not pause between keystrokes: the pause is a timer per
+ * key, which on a busy machine turns a typed sentence into seconds - and,
+ * under a fake clock, into a wait for a timer nobody advances.
+ */
 export function createUser(): UserEvent {
-    return userEvent.setup({ advanceTimers: (ms) => (vi.isFakeTimers() ? vi.advanceTimersByTime(ms) : undefined) });
+    return userEvent.setup({ delay: null });
 }
 
 /**
