@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\Payable;
+use App\Models\Boost;
+use App\Models\CampaignParticipant;
+use App\Models\ProducerSubscription;
 use App\Support\PaidItems;
 use App\Support\Settings;
 
@@ -27,6 +30,7 @@ class PaymentSlipService
     public function __construct(private readonly Settings $settings) {}
 
     /**
+     * @param  ProducerSubscription|Boost|CampaignParticipant  $payable
      * @return array<string, string>
      */
     public function detailsFor(Payable $payable): array

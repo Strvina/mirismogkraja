@@ -112,7 +112,7 @@ class Category extends Model
      * keeping the order they came in otherwise. A subcategory whose parent
      * is not among them stays where a top-level one would be.
      *
-     * @param  Collection<int, Category>  $categories
+     * @param  Collection<int, covariant Category>  $categories
      * @return SupportCollection<int, Category>
      */
     public static function inTreeOrder(Collection $categories): SupportCollection

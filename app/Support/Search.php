@@ -37,8 +37,11 @@ final class Search
     /**
      * Narrows $query to rows matching every word of $input in any of $columns.
      *
-     * @param  Builder<Model>  $query
+     * @template TModel of Model
+     *
+     * @param  Builder<TModel>  $query
      * @param  list<string>  $columns  Exactly the columns of one FULLTEXT index.
+     * @return Builder<TModel>
      */
     public static function apply(Builder $query, array $columns, ?string $input): Builder
     {
@@ -66,8 +69,11 @@ final class Search
     /**
      * Best matches first, where the index can tell; otherwise unchanged.
      *
-     * @param  Builder<Model>  $query
+     * @template TModel of Model
+     *
+     * @param  Builder<TModel>  $query
      * @param  list<string>  $columns
+     * @return Builder<TModel>
      */
     public static function orderByRelevance(Builder $query, array $columns, ?string $input): Builder
     {

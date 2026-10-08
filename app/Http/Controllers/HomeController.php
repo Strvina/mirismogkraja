@@ -143,6 +143,9 @@ class HomeController extends Controller
      */
     private function categoryTags(Collection $producerIds): Collection
     {
+        // Rows of a base query are plain objects, so their columns have no
+        // type the analyser could read.
+        /** @var Collection<int, Collection<int, string>> */
         return Product::query()
             ->where('products.status', 'active')
             ->whereIn('producer_id', $producerIds)
@@ -158,7 +161,7 @@ class HomeController extends Controller
     /**
      * @param  Collection<int, Producer>  $producers
      * @param  Collection<int, Collection<int, string>>  $tags
-     * @return Collection<int, array<string, mixed>>
+     * @return Collection<int, covariant array<string, mixed>>
      */
     private function mapProducers(Collection $producers, Collection $tags): Collection
     {
