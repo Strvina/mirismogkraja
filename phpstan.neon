@@ -11,8 +11,8 @@ includes:
 # It can only do that because the models say what they are made of: every
 # model lists its columns and relations as @property tags (types from the
 # migrations and the casts) and every relation method names the model it
-# returns. A new column or relation needs its tag, or the first line that
-# reads it is reported.
+# returns. A new column or relation gets its tag in the same change as the
+# migration or the method that adds it.
 #
 # A relation to one model is typed nullable on purpose. It is null when the
 # foreign key was not selected or the row behind it is archived, and the
