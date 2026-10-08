@@ -1,0 +1,31 @@
+# What goes into the images is listed, not what is left out: a .env with
+# real passwords, a local database or an editor's folder lying next to the
+# code can then never end up in an image by accident. A new top-level folder
+# the application needs has to be added here.
+*
+
+!app
+!bootstrap
+!config
+!database
+!docker
+!lang
+!public
+!resources
+!routes
+!tests
+!artisan
+!composer.json
+!composer.lock
+!package.json
+!package-lock.json
+!phpunit.xml
+!tsconfig.json
+!vite.config.js
+
+# Made on this machine, not part of the code: the images make their own.
+bootstrap/cache/*
+database/*.sqlite*
+public/build
+public/hot
+public/storage

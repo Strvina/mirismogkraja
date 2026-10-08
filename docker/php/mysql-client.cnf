@@ -1,0 +1,8 @@
+# For the backup (php artisan backup:database), which runs mariadb-dump.
+#
+# The connection to the stack's MySQL is encrypted, but its certificate is
+# one MySQL made for itself on first start. The client refuses such a
+# certificate unless told otherwise - and the server is a container on the
+# same private network, reached by name.
+[client]
+skip-ssl-verify-server-cert
