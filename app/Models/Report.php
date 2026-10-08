@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Carbon;
 
 /**
  * Someone telling the site that something is wrong with a producer, a
@@ -15,6 +16,20 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * The platform never sees the deal itself, so this is the only channel
  * through which fraud, silence or abuse can reach an admin before it reaches
  * the public reviews.
+ *
+ * @property int $id
+ * @property int $reported_by
+ * @property string $reportable_type
+ * @property int $reportable_id
+ * @property string $reason
+ * @property string|null $message
+ * @property string $status
+ * @property int|null $reviewed_by
+ * @property Carbon|null $reviewed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|Product|Post|User|null $reportable
+ * @property-read User|null $reporter
  */
 class Report extends Model
 {
@@ -63,16 +78,19 @@ class Report extends Model
         'reviewed_at',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return ['reviewed_at' => 'datetime'];
     }
 
+    /** @return MorphTo<Model, $this> */
     public function reportable(): MorphTo
     {
         return $this->morphTo();
     }
 
+    /** @return BelongsTo<User, $this> */
     public function reporter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reported_by')->withTrashed();

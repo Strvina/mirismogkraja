@@ -15,6 +15,7 @@ use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Contracts\Provider;
 use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\InvalidStateException;
+use Laravel\Socialite\Two\User as GoogleUser;
 use Symfony\Component\HttpFoundation\RedirectResponse as SymfonyRedirect;
 use Throwable;
 
@@ -47,6 +48,7 @@ class GoogleController extends Controller
         abort_unless(GoogleAuthService::enabled(), 404);
 
         try {
+            /** @var GoogleUser $googleUser */
             $googleUser = $this->google()->user();
         } catch (Throwable $e) {
             // A state that does not match is a request that did not start

@@ -8,6 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $favoritable_type
+ * @property int $favoritable_id
+ * @property string $created_at
+ * @property-read User|null $user
+ * @property-read Producer|Product|null $favoritable
+ */
 class Favorite extends Model
 {
     /** @use HasFactory<FavoriteFactory> */
@@ -25,11 +34,13 @@ class Favorite extends Model
         'favoritable_type',
     ];
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return MorphTo<Model, $this> */
     public function favoritable(): MorphTo
     {
         return $this->morphTo();

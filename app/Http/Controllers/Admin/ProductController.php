@@ -75,6 +75,7 @@ class ProductController extends Controller
      */
     public function bulk(Request $request): RedirectResponse
     {
+        /** @var array{action: 'delete'|'status'|'category', ids: array<int, int|string>, status?: string, category_id?: int|string} $data */
         $data = $request->validate([
             'action' => ['required', Rule::in(['delete', 'status', 'category'])],
             // Capped because each row goes through the model one by one.

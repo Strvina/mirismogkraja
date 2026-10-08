@@ -6,9 +6,29 @@ use App\Models\Concerns\KeepsOldSlugs;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
-/** A story or a recipe written by a producer. */
+/**
+ * A story or a recipe written by a producer.
+ *
+ * @property int $id
+ * @property int $producer_id
+ * @property string $type
+ * @property string $title
+ * @property string $slug
+ * @property string|null $excerpt
+ * @property string $body
+ * @property string|null $ingredients
+ * @property string|null $cover_image_path
+ * @property int|null $product_id
+ * @property string $status
+ * @property Carbon|null $published_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $producer
+ * @property-read Product|null $product
+ */
 class Post extends Model
 {
     use KeepsOldSlugs;
@@ -53,16 +73,19 @@ class Post extends Model
 
     protected $fillable = ['type', 'title', 'slug', 'excerpt', 'body', 'ingredients', 'cover_image_path', 'product_id', 'status'];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return ['published_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class);
     }
 
+    /** @return BelongsTo<Product, $this> */
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
