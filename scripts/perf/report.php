@@ -68,27 +68,26 @@ printf(
 
 $group = null;
 
-foreach ($before['results'] as $key => $row) {
+// In the order of the later run: a page the first run could not finish is still a row.
+foreach (($after ?? $before)['results'] as $key => $latest) {
+    $row = $before['results'][$key] ?? null;
     $then = $after['results'][$key] ?? null;
 
-    if ($row['group'] !== $group) {
-        $group = $row['group'];
+    if ($latest['group'] !== $group) {
+        $group = $latest['group'];
         echo "\n**{$group}**\n\n";
         echo "| Page | Queries | DB time (ms) | Median (ms) | p95 (ms) | Cold: queries | Cold: median (ms) | Response (KB) |\n";
         echo "|---|---:|---:|---:|---:|---:|---:|---:|\n";
     }
 
-    // A page that failed has no numbers worth a row of its own.
-    $name = $row['status'] === 200 ? $row['name'] : "{$row['name']} (HTTP {$row['status']})";
-
     echo '| '.implode(' | ', [
-        $name,
-        pair($row['queries'], $then['queries'] ?? null, $compare),
-        pair($row['db_ms'], $then['db_ms'] ?? null, $compare),
-        pair($row['ms'], $then['ms'] ?? null, $compare),
-        pair($row['ms_p95'], $then['ms_p95'] ?? null, $compare),
+        $latest['status'] === 200 ? $latest['name'] : "{$latest['name']} (HTTP {$latest['status']})",
+        pair($row['queries'] ?? null, $then['queries'] ?? null, $compare),
+        pair($row['db_ms'] ?? null, $then['db_ms'] ?? null, $compare),
+        pair($row['ms'] ?? null, $then['ms'] ?? null, $compare),
+        pair($row['ms_p95'] ?? null, $then['ms_p95'] ?? null, $compare),
         pair($row['cold']['queries'] ?? null, $then['cold']['queries'] ?? null, $compare),
         pair($row['cold']['ms'] ?? null, $then['cold']['ms'] ?? null, $compare),
-        number((int) round($row['bytes'] / 1024)),
+        number((int) round($latest['bytes'] / 1024)),
     ])." |\n";
 }
