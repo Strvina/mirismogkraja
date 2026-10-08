@@ -148,8 +148,15 @@ for _ in $(seq 1 30); do
 done
 
 [ -z "$(redis -n 1 --scan --pattern '*smoke-test:queue')" ] || fail "the queued job was not run within 30 seconds"
-worker_log=$(docker compose logs --no-color queue)
-grep -q 'QueuedCommand' <<< "$worker_log" || fail "the queue container's log does not show the job"
+
+# The worker writes "DONE" a moment after the job's effect is visible.
+for _ in $(seq 1 10); do
+    worker_log=$(docker compose logs --no-color queue)
+    grep -q 'cache:forget.*DONE' <<< "$worker_log" && break
+    sleep 1
+done
+
+grep -q 'cache:forget.*DONE' <<< "$worker_log" || fail "the queue container's log does not show the job"
 echo "Queue::push() -> run by the queue container"
 
 step "The scheduler knows its tasks, and the backup works"
