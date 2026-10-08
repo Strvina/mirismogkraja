@@ -1,0 +1,137 @@
+# The whole site on one machine, for trying it out and for showing it:
+#
+#   docker compose up -d --build
+#
+# then http://localhost:8080 (demo accounts and everything else: docs/docker.md).
+# Not the production deployment - that is docs/deploy.md.
+
+name: vrelina-juga
+
+# One image, three containers: PHP-FPM, the queue worker and the scheduler.
+# Each names the build, so whichever is started first can make the image.
+x-php: &php
+    build:
+        context: .
+        target: app
+    image: vrelina-juga/app
+    restart: unless-stopped
+    environment:
+        # Only what is decided on this side of the port mapping. The
+        # application's own settings are in docker/app.env.
+        APP_PORT: ${APP_PORT:-8080}
+    volumes:
+        - storage:/var/www/html/storage
+
+services:
+    web:
+        build:
+            context: .
+            target: web
+        image: vrelina-juga/web
+        restart: unless-stopped
+        ports:
+            # This machine only: the stack runs with APP_DEBUG on and with
+            # accounts whose passwords are in the documentation. Another
+            # port: APP_PORT=8090 docker compose up -d --build
+            - "127.0.0.1:${APP_PORT:-8080}:8080"
+        volumes:
+            # Uploaded photos, which nginx serves itself.
+            - storage:/var/www/html/storage:ro
+        depends_on:
+            app:
+                condition: service_healthy
+        healthcheck:
+            # The application's own check: PHP, the database and the cache.
+            test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/up"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
+
+    app:
+        <<: *php
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        healthcheck:
+            # PHP-FPM is started last, after the migrations and - the first
+            # time - the demo content. An open port means all of it is done,
+            # which is what the containers that wait for this one need.
+            test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+            interval: 5s
+            timeout: 3s
+            retries: 3
+            start_period: 5m
+
+    queue:
+        <<: *php
+        # An hour, then the worker ends and Docker starts a fresh one: a PHP
+        # process that runs for days keeps whatever memory it once needed.
+        command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+        # PHP as process 1 would not be stopped by `docker compose down`
+        # until Docker gives up waiting and kills it.
+        init: true
+        depends_on:
+            app:
+                condition: service_healthy
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    scheduler:
+        <<: *php
+        # The cron line of docs/deploy.md: looks every minute for what is due.
+        command: ["php", "artisan", "schedule:work"]
+        init: true
+        depends_on:
+            app:
+                condition: service_healthy
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    mysql:
+        image: mysql:8.4
+        restart: unless-stopped
+        command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+        environment:
+            # Reachable only from the other containers: no port is published.
+            MYSQL_DATABASE: vrelina_juga
+            MYSQL_USER: vrelina
+            MYSQL_PASSWORD: vrelina
+            MYSQL_ROOT_PASSWORD: root
+        volumes:
+            - mysql-data:/var/lib/mysql
+        healthcheck:
+            # Over TCP, as the application's own user. While the image is
+            # still creating the database it runs a server that listens on
+            # a socket only - a check through the socket would say "ready"
+            # a few seconds before anyone can connect.
+            test: ["CMD-SHELL", "mysql --host=127.0.0.1 --user=\"$$MYSQL_USER\" --password=\"$$MYSQL_PASSWORD\" --execute='SELECT 1' \"$$MYSQL_DATABASE\" > /dev/null 2>&1"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            start_period: 2m
+
+    redis:
+        image: redis:8-alpine
+        restart: unless-stopped
+        volumes:
+            - redis-data:/data
+        healthcheck:
+            test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+            interval: 5s
+            timeout: 3s
+            retries: 5
+            start_period: 30s
+
+volumes:
+    # Uploads, logs, backups and the application key.
+    storage:
+    mysql-data:
+    # Sessions and queued jobs, so a restart logs nobody out.
+    redis-data:
