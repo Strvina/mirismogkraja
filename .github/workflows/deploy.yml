@@ -51,7 +51,7 @@ jobs:
       sha: ${{ steps.checks.outputs.sha }}
 
     steps:
-      # The event only says that `tests` ended. Both workflows are looked up
+      # The event only says that `tests` ended. All required workflows are looked up
       # for this exact commit, so a green test run next to a failed linter
       # deploys nothing, and neither does a commit pushed with "skip ci".
       - name: Checks of this commit
@@ -70,7 +70,7 @@ jobs:
           echo "sha=$DEPLOY_SHA" >> "$GITHUB_OUTPUT"
           deadline=$((SECONDS + 900))
 
-          for workflow in tests.yml lint.yml; do
+          for workflow in tests.yml lint.yml frontend-tests.yml audit.yml deployment-safeguards.yml; do
             result=$(result_of "$workflow")
 
             # The linter is normally done long before the tests; this is
@@ -91,6 +91,13 @@ jobs:
             fi
           done
 
+          reviewers=$(gh api "repos/$GITHUB_REPOSITORY/environments/production" \
+            --jq '[.protection_rules[] | select(.type == "required_reviewers") | .reviewers[]] | length')
+          if [[ "$reviewers" -lt 1 ]]; then
+            echo "::error::Configure a required reviewer on the production environment before enabling deployment."
+            exit 1
+          fi
+
           echo "deploy=true" >> "$GITHUB_OUTPUT"
 
   deploy:
@@ -99,8 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions: {}
-    # The secrets live in this environment; required reviewers can be added
-    # to it later without changing this file.
+    # The verify job requires a reviewer here before allowing deployment.
     environment:
       name: production
       url: ${{ vars.DEPLOY_URL }}

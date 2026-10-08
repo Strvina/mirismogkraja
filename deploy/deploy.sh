@@ -36,24 +36,54 @@ if ! flock --nonblock 9; then
     exit 1
 fi
 
-# Automatic runs can finish out of order; one that arrives late must not
-# put an older version back.
-if [[ -n "$commit" && "$commit" != "$(git rev-parse HEAD)" ]] &&
-    git merge-base --is-ancestor "$commit" HEAD 2> /dev/null; then
-    echo "Nothing to do: the server is already on a newer commit than ${commit:0:7}."
-    exit 0
+if ! git diff --quiet || ! git diff --cached --quiet; then
+    echo "Tracked files have local changes. Commit or preserve them before deployment." >&2
+    exit 1
 fi
+
+echo "→ Verify code"
+git fetch --quiet origin master
+commit="${commit:-$(git rev-parse origin/master)}"
+if ! git merge-base --is-ancestor "$commit" origin/master; then
+    echo "$commit is not on master. Nothing was deployed." >&2
+    exit 1
+fi
+
+# Check after fetching: a newly pushed commit may not exist locally yet.
+# Manual runs must also refuse to move backwards or to an unrelated history.
+if [[ "$commit" != "$(git rev-parse HEAD)" ]]; then
+    if git merge-base --is-ancestor "$commit" HEAD; then
+        echo "Nothing to do: the server is already on a newer commit than ${commit:0:7}."
+        exit 0
+    fi
+    if ! git merge-base --is-ancestor HEAD "$commit"; then
+        echo "The server and target have diverged. Review the histories before deployment." >&2
+        exit 1
+    fi
+fi
+
+# Git also refuses untracked/ignored paths that an incoming file would replace.
+# Detect them before maintenance mode, including a file used as a parent folder.
+while IFS= read -r -d '' incoming; do
+    path="$incoming"
+    if [[ -e "$path" || -L "$path" ]]; then
+        echo "Local path conflicts with the incoming commit: $path. Nothing was deployed." >&2
+        exit 1
+    fi
+    while [[ "$path" == */* ]]; do
+        path="${path%/*}"
+        if [[ -f "$path" || -L "$path" ]]; then
+            echo "Local path conflicts with an incoming directory: $path. Nothing was deployed." >&2
+            exit 1
+        fi
+    done
+done < <(git diff --no-renames --name-only --diff-filter=A -z HEAD "$commit")
 
 echo "→ Maintenance mode"
 php artisan down --retry=30
 
 echo "→ Code"
-git fetch --quiet origin master
-if [[ -n "$commit" ]] && ! git merge-base --is-ancestor "$commit" origin/master; then
-    echo "$commit is not on master. No code was changed: 'php artisan up' brings the site back." >&2
-    exit 1
-fi
-git reset --hard "${commit:-origin/master}"
+git switch --detach --no-overwrite-ignore "$commit"
 
 echo "→ PHP dependencies"
 composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader

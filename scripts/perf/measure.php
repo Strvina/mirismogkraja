@@ -274,6 +274,7 @@ if (isset($options['queries'])) {
 
 $results = [];
 
+$failedRequests = 0;
 foreach ($scenarios as $index => $scenario) {
     $cold = [];
 
@@ -291,6 +292,9 @@ foreach ($scenarios as $index => $scenario) {
         $warm[] = request($root, $scenario, $accounts, false);
     }
 
+    $failures = count(array_filter([...$cold, ...$warm], fn (array $request) => $request['status'] !== 200 || $request['error'] !== null));
+    $failedRequests += $failures;
+
     $last = end($warm);
     $databaseMs = fn (array $request) => array_sum(array_column($request['queries'], 'ms'));
     $slowest = $last['queries'];
@@ -300,6 +304,7 @@ foreach ($scenarios as $index => $scenario) {
         ...$scenario,
         'status' => $last['status'],
         'error' => $last['error'],
+        'failed_requests' => $failures,
         'bytes' => $last['bytes'],
         'queries' => count($last['queries']),
         'queries_min' => min(array_map(fn (array $request) => count($request['queries']), $warm)),
@@ -344,4 +349,9 @@ if (isset($options['out'])) {
     fwrite(STDERR, "Written to {$options['out']}\n");
 } else {
     echo $json, "\n";
+}
+
+if ($failedRequests > 0 || $results === []) {
+    fwrite(STDERR, "Performance run is invalid: {$failedRequests} failed requests, ".count($results)." scenarios.\n");
+    exit(1);
 }

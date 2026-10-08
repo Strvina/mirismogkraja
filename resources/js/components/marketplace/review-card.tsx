@@ -35,6 +35,7 @@ export default function ReviewCard({
     const [editing, setEditing] = useState(false);
     const [reply, setReply] = useState(review.reply ?? '');
     const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const saveReply = () =>
         router.put(
@@ -42,7 +43,11 @@ export default function ReviewCard({
             { reply },
             {
                 preserveScroll: true,
-                onStart: () => setSaving(true),
+                onStart: () => {
+                    setSaving(true);
+                    setErrors({});
+                },
+                onError: setErrors,
                 onFinish: () => setSaving(false),
                 onSuccess: () => setEditing(false),
             },
@@ -98,6 +103,11 @@ export default function ReviewCard({
                     {canReply &&
                         (editing ? (
                             <div className="mt-3 grid gap-2">
+                                {Object.entries(errors).map(([field, message]) => (
+                                    <p key={field} role="alert" className="text-destructive text-sm">
+                                        {message}
+                                    </p>
+                                ))}
                                 <textarea
                                     value={reply}
                                     onChange={(event) => setReply(event.target.value)}

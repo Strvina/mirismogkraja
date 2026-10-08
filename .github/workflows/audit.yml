@@ -3,7 +3,8 @@ name: audit
 # Known vulnerabilities in the installed packages. Kept apart from the
 # linter and the tests because its result changes without any commit: an
 # advisory published tomorrow turns this red for code that was green today,
-# and that must neither hide a real lint failure nor hold back a deployment.
+# and must be visible separately from lint failures. Deployment requires
+# a successful audit for the same commit.
 
 on:
   push:

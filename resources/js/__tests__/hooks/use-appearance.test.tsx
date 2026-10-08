@@ -51,6 +51,13 @@ describe('initializeTheme', () => {
 });
 
 describe('useAppearance', () => {
+    it('keeps following the system after the settings component unmounts', () => {
+        initializeTheme();
+        const { unmount } = renderHook(() => useAppearance());
+        unmount();
+        setMediaQuery(DARK_SCHEME, true);
+        expect(isDark()).toBe(true);
+    });
     it('starts from the saved choice', () => {
         localStorage.setItem('appearance', 'dark');
 

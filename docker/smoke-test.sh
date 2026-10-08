@@ -18,6 +18,13 @@ export MSYS_NO_PATHCONV=1
 
 url="http://localhost:${APP_PORT:-8080}"
 cookies=$(mktemp)
+discard=/dev/null
+# With path conversion disabled, Windows curl cannot open /dev/null or a
+# POSIX cookie path. Keep Docker's container paths intact and adapt curl's.
+if [[ "${OSTYPE:-}" == msys* ]]; then
+    discard=NUL
+    cookies=$(cygpath -m "$cookies")
+fi
 trap 'rm -f "$cookies"' EXIT
 
 step() {
@@ -49,7 +56,7 @@ expect_status() {
     local expected=$1 path=$2 actual
     shift 2
 
-    actual=$(curl -s -o /dev/null -w '%{http_code}' "$@" "$url$path")
+    actual=$(curl -s -o "$discard" -w '%{http_code}' "$@" "$url$path")
     [ "$actual" = "$expected" ] || fail "GET $path answered $actual, not $expected"
     echo "GET $path -> $actual"
 }
@@ -68,7 +75,7 @@ step "Built assets: compressed, and cached for a year"
 
 asset=$(grep -o '/build/assets/app-[A-Za-z0-9_-]*\.js' <<< "$home" | head -n 1 || true)
 [ -n "$asset" ] || fail "the home page names no built script"
-headers=$(curl -fsS -o /dev/null -D - -H 'Accept-Encoding: gzip' "$url$asset")
+headers=$(curl -fsS -o "$discard" -D - -H 'Accept-Encoding: gzip' "$url$asset")
 grep -qi '^content-encoding: gzip' <<< "$headers" || fail "$asset is not compressed"
 grep -qi '^cache-control:.*immutable' <<< "$headers" || fail "$asset is not cached as immutable"
 echo "GET $asset -> gzip, immutable"
@@ -106,12 +113,12 @@ echo "Cache::put() -> a key in Redis database 1"
 
 step "Sessions are in Redis"
 
-curl -fsS -c "$cookies" -o /dev/null "$url/login"
+curl -fsS -c "$cookies" -o "$discard" "$url/login"
 # The cookie holds the token URL-encoded; the header wants it as it was.
 token=$(awk '$6 == "XSRF-TOKEN" { print $7 }' "$cookies" | sed 's/%3D/=/g')
 [ -n "$token" ] || fail "the login page set no XSRF-TOKEN cookie"
 
-login=$(curl -s -o /dev/null -w '%{http_code}' -b "$cookies" -c "$cookies" \
+login=$(curl -s -o "$discard" -w '%{http_code}' -b "$cookies" -c "$cookies" \
     -H "X-XSRF-TOKEN: $token" \
     --data-urlencode 'email=marko@example.com' \
     --data-urlencode 'password=password' \
