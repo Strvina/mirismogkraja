@@ -2,6 +2,15 @@
 
 What the main pages cost with a couple of thousand producers on the site, which indexes that justified, and what only a change in the code can fix. Measured in October 2026 on a developer's machine; read the caveats before the numbers.
 
+## Verified MySQL 8 follow-up
+
+The original measurements below remain a MariaDB/SQLite baseline. The first improvement wave
+also measured **MySQL 8.4.11** on GitHub Actions: 74 scenarios, before and after both index
+migrations, with no failed requests. See [the MySQL report and raw results](performance/mysql8-wave1.md).
+The admin product list's first-page database time fell from 32.7 to 9.1 ms; the catalogue remained
+around 100 ms and still sends approximately 190 KB. These are sequential request measurements,
+not a production capacity test. The controller/query improvements remain deferred to Wave 3.
+
 ## In short
 
 - Query counts are flat: the indexes changed none of them, and a deep page never runs more queries than page 1.

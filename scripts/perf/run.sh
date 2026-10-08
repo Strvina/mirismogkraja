@@ -16,6 +16,8 @@ php artisan db:seed --class=LoadTestSeeder
 mkdir -p storage/perf
 php scripts/perf/indexes.php down
 php scripts/perf/measure.php --runs="${PERF_RUNS:-20}" --cold="${PERF_COLD:-3}" --out=storage/perf/mysql-before.json
+php scripts/perf/measure.php --only="Admin/products, page 1" --queries --explain=3 > storage/perf/mysql-plans-before.txt
 php scripts/perf/indexes.php up
 php scripts/perf/measure.php --runs="${PERF_RUNS:-20}" --cold="${PERF_COLD:-3}" --out=storage/perf/mysql-after.json
+php scripts/perf/measure.php --only="Admin/products, page 1" --queries --explain=3 > storage/perf/mysql-plans-after.txt
 php scripts/perf/report.php storage/perf/mysql-before.json storage/perf/mysql-after.json > storage/perf/mysql-report.md

@@ -5,10 +5,12 @@ The whole site on one machine with one command: nginx, PHP-FPM, MySQL, Redis, a 
 ## Requirements
 
 - Docker with Compose v2 or newer: Docker Desktop on Windows and macOS, or Docker Engine with the Compose plugin on Linux. `docker compose version` shows whether it is there.
-- About 2 GB of free memory and 3 GB of disk space (the two images of the site are about 600 MB together, MySQL and Redis come on top, and so does what the build keeps for the next time).
+- About 2 GB of free memory and 3 GB of disk space for the demo stack (the two site images measured about 900 MB together in the Wave 1 build; MySQL, Redis and the build cache need additional space). The large performance fixture and browser tests need more memory; avoid running them together on a machine already under memory pressure.
 - Port 8080 free on the machine. Another port can be chosen, see [Settings](#settings).
 
 Nothing else has to be installed: no PHP, Node, MySQL or Redis, and no `.env` has to be made.
+
+On Windows, verify `wsl --version` before starting Docker Desktop. If it prints only usage and Docker reports `Wsl/ExecError`, update WSL following the [Docker WSL setup instructions](https://docs.docker.com/desktop/setup/install/windows-install/#wsl-verification-and-setup), complete any requested Windows restart, then check `docker info`. The Wave 1 checks passed on this workstation after the WSL update and restart.
 
 ## Start
 

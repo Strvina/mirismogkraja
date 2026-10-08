@@ -6,7 +6,7 @@
  *
  *     php scripts/perf/measure.php --out=storage/perf/sqlite-before.json
  *     php scripts/perf/measure.php --only="Catalogue" --queries
- *     php scripts/perf/measure.php --only="Inbox/producer" --explain=5
+ *     php scripts/perf/measure.php --only="Inbox/producer" --queries --explain=5
  *
  * Options:
  *     --out=FILE      write the results as JSON (read by report.php)

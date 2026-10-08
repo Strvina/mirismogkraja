@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-09 (prvi talas unapređenja u toku).
+Poslednja izmena: 2026-10-09 (prvi talas pripremljen za pregled, ostali odloženi).
 
 ## 1. Šta je ovo
 
@@ -32,19 +32,10 @@ Jezici: srpski (izvor), engleski, ruski.
 
 ## 3. Gde šta živi
 
-| Mesto | Šta |
-|---|---|
-| `app/Http/Controllers` | Vlasnikove stranice (proizvođač, proizvodi, poruke, plaćeno) |
-| `…/Marketplace` | Javne stranice (lista i profil proizvođača, proizvodi, katalog, priče) |
-| `…/Admin` | Admin panel |
-| `app/Services` | Poslovna logika (članarine, isticanje, osnivači, preporuke, statistika, Google) |
-| `app/Support` | Pomoćne klase bez stanja (`Media`, `Search`, `PageMeta`, `UniqueSlug`, `Qr`) |
-| `app/Notifications/SiteNotification` | Sva obaveštenja, jedna klasa sa imenovanim konstruktorima |
-| `routes/*.php` | Po oblasti; `web.php` ih samo učitava |
-| `resources/js/pages` | Inertia stranice, mala slova (`config/inertia.php`) |
-| `resources/js/components` | `marketplace/`, `producer-page/`, `messages/`, `producer-form/`, `admin/`, `ui/` |
-| `lang/` | `en.json`, `ru.json` (ključ je srpska rečenica), `{sr,en,ru}/notifications.php` |
-| `docs/` | `database.md` (šema), `deploy.md`, `scaling.md`, `design-tokens.md` |
+Kontroleri su podeljeni na vlasničke, `Marketplace` i `Admin`; poslovna logika ide u `Services`,
+pomoćne klase bez stanja u `Support`. Rute su odvojene po oblasti. Inertia stranice imaju mala
+slova u nazivima; obaveštenja koristi jedna klasa `SiteNotification` sa imenovanim konstruktorima.
+Šema, deploy, skaliranje i dizajn su u `docs/`; prevodi u `lang/`.
 
 ## 4. Modeli
 
@@ -223,13 +214,14 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 
 - Zadaci do 147 su spojeni u `master`. Unapređenja Docker-a, Larastan-a i komponentnih testova su
   u `improve/integration`; CI/CD i performanse iz otvorenih PR-ova sačuvani su na `codex/wave1-completion`.
-- Pre nastavka: 601 PHP test (3 preskočena bez GD-a), 812 Vitest testova i 24 browser testa.
-  Novi testovi formi i korekcije prvog talasa se proveravaju; konačni zbir i CI rezultat još nisu potvrđeni.
+- Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 601 test prolazi u Docker-u, bez
+  preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 24 testa i prolazi u CI-u.
+  Pint, Larastan 5, TypeScript, ESLint, Prettier, build i oba dependency audit-a prolaze.
+  PR #249 prema `improve/integration` čuva CI/performance rad iz #244 i #248, koji nisu zatvoreni.
+  MySQL 8.4 pre/posle merenja za 74 scenarija i sirovi rezultati su u `docs/performance/`.
 - Vlasnik je zatim tražio da se stane posle prvog talasa; drugi i treći ostaju za sledeću sesiju.
   Spajanje PR-ova i produkcioni deploy i dalje traže njegovo odobrenje.
   Preostali rad i provereni rezultati prate se u `docs/development-plan.md`.
-- Testovi u pregledaču prolaze cele lance kroz tri uloge (`full-cycle`, `producer-chains`,
-  `wanted-pause-places`). Test sajt piše mejlove u `storage/logs/mail.log`, odakle test čita link.
 - **Sajt nikad nije pušten u rad.** Nema servera, domena ni stvarnih korisnika.
 
 ## 11. Poznata ograničenja
@@ -243,7 +235,8 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Puštanje u rad po `docs/deploy.md` (samo uz vlasnika): server, domen, mejl, Turnstile, Sentry,
   backup, Google ključevi.
 - Upisati prave podatke za uplatnicu i cene; naći prvih 10–20 proizvođača.
-- Završiti tri talasa po `docs/development-plan.md`; MySQL merenja imaju izolovanu bazu i CI workflow.
+- Po nastavku završiti drugi i treći talas po `docs/development-plan.md`; prvi ne ponavljati.
+  MySQL merenja imaju izolovanu bazu i CI workflow; ostaju poznata uska grla kataloga i kontrolera.
 - Kad zatreba (vidi `docs/scaling.md`): tabela razgovora, Meilisearch, SSR.
 
 ## 13. Ne dirati bez dogovora
