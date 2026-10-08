@@ -175,12 +175,31 @@ class LoadTestSeeder extends Seeder
         $this->seedBoosts();
         $this->seedNotifications();
         $this->seedActivityLog();
+        $this->refreshStatistics();
 
         $this->command?->table(
             ['Table', 'Rows added'],
             collect($this->written)->map(fn (int $rows, string $table) => [$table, number_format($rows)])->values()->all(),
         );
         $this->command?->info(sprintf('Load-test data seeded in %.1f s.', microtime(true) - $started));
+    }
+
+    /**
+     * A table filled in one go leaves MySQL planning its queries by the
+     * statistics of the empty table it was a minute ago, until it gets
+     * round to counting again. A site that grew row by row is never in that
+     * state, so it is not the state to measure. SQLite is left as the
+     * application leaves it: nothing there ever runs ANALYZE.
+     */
+    private function refreshStatistics(): void
+    {
+        if (! in_array(DB::connection()->getDriverName(), ['mysql', 'mariadb'], true)) {
+            return;
+        }
+
+        foreach (array_keys($this->written) as $table) {
+            DB::select('ANALYZE TABLE '.DB::connection()->getQueryGrammar()->wrapTable($table));
+        }
     }
 
     // ------------------------------------------------------------------ users
