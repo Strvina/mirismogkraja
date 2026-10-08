@@ -1,0 +1,61 @@
+name: audit
+
+# Known vulnerabilities in the installed packages. Kept apart from the
+# linter and the tests because its result changes without any commit: an
+# advisory published tomorrow turns this red for code that was green today,
+# and that must neither hide a real lint failure nor hold back a deployment.
+
+on:
+  push:
+    branches:
+      - master
+      - improve/integration
+  # Every pull request, whatever its base: work is reviewed on integration
+  # branches before it reaches master.
+  pull_request:
+  # Advisories appear whether or not anyone pushes: Mondays, on master.
+  schedule:
+    - cron: '30 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  # Two jobs, so each package manager reports on its own line and one
+  # failing does not skip the other.
+  composer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      # Without installed packages `composer audit` has nothing to look at
+      # and passes.
+      - name: Install Dependencies
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Composer audit
+        run: composer audit
+
+  npm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Reads package-lock.json; nothing has to be installed. Build tools
+      # count too, because the server runs them on every deployment.
+      - name: npm audit
+        run: npm audit --audit-level=high
