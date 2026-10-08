@@ -151,24 +151,31 @@ jobs:
 
       # The script can end well and the site still be down (a full disk, a
       # stopped PHP), so the answer is asked from outside, as a visitor
-      # would get it.
+      # would get it. /up alone is not enough: Laravel keeps answering it
+      # in maintenance mode, which is where a deployment that stopped
+      # half-way leaves the site. The home page answers 503 then.
       - name: Health check
         env:
           DEPLOY_URL: ${{ vars.DEPLOY_URL }}
         run: |
           : "${DEPLOY_URL:?The variable DEPLOY_URL is not set}"
-          url="${DEPLOY_URL%/}/up"
+          site="${DEPLOY_URL%/}"
+
+          status_of() {
+            curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 "$1" || true
+          }
 
           for attempt in {1..10}; do
-            status=$(curl --silent --output /dev/null --write-out '%{http_code}' --max-time 10 "$url" || true)
-            if [[ "$status" == 200 ]]; then
-              echo "$url answered 200."
+            health=$(status_of "$site/up")
+            home=$(status_of "$site/")
+            if [[ "$health" == 200 && "$home" == 200 ]]; then
+              echo "$site/up and the home page answered 200."
               echo "Deployed \`${DEPLOY_SHA:0:7}\` to $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
-            echo "Attempt $attempt: $url answered $status."
+            echo "Attempt $attempt: /up answered $health, the home page $home."
             sleep 6
           done
 
-          echo "::error::The site did not come back: $url answered $status instead of 200. On the server, look in storage/logs and run deploy/deploy.sh again."
+          echo "::error::The site did not come back: $site/up answered $health and the home page $home, both must be 200 (503 on the home page is maintenance mode). On the server, look in storage/logs and run deploy/deploy.sh again."
           exit 1
