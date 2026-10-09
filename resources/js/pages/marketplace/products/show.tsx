@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import FormErrors from '@/components/form-errors';
 import Head from '@/components/head';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import ReportButton from '@/components/marketplace/report-button';
@@ -60,6 +61,7 @@ export default function ProductShow({
     const { auth } = usePage<SharedData>().props;
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const images = [...(product.images ?? [])].sort((a, b) => a.order - b.order);
     const shareUrl = typeof window === 'undefined' ? '' : window.location.href;
     const mainImage = images[0];
@@ -74,14 +76,21 @@ export default function ProductShow({
     ];
 
     const sendInquiry = () => {
-        if (!message.trim()) {
+        if (sending || !message.trim()) {
             return;
         }
 
         router.post(
             route('inquiries.store', product.slug),
             { body: message },
-            { onStart: () => setSending(true), onFinish: () => setSending(false) },
+            {
+                onStart: () => {
+                    setSending(true);
+                    setErrors({});
+                },
+                onError: setErrors,
+                onFinish: () => setSending(false),
+            },
         );
     };
 
@@ -209,6 +218,7 @@ export default function ProductShow({
                             </>
                         )}
 
+                        <FormErrors errors={errors} />
                         <div className="flex flex-wrap items-center gap-3">
                             {canInquire ? (
                                 <Button onClick={sendInquiry} disabled={sending || !message.trim()}>
@@ -243,10 +253,12 @@ export default function ProductShow({
                         <ShareButtons url={shareUrl} title={product.name} className="mt-4" />
                     </div>
 
-                    <Link
-                        href={route('marketplace.producers.show', product.producer.slug)}
-                        className="hover:bg-muted mt-8 flex items-center gap-3 rounded-md border p-4"
-                    >
+                    <div className="hover:bg-muted relative mt-8 flex items-center gap-3 rounded-md border p-4">
+                        <Link
+                            href={route('marketplace.producers.show', product.producer.slug)}
+                            aria-label={product.producer.name}
+                            className="absolute inset-0 rounded-md"
+                        />
                         {product.producer.logo_path && (
                             <img
                                 loading="lazy"
@@ -265,7 +277,7 @@ export default function ProductShow({
                                         <Link
                                             href={route('marketplace.places.show', place.slug)}
                                             // Small text, so the padding is what makes it tappable.
-                                            className="hover:text-foreground -my-1.5 inline-block py-1.5 underline-offset-4 hover:underline"
+                                            className="hover:text-foreground relative -my-1.5 inline-block py-1.5 underline-offset-4 hover:underline"
                                         >
                                             {product.producer.city}
                                         </Link>
@@ -276,7 +288,7 @@ export default function ProductShow({
                             )}
                             <ResponseTimeBadge bucket={responseTime} className="text-muted-foreground mt-1 text-xs" />
                         </div>
-                    </Link>
+                    </div>
                 </div>
             </div>
 

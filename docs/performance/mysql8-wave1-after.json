@@ -1,0 +1,2987 @@
+{
+    "meta": {
+        "driver": "mysql",
+        "server": "8.4.11",
+        "database": "vrelina_perf_ci",
+        "php": "8.2.34",
+        "opcache": false,
+        "measured_at": "2026-10-09T01:42:52+02:00",
+        "runs": 10,
+        "cold_runs": 1
+    },
+    "results": [
+        {
+            "group": "Home",
+            "name": "home page",
+            "uri": "/",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 47571,
+            "queries": 16,
+            "queries_min": 16,
+            "queries_max": 16,
+            "db_ms": 17.7,
+            "ms": 28.4,
+            "ms_p95": 31.5,
+            "cache_hits": 5,
+            "after_queries": 0,
+            "cold": {
+                "queries": 20,
+                "db_ms": 303.7,
+                "ms": 346.7,
+                "cache_misses": 4
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 5.89,
+                    "sql": "select distinct `products`.`producer_id`, `categories`.`name` from `products` inner join `categories` on `categories`.`id` = `products`.`category_id` where `products`.`status` = 'active' and `producer_id` in (1897, 881, 1458, 252, 980, 796, 189, 674, 297, 146, 1591, 1867, 1472, 1, 2, 3, 5, 4, 6, 7, 10, 8, 9) order by `categories`.`name` asc"
+                },
+                {
+                    "ms": 3.15,
+                    "sql": "select `id`, `name`, `slug`, `city`, `description`, `cover_image_path`, `logo_path`, `created_at`, (select count(*) from `favorites` where `producers`.`id` = `favorites`.`favoritable_id` and `favorites`.`favoritable_type` = 'producer') as `favorites_count`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating` from `producers` where `producers`.`status` = 'active' and `id` in (1, 2, 3, 5, 4, 6, 7, 10, 8, 9) and `producers`.`deleted_at` is null"
+                },
+                {
+                    "ms": 2.64,
+                    "sql": "select `id`, `name`, `slug`, `city`, `description`, `cover_image_path`, `logo_path`, `created_at`, (select count(*) from `favorites` where `producers`.`id` = `favorites`.`favoritable_id` and `favorites`.`favoritable_type` = 'producer') as `favorites_count`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating` from `producers` where `producers`.`status` = 'active' and `id` in (1458, 630, 1719, 1288, 1720, 645, 1467, 1897, 252, 686, 246, 964, 1951, 319, 1760, 153, 149, 955, 273, 258, 408, 1817, 59, 1889, 1408, 1769, 566, 765, 606, 1728, 841, 642, 1150, 1341, 1501, 1091, 1518, 892, 28, 997, 164, 417, 141, 1055, 688, 953, 387, 79, 1362, 1872, 1950, 881, 1206, 708, 392, 721, 37, 357, 278, 999, 1473, 1677, 1724, 1273, 1174, 176, 445, 582, 1040, 848, 1058) and `producers`.`deleted_at` is null order by RAND() limit 4"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "page 1",
+            "uri": "/proizvodi",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 197975,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 83.4,
+            "ms": 99.7,
+            "ms_p95": 101.6,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 152.6,
+                "ms": 192.4,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 74.45,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 6.55,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.59,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "page 100",
+            "uri": "/proizvodi?page=100",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 191347,
+            "queries": 4,
+            "queries_min": 4,
+            "queries_max": 4,
+            "db_ms": 89,
+            "ms": 104.2,
+            "ms_p95": 106.6,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 145,
+                "ms": 177,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 83.92,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 20 offset 1980"
+                },
+                {
+                    "ms": 6.66,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.52,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (45827, 45829, 45830, 45831, 45833, 45835, 45836, 45837, 45838, 45839, 45840, 45841, 45843, 45846, 45848, 45849, 45850, 45851, 45852, 45853) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "last allowed page (500)",
+            "uri": "/proizvodi?page=500",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 190242,
+            "queries": 4,
+            "queries_min": 4,
+            "queries_max": 4,
+            "db_ms": 91.5,
+            "ms": 106.1,
+            "ms_p95": 112.6,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 155.9,
+                "ms": 189.8,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 87.87,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 20 offset 9980"
+                },
+                {
+                    "ms": 7.97,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.52,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (35569, 35570, 35571, 35572, 35573, 35574, 35575, 35576, 35577, 35579, 35580, 35581, 35582, 35584, 35585, 35586, 35588, 35589, 35590, 35592) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "100 per page, page 1",
+            "uri": "/proizvodi?per_page=100",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 261677,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 83.3,
+            "ms": 108.8,
+            "ms_p95": 119.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 146.6,
+                "ms": 192,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 75.4,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 100 offset 0"
+                },
+                {
+                    "ms": 6.72,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 1.04,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (49650, 49651, 49652, 49654, 49655, 49660, 49679, 49682, 49692, 49693, 49695, 49713, 49714, 49720, 49724, 49726, 49728, 49729, 49730, 49733, 49734, 49735, 49736, 49748, 49750, 49752, 49755, 49758, 49760, 49762, 49763, 49766, 49768, 49769, 49771, 49773, 49776, 49784, 49785, 49789, 49792, 49794, 49799, 49800, 49802, 49803, 49806, 49807, 49808, 49813, 49814, 49817, 49834, 49841, 49844, 49860, 49862, 49864, 49867, 49869, 49870, 49871, 49877, 49883, 49891, 49897, 49902, 49904, 49908, 49909, 49910, 49911, 49917, 49920, 49923, 49928, 49929, 49931, 49934, 49935, 49946, 49951, 49952, 49955, 49958, 49960, 49963, 49964, 49968, 49970, 49971, 49972, 49973, 49974, 49977, 49979, 49981, 49986, 49990, 49999) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "100 per page, last page",
+            "uri": "/proizvodi?per_page=100&page=390",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 250031,
+            "queries": 4,
+            "queries_min": 4,
+            "queries_max": 4,
+            "db_ms": 90.7,
+            "ms": 114.5,
+            "ms_p95": 122.6,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 154,
+                "ms": 194,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 89.94,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 100 offset 38900"
+                },
+                {
+                    "ms": 6.76,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.94,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (1, 2, 4, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 22, 23, 24, 25, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 57, 58, 60, 62, 63, 64, 65, 67, 70, 71, 72, 73, 74, 76, 77, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92, 95, 96, 97, 98, 99, 101, 102, 103, 104, 105, 106, 109, 110, 111, 115, 117, 119, 120, 121, 122, 123, 124, 125) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "cheapest first, page 1",
+            "uri": "/proizvodi?sort=price_asc",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 197143,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 86.1,
+            "ms": 102.9,
+            "ms_p95": 111.2,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 153.5,
+                "ms": 189.9,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 80.58,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `price` asc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 6.73,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.69,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "most expensive first, page 1",
+            "uri": "/proizvodi?sort=price_desc",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 196564,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 87.5,
+            "ms": 106.2,
+            "ms_p95": 109.7,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 158.4,
+                "ms": 197.4,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 79.44,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `price` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 6.87,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.63,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "cheapest first, page 500",
+            "uri": "/proizvodi?sort=price_asc&page=500",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 190509,
+            "queries": 4,
+            "queries_min": 4,
+            "queries_max": 4,
+            "db_ms": 98.3,
+            "ms": 113.2,
+            "ms_p95": 114.3,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 160.6,
+                "ms": 197.2,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 90.24,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `price` asc, `id` desc limit 20 offset 9980"
+                },
+                {
+                    "ms": 6.88,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.59,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (39652, 39832, 39883, 39886, 39891, 40039, 40448, 40493, 40557, 40664, 40759, 40823, 40968, 41050, 41066, 41098, 41100, 41109, 41123, 41202) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "category filter (Zimnica)",
+            "uri": "/proizvodi?category_id=31",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 193530,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 119.1,
+            "ms": 136.7,
+            "ms_p95": 148,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 191.4,
+                "ms": 226.6,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 57.32,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 55.67,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31))"
+                },
+                {
+                    "ms": 0.65,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "producer filter (busiest)",
+            "uri": "/proizvodi?producer_id=1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 190585,
+            "queries": 6,
+            "queries_min": 6,
+            "queries_max": 6,
+            "db_ms": 2.4,
+            "ms": 17.1,
+            "ms_p95": 21.5,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 70.6,
+                "ms": 104.6,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.6,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `producer_id` = 1"
+                },
+                {
+                    "ms": 0.5,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `producer_id` = 1 and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                },
+                {
+                    "ms": 0.47,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (47749, 47863, 47942, 48019, 48079, 48176, 48357, 48468, 48515, 48542, 48563, 49087, 49231, 49257, 49431, 49525, 49784, 49844, 49891, 49902) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "city filter (Niš)",
+            "uri": "/proizvodi?city=Ni%C5%A1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 193784,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 15.6,
+            "ms": 32.5,
+            "ms_p95": 35,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 73,
+                "ms": 105.1,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 11.23,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `city` = 'Niš' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 1.95,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `city` = 'Niš' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 0.73,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `city` = 'Niš' and `producers`.`deleted_at` is null) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "price range 500-1000",
+            "uri": "/proizvodi?min_price=500&max_price=1000",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 197721,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 118.7,
+            "ms": 136.7,
+            "ms_p95": 142.8,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 184.5,
+                "ms": 226.1,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 55.91,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `price` >= 500 and `price` <= 1000 order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 54.51,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `price` >= 500 and `price` <= 1000"
+                },
+                {
+                    "ms": 0.61,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `price` >= 500 and `price` <= 1000 and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "in stock",
+            "uri": "/proizvodi?in_stock=1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 198267,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 129,
+            "ms": 147.2,
+            "ms_p95": 155.1,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 197.6,
+                "ms": 233.1,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 73.18,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `stock_quantity` > 0 order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 44.57,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `stock_quantity` > 0"
+                },
+                {
+                    "ms": 0.58,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `stock_quantity` > 0 and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "in season",
+            "uri": "/proizvodi?in_season=1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 197958,
+            "queries": 8,
+            "queries_min": 8,
+            "queries_max": 8,
+            "db_ms": 123.7,
+            "ms": 140.7,
+            "ms_p95": 150.1,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 190.4,
+                "ms": 228.8,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 70.62,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`season_from` is null or `products`.`season_to` is null or (`products`.`season_from` <= `products`.`season_to` and `products`.`season_from` <= 10 and `products`.`season_to` >= 10) or (`products`.`season_from` > `products`.`season_to` and (`products`.`season_from` <= 10 or `products`.`season_to` >= 10))) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 44.25,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`season_from` is null or `products`.`season_to` is null or (`products`.`season_from` <= `products`.`season_to` and `products`.`season_from` <= 10 and `products`.`season_to` >= 10) or (`products`.`season_from` > `products`.`season_to` and (`products`.`season_from` <= 10 or `products`.`season_to` >= 10)))"
+                },
+                {
+                    "ms": 0.58,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`season_from` is null or `products`.`season_to` is null or (`products`.`season_from` <= `products`.`season_to` and `products`.`season_from` <= 10 and `products`.`season_to` >= 10) or (`products`.`season_from` > `products`.`season_to` and (`products`.`season_from` <= 10 or `products`.`season_to` >= 10))) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "category + city + in stock, cheapest first",
+            "uri": "/proizvodi?category_id=31&city=Ni%C5%A1&in_stock=1&sort=price_asc",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 191328,
+            "queries": 6,
+            "queries_min": 6,
+            "queries_max": 6,
+            "db_ms": 18.6,
+            "ms": 33.8,
+            "ms_p95": 41.4,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 76.4,
+                "ms": 112.4,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 9.05,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `city` = 'Niš' and `producers`.`deleted_at` is null) and `stock_quantity` > 0"
+                },
+                {
+                    "ms": 7.41,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `city` = 'Niš' and `producers`.`deleted_at` is null) and `stock_quantity` > 0 order by `price` asc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 0.54,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `city` = 'Niš' and `producers`.`deleted_at` is null) and `stock_quantity` > 0 and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Catalogue",
+            "name": "page 1, signed in (buyer with 1,300 favourites)",
+            "uri": "/proizvodi",
+            "as": "buyer1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 198753,
+            "queries": 14,
+            "queries_min": 14,
+            "queries_max": 14,
+            "db_ms": 88.7,
+            "ms": 107.3,
+            "ms_p95": 115.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 19,
+                "db_ms": 146.7,
+                "ms": 189.8,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 76.43,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 6.49,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)"
+                },
+                {
+                    "ms": 1,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"ajvar\" (about 1,000 matches)",
+            "uri": "/proizvodi?q=ajvar",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 190678,
+            "queries": 7,
+            "queries_min": 7,
+            "queries_max": 7,
+            "db_ms": 15.8,
+            "ms": 33.5,
+            "ms_p95": 44.5,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 80.9,
+                "ms": 115.1,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 5.59,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+ajvar*' in boolean mode)"
+                },
+                {
+                    "ms": 5.39,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+ajvar*' in boolean mode) order by MATCH (`products`.`name`, `products`.`description`) AGAINST ('+ajvar*' IN BOOLEAN MODE) DESC, `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 4.27,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+ajvar*' in boolean mode) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"domaći\" (a third of the catalogue)",
+            "uri": "/proizvodi?q=doma%C4%87i",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 194861,
+            "queries": 9,
+            "queries_min": 9,
+            "queries_max": 9,
+            "db_ms": 107,
+            "ms": 125.2,
+            "ms_p95": 131.8,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 14,
+                "db_ms": 163.6,
+                "ms": 200.6,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 39.79,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode) order by MATCH (`products`.`name`, `products`.`description`) AGAINST ('+domaći*' IN BOOLEAN MODE) DESC, `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 37.63,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode)"
+                },
+                {
+                    "ms": 26.51,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"domaći\", page 100",
+            "uri": "/proizvodi?q=doma%C4%87i&page=100",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 190593,
+            "queries": 4,
+            "queries_min": 4,
+            "queries_max": 4,
+            "db_ms": 76.5,
+            "ms": 90.9,
+            "ms_p95": 96,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 146.2,
+                "ms": 179.8,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 42.38,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode) order by MATCH (`products`.`name`, `products`.`description`) AGAINST ('+domaći*' IN BOOLEAN MODE) DESC, `created_at` desc, `id` desc limit 20 offset 1980"
+                },
+                {
+                    "ms": 35.04,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode)"
+                },
+                {
+                    "ms": 1.09,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (46346, 46350, 46353, 46367, 46371, 46378, 46392, 46432, 46438, 46461, 46466, 46472, 46479, 46492, 46507, 46509, 46510, 46521, 46530, 46568) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"domaći\", cheapest first",
+            "uri": "/proizvodi?q=doma%C4%87i&sort=price_asc",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 196337,
+            "queries": 9,
+            "queries_min": 9,
+            "queries_max": 9,
+            "db_ms": 94.4,
+            "ms": 111.8,
+            "ms_p95": 121.5,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 14,
+                "db_ms": 152.9,
+                "ms": 188.2,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 36,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode)"
+                },
+                {
+                    "ms": 29.62,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode) order by `price` asc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 28.33,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+domaći*' in boolean mode) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"med\" (three letters)",
+            "uri": "/proizvodi?q=med",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 195982,
+            "queries": 9,
+            "queries_min": 9,
+            "queries_max": 9,
+            "db_ms": 49.2,
+            "ms": 66.7,
+            "ms_p95": 71.1,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 14,
+                "db_ms": 121.8,
+                "ms": 159.7,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 17.82,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+med*' in boolean mode)"
+                },
+                {
+                    "ms": 16.65,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+med*' in boolean mode) order by MATCH (`products`.`name`, `products`.`description`) AGAINST ('+med*' IN BOOLEAN MODE) DESC, `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 12.24,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+med*' in boolean mode) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"šljivovica prepečenica\" (two words)",
+            "uri": "/proizvodi?q=%C5%A1ljivovica%20prepe%C4%8Denica",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 191304,
+            "queries": 9,
+            "queries_min": 9,
+            "queries_max": 9,
+            "db_ms": 7.5,
+            "ms": 23.2,
+            "ms_p95": 24.7,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 14,
+                "db_ms": 69.5,
+                "ms": 103.7,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.22,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+šljivovica* +prepečenica*' in boolean mode) order by MATCH (`products`.`name`, `products`.`description`) AGAINST ('+šljivovica* +prepečenica*' IN BOOLEAN MODE) DESC, `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 2.12,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+šljivovica* +prepečenica*' in boolean mode)"
+                },
+                {
+                    "ms": 1.62,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+šljivovica* +prepečenica*' in boolean mode) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"od\" (too short for the FULLTEXT index)",
+            "uri": "/proizvodi?q=od",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 198723,
+            "queries": 9,
+            "queries_min": 9,
+            "queries_max": 9,
+            "db_ms": 178.1,
+            "ms": 196.3,
+            "ms_p95": 202.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 14,
+                "db_ms": 224.4,
+                "ms": 259.4,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 97.18,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`name` like '%od%' or `products`.`description` like '%od%') order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 77.54,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`name` like '%od%' or `products`.`description` like '%od%')"
+                },
+                {
+                    "ms": 0.82,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`name` like '%od%' or `products`.`description` like '%od%') and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"kivi\" (no match)",
+            "uri": "/proizvodi?q=kivi",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 173437,
+            "queries": 4,
+            "queries_min": 4,
+            "queries_max": 4,
+            "db_ms": 2.1,
+            "ms": 16.8,
+            "ms_p95": 21.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 65.7,
+                "ms": 101,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.72,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+kivi*' in boolean mode)"
+                },
+                {
+                    "ms": 0.63,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+kivi*' in boolean mode) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                },
+                {
+                    "ms": 0.45,
+                    "sql": "select distinct `boostable_id` from `boosts` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:27' and `boostable_type` = 'product'"
+                }
+            ]
+        },
+        {
+            "group": "Search",
+            "name": "\"ajvar\" in a category, in stock",
+            "uri": "/proizvodi?q=ajvar&category_id=31&in_stock=1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 191976,
+            "queries": 7,
+            "queries_min": 7,
+            "queries_max": 7,
+            "db_ms": 16.6,
+            "ms": 33.3,
+            "ms_p95": 51.7,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 81.9,
+                "ms": 118.1,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 5.25,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+ajvar*' in boolean mode) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and `stock_quantity` > 0"
+                },
+                {
+                    "ms": 5.1,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+ajvar*' in boolean mode) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and `stock_quantity` > 0 order by MATCH (`products`.`name`, `products`.`description`) AGAINST ('+ajvar*' IN BOOLEAN MODE) DESC, `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 4.26,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and match (`products`.`name`, `products`.`description`) against ('+ajvar*' in boolean mode) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and `stock_quantity` > 0 and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Category",
+            "name": "Zimnica (with subcategories), page 1",
+            "uri": "/kategorija/zimnica",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 198436,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 106.2,
+            "ms": 124,
+            "ms_p95": 129.4,
+            "cache_hits": 4,
+            "after_queries": 0,
+            "cold": {
+                "queries": 18,
+                "db_ms": 292.7,
+                "ms": 340.1,
+                "cache_misses": 3
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 54.05,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 47.11,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31))"
+                },
+                {
+                    "ms": 0.74,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Category",
+            "name": "Zimnica, last page",
+            "uri": "/kategorija/zimnica?page=160",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 188583,
+            "queries": 6,
+            "queries_min": 6,
+            "queries_max": 6,
+            "db_ms": 107.8,
+            "ms": 122.9,
+            "ms_p95": 124,
+            "cache_hits": 4,
+            "after_queries": 0,
+            "cold": {
+                "queries": 14,
+                "db_ms": 266.7,
+                "ms": 309.1,
+                "cache_misses": 3
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 58.35,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) order by `created_at` desc, `id` desc limit 20 offset 3180"
+                },
+                {
+                    "ms": 48.92,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31))"
+                },
+                {
+                    "ms": 0.6,
+                    "sql": "select `id`, `name`, `slug` from `categories` where `parent_id` = 31 and exists (select * from `products` where `categories`.`id` = `products`.`category_id` and `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null)) order by `name` asc"
+                }
+            ]
+        },
+        {
+            "group": "Category",
+            "name": "Zimnica, cheapest first",
+            "uri": "/kategorija/zimnica?sort=price_asc",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 197808,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 108.2,
+            "ms": 125.7,
+            "ms_p95": 130.1,
+            "cache_hits": 4,
+            "after_queries": 0,
+            "cold": {
+                "queries": 18,
+                "db_ms": 280.9,
+                "ms": 327.5,
+                "cache_misses": 3
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 56.59,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) order by `price` asc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 50.44,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31))"
+                },
+                {
+                    "ms": 0.71,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 31 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 31)) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Category",
+            "name": "Ajvar (a subcategory), page 1",
+            "uri": "/kategorija/ajvar",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 196506,
+            "queries": 9,
+            "queries_min": 9,
+            "queries_max": 9,
+            "db_ms": 101.8,
+            "ms": 118.9,
+            "ms_p95": 137.3,
+            "cache_hits": 4,
+            "after_queries": 0,
+            "cold": {
+                "queries": 17,
+                "db_ms": 262.6,
+                "ms": 305.6,
+                "cache_misses": 3
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 48.92,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 32 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 32)) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 45.52,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 32 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 32))"
+                },
+                {
+                    "ms": 0.61,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 32 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 32)) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Category",
+            "name": "Voće (no subcategories), page 1",
+            "uri": "/kategorija/voce",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 196464,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 106.1,
+            "ms": 123.7,
+            "ms_p95": 130.3,
+            "cache_hits": 4,
+            "after_queries": 0,
+            "cold": {
+                "queries": 18,
+                "db_ms": 267.4,
+                "ms": 314.3,
+                "cache_misses": 3
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 53.8,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 1 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 1)) order by `created_at` desc, `id` desc limit 20 offset 0"
+                },
+                {
+                    "ms": 46.32,
+                    "sql": "select count(*) as aggregate from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 1 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 1))"
+                },
+                {
+                    "ms": 0.73,
+                    "sql": "select `products`.`id`, `products`.`producer_id`, `products`.`name`, `products`.`slug`, `products`.`price`, `products`.`unit`, `products`.`stock_quantity`, `products`.`season_from`, `products`.`season_to`, `products`.`created_at` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and (`products`.`category_id` = 1 or `products`.`category_id` in (select `id` from `categories` where `parent_id` = 1)) and `id` in (44884, 44996, 46336, 29620, 42183, 28756, 21151, 15384, 42114, 26505, 19332, 10668, 7405, 18144, 27949, 16207, 30489, 13881, 39742, 10723, 47088, 6576, 49504, 41608, 37720, 14433, 3813, 32742, 45884, 16601, 4758, 4771, 27836, 11690, 2991, 18834, 10226, 45105, 33402, 1474) order by RAND() limit 8"
+                }
+            ]
+        },
+        {
+            "group": "Producer directory",
+            "name": "page 1",
+            "uri": "/proizvodjaci",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 63574,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 14.5,
+            "ms": 27,
+            "ms_p95": 36,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 14.6,
+                "ms": 27.6,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 6.34,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and `id` in (26, 28, 35, 37, 46, 50, 59, 73, 76, 77, 79, 91, 95, 103, 104, 125, 141, 149, 153, 159, 164, 166, 176, 178, 204, 246, 252, 253, 258, 269, 273, 278, 292, 297, 309, 319, 345, 347, 357, 358, 375, 380, 383, 385, 387, 392, 405, 408, 409, 411, 417, 422, 423, 426, 444, 445, 446, 447, 477, 478, 522, 529, 563, 566, 575, 582, 596, 602, 606, 610, 618, 622, 630, 632, 634, 642, 645, 667, 673, 679, 686, 688, 693, 694, 708, 721, 726, 729, 743, 747, 748, 765, 777, 778, 798, 814, 820, 825, 829, 837, 841, 844, 848, 851, 860, 863, 881, 882, 892, 902, 922, 933, 938, 946, 953, 955, 958, 962, 964, 987, 991, 997, 999, 1004, 1009, 1022, 1031, 1040, 1055, 1058, 1082, 1091, 1112, 1123, 1135, 1145, 1150, 1151, 1174, 1199, 1206, 1221, 1224, 1237, 1246, 1251, 1256, 1273, 1284, 1288, 1289, 1305, 1306, 1317, 1327, 1331, 1341, 1351, 1362, 1369, 1375, 1407, 1408, 1430, 1458, 1465, 1467, 1471, 1473, 1492, 1501, 1518, 1531, 1542, 1592, 1606, 1613, 1616, 1657, 1677, 1697, 1719, 1720, 1724, 1728, 1729, 1730, 1733, 1748, 1760, 1769, 1785, 1803, 1817, 1843, 1862, 1863, 1870, 1872, 1884, 1889, 1897, 1906, 1937, 1950, 1951, 1955, 1964, 1978, 1989, 1215, 766, 397, 1832, 1859, 1668, 657, 202, 800, 1792, 1620, 524, 1991, 1732, 1617, 776, 1155, 1, 342, 1520, 513, 1867, 1903, 1138, 900, 1372, 1253) and `producers`.`deleted_at` is null order by RAND() limit 6"
+                },
+                {
+                    "ms": 2.44,
+                    "sql": "select distinct `city` from `producers` where `producers`.`status` = 'active' and `city` is not null and `producers`.`deleted_at` is null order by `city` asc"
+                },
+                {
+                    "ms": 1.24,
+                    "sql": "select count(*) as aggregate from `producers` where `producers`.`status` = 'active' and `producers`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Producer directory",
+            "name": "last page",
+            "uri": "/proizvodjaci?page=151",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 48556,
+            "queries": 7,
+            "queries_min": 7,
+            "queries_max": 7,
+            "db_ms": 9.3,
+            "ms": 18.4,
+            "ms_p95": 23.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 7,
+                "db_ms": 9.7,
+                "ms": 22.4,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 4.2,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and `producers`.`deleted_at` is null order by `name` asc limit 12 offset 1800"
+                },
+                {
+                    "ms": 2.22,
+                    "sql": "select distinct `city` from `producers` where `producers`.`status` = 'active' and `city` is not null and `producers`.`deleted_at` is null order by `city` asc"
+                },
+                {
+                    "ms": 1.11,
+                    "sql": "select count(*) as aggregate from `producers` where `producers`.`status` = 'active' and `producers`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Producer directory",
+            "name": "city filter (Niš)",
+            "uri": "/proizvodjaci?city=Ni%C5%A1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 62390,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 9.7,
+            "ms": 21.8,
+            "ms_p95": 25.7,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 9.9,
+                "ms": 22.3,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.33,
+                    "sql": "select distinct `city` from `producers` where `producers`.`status` = 'active' and `city` is not null and `producers`.`deleted_at` is null order by `city` asc"
+                },
+                {
+                    "ms": 2.06,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and `city` = 'Niš' and `id` in (26, 28, 35, 37, 46, 50, 59, 73, 76, 77, 79, 91, 95, 103, 104, 125, 141, 149, 153, 159, 164, 166, 176, 178, 204, 246, 252, 253, 258, 269, 273, 278, 292, 297, 309, 319, 345, 347, 357, 358, 375, 380, 383, 385, 387, 392, 405, 408, 409, 411, 417, 422, 423, 426, 444, 445, 446, 447, 477, 478, 522, 529, 563, 566, 575, 582, 596, 602, 606, 610, 618, 622, 630, 632, 634, 642, 645, 667, 673, 679, 686, 688, 693, 694, 708, 721, 726, 729, 743, 747, 748, 765, 777, 778, 798, 814, 820, 825, 829, 837, 841, 844, 848, 851, 860, 863, 881, 882, 892, 902, 922, 933, 938, 946, 953, 955, 958, 962, 964, 987, 991, 997, 999, 1004, 1009, 1022, 1031, 1040, 1055, 1058, 1082, 1091, 1112, 1123, 1135, 1145, 1150, 1151, 1174, 1199, 1206, 1221, 1224, 1237, 1246, 1251, 1256, 1273, 1284, 1288, 1289, 1305, 1306, 1317, 1327, 1331, 1341, 1351, 1362, 1369, 1375, 1407, 1408, 1430, 1458, 1465, 1467, 1471, 1473, 1492, 1501, 1518, 1531, 1542, 1592, 1606, 1613, 1616, 1657, 1677, 1697, 1719, 1720, 1724, 1728, 1729, 1730, 1733, 1748, 1760, 1769, 1785, 1803, 1817, 1843, 1862, 1863, 1870, 1872, 1884, 1889, 1897, 1906, 1937, 1950, 1951, 1955, 1964, 1978, 1989, 1215, 766, 397, 1832, 1859, 1668, 657, 202, 800, 1792, 1620, 524, 1991, 1732, 1617, 776, 1155, 1, 342, 1520, 513, 1867, 1903, 1138, 900, 1372, 1253) and `producers`.`deleted_at` is null order by RAND() limit 6"
+                },
+                {
+                    "ms": 1.04,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and `city` = 'Niš' and `producers`.`deleted_at` is null order by `name` asc limit 12 offset 0"
+                }
+            ]
+        },
+        {
+            "group": "Producer directory",
+            "name": "search \"jovanović\"",
+            "uri": "/proizvodjaci?q=jovanovi%C4%87",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 55576,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 8.5,
+            "ms": 21,
+            "ms_p95": 25.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 8.8,
+                "ms": 20.3,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.36,
+                    "sql": "select distinct `city` from `producers` where `producers`.`status` = 'active' and `city` is not null and `producers`.`deleted_at` is null order by `city` asc"
+                },
+                {
+                    "ms": 0.98,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and match (`producers`.`name`, `producers`.`description`) against ('+jovanović*' in boolean mode) and `id` in (26, 28, 35, 37, 46, 50, 59, 73, 76, 77, 79, 91, 95, 103, 104, 125, 141, 149, 153, 159, 164, 166, 176, 178, 204, 246, 252, 253, 258, 269, 273, 278, 292, 297, 309, 319, 345, 347, 357, 358, 375, 380, 383, 385, 387, 392, 405, 408, 409, 411, 417, 422, 423, 426, 444, 445, 446, 447, 477, 478, 522, 529, 563, 566, 575, 582, 596, 602, 606, 610, 618, 622, 630, 632, 634, 642, 645, 667, 673, 679, 686, 688, 693, 694, 708, 721, 726, 729, 743, 747, 748, 765, 777, 778, 798, 814, 820, 825, 829, 837, 841, 844, 848, 851, 860, 863, 881, 882, 892, 902, 922, 933, 938, 946, 953, 955, 958, 962, 964, 987, 991, 997, 999, 1004, 1009, 1022, 1031, 1040, 1055, 1058, 1082, 1091, 1112, 1123, 1135, 1145, 1150, 1151, 1174, 1199, 1206, 1221, 1224, 1237, 1246, 1251, 1256, 1273, 1284, 1288, 1289, 1305, 1306, 1317, 1327, 1331, 1341, 1351, 1362, 1369, 1375, 1407, 1408, 1430, 1458, 1465, 1467, 1471, 1473, 1492, 1501, 1518, 1531, 1542, 1592, 1606, 1613, 1616, 1657, 1677, 1697, 1719, 1720, 1724, 1728, 1729, 1730, 1733, 1748, 1760, 1769, 1785, 1803, 1817, 1843, 1862, 1863, 1870, 1872, 1884, 1889, 1897, 1906, 1937, 1950, 1951, 1955, 1964, 1978, 1989, 1215, 766, 397, 1832, 1859, 1668, 657, 202, 800, 1792, 1620, 524, 1991, 1732, 1617, 776, 1155, 1, 342, 1520, 513, 1867, 1903, 1138, 900, 1372, 1253) and `producers`.`deleted_at` is null order by RAND() limit 6"
+                },
+                {
+                    "ms": 0.9,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and match (`producers`.`name`, `producers`.`description`) against ('+jovanović*' in boolean mode) and `producers`.`deleted_at` is null order by MATCH (`producers`.`name`, `producers`.`description`) AGAINST ('+jovanović*' IN BOOLEAN MODE) DESC, `name` asc limit 12 offset 0"
+                }
+            ]
+        },
+        {
+            "group": "Producer directory",
+            "name": "nearest to me",
+            "uri": "/proizvodjaci?lat=43.32&lng=21.9",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 63429,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 16.6,
+            "ms": 30.6,
+            "ms_p95": 34.9,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 16.3,
+                "ms": 29.2,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 5.96,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and `id` in (26, 28, 35, 37, 46, 50, 59, 73, 76, 77, 79, 91, 95, 103, 104, 125, 141, 149, 153, 159, 164, 166, 176, 178, 204, 246, 252, 253, 258, 269, 273, 278, 292, 297, 309, 319, 345, 347, 357, 358, 375, 380, 383, 385, 387, 392, 405, 408, 409, 411, 417, 422, 423, 426, 444, 445, 446, 447, 477, 478, 522, 529, 563, 566, 575, 582, 596, 602, 606, 610, 618, 622, 630, 632, 634, 642, 645, 667, 673, 679, 686, 688, 693, 694, 708, 721, 726, 729, 743, 747, 748, 765, 777, 778, 798, 814, 820, 825, 829, 837, 841, 844, 848, 851, 860, 863, 881, 882, 892, 902, 922, 933, 938, 946, 953, 955, 958, 962, 964, 987, 991, 997, 999, 1004, 1009, 1022, 1031, 1040, 1055, 1058, 1082, 1091, 1112, 1123, 1135, 1145, 1150, 1151, 1174, 1199, 1206, 1221, 1224, 1237, 1246, 1251, 1256, 1273, 1284, 1288, 1289, 1305, 1306, 1317, 1327, 1331, 1341, 1351, 1362, 1369, 1375, 1407, 1408, 1430, 1458, 1465, 1467, 1471, 1473, 1492, 1501, 1518, 1531, 1542, 1592, 1606, 1613, 1616, 1657, 1677, 1697, 1719, 1720, 1724, 1728, 1729, 1730, 1733, 1748, 1760, 1769, 1785, 1803, 1817, 1843, 1862, 1863, 1870, 1872, 1884, 1889, 1897, 1906, 1937, 1950, 1951, 1955, 1964, 1978, 1989, 1215, 766, 397, 1832, 1859, 1668, 657, 202, 800, 1792, 1620, 524, 1991, 1732, 1617, 776, 1155, 1, 342, 1520, 513, 1867, 1903, 1138, 900, 1372, 1253) and `producers`.`deleted_at` is null order by RAND() limit 6"
+                },
+                {
+                    "ms": 3.2,
+                    "sql": "select `producers`.`id`, `producers`.`name`, `producers`.`slug`, `producers`.`city`, `producers`.`description`, `producers`.`cover_image_path`, `producers`.`logo_path`, `producers`.`verified_at`, `producers`.`delivery_methods`, `producers`.`lat`, `producers`.`lng`, (select avg(`reviews`.`rating`) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_avg_rating`, (select count(*) from `reviews` where `producers`.`id` = `reviews`.`producer_id` and `status` = 'approved') as `reviews_count`, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id` and `status` = 'active') as `products_count` from `producers` where `producers`.`status` = 'active' and `producers`.`deleted_at` is null order by case when producers.lat is null or producers.lng is null then 1 else 0 end, (producers.lat - 43.32) * (producers.lat - 43.32) + (producers.lng - 21.9) * (producers.lng - 21.9) * 0.52930472815555, `name` asc limit 12 offset 0"
+                },
+                {
+                    "ms": 2.19,
+                    "sql": "select distinct `city` from `producers` where `producers`.`status` = 'active' and `city` is not null and `producers`.`deleted_at` is null order by `city` asc"
+                }
+            ]
+        },
+        {
+            "group": "Producer profile",
+            "name": "busiest producer (500 products, 750 reviews)",
+            "uri": "/proizvodjac/zadruga-petrovic",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 49133,
+            "queries": 14,
+            "queries_min": 14,
+            "queries_max": 14,
+            "db_ms": 6.3,
+            "ms": 16,
+            "ms_p95": 19,
+            "cache_hits": 2,
+            "after_queries": 0,
+            "cold": {
+                "queries": 17,
+                "db_ms": 82.8,
+                "ms": 127,
+                "cache_misses": 2
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.63,
+                    "sql": "select count(*) as aggregate from `users` inner join `producer_follows` on `users`.`id` = `producer_follows`.`user_id` where `producer_follows`.`producer_id` = 1 and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 1.04,
+                    "sql": "select avg(rating) as average, count(*) as total from `reviews` where `reviews`.`producer_id` = 1 and `reviews`.`producer_id` is not null and `status` = 'approved' limit 1"
+                },
+                {
+                    "ms": 0.43,
+                    "sql": "select * from `producers` where `slug` = 'zadruga-petrovic' and `producers`.`deleted_at` is null limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Producer profile",
+            "name": "busiest producer, last page of reviews",
+            "uri": "/proizvodjac/zadruga-petrovic?page=75",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 43474,
+            "queries": 14,
+            "queries_min": 14,
+            "queries_max": 14,
+            "db_ms": 7,
+            "ms": 15.8,
+            "ms_p95": 20,
+            "cache_hits": 2,
+            "after_queries": 0,
+            "cold": {
+                "queries": 17,
+                "db_ms": 83.5,
+                "ms": 130.3,
+                "cache_misses": 2
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.64,
+                    "sql": "select count(*) as aggregate from `users` inner join `producer_follows` on `users`.`id` = `producer_follows`.`user_id` where `producer_follows`.`producer_id` = 1 and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 1.06,
+                    "sql": "select avg(rating) as average, count(*) as total from `reviews` where `reviews`.`producer_id` = 1 and `reviews`.`producer_id` is not null and `status` = 'approved' limit 1"
+                },
+                {
+                    "ms": 1.04,
+                    "sql": "select * from `reviews` where `producer_id` = 1 and `status` = 'approved' order by `created_at` desc limit 10 offset 740"
+                }
+            ]
+        },
+        {
+            "group": "Producer profile",
+            "name": "busiest producer, signed in",
+            "uri": "/proizvodjac/zadruga-petrovic",
+            "as": "buyer1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 50026,
+            "queries": 25,
+            "queries_min": 25,
+            "queries_max": 25,
+            "db_ms": 9.9,
+            "ms": 22.9,
+            "ms_p95": 25.2,
+            "cache_hits": 3,
+            "after_queries": 0,
+            "cold": {
+                "queries": 29,
+                "db_ms": 85.7,
+                "ms": 138.6,
+                "cache_misses": 3
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.74,
+                    "sql": "select count(*) as aggregate from `users` inner join `producer_follows` on `users`.`id` = `producer_follows`.`user_id` where `producer_follows`.`producer_id` = 1 and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 1.07,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                },
+                {
+                    "ms": 1.02,
+                    "sql": "select avg(rating) as average, count(*) as total from `reviews` where `reviews`.`producer_id` = 1 and `reviews`.`producer_id` is not null and `status` = 'approved' limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Producer profile",
+            "name": "ordinary producer",
+            "uri": "/proizvodjac/gazdinstvo-popovic-1",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 41075,
+            "queries": 14,
+            "queries_min": 14,
+            "queries_max": 14,
+            "db_ms": 4.2,
+            "ms": 12.9,
+            "ms_p95": 15,
+            "cache_hits": 2,
+            "after_queries": 0,
+            "cold": {
+                "queries": 17,
+                "db_ms": 75.1,
+                "ms": 96.1,
+                "cache_misses": 2
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.41,
+                    "sql": "select * from `producers` where `slug` = 'gazdinstvo-popovic-1' and `producers`.`deleted_at` is null limit 1"
+                },
+                {
+                    "ms": 0.41,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (4958, 6277, 7015, 8569, 9089, 9522, 11029, 12989, 13349, 14670, 20509, 27174, 32767, 32912, 42017) order by `order` asc"
+                },
+                {
+                    "ms": 0.38,
+                    "sql": "select exists(select * from `producer_subscriptions` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:41' and `starts_at` <= '2026-10-09 01:43:41' and `producer_id` = 1007 and `subscription_plan_id` in (2, 3)) as `exists`"
+                }
+            ]
+        },
+        {
+            "group": "Product page",
+            "name": "a product of the busiest producer",
+            "uri": "/proizvod/jaja-od-kokosi-iz-slobodnog-uzgoja-porodicno-pakovanje-129",
+            "as": null,
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 29921,
+            "queries": 6,
+            "queries_min": 6,
+            "queries_max": 6,
+            "db_ms": 2.9,
+            "ms": 9,
+            "ms_p95": 13.8,
+            "cache_hits": 2,
+            "after_queries": 0,
+            "cold": {
+                "queries": 9,
+                "db_ms": 81.1,
+                "ms": 126.9,
+                "cache_misses": 2
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.51,
+                    "sql": "select `id`, `name`, `slug` from `products` where `products`.`status` = 'active' and exists (select * from `producers` where `products`.`producer_id` = `producers`.`id` and `producers`.`status` = 'active' and `producers`.`deleted_at` is null) and `category_id` = 19 and `products`.`id` != 49902 limit 4"
+                },
+                {
+                    "ms": 0.37,
+                    "sql": "select * from `products` where `slug` = 'jaja-od-kokosi-iz-slobodnog-uzgoja-porodicno-pakovanje-129' limit 1"
+                },
+                {
+                    "ms": 0.28,
+                    "sql": "select `id`, `product_id`, `path`, `order` from `product_images` where `product_images`.`product_id` in (13426, 18805, 24930, 29527) order by `order` asc"
+                }
+            ]
+        },
+        {
+            "group": "Inbox",
+            "name": "buyer with 280 conversations, page 1",
+            "uri": "/poruke",
+            "as": "buyer1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 36993,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 8,
+            "ms": 17.2,
+            "ms_p95": 20.1,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 8.5,
+                "ms": 18.1,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.36,
+                    "sql": "select count(*) as aggregate from (select max(id) as last_message_id, sum(case when sender_id != 1904 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 1904 or 0 = 1) group by `producer_id`, `buyer_id`) as `aggregate_table`"
+                },
+                {
+                    "ms": 1.67,
+                    "sql": "select max(id) as last_message_id, sum(case when sender_id != 1904 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 1904 or 0 = 1) group by `producer_id`, `buyer_id` order by `last_message_id` desc limit 30 offset 0"
+                },
+                {
+                    "ms": 1.02,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Inbox",
+            "name": "buyer with 280 conversations, last page",
+            "uri": "/poruke?page=10",
+            "as": "buyer1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 27363,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 7.4,
+            "ms": 14.7,
+            "ms_p95": 17,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 8,
+                "ms": 15.7,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.11,
+                    "sql": "select count(*) as aggregate from (select max(id) as last_message_id, sum(case when sender_id != 1904 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 1904 or 0 = 1) group by `producer_id`, `buyer_id`) as `aggregate_table`"
+                },
+                {
+                    "ms": 1.6,
+                    "sql": "select max(id) as last_message_id, sum(case when sender_id != 1904 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 1904 or 0 = 1) group by `producer_id`, `buyer_id` order by `last_message_id` desc limit 30 offset 270"
+                },
+                {
+                    "ms": 1.02,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Inbox",
+            "name": "buyer with one conversation",
+            "uri": "/poruke",
+            "as": "buyer6000@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 21693,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 3.2,
+            "ms": 9.7,
+            "ms_p95": 13.5,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 2.9,
+                "ms": 11.2,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.39,
+                    "sql": "select count(*) as aggregate from (select max(id) as last_message_id, sum(case when sender_id != 7903 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 7903 or 0 = 1) group by `producer_id`, `buyer_id`) as `aggregate_table`"
+                },
+                {
+                    "ms": 0.32,
+                    "sql": "select * from `users` where `users`.`id` = 7903 and `users`.`deleted_at` is null limit 1"
+                },
+                {
+                    "ms": 0.32,
+                    "sql": "select `roles`.`id`, `roles`.`name`, `model_has_roles`.`model_id` as `pivot_model_id`, `model_has_roles`.`role_id` as `pivot_role_id`, `model_has_roles`.`model_type` as `pivot_model_type` from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `model_has_roles`.`model_id` in (7903) and `model_has_roles`.`model_type` = 'user'"
+                }
+            ]
+        },
+        {
+            "group": "Inbox",
+            "name": "producer with 1,800 conversations, page 1",
+            "uri": "/poruke",
+            "as": "seller1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 37109,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 31.3,
+            "ms": 41.4,
+            "ms_p95": 42.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 32.3,
+                "ms": 45.2,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 13.51,
+                    "sql": "select count(*) as aggregate from (select max(id) as last_message_id, sum(case when sender_id != 4 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 4 or `producer_id` in (1, 1901)) group by `producer_id`, `buyer_id`) as `aggregate_table`"
+                },
+                {
+                    "ms": 13.41,
+                    "sql": "select max(id) as last_message_id, sum(case when sender_id != 4 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 4 or `producer_id` in (1, 1901)) group by `producer_id`, `buyer_id` order by `last_message_id` desc limit 30 offset 0"
+                },
+                {
+                    "ms": 1.12,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 4 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 4"
+                }
+            ]
+        },
+        {
+            "group": "Inbox",
+            "name": "producer with 1,800 conversations, page 30",
+            "uri": "/poruke?page=30",
+            "as": "seller1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 37482,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 30.3,
+            "ms": 40,
+            "ms_p95": 44.7,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 31.3,
+                "ms": 44.1,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 13.01,
+                    "sql": "select count(*) as aggregate from (select max(id) as last_message_id, sum(case when sender_id != 4 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 4 or `producer_id` in (1, 1901)) group by `producer_id`, `buyer_id`) as `aggregate_table`"
+                },
+                {
+                    "ms": 12.95,
+                    "sql": "select max(id) as last_message_id, sum(case when sender_id != 4 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 4 or `producer_id` in (1, 1901)) group by `producer_id`, `buyer_id` order by `last_message_id` desc limit 30 offset 870"
+                },
+                {
+                    "ms": 1.08,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 4 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 4"
+                }
+            ]
+        },
+        {
+            "group": "Inbox",
+            "name": "producer with 1,800 conversations, last page",
+            "uri": "/poruke?page=62",
+            "as": "seller1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 28447,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 30.2,
+            "ms": 38.8,
+            "ms_p95": 42.6,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 29.9,
+                "ms": 38.4,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 13.16,
+                    "sql": "select max(id) as last_message_id, sum(case when sender_id != 4 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 4 or `producer_id` in (1, 1901)) group by `producer_id`, `buyer_id` order by `last_message_id` desc limit 30 offset 1830"
+                },
+                {
+                    "ms": 13.12,
+                    "sql": "select count(*) as aggregate from (select max(id) as last_message_id, sum(case when sender_id != 4 and read_at is null then 1 else 0 end) as unread_count from `producer_messages` where (`buyer_id` = 4 or `producer_id` in (1, 1901)) group by `producer_id`, `buyer_id`) as `aggregate_table`"
+                },
+                {
+                    "ms": 1.12,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 4 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 4"
+                }
+            ]
+        },
+        {
+            "group": "Thread",
+            "name": "buyer's side, newest page (20 messages)",
+            "uri": "/poruke/mlekara-cvetkovic-prokuplje",
+            "as": "buyer1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 29677,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 4.8,
+            "ms": 13.5,
+            "ms_p95": 16.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 6.7,
+                "ms": 16.2,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                },
+                {
+                    "ms": 0.65,
+                    "sql": "update `producer_messages` set `read_at` = '2026-10-09 01:43:44', `producer_messages`.`updated_at` = '2026-10-09 01:43:44' where `producer_id` = 63 and `buyer_id` = 1904 and `sender_id` != 1904 and `read_at` is null"
+                },
+                {
+                    "ms": 0.43,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `buyer_id` = 1904 and `read_at` is null and `sender_id` != 1904"
+                }
+            ]
+        },
+        {
+            "group": "Thread",
+            "name": "buyer's side, oldest page",
+            "uri": "/poruke/mlekara-cvetkovic-prokuplje?page=1",
+            "as": "buyer1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 29684,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 4.8,
+            "ms": 13.4,
+            "ms_p95": 16.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 13,
+                "db_ms": 5.2,
+                "ms": 14.4,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.08,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                },
+                {
+                    "ms": 0.66,
+                    "sql": "update `producer_messages` set `read_at` = '2026-10-09 01:43:45', `producer_messages`.`updated_at` = '2026-10-09 01:43:45' where `producer_id` = 63 and `buyer_id` = 1904 and `sender_id` != 1904 and `read_at` is null"
+                },
+                {
+                    "ms": 0.42,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `buyer_id` = 1904 and `read_at` is null and `sender_id` != 1904"
+                }
+            ]
+        },
+        {
+            "group": "Thread",
+            "name": "producer's side, newest page (312 messages)",
+            "uri": "/poruke-proizvodjaca/1/5573",
+            "as": "seller1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 40097,
+            "queries": 14,
+            "queries_min": 14,
+            "queries_max": 14,
+            "db_ms": 5.4,
+            "ms": 15.7,
+            "ms_p95": 19.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 15,
+                "db_ms": 6.6,
+                "ms": 17.8,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.06,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 4 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 4"
+                },
+                {
+                    "ms": 0.8,
+                    "sql": "select * from `producer_messages` where `producer_id` = 1 and `buyer_id` = 5573 order by `id` desc limit 51 offset 0"
+                },
+                {
+                    "ms": 0.41,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 4 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Thread",
+            "name": "producer's side, oldest page",
+            "uri": "/poruke-proizvodjaca/1/5573?page=7",
+            "as": "seller1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 27041,
+            "queries": 16,
+            "queries_min": 16,
+            "queries_max": 16,
+            "db_ms": 5.7,
+            "ms": 14.7,
+            "ms_p95": 17.9,
+            "cache_hits": 1,
+            "after_queries": 0,
+            "cold": {
+                "queries": 17,
+                "db_ms": 5.8,
+                "ms": 14.9,
+                "cache_misses": 1
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.07,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 4 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 4"
+                },
+                {
+                    "ms": 0.76,
+                    "sql": "select * from `producer_messages` where `producer_id` = 1 and `buyer_id` = 5573 order by `id` desc limit 51 offset 300"
+                },
+                {
+                    "ms": 0.44,
+                    "sql": "select * from `users` where `users`.`id` = 4 and `users`.`deleted_at` is null limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Header poll",
+            "name": "unread badges, busiest producer",
+            "uri": "/proizvodi",
+            "as": "seller1@loadtest.test",
+            "headers": {
+                "X-Inertia": "true",
+                "X-Inertia-Partial-Component": "marketplace/products/index",
+                "X-Inertia-Partial-Data": "unreadMessages,unreadNotifications"
+            },
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 221,
+            "queries": 5,
+            "queries_min": 5,
+            "queries_max": 5,
+            "db_ms": 2.5,
+            "ms": 5.9,
+            "ms_p95": 9.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 5,
+                "db_ms": 2.6,
+                "ms": 6.5,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 1.05,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 4 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 4"
+                },
+                {
+                    "ms": 0.41,
+                    "sql": "select * from `users` where `users`.`id` = 4 and `users`.`deleted_at` is null limit 1"
+                },
+                {
+                    "ms": 0.38,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 4 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Header poll",
+            "name": "unread badges, buyer with 280 conversations",
+            "uri": "/proizvodi",
+            "as": "buyer1@loadtest.test",
+            "headers": {
+                "X-Inertia": "true",
+                "X-Inertia-Partial-Component": "marketplace/products/index",
+                "X-Inertia-Partial-Data": "unreadMessages,unreadNotifications"
+            },
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 220,
+            "queries": 5,
+            "queries_min": 5,
+            "queries_max": 5,
+            "db_ms": 2.5,
+            "ms": 5.6,
+            "ms_p95": 8.6,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 5,
+                "db_ms": 2.5,
+                "ms": 5.8,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.98,
+                    "sql": "select count(*) as aggregate from `notifications` where `notifications`.`notifiable_type` = 'user' and `notifications`.`notifiable_id` = 1904 and `notifications`.`notifiable_id` is not null and `read_at` is null"
+                },
+                {
+                    "ms": 0.47,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `buyer_id` = 1904 and `read_at` is null and `sender_id` != 1904"
+                },
+                {
+                    "ms": 0.34,
+                    "sql": "select * from `users` where `users`.`id` = 1904 and `users`.`deleted_at` is null limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "dashboard",
+            "uri": "/admin",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 29464,
+            "queries": 25,
+            "queries_min": 25,
+            "queries_max": 25,
+            "db_ms": 53.8,
+            "ms": 63.3,
+            "ms_p95": 66.7,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 25,
+                "db_ms": 82.1,
+                "ms": 94.1,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 30.03,
+                    "sql": "select count(*) as aggregate from (select distinct `producer_id`, `buyer_id` from `producer_messages`) as `threads`"
+                },
+                {
+                    "ms": 10.95,
+                    "sql": "select count(*) as aggregate from `producer_messages`"
+                },
+                {
+                    "ms": 2.41,
+                    "sql": "select count(*) as aggregate from `products`"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "users, page 1",
+            "uri": "/admin/korisnici",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 54283,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 14.7,
+            "ms": 27.4,
+            "ms_p95": 30.8,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 14.5,
+                "ms": 26.3,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 5.4,
+                    "sql": "select `id`, `name`, `email`, `avatar_path`, `blocked_at`, `created_at`, (select count(*) from `producers` where `users`.`id` = `producers`.`user_id` and `producers`.`deleted_at` is null) as `producers_count` from `users` where `users`.`deleted_at` is null order by `name` asc limit 50 offset 0"
+                },
+                {
+                    "ms": 2.06,
+                    "sql": "select count(*) as aggregate from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = 'user' and `name` = 'seller') and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 1.58,
+                    "sql": "select count(*) as aggregate from `users` where `blocked_at` is not null and `users`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "users, last page",
+            "uri": "/admin/korisnici?page=277",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 49760,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 28.7,
+            "ms": 41.8,
+            "ms_p95": 47.4,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 28.7,
+                "ms": 40.8,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 19.08,
+                    "sql": "select `id`, `name`, `email`, `avatar_path`, `blocked_at`, `created_at`, (select count(*) from `producers` where `users`.`id` = `producers`.`user_id` and `producers`.`deleted_at` is null) as `producers_count` from `users` where `users`.`deleted_at` is null order by `name` asc limit 50 offset 13800"
+                },
+                {
+                    "ms": 2.15,
+                    "sql": "select count(*) as aggregate from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = 'user' and `name` = 'seller') and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 1.62,
+                    "sql": "select count(*) as aggregate from `users` where `users`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "users, search \"jovan\"",
+            "uri": "/admin/korisnici?search=jovan",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 55722,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 18.5,
+            "ms": 32,
+            "ms_p95": 34.8,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 18.9,
+                "ms": 32.1,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 5.9,
+                    "sql": "select `id`, `name`, `email`, `avatar_path`, `blocked_at`, `created_at`, (select count(*) from `producers` where `users`.`id` = `producers`.`user_id` and `producers`.`deleted_at` is null) as `producers_count` from `users` where (`name` like '%jovan%' or `email` like '%jovan%') and `users`.`deleted_at` is null order by `name` asc limit 50 offset 0"
+                },
+                {
+                    "ms": 4.91,
+                    "sql": "select count(*) as aggregate from `users` where (`name` like '%jovan%' or `email` like '%jovan%') and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 2.09,
+                    "sql": "select count(*) as aggregate from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = 'user' and `name` = 'seller') and `users`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "users, sellers tab",
+            "uri": "/admin/korisnici?group=sellers",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 61809,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 16.9,
+            "ms": 31.3,
+            "ms_p95": 35.2,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 17.1,
+                "ms": 31,
+                "cache_misses": 0
+            },
+            "repeated": [
+                {
+                    "sql": "select count(*) as aggregate from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = ? and `name` = ?) and `users`.`deleted_at` is null",
+                    "count": 3
+                }
+            ],
+            "slowest": [
+                {
+                    "ms": 7.32,
+                    "sql": "select `id`, `name`, `email`, `avatar_path`, `blocked_at`, `created_at`, (select count(*) from `producers` where `users`.`id` = `producers`.`user_id` and `producers`.`deleted_at` is null) as `producers_count` from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = 'user' and `name` = 'seller') and `users`.`deleted_at` is null order by `name` asc limit 50 offset 0"
+                },
+                {
+                    "ms": 2.1,
+                    "sql": "select count(*) as aggregate from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = 'user' and `name` = 'seller') and `users`.`deleted_at` is null"
+                },
+                {
+                    "ms": 1.98,
+                    "sql": "select count(*) as aggregate from `users` where exists (select * from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `users`.`id` = `model_has_roles`.`model_id` and `model_has_roles`.`model_type` = 'user' and `name` = 'seller') and `users`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "producers, page 1",
+            "uri": "/admin/proizvodjaci",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 70849,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 6.2,
+            "ms": 17,
+            "ms_p95": 20.7,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 6.3,
+                "ms": 17.6,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.41,
+                    "sql": "select `producers`.*, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id`) as `products_count` from `producers` where `producers`.`deleted_at` is null order by CASE WHEN status = 'pending' THEN 0 ELSE 1 END, `created_at` desc limit 25 offset 0"
+                },
+                {
+                    "ms": 0.9,
+                    "sql": "select count(*) as aggregate from `producers` where `producers`.`deleted_at` is null"
+                },
+                {
+                    "ms": 0.53,
+                    "sql": "select `producer_subscriptions`.* from `producer_subscriptions` inner join (select MAX(`producer_subscriptions`.`id`) as `id_aggregate`, min(`producer_subscriptions`.`ends_at`) as `ends_at_aggregate`, `producer_subscriptions`.`producer_id` from `producer_subscriptions` inner join (select max(`producer_subscriptions`.`ends_at`) as `ends_at_aggregate`, `producer_subscriptions`.`producer_id` from `producer_subscriptions` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:49' and `producer_subscriptions`.`producer_id` in (72, 118, 144, 170, 337, 361, 390, 469, 500, 510, 609, 780, 809, 858, 957, 993, 1081, 1190, 1236, 1426, 1450, 1506, 1655, 1764, 1899) group by `producer_subscriptions`.`producer_id`) as `currentMembership` on `currentMembership`.`ends_at_aggregate` = `producer_subscriptions`.`ends_at` and `currentMembership`.`producer_id` = `producer_subscriptions`.`producer_id` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:49' group by `producer_subscriptions`.`producer_id`) as `currentMembership` on `currentMembership`.`id_aggregate` = `producer_subscriptions`.`id` and `currentMembership`.`ends_at_aggregate` = `producer_subscriptions`.`ends_at` and `currentMembership`.`producer_id` = `producer_subscriptions`.`producer_id`"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "producers, last page",
+            "uri": "/admin/proizvodjaci?page=80",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 44181,
+            "queries": 12,
+            "queries_min": 12,
+            "queries_max": 12,
+            "db_ms": 7.8,
+            "ms": 17.2,
+            "ms_p95": 22.5,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 12,
+                "db_ms": 7.5,
+                "ms": 16.5,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 3.84,
+                    "sql": "select `producers`.*, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id`) as `products_count` from `producers` where `producers`.`deleted_at` is null order by CASE WHEN status = 'pending' THEN 0 ELSE 1 END, `created_at` desc limit 25 offset 1975"
+                },
+                {
+                    "ms": 1,
+                    "sql": "select count(*) as aggregate from `producers` where `producers`.`deleted_at` is null"
+                },
+                {
+                    "ms": 0.59,
+                    "sql": "select `producer_subscriptions`.* from `producer_subscriptions` inner join (select MAX(`producer_subscriptions`.`id`) as `id_aggregate`, min(`producer_subscriptions`.`ends_at`) as `ends_at_aggregate`, `producer_subscriptions`.`producer_id` from `producer_subscriptions` inner join (select max(`producer_subscriptions`.`ends_at`) as `ends_at_aggregate`, `producer_subscriptions`.`producer_id` from `producer_subscriptions` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:49' and `producer_subscriptions`.`producer_id` in (103, 235, 310, 627, 723, 938, 1133, 1466) group by `producer_subscriptions`.`producer_id`) as `currentMembership` on `currentMembership`.`ends_at_aggregate` = `producer_subscriptions`.`ends_at` and `currentMembership`.`producer_id` = `producer_subscriptions`.`producer_id` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:49' group by `producer_subscriptions`.`producer_id`) as `currentMembership` on `currentMembership`.`id_aggregate` = `producer_subscriptions`.`id` and `currentMembership`.`ends_at_aggregate` = `producer_subscriptions`.`ends_at` and `currentMembership`.`producer_id` = `producer_subscriptions`.`producer_id`"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "producers, waiting for approval",
+            "uri": "/admin/proizvodjaci?status=pending",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 69908,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 4.2,
+            "ms": 14.9,
+            "ms_p95": 17.7,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 4.4,
+                "ms": 15.2,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.72,
+                    "sql": "select `producers`.*, (select count(*) from `products` where `producers`.`id` = `products`.`producer_id`) as `products_count` from `producers` where `status` = 'pending' and `producers`.`deleted_at` is null order by CASE WHEN status = 'pending' THEN 0 ELSE 1 END, `created_at` desc limit 25 offset 0"
+                },
+                {
+                    "ms": 0.5,
+                    "sql": "select `producer_subscriptions`.* from `producer_subscriptions` inner join (select MAX(`producer_subscriptions`.`id`) as `id_aggregate`, min(`producer_subscriptions`.`ends_at`) as `ends_at_aggregate`, `producer_subscriptions`.`producer_id` from `producer_subscriptions` inner join (select max(`producer_subscriptions`.`ends_at`) as `ends_at_aggregate`, `producer_subscriptions`.`producer_id` from `producer_subscriptions` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:50' and `producer_subscriptions`.`producer_id` in (72, 118, 144, 170, 337, 361, 390, 469, 500, 510, 609, 780, 809, 858, 957, 993, 1081, 1190, 1236, 1426, 1450, 1506, 1655, 1764, 1899) group by `producer_subscriptions`.`producer_id`) as `currentMembership` on `currentMembership`.`ends_at_aggregate` = `producer_subscriptions`.`ends_at` and `currentMembership`.`producer_id` = `producer_subscriptions`.`producer_id` where `status` = 'active' and `ends_at` > '2026-10-09 01:43:50' group by `producer_subscriptions`.`producer_id`) as `currentMembership` on `currentMembership`.`id_aggregate` = `producer_subscriptions`.`id` and `currentMembership`.`ends_at_aggregate` = `producer_subscriptions`.`ends_at` and `currentMembership`.`producer_id` = `producer_subscriptions`.`producer_id`"
+                },
+                {
+                    "ms": 0.41,
+                    "sql": "select count(*) as aggregate from `producers` where `status` = 'pending' and `producers`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "products, page 1",
+            "uri": "/admin/proizvodi",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 215250,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 9.1,
+            "ms": 46.4,
+            "ms_p95": 48,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 9.3,
+                "ms": 44.8,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 3.54,
+                    "sql": "select `id`, `name` from `producers` where `producers`.`deleted_at` is null order by `name` asc"
+                },
+                {
+                    "ms": 2.51,
+                    "sql": "select count(*) as aggregate from `products`"
+                },
+                {
+                    "ms": 0.43,
+                    "sql": "select `id`, `name`, `parent_id` from `categories` order by `name` asc"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "products, last page",
+            "uri": "/admin/proizvodi?page=2000",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 215645,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 56.3,
+            "ms": 91.6,
+            "ms_p95": 96.6,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 58.4,
+                "ms": 96.5,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 47.84,
+                    "sql": "select * from `products` order by `created_at` desc limit 25 offset 49975"
+                },
+                {
+                    "ms": 3.3,
+                    "sql": "select `id`, `name` from `producers` where `producers`.`deleted_at` is null order by `name` asc"
+                },
+                {
+                    "ms": 2.45,
+                    "sql": "select count(*) as aggregate from `products`"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "products, search \"ajvar\"",
+            "uri": "/admin/proizvodi?search=ajvar",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 215767,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 22.1,
+            "ms": 55.7,
+            "ms_p95": 58.7,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 22.1,
+                "ms": 57.4,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 14.7,
+                    "sql": "select count(*) as aggregate from `products` where `name` like '%ajvar%'"
+                },
+                {
+                    "ms": 3.42,
+                    "sql": "select `id`, `name` from `producers` where `producers`.`deleted_at` is null order by `name` asc"
+                },
+                {
+                    "ms": 1.62,
+                    "sql": "select * from `products` where `name` like '%ajvar%' order by `created_at` desc limit 25 offset 0"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "products, status active",
+            "uri": "/admin/proizvodi?status=active",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 215620,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 8.5,
+            "ms": 42.2,
+            "ms_p95": 45.2,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 8.4,
+                "ms": 41.5,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 3.41,
+                    "sql": "select `id`, `name` from `producers` where `producers`.`deleted_at` is null order by `name` asc"
+                },
+                {
+                    "ms": 2.57,
+                    "sql": "select count(*) as aggregate from `products` where `status` = 'active'"
+                },
+                {
+                    "ms": 0.39,
+                    "sql": "select * from `users` where `users`.`id` = 1 and `users`.`deleted_at` is null limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "products, of the busiest producer",
+            "uri": "/admin/proizvodi?producer_id=1",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 215128,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 7.1,
+            "ms": 41.6,
+            "ms_p95": 42.9,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 7.3,
+                "ms": 42.3,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 3.38,
+                    "sql": "select `id`, `name` from `producers` where `producers`.`deleted_at` is null order by `name` asc"
+                },
+                {
+                    "ms": 1.21,
+                    "sql": "select * from `products` where `producer_id` = 1 order by `created_at` desc limit 25 offset 0"
+                },
+                {
+                    "ms": 0.38,
+                    "sql": "select * from `users` where `users`.`id` = 1 and `users`.`deleted_at` is null limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "reviews, waiting (default tab)",
+            "uri": "/admin/utisci",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 50227,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 4.9,
+            "ms": 14,
+            "ms_p95": 17.4,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 10,
+                "db_ms": 5,
+                "ms": 14.3,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.13,
+                    "sql": "select status, count(*) as aggregate from `reviews` group by `status`"
+                },
+                {
+                    "ms": 0.42,
+                    "sql": "select count(*) as aggregate from `reviews` where `status` = 'pending'"
+                },
+                {
+                    "ms": 0.32,
+                    "sql": "select * from `users` where `users`.`id` = 1 and `users`.`deleted_at` is null limit 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "reviews, published, page 1",
+            "uri": "/admin/utisci?status=approved",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 52726,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 6.3,
+            "ms": 16.2,
+            "ms_p95": 19.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 10,
+                "db_ms": 6.6,
+                "ms": 16.8,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.09,
+                    "sql": "select status, count(*) as aggregate from `reviews` group by `status`"
+                },
+                {
+                    "ms": 1.78,
+                    "sql": "select count(*) as aggregate from `reviews` where `status` = 'approved'"
+                },
+                {
+                    "ms": 0.33,
+                    "sql": "select * from `reviews` where `status` = 'approved' order by `created_at` desc limit 30 offset 0"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "reviews, published, last page",
+            "uri": "/admin/utisci?status=approved&page=569",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 49500,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 19.7,
+            "ms": 29.4,
+            "ms_p95": 32.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 10,
+                "db_ms": 19.9,
+                "ms": 33.1,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 13.52,
+                    "sql": "select * from `reviews` where `status` = 'approved' order by `created_at` desc limit 30 offset 17040"
+                },
+                {
+                    "ms": 2.12,
+                    "sql": "select status, count(*) as aggregate from `reviews` group by `status`"
+                },
+                {
+                    "ms": 1.8,
+                    "sql": "select count(*) as aggregate from `reviews` where `status` = 'approved'"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "activity log, page 1",
+            "uri": "/admin/logovi",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 43060,
+            "queries": 7,
+            "queries_min": 7,
+            "queries_max": 7,
+            "db_ms": 4.6,
+            "ms": 12,
+            "ms_p95": 14.6,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 7,
+                "db_ms": 4.7,
+                "ms": 12.4,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 2.91,
+                    "sql": "select count(*) as aggregate from `activity_logs`"
+                },
+                {
+                    "ms": 0.3,
+                    "sql": "select * from `users` where `users`.`id` = 1 and `users`.`deleted_at` is null limit 1"
+                },
+                {
+                    "ms": 0.29,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 1 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "activity log, last page",
+            "uri": "/admin/logovi?page=2003",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 40588,
+            "queries": 7,
+            "queries_min": 7,
+            "queries_max": 7,
+            "db_ms": 41.4,
+            "ms": 49.2,
+            "ms_p95": 53.2,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 7,
+                "db_ms": 42.3,
+                "ms": 50,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 37.21,
+                    "sql": "select * from `activity_logs` order by `created_at` desc, `id` desc limit 30 offset 60060"
+                },
+                {
+                    "ms": 2.87,
+                    "sql": "select count(*) as aggregate from `activity_logs`"
+                },
+                {
+                    "ms": 0.47,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `buyer_id` = 1 and `read_at` is null and `sender_id` != 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "activity log, updated products",
+            "uri": "/admin/logovi?action=updated&subject=Product",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 45771,
+            "queries": 7,
+            "queries_min": 7,
+            "queries_max": 7,
+            "db_ms": 44.8,
+            "ms": 53.4,
+            "ms_p95": 56.8,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 7,
+                "db_ms": 47.9,
+                "ms": 56.3,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 42.33,
+                    "sql": "select count(*) as aggregate from `activity_logs` where `action` = 'updated' and `subject_type` = 'Product'"
+                },
+                {
+                    "ms": 0.58,
+                    "sql": "select * from `activity_logs` where `action` = 'updated' and `subject_type` = 'Product' order by `created_at` desc, `id` desc limit 30 offset 0"
+                },
+                {
+                    "ms": 0.39,
+                    "sql": "select count(*) as aggregate from `producer_messages` where `producer_id` in (select `id` from `producers` where `producers`.`user_id` = 1 and `producers`.`user_id` is not null and `producers`.`deleted_at` is null) and `read_at` is null and `sender_id` != 1"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "memberships, waiting for payment",
+            "uri": "/admin/clanarine",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 45236,
+            "queries": 10,
+            "queries_min": 10,
+            "queries_max": 10,
+            "db_ms": 2.9,
+            "ms": 11.2,
+            "ms_p95": 14.3,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 10,
+                "db_ms": 3,
+                "ms": 11.4,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.38,
+                    "sql": "select * from `users` where `users`.`id` = 1 and `users`.`deleted_at` is null limit 1"
+                },
+                {
+                    "ms": 0.37,
+                    "sql": "select `roles`.`id`, `roles`.`name`, `model_has_roles`.`model_id` as `pivot_model_id`, `model_has_roles`.`role_id` as `pivot_role_id`, `model_has_roles`.`model_type` as `pivot_model_type` from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `model_has_roles`.`model_id` in (1) and `model_has_roles`.`model_type` = 'user'"
+                },
+                {
+                    "ms": 0.33,
+                    "sql": "select `id`, `name`, `slug` from `producers` where `producers`.`id` in (18, 49, 179, 237, 281, 449, 499, 549, 569, 665, 669, 730, 866, 1006, 1059, 1067, 1124, 1323, 1328, 1380, 1381, 1394, 1413, 1440, 1469, 1533, 1597, 1676, 1963, 1977) and `producers`.`deleted_at` is null"
+                }
+            ]
+        },
+        {
+            "group": "Admin",
+            "name": "boosts, waiting for payment",
+            "uri": "/admin/isticanja",
+            "as": "admin1@loadtest.test",
+            "headers": [],
+            "status": 200,
+            "error": null,
+            "failed_requests": 0,
+            "bytes": 46161,
+            "queries": 11,
+            "queries_min": 11,
+            "queries_max": 11,
+            "db_ms": 3.1,
+            "ms": 11.6,
+            "ms_p95": 14.1,
+            "cache_hits": 0,
+            "after_queries": 0,
+            "cold": {
+                "queries": 11,
+                "db_ms": 3.5,
+                "ms": 12.8,
+                "cache_misses": 0
+            },
+            "repeated": [],
+            "slowest": [
+                {
+                    "ms": 0.41,
+                    "sql": "select * from `users` where `users`.`id` = 1 and `users`.`deleted_at` is null limit 1"
+                },
+                {
+                    "ms": 0.33,
+                    "sql": "select `roles`.`id`, `roles`.`name`, `model_has_roles`.`model_id` as `pivot_model_id`, `model_has_roles`.`role_id` as `pivot_role_id`, `model_has_roles`.`model_type` as `pivot_model_type` from `roles` inner join `model_has_roles` on `roles`.`id` = `model_has_roles`.`role_id` where `model_has_roles`.`model_id` in (1) and `model_has_roles`.`model_type` = 'user'"
+                },
+                {
+                    "ms": 0.32,
+                    "sql": "select `id`, `name`, `slug` from `producers` where `producers`.`id` in (9, 18, 114, 139, 142, 152, 204, 251, 362, 370, 376, 409, 428, 515, 759, 792, 848, 910, 935, 1056, 1222, 1564, 1613, 1643, 1689, 1699, 1707, 1844, 1920) and `producers`.`deleted_at` is null"
+                }
+            ]
+        }
+    ]
+}

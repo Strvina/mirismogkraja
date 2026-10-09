@@ -2,12 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * A yearly membership tier. Prices and features are rows, not
  * code, because the owner changes them from the admin panel.
+ *
+ * @property int $id
+ * @property string $slug
+ * @property string $name
+ * @property string|null $description
+ * @property int $price_rsd
+ * @property int $duration_days
+ * @property list<string>|null $features
+ * @property int $level
+ * @property bool $is_active
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, ProducerSubscription> $subscriptions
  */
 class SubscriptionPlan extends Model
 {
@@ -37,6 +52,7 @@ class SubscriptionPlan extends Model
         'is_active',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -45,6 +61,7 @@ class SubscriptionPlan extends Model
         ];
     }
 
+    /** @return HasMany<ProducerSubscription, $this> */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(ProducerSubscription::class);

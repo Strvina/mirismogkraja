@@ -6,12 +6,29 @@ use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 /**
  * A document behind something a producer claims - organic, protected
  * origin, a registered farm. Public only as a line on their page, and only
  * after an admin has looked at the document.
+ *
+ * @property int $id
+ * @property int $producer_id
+ * @property string $type
+ * @property string $title
+ * @property string|null $issuer
+ * @property Carbon|null $issued_on
+ * @property Carbon|null $expires_on
+ * @property string $file_path
+ * @property string $status
+ * @property string|null $rejection_reason
+ * @property int|null $reviewed_by
+ * @property Carbon|null $reviewed_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $producer
  */
 class ProducerCertificate extends Model
 {
@@ -54,6 +71,7 @@ class ProducerCertificate extends Model
 
     protected $fillable = ['type', 'title', 'issuer', 'issued_on', 'expires_on', 'file_path', 'status', 'rejection_reason', 'reviewed_by', 'reviewed_at'];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -69,6 +87,7 @@ class ProducerCertificate extends Model
         static::deleted(fn (self $certificate) => Storage::disk(self::DISK)->delete($certificate->file_path));
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class)->withTrashed();

@@ -7,10 +7,27 @@ use App\Models\Concerns\CountsByStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * One producer's membership. Paid by bank slip, so it waits in
  * 'pending_payment' until an admin confirms the money arrived.
+ *
+ * @property int $id
+ * @property int $producer_id
+ * @property int $subscription_plan_id
+ * @property string $status
+ * @property string $reference
+ * @property int $amount_rsd
+ * @property Carbon|null $starts_at
+ * @property Carbon|null $ends_at
+ * @property int|null $confirmed_by
+ * @property Carbon|null $confirmed_at
+ * @property Carbon|null $expiry_warned_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $producer
+ * @property-read SubscriptionPlan|null $plan
  */
 class ProducerSubscription extends Model implements Payable
 {
@@ -43,6 +60,7 @@ class ProducerSubscription extends Model implements Payable
         'expiry_warned_at',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -53,11 +71,13 @@ class ProducerSubscription extends Model implements Payable
         ];
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function producer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'producer_id');
     }
 
+    /** @return BelongsTo<SubscriptionPlan, $this> */
     public function plan(): BelongsTo
     {
         return $this->belongsTo(SubscriptionPlan::class, 'subscription_plan_id');

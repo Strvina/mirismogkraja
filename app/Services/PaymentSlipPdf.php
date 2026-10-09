@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Contracts\Payable;
+use App\Models\Boost;
+use App\Models\CampaignParticipant;
+use App\Models\ProducerSubscription;
 use App\Support\Qr;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -22,6 +25,7 @@ class PaymentSlipPdf
 {
     public function __construct(private readonly PaymentSlipService $slips) {}
 
+    /** @param  ProducerSubscription|Boost|CampaignParticipant  $payable */
     public function render(Payable $payable): string
     {
         $slip = $this->slips->detailsFor($payable);

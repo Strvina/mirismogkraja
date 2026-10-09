@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\KeepsOldSlugs;
 use Database\Factories\ProducerFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,57 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property int $id
+ * @property int $user_id
+ * @property string $name
+ * @property string $slug
+ * @property string|null $description
+ * @property string|null $story
+ * @property string|null $address
+ * @property string|null $city
+ * @property numeric-string|null $lat
+ * @property numeric-string|null $lng
+ * @property string|null $cover_image_path
+ * @property string|null $logo_path
+ * @property string $status
+ * @property list<string>|null $delivery_methods
+ * @property string|null $phone
+ * @property string|null $contact_email
+ * @property int|null $founding_number
+ * @property Carbon|null $founding_joined_at
+ * @property string|null $referral_code
+ * @property Carbon|null $verified_at
+ * @property Carbon|null $paused_at
+ * @property Carbon|null $paused_until
+ * @property string|null $pause_note
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property-read User|null $user
+ * @property-read Collection<int, Product> $products
+ * @property-read Collection<int, ProductAlert> $productAlerts
+ * @property-read Collection<int, Review> $reviews
+ * @property-read Collection<int, ProducerImage> $images
+ * @property-read Collection<int, ProducerMarket> $markets
+ * @property-read Collection<int, ProducerCertificate> $certificates
+ * @property-read Collection<int, Post> $posts
+ * @property-read Collection<int, QuickReply> $quickReplies
+ * @property-read Collection<int, ProducerMessage> $messages
+ * @property-read Collection<int, ProducerSubscription> $subscriptions
+ * @property-read ProducerSubscription|null $currentMembership
+ * @property-read Collection<int, User> $blockedBuyers
+ * @property-read Collection<int, User> $followers
+ * @property-read Collection<int, Favorite> $favorites
+ *
+ * Not columns: present only on a producer loaded by a query that asks for
+ * them (withAvg / withCount under that name, SubscriptionService::markPremium).
+ * @property-read float|null $reviews_avg_rating
+ * @property-read int|null $active_products_count
+ * @property-read bool|null $is_premium
+ */
 class Producer extends Model
 {
     /** @use HasFactory<ProducerFactory> */
@@ -53,6 +104,7 @@ class Producer extends Model
         'verified_at',
     ];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
@@ -69,33 +121,45 @@ class Producer extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class)->withTrashed();
     }
 
+    /** @return HasMany<Product, $this> */
     public function products(): HasMany
     {
         return $this->hasMany(Product::class, 'producer_id');
     }
 
-    /** Buyers waiting to hear that one of this producer's products is back. */
+    /**
+     * Buyers waiting to hear that one of this producer's products is back.
+     *
+     * @return HasManyThrough<ProductAlert, Product, $this>
+     */
     public function productAlerts(): HasManyThrough
     {
         return $this->hasManyThrough(ProductAlert::class, Product::class);
     }
 
+    /** @return HasMany<Review, $this> */
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class, 'producer_id');
     }
 
+    /** @return HasMany<ProducerImage, $this> */
     public function images(): HasMany
     {
         return $this->hasMany(ProducerImage::class, 'producer_id')->orderBy('order');
     }
 
-    /** Where they sell in person, in the order they were entered. */
+    /**
+     * Where they sell in person, in the order they were entered.
+     *
+     * @return HasMany<ProducerMarket, $this>
+     */
     public function markets(): HasMany
     {
         return $this->hasMany(ProducerMarket::class)->orderBy('id');
@@ -109,30 +173,47 @@ class Producer extends Model
         static::deleted(fn (self $producer) => $producer->certificates()->get()->each->delete());
     }
 
-    /** Documents behind what the producer claims; public once approved. */
+    /**
+     * Documents behind what the producer claims; public once approved.
+     *
+     * @return HasMany<ProducerCertificate, $this>
+     */
     public function certificates(): HasMany
     {
         return $this->hasMany(ProducerCertificate::class);
     }
 
-    /** Stories and recipes. */
+    /**
+     * Stories and recipes.
+     *
+     * @return HasMany<Post, $this>
+     */
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
     }
 
-    /** Saved answers for the message box. */
+    /**
+     * Saved answers for the message box.
+     *
+     * @return HasMany<QuickReply, $this>
+     */
     public function quickReplies(): HasMany
     {
         return $this->hasMany(QuickReply::class)->orderBy('id');
     }
 
+    /** @return HasMany<ProducerMessage, $this> */
     public function messages(): HasMany
     {
         return $this->hasMany(ProducerMessage::class, 'producer_id');
     }
 
-    /** Memberships, paid and pending. */
+    /**
+     * Memberships, paid and pending.
+     *
+     * @return HasMany<ProducerSubscription, $this>
+     */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(ProducerSubscription::class, 'producer_id');
@@ -142,6 +223,8 @@ class Producer extends Model
      * The membership in force right now, if any - the one running longest
      * when a renewal has already been paid. Loaded in one query for a whole
      * list, which is how the admin panel shows every producer's plan.
+     *
+     * @return HasOne<ProducerSubscription, $this>
      */
     public function currentMembership(): HasOne
     {
@@ -152,6 +235,8 @@ class Producer extends Model
     /**
      * Buyers whose conversation with this producer is closed. Either side
      * can close it; blocked_by says which, since only that side may reopen it.
+     *
+     * @return BelongsToMany<User, $this>
      */
     public function blockedBuyers(): BelongsToMany
     {
@@ -170,7 +255,11 @@ class Producer extends Model
         return $this->blockedBuyers()->whereKey($buyer->id)->value('blocked_by');
     }
 
-    /** People who asked to hear when this producer lists something new. */
+    /**
+     * People who asked to hear when this producer lists something new.
+     *
+     * @return BelongsToMany<User, $this>
+     */
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'producer_follows', 'producer_id', 'user_id');
@@ -242,6 +331,8 @@ class Producer extends Model
     /**
      * Saved by buyers. Counted as the popularity signal on the homepage -
      * it's a deliberate action by a signed-in person, unlike a page view.
+     *
+     * @return MorphMany<Favorite, $this>
      */
     public function favorites(): MorphMany
     {

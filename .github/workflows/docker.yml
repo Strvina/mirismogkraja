@@ -1,0 +1,122 @@
+name: docker
+
+# The local Docker stack (docs/docker.md), built and started the way its
+# documentation says, then checked from the outside. Only when something it
+# is made of changes: the build takes minutes.
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - Dockerfile
+      - docker-compose.yml
+      - docker/**
+      - .dockerignore
+      - composer.lock
+      - package-lock.json
+      - .github/workflows/docker.yml
+  pull_request:
+    paths:
+      - Dockerfile
+      - docker-compose.yml
+      - docker/**
+      - .dockerignore
+      - composer.lock
+      - package-lock.json
+      - .github/workflows/docker.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The documented command. --wait only adds that the step ends when
+      # every container is running and, where it has a check, healthy.
+      #
+      # The token is for Composer: GitHub answers 429 to anonymous downloads
+      # from the runners' shared addresses. It reaches the build as a
+      # secret and is in no image.
+      - name: Build and Start
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{ github.token }}"}}'
+        run: docker compose up -d --build --wait --wait-timeout 600
+
+      - name: Containers and Images
+        run: |
+          docker compose ps
+          docker image ls 'vrelina-juga/*'
+
+      - name: Smoke Test
+        run: bash docker/smoke-test.sh
+
+      # Stopped and started again on the same volumes: the entrypoint must
+      # recognise a database that is already filled, and keep the key.
+      #
+      # This time exactly as on anyone's own machine: COMPOSER_AUTH is not
+      # set, and the secret behind it is therefore not there. A build that
+      # only reused its layers would never ask for the secret, so one byte
+      # is added to composer.json: the dependencies are installed again,
+      # from what Composer kept of the first build.
+      - name: Second Start Keeps the Data, Without the Composer Token
+        run: |
+          state() {
+            docker compose exec -T app php artisan tinker --execute='echo "users:", App\Models\User::count(), " producers:", App\Models\Producer::count();'
+            docker compose exec -T app sha256sum storage/docker/app.key
+          }
+
+          before=$(state)
+          echo "$before"
+
+          docker compose down
+
+          echo >> composer.json
+          set -o pipefail
+          env -u COMPOSER_AUTH docker compose up -d --build --wait --wait-timeout 300 2>&1 | tee build.log
+          grep -q 'Installing laravel/framework' build.log || { echo "The dependencies were not installed again." >&2; exit 1; }
+
+          after=$(state)
+          echo "$after"
+
+          [ "$before" = "$after" ] || { echo "The second start changed the data or the key." >&2; exit 1; }
+
+          bash docker/smoke-test.sh
+
+      # docs/docker.md says the suite can be run in a container and uses a
+      # database of its own. If it used the stack's, the demo content would
+      # be gone afterwards.
+      - name: Test Suite in a Container Leaves the Stack Alone
+        run: |
+          count() {
+            docker compose exec -T app php artisan tinker --execute='echo "users:", App\Models\User::count();'
+          }
+
+          before=$(count)
+
+          docker compose exec -T app php artisan test
+
+          after=$(count)
+          echo "$before / $after"
+
+          [ "$before" = "$after" ] || { echo "The test suite touched the stack's database." >&2; exit 1; }
+          [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/up)" = 200 ]
+
+      - name: Logs of a Failed Run
+        if: failure()
+        run: |
+          docker compose ps --all
+          docker compose logs --no-color --tail=300
+
+      - name: Stop and Remove Everything
+        if: always()
+        run: docker compose down --volumes --remove-orphans

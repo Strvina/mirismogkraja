@@ -4,8 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
-/** Someone who opened an account through a producer's referral link. */
+/**
+ * Someone who opened an account through a producer's referral link.
+ *
+ * @property int $id
+ * @property int $referrer_producer_id
+ * @property int $referred_user_id
+ * @property int|null $referred_producer_id
+ * @property string $status
+ * @property Carbon|null $rewarded_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Producer|null $referrer
+ * @property-read User|null $referredUser
+ * @property-read Producer|null $referredProducer
+ */
 class Referral extends Model
 {
     /** The account exists; its producer has not been approved yet. */
@@ -40,21 +55,25 @@ class Referral extends Model
 
     protected $fillable = ['referrer_producer_id', 'referred_user_id', 'referred_producer_id', 'status', 'rewarded_at'];
 
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return ['rewarded_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function referrer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'referrer_producer_id')->withTrashed();
     }
 
+    /** @return BelongsTo<User, $this> */
     public function referredUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'referred_user_id')->withTrashed();
     }
 
+    /** @return BelongsTo<Producer, $this> */
     public function referredProducer(): BelongsTo
     {
         return $this->belongsTo(Producer::class, 'referred_producer_id')->withTrashed();

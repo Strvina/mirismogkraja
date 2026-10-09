@@ -4,12 +4,56 @@ includes:
 # Static analysis of the application code: `composer analyse`, and on every
 # pull request.
 #
-# Level 1 finds what no test run can promise to: a misspelled class, method
-# or variable on a path the tests do not walk. Higher levels reason about
-# types, and the models do not describe theirs (no @property lists, untyped
-# relations) - at level 5 that is three hundred reports with no defect
-# behind any of them. Raising the level means typing the models first.
+# Level 5: on top of a misspelled class, method or variable, it checks what
+# is passed to a function and what a function returns against the declared
+# types - on paths no test walks.
+#
+# It can only do that because the models say what they are made of: every
+# model lists its columns and relations as @property tags (types from the
+# migrations and the casts) and every relation method names the model it
+# returns. A new column or relation gets its tag in the same change as the
+# migration or the method that adds it.
+#
+# A relation to one model is typed nullable on purpose. It is null when the
+# foreign key was not selected or the row behind it is archived, and the
+# code reads it with ?-> accordingly.
 parameters:
     paths:
         - app
-    level: 1
+    level: 5
+
+    # Each entry is a report with no defect behind it that cannot be removed
+    # by typing. Keep the list this short: a new report is fixed, not added.
+    ignoreErrors:
+        # `$a?->b ?? $c`: the ?-> is redundant, since ?? already tolerates
+        # a null $a, and both spellings evaluate the same. A matter of style
+        # in working code, not of types.
+        -
+            identifier: nullsafe.neverNull
+            message: '#on left side of \?\? is unnecessary#'
+
+        # The closure that narrows an eager load - with(['user' => fn ($q)
+        # => $q->withTrashed()]) - is given a relation Larastan cannot name,
+        # because the relation is chosen by the array key. The two methods
+        # exist: SoftDeletes::withTrashed() and Review::scopeApproved().
+        -
+            identifier: method.notFound
+            message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Relations\\Relation<\*, \*, \*>::(withTrashed|approved)\(\)\.$#'
+
+        # Socialite's facade promises only its Provider contract, which has
+        # neither method; the Google driver behind it has both, and the
+        # fake used in tests passes them on.
+        -
+            identifier: method.notFound
+            message: '#^Call to an undefined method Laravel\\Socialite\\Contracts\\Provider::(with|enablePKCE)\(\)\.$#'
+            path: app/Http/Controllers/Auth/GoogleController.php
+
+        # A false positive: the arrow function behind 'recentNotifications'
+        # declares no return type, and is reported for returning exactly
+        # the type PHPStan worked out for it (both halves of the message
+        # read the same).
+        -
+            identifier: return.type
+            message: '#^Anonymous function should return Illuminate\\Support\\Collection<int, array\{id: string, title: string, body: string\|null, read: bool, created_at: Carbon\\Carbon\|null\}>\|null but returns Illuminate\\Support\\Collection<int, array\{id: string, title: string, body: string\|null, read: bool, created_at: Carbon\\Carbon\|null\}>\|null\.$#'
+            path: app/Http/Middleware/HandleInertiaRequests.php
+            count: 1
