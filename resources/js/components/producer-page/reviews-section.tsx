@@ -1,3 +1,4 @@
+import FormErrors from '@/components/form-errors';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import { Button } from '@/components/ui/button';
@@ -36,11 +37,7 @@ function ReviewForm({ producerId }: { producerId: number }) {
 
     return (
         <form onSubmit={submit} className="border-border/70 mt-6 space-y-3 rounded-lg border p-5">
-            {Object.entries(errors).map(([field, message]) => (
-                <p key={field} role="alert" className="text-destructive text-sm">
-                    {message}
-                </p>
-            ))}
+            <FormErrors errors={errors} />
             <div>
                 <h3 className="font-serif text-xl">{t('Ostavi utisak')}</h3>
                 <p className="text-muted-foreground mt-1 text-sm">

@@ -1,3 +1,4 @@
+import FormErrors from '@/components/form-errors';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { t, tx } from '@/lib/i18n';
@@ -67,11 +68,7 @@ export default function ReportButton({
                 <DialogDescription>{t('Prijava ide našem timu, a ne proizvođaču. Nećemo je javno objaviti.')}</DialogDescription>
 
                 <form onSubmit={submit} className="space-y-4">
-                    {Object.entries(errors).map(([field, message]) => (
-                        <p key={field} role="alert" className="text-destructive text-sm">
-                            {message}
-                        </p>
-                    ))}
+                    <FormErrors errors={errors} />
                     <div className="grid gap-1.5">
                         <label htmlFor="report-reason" className="text-muted-foreground text-xs">
                             {t('Šta se desilo?')}

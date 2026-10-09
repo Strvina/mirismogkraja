@@ -1,4 +1,5 @@
 import FavoriteButton from '@/components/favorite-button';
+import FormErrors from '@/components/form-errors';
 import Head from '@/components/head';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
 import ReportButton from '@/components/marketplace/report-button';
@@ -217,11 +218,7 @@ export default function ProductShow({
                             </>
                         )}
 
-                        {Object.entries(errors).map(([field, message]) => (
-                            <p key={field} role="alert" className="text-destructive text-sm">
-                                {message}
-                            </p>
-                        ))}
+                        <FormErrors errors={errors} />
                         <div className="flex flex-wrap items-center gap-3">
                             {canInquire ? (
                                 <Button onClick={sendInquiry} disabled={sending || !message.trim()}>

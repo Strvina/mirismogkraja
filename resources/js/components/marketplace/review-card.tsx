@@ -1,3 +1,4 @@
+import FormErrors from '@/components/form-errors';
 import { Button } from '@/components/ui/button';
 import { formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -103,11 +104,7 @@ export default function ReviewCard({
                     {canReply &&
                         (editing ? (
                             <div className="mt-3 grid gap-2">
-                                {Object.entries(errors).map(([field, message]) => (
-                                    <p key={field} role="alert" className="text-destructive text-sm">
-                                        {message}
-                                    </p>
-                                ))}
+                                <FormErrors errors={errors} />
                                 <textarea
                                     value={reply}
                                     onChange={(event) => setReply(event.target.value)}
