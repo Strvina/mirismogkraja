@@ -59,5 +59,8 @@ jobs:
         run: ./vendor/bin/phpunit --coverage-clover storage/coverage/clover.xml
 
       - name: Coverage of the services
+        # 97 % when this was set up. The floor is a little under it, so a
+        # refactoring does not fail the run but a new untested service does.
         run: |
-          php scripts/coverage.php storage/coverage/clover.xml | tee -a "$GITHUB_STEP_SUMMARY"
+          set -o pipefail
+          php scripts/coverage.php storage/coverage/clover.xml --min=95 | tee -a "$GITHUB_STEP_SUMMARY"
