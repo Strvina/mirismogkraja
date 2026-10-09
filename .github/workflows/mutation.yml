@@ -53,7 +53,7 @@ jobs:
           npm run build
 
       - name: Mutation tests
-        run: vendor/bin/infection --threads=max --only-covered --no-progress
+        run: vendor/bin/infection --threads=max --no-progress
 
       - name: Summary
         if: always()
