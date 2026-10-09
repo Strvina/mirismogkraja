@@ -1,0 +1,63 @@
+name: coverage
+
+# How much of app/Services and app/Support the PHP tests run, as a table in
+# the run's summary (scripts/coverage.php). Apart from `tests` because
+# measuring slows the suite down, and only where it can change: the code
+# measured, the tests, or the measuring itself.
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'tests/**'
+      - 'phpunit.xml'
+      - 'scripts/coverage.php'
+      - '.github/workflows/coverage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  services:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd, exif, pdo_sqlite
+          tools: composer:v2
+          coverage: pcov
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          npm run build
+
+      - name: Tests, measured
+        run: ./vendor/bin/phpunit --coverage-clover storage/coverage/clover.xml
+
+      - name: Coverage of the services
+        run: |
+          php scripts/coverage.php storage/coverage/clover.xml | tee -a "$GITHUB_STEP_SUMMARY"
