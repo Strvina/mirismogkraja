@@ -32,6 +32,7 @@ class CertificateController extends Controller
                 ->where('status', $status)
                 // The queue is worked oldest first; the other tabs read as a history.
                 ->orderBy('created_at', $status === ProducerCertificate::STATUS_PENDING ? 'asc' : 'desc')
+                ->orderBy('id', $status === ProducerCertificate::STATUS_PENDING ? 'asc' : 'desc')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (ProducerCertificate $certificate) => [

@@ -50,6 +50,7 @@ class AdminCampaignController extends Controller
             'places' => $status === 'settings' ? null : $this->places($status)
                 ->with(['campaign:id,name,slug,starts_on,ends_on', 'producer:id,name,slug'])
                 ->latest()
+                ->orderByDesc('id')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (CampaignParticipant $place) => [

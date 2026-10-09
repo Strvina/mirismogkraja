@@ -26,6 +26,7 @@ class ReferralController extends Controller
                 ->with(['referrer:id,name,slug', 'referredUser:id,name,email', 'referredProducer:id,name,slug,status'])
                 ->when($known, fn ($query) => $query->where('status', $status))
                 ->latest()
+                ->orderByDesc('id')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (Referral $referral) => [
