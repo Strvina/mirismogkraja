@@ -23,7 +23,9 @@ jobs:
 
     services:
       mysql:
-        image: mysql:8.0
+        # The official image from Amazon's mirror: Docker Hub limits how
+        # often GitHub's shared runners may pull, and then no test starts.
+        image: public.ecr.aws/docker/library/mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: testing
