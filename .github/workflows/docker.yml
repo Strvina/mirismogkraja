@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # The documented command. --wait only adds that the step ends when
       # every container is running and, where it has a check, healthy.

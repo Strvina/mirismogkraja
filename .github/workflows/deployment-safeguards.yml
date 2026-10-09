@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check shell syntax
         run: bash -n deploy/deploy.sh scripts/test-deploy.sh
       - name: Exercise safeguards without deploying
