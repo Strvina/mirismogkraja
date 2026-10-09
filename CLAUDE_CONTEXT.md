@@ -26,7 +26,7 @@ Jezici: srpski (izvor), engleski, ruski.
 - Inertia v2 + React 19 + TypeScript, Tailwind v4, bez SSR-a
 - Spatie permission (uloge `buyer`, `seller`, `admin`), Ziggy, Socialite (Google), Sentry
 - PHPUnit (`tests/`), Vitest (`resources/js/__tests__/`), Playwright (`e2e/`), Larastan 5, pint + prettier + eslint + tsc
-- CI proverava SQLite, MySQL, browser, frontend, lint i zavisnosti; integracija je na `improve/integration`.
+- CI proverava SQLite, MySQL, browser, frontend, lint i zavisnosti. Grane se prave od `master` i PR ide ka `master`; spaja vlasnik.
 - Lokalni Docker stack: PHP-FPM, nginx, MySQL 8.4, Redis, queue worker i scheduler. Redis čuva sesije,
   keš i red poslova; lokalni demo je dostupan samo sa ovog računara (`docs/docker.md`).
 
@@ -213,13 +213,13 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 ## 10. Trenutno stanje
 
 - Zadaci do 147 su spojeni u `master`. Prvi talas unapređenja (Docker, Larastan, komponentni testovi,
-  CI/CD, performanse, zaštite deploy skripte) spojen je u `improve/integration` kroz PR #249.
-- Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 601 test prolazi u Docker-u, bez
+  CI/CD, performanse, zaštite deploy skripte) spojen je u `master`.
+- Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 605 testova prolazi u CI-u, bez
   preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 29 testova i prolazi u CI-u;
   pet od njih (`e2e/accessibility.spec.ts`) pušta axe kroz 37 stranica i pada na ozbiljnim nalazima.
   Pint, Larastan 5, TypeScript, ESLint, Prettier, build i oba dependency audit-a prolaze.
   MySQL 8.4 pre/posle merenja za 74 scenarija i sirovi rezultati su u `docs/performance/`.
-- Na projektu se smenjuju Claude Code i Codex, nikad u isto vreme. Primopredaja je
+- Na projektu rade Claude Code i Codex; u isto vreme samo u odvojenim kopijama repoa. Primopredaja je
   `docs/development-plan.md` (šta je urađeno, šta je sledeće) i ovaj odeljak: ko završava sesiju,
   ažurira oba i ostavlja rad na grani sa PR-om. Produkcioni deploy traži vlasnika.
 - **Sajt nikad nije pušten u rad.** Nema servera, domena ni stvarnih korisnika.
