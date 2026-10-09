@@ -45,7 +45,9 @@ Semantičke (menjaju se light/dark preko `:root` / `.dark`):
 | `border` / `input` | `0.86 0.027 74` | linije, okviri inputa |
 | `ring` | `0.48 0.17 29` (= primary) | focus ring |
 
-Dodatne "brand" boje (nisu light/dark zavisne, fiksne):
+Dodatne "brand" boje. `terracotta`, `gold` i `charcoal` su fiksne. `cream-deep`, `olive` i `olive-soft`
+imaju i tamnu vrednost u `.dark`, jer se koriste kao podloga, odnosno kao tekst: u tamnoj temi je
+`cream-deep` tamna podloga sekcije, `olive` svetao tekst, a `olive-soft` taman bedž ispod njega.
 
 | Token | oklch | Namena |
 | --- | --- | --- |
