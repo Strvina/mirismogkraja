@@ -125,7 +125,7 @@ export default function ProducerCard({ producer, featured = false }: { producer:
                                 <div className="min-w-0">
                                     <p className="flex items-center gap-2 text-xs font-medium">
                                         {review.user.name}
-                                        <span className="text-gold" aria-label={t('Ocena :rating od 5', { rating: review.rating })}>
+                                        <span className="text-gold" role="img" aria-label={t('Ocena :rating od 5', { rating: review.rating })}>
                                             {'★'.repeat(review.rating)}
                                         </span>
                                     </p>
