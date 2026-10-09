@@ -215,8 +215,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Zadaci do 147 su spojeni u `master`. Prvi talas unapređenja (Docker, Larastan, komponentni testovi,
   CI/CD, performanse, zaštite deploy skripte) spojen je u `master`.
 - Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 605 testova prolazi u CI-u, bez
-  preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 29 testova i prolazi u CI-u;
-  pet od njih (`e2e/accessibility.spec.ts`) pušta axe kroz 37 stranica i pada na ozbiljnim nalazima.
+  preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 32 testa i prolazi u CI-u;
+  osam od njih (`e2e/accessibility.spec.ts`) pušta axe kroz 37 stranica, u svetloj i tamnoj temi, i pada
+  na ozbiljnim nalazima.
   Pint, Larastan 5, TypeScript, ESLint, Prettier, build i oba dependency audit-a prolaze.
   MySQL 8.4 pre/posle merenja za 74 scenarija i sirovi rezultati su u `docs/performance/`.
 - Na projektu rade Claude Code i Codex; u isto vreme samo u odvojenim kopijama repoa. Primopredaja je

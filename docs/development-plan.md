@@ -18,7 +18,7 @@ Wave 1 was merged on 9 October 2026 with the owner's approval. Production deploy
 
 - [x] Policy authorization for private reads and writes, including negative tests. Task 150: `PrivateRouteInventoryTest` reads every signed-in route with a record in its address from the router (61 of them), sends a stranger to the 53 that belong to somebody, and fails when a new route is not written down. It found no hole.
 - [ ] Coverage and Infection for Services/Support, with measured results and additional tests for surviving mutants.
-- [x] Playwright axe checks across visitor, buyer, producer and admin pages; fix serious/critical findings. Done in `e2e/accessibility.spec.ts` (37 pages, the public ones also in the dark theme). Not yet covered: pages reached only through a dialog or a filled form, and the dark theme for signed-in pages.
+- [x] Playwright axe checks across visitor, buyer, producer and admin pages; fix serious/critical findings. Done in `e2e/accessibility.spec.ts` (37 pages, each in the light and in the dark theme since task 151). Not yet covered: pages reached only through a dialog or a filled form.
 
 ## Wave 3
 
@@ -56,4 +56,4 @@ Dependabot proposes updates every Monday. Its major bumps of `vite`, `laravel-vi
 
 Two assistants may work at the same time only in separate copies of the repository, on tasks that touch different files. Both end by editing this file, so the second pull request to be merged resolves that conflict.
 
-Left of Wave 2: coverage and Infection for Services/Support. The accessibility checks do not yet cover the dark theme on signed-in pages, or pages reached only through a dialog or a filled form. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture, MySQL baseline, accessibility or route-inventory work.
+Left of Wave 2: coverage and Infection for Services/Support. The accessibility checks do not yet cover pages reached only through a dialog or a filled form. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture, MySQL baseline, accessibility or route-inventory work.
