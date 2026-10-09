@@ -31,6 +31,7 @@ class ProducerChangeRequestController extends Controller
             'requests' => ProducerChangeRequest::with(['producer:id,name,slug', 'requester:id,name'])
                 ->where('status', $status)
                 ->oldest()
+                ->orderBy('id')
                 ->paginate(30)
                 ->withQueryString(),
             'filters' => ['status' => $status],

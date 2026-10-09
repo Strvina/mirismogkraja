@@ -27,6 +27,7 @@ class ReportController extends Controller
             'reports' => Report::with(['reporter:id,name', 'reportable'])
                 ->where('status', $status)
                 ->oldest()
+                ->orderBy('id')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (Report $report) => [

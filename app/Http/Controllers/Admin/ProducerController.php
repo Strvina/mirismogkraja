@@ -32,6 +32,7 @@ class ProducerController extends Controller
             // Applications waiting on a decision come first.
             ->orderByRaw("CASE WHEN status = 'pending' THEN 0 ELSE 1 END")
             ->latest()
+            ->orderByDesc('id')
             ->paginate(25)
             ->withQueryString();
 

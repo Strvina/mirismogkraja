@@ -36,6 +36,7 @@ class AdminBoostController extends Controller
                 ->with(['producer:id,name,slug', 'boostable'])
                 ->where('status', $status)
                 ->latest()
+                ->orderByDesc('id')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (Boost $boost) => [

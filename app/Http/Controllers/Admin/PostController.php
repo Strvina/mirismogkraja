@@ -30,6 +30,7 @@ class PostController extends Controller
                 ->when(in_array($status, Post::STATUSES, true), fn ($query) => $query->where('status', $status))
                 ->when($search !== '', fn ($query) => $query->where('title', 'like', '%'.str_replace(['%', '_'], ['\\%', '\\_'], $search).'%'))
                 ->latest()
+                ->orderByDesc('id')
                 ->paginate(30, ['id', 'producer_id', 'type', 'title', 'slug', 'excerpt', 'status', 'published_at', 'created_at'])
                 ->withQueryString(),
             'filters' => ['status' => in_array($status, Post::STATUSES, true) ? $status : null, 'q' => $search !== '' ? $search : null],

@@ -52,6 +52,7 @@ class AdminMembershipController extends Controller
             'subscriptions' => $status === 'settings' ? null : ProducerSubscription::with(['producer:id,name,slug', 'plan:id,name'])
                 ->where('status', $status)
                 ->latest()
+                ->orderByDesc('id')
                 ->paginate(30)
                 ->withQueryString()
                 ->through(fn (ProducerSubscription $subscription) => [

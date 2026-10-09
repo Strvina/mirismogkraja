@@ -30,6 +30,7 @@ class ReviewController extends Controller
             'reviews' => Review::with(['user:id,name', 'producer:id,name,slug'])
                 ->where('status', $status)
                 ->orderByDesc('created_at')
+                ->orderByDesc('id')
                 // The published tab only ever grows.
                 ->paginate(30)
                 ->withQueryString(),

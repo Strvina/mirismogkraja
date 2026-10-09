@@ -39,6 +39,7 @@ class UserController extends Controller
                     ->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")))
                 ->orderBy('name')
+                ->orderBy('id')
                 ->paginate(50)
                 ->withQueryString(),
             'filters' => ['search' => $search ?: null, 'group' => $group],

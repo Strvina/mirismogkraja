@@ -31,6 +31,7 @@ class ProductController extends Controller
             ->when($request->integer('producer_id'), fn ($query, $id) => $query->where('producer_id', $id))
             ->when($request->string('status')->toString(), fn ($query, $status) => $query->where('status', $status))
             ->latest()
+            ->orderByDesc('id')
             ->paginate(25)
             ->withQueryString();
 
