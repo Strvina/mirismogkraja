@@ -101,7 +101,7 @@ export default function CardSlider({
                 aria-label={label}
                 tabIndex={0}
                 className={cn(
-                    '-mx-1 flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+                    '-mx-1 flex snap-x snap-mandatory [scrollbar-width:none] gap-5 overflow-x-auto scroll-smooth px-1 pb-2 [&::-webkit-scrollbar]:hidden',
                     trackClassName,
                 )}
             >
