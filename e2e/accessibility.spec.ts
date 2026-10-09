@@ -52,83 +52,84 @@ async function check(page: Page, targets: Record<string, Target>): Promise<void>
     expect(found, 'Serious accessibility problems').toEqual([]);
 }
 
-const publicPages: Record<string, Target> = {
-    home: '/',
-    catalogue: '/proizvodi',
-    producers: '/proizvodjaci',
-    producer: through('/proizvodjaci', '/proizvodjac/'),
-    product: through('/proizvodi', '/proizvod/'),
-    stories: '/price',
-    season: '/sezona',
-    'wanted ads': '/trazim',
-    'how it works': '/kako-radi',
-    questions: '/cesta-pitanja',
-    contact: '/kontakt',
-    'for producers': '/za-proizvodjace',
-    'sign in': '/login',
-    'sign up': '/register',
-    'forgotten password': '/forgot-password',
-};
+const audiences: { who: string; account?: { email: string; password: string }; pages: Record<string, Target> }[] = [
+    {
+        who: 'the public',
+        pages: {
+            home: '/',
+            catalogue: '/proizvodi',
+            producers: '/proizvodjaci',
+            producer: through('/proizvodjaci', '/proizvodjac/'),
+            product: through('/proizvodi', '/proizvod/'),
+            stories: '/price',
+            season: '/sezona',
+            'wanted ads': '/trazim',
+            'how it works': '/kako-radi',
+            questions: '/cesta-pitanja',
+            contact: '/kontakt',
+            'for producers': '/za-proizvodjace',
+            'sign in': '/login',
+            'sign up': '/register',
+            'forgotten password': '/forgot-password',
+        },
+    },
+    {
+        who: "a buyer's",
+        account: accounts.buyer,
+        pages: {
+            favourites: '/omiljeni',
+            messages: '/poruke',
+            notifications: '/obavestenja',
+            'new wanted ad': '/trazim/novi',
+            profile: '/settings/profile',
+            password: '/settings/password',
+            appearance: '/settings/appearance',
+        },
+    },
+    {
+        who: "a producer's",
+        account: accounts.producer,
+        pages: {
+            'my producers': '/moji-proizvodjaci',
+            'producer form': through('/moji-proizvodjaci', '/izmena'),
+            products: through('/moji-proizvodjaci', '/proizvodi'),
+            'new product': through('/moji-proizvodjaci', '/proizvodi', '/proizvodi/novi'),
+            statistics: through('/moji-proizvodjaci', '/statistika'),
+            inbox: '/poruke-proizvodjaca',
+            membership: '/clanarina',
+            boost: '/isticanje',
+        },
+    },
+    {
+        who: 'the admin',
+        account: accounts.admin,
+        pages: {
+            dashboard: '/admin',
+            producers: '/admin/proizvodjaci',
+            products: '/admin/proizvodi',
+            users: '/admin/korisnici',
+            reports: '/admin/prijave',
+            reviews: '/admin/utisci',
+            memberships: '/admin/clanarine',
+        },
+    },
+];
 
-test('the public pages have no serious accessibility problems', async ({ page }) => {
-    test.slow();
+// Both themes: the site follows the system until a visitor chooses otherwise.
+for (const theme of ['light', 'dark'] as const) {
+    test.describe(`in the ${theme} theme`, () => {
+        test.use({ colorScheme: theme });
 
-    await check(page, publicPages);
-});
+        for (const { who, account, pages } of audiences) {
+            test(`${who} pages have no serious accessibility problems`, async ({ page }) => {
+                test.slow();
 
-test.describe('in the dark theme', () => {
-    // The site follows the system until a visitor chooses otherwise.
-    test.use({ colorScheme: 'dark' });
+                if (account) {
+                    await logIn(page, account);
+                }
 
-    test('the public pages have no serious accessibility problems', async ({ page }) => {
-        test.slow();
-
-        await check(page, publicPages);
+                await check(page, pages);
+            });
+        }
     });
-});
-
-test("a buyer's pages have no serious accessibility problems", async ({ page }) => {
-    test.slow();
-    await logIn(page, accounts.buyer);
-
-    await check(page, {
-        favourites: '/omiljeni',
-        messages: '/poruke',
-        notifications: '/obavestenja',
-        'new wanted ad': '/trazim/novi',
-        profile: '/settings/profile',
-        password: '/settings/password',
-        appearance: '/settings/appearance',
-    });
-});
-
-test("a producer's pages have no serious accessibility problems", async ({ page }) => {
-    test.slow();
-    await logIn(page, accounts.producer);
-
-    await check(page, {
-        'my producers': '/moji-proizvodjaci',
-        'producer form': through('/moji-proizvodjaci', '/izmena'),
-        products: through('/moji-proizvodjaci', '/proizvodi'),
-        'new product': through('/moji-proizvodjaci', '/proizvodi', '/proizvodi/novi'),
-        statistics: through('/moji-proizvodjaci', '/statistika'),
-        inbox: '/poruke-proizvodjaca',
-        membership: '/clanarina',
-        boost: '/isticanje',
-    });
-});
-
-test('the admin pages have no serious accessibility problems', async ({ page }) => {
-    test.slow();
-    await logIn(page, accounts.admin);
-
-    await check(page, {
-        dashboard: '/admin',
-        producers: '/admin/proizvodjaci',
-        products: '/admin/proizvodi',
-        users: '/admin/korisnici',
-        reports: '/admin/prijave',
-        reviews: '/admin/utisci',
-        memberships: '/admin/clanarine',
-    });
-});
+}
