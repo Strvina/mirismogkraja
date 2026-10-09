@@ -1,10 +1,14 @@
 name: performance
 
+# Times the main pages on MySQL 8 with and without the two index migrations.
+# It compares, it does not judge: no number here can fail a pull request, so
+# it runs when the measuring itself changes, or by hand - not on every
+# migration.
+
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - 'database/migrations/**'
       - 'database/seeders/LoadTest*/**'
       - 'database/seeders/LoadTestSeeder.php'
       - 'scripts/perf/**'
@@ -57,20 +61,12 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           npm run build
-      - name: Seed an isolated database
+      - name: Seed, then measure before and after the indexes
+        env:
+          PERF_RUNS: 10
+          PERF_COLD: 1
         run: |
-          php artisan migrate --force
-          php artisan db:seed --class=LoadTestSeeder
-      - name: Measure before and after the indexes
-        run: |
-          mkdir -p storage/perf
-          php scripts/perf/indexes.php down
-          php scripts/perf/measure.php --runs=10 --cold=1 --out=storage/perf/mysql-before.json
-          php scripts/perf/measure.php --only="Admin/products, page 1" --queries --explain=0 > storage/perf/mysql-plans-before.txt
-          php scripts/perf/indexes.php up
-          php scripts/perf/measure.php --runs=10 --cold=1 --out=storage/perf/mysql-after.json
-          php scripts/perf/measure.php --only="Admin/products, page 1" --queries --explain=0 > storage/perf/mysql-plans-after.txt
-          php scripts/perf/report.php storage/perf/mysql-before.json storage/perf/mysql-after.json > storage/perf/mysql-report.md
+          sh scripts/perf/run.sh
           cat storage/perf/mysql-report.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
