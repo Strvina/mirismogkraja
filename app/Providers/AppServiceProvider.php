@@ -7,12 +7,12 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use App\Observers\ActivityLogObserver;
+use App\Support\Health;
 use Illuminate\Contracts\Validation\UncompromisedVerifier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Events\DiagnosingHealth;
 use Illuminate\Http\Client\Factory as HttpFactory;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
@@ -62,11 +62,8 @@ class AppServiceProvider extends ServiceProvider
             : Password::min(8));
 
         // /up, for an uptime monitor: a page that renders while the
-        // database is down is not "up".
-        Event::listen(DiagnosingHealth::class, function () {
-            DB::connection()->getPdo();
-            Cache::get('health-check');
-        });
+        // database is down, or while cron has stopped, is not "up".
+        Event::listen(DiagnosingHealth::class, fn () => Health::assertUp());
 
         // The browser tests run on the built assets even while `composer
         // dev` is running alongside: pointed at a hot file that never
