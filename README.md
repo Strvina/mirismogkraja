@@ -58,7 +58,7 @@ php artisan storage:link
 composer run dev
 ```
 
-Sajt je na `http://127.0.0.1:8000`.
+Sajt je na `http://127.0.0.1:8000`. Greške se upisuju u `storage/logs/laravel.log`.
 
 Na Windows-u u PowerShell-u koristite `npm.cmd` umesto `npm`, ili radite u Git Bash-u.
 
