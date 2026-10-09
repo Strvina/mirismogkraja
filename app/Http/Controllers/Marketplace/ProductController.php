@@ -22,6 +22,7 @@ use App\Support\ProductCards;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -89,9 +90,11 @@ class ProductController extends Controller
         // results - within the visitor's filters, so a boost
         // never shows honey to someone looking for cheese - and are never
         // moved up the results themselves. Drawn at random on every visit.
-        $featured = $products->onFirstPage()
+        $boosted = $products->onFirstPage() ? $boosts->runningIds(Boost::PRODUCT) : collect();
+        // With nothing boosted the list is not worked out a second time.
+        $featured = $boosted->isNotEmpty()
             ? $this->filtered($request)
-                ->whereIn('id', $boosts->runningIds(Boost::PRODUCT))
+                ->whereIn('id', $boosted)
                 ->inRandomOrder()
                 // Enough to fill the slider on a wide screen.
                 ->limit(8)
@@ -115,7 +118,7 @@ class ProductController extends Controller
 
         $choices = $this->filterChoices();
 
-        $card = ProductCards::for($request->user());
+        $card = ProductCards::for($request->user(), $products, $featured);
 
         $name = $category ? __($category->name) : null;
         $parent = $category?->parent;
@@ -158,7 +161,15 @@ class ProductController extends Controller
             'places' => $category ? $places->withCategory($category) : [],
             'products' => $products->through($card),
             'featured' => $featured->map($card)->values(),
-            ...$choices,
+            ...Arr::except($choices, 'producers'),
+            // As many names as there are producers, and the same on every
+            // page of the catalogue: sent after the page, once, and kept by
+            // the browser until it leaves the site.
+            'producers' => Inertia::defer(fn () => $choices['producers'])->once()->as('catalogue-producers'),
+            // Until they arrive the filter still has to name the one chosen.
+            'selectedProducer' => $request->filled('producer_id')
+                ? collect($choices['producers'])->firstWhere('id', $request->integer('producer_id'))
+                : null,
             'filters' => [
                 ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'sort']),
                 'q' => $search !== '' ? $search : null,

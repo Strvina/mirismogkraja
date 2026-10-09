@@ -25,6 +25,9 @@ class DashboardController extends Controller
 {
     public function index(Request $request): Response
     {
+        // Shown twice below, counted once.
+        $pendingReviews = Review::pending()->count();
+
         return Inertia::render('admin/dashboard', [
             // The panel reminds an admin who signs in with a password alone.
             'twoFactorEnabled' => $request->user()->hasTwoFactor(),
@@ -43,7 +46,7 @@ class DashboardController extends Controller
                     'threads'
                 )->count(),
                 'messages' => ProducerMessage::count(),
-                'pending_reviews' => Review::pending()->count(),
+                'pending_reviews' => $pendingReviews,
             ],
             // Everything waiting on an admin, in one place - each line links
             // to the queue it counts. Lines at zero are dropped by the page.
@@ -52,7 +55,7 @@ class DashboardController extends Controller
                 ['label' => __('uplata za članarinu čeka potvrdu'), 'count' => ProducerSubscription::where('status', ProducerSubscription::STATUS_PENDING)->count(), 'href' => route('admin.memberships.index')],
                 ['label' => __('uplata za isticanje čeka potvrdu'), 'count' => Boost::where('status', Boost::STATUS_PENDING)->count(), 'href' => route('admin.boosts.index')],
                 ['label' => __('prijava za kampanju čeka potvrdu'), 'count' => CampaignParticipant::where('status', CampaignParticipant::STATUS_PENDING)->count(), 'href' => route('admin.campaigns.index')],
-                ['label' => __('utisaka čeka odobrenje'), 'count' => Review::pending()->count(), 'href' => route('admin.reviews.index', ['status' => 'pending'])],
+                ['label' => __('utisaka čeka odobrenje'), 'count' => $pendingReviews, 'href' => route('admin.reviews.index', ['status' => 'pending'])],
                 ['label' => __('sertifikata čeka proveru'), 'count' => ProducerCertificate::where('status', ProducerCertificate::STATUS_PENDING)->count(), 'href' => route('admin.certificates.index')],
                 ['label' => __('zahteva za izmenu naziva'), 'count' => ProducerChangeRequest::pending()->count(), 'href' => route('admin.change-requests.index')],
                 ['label' => __('otvorenih prijava problema'), 'count' => Report::open()->count(), 'href' => route('admin.reports.index')],

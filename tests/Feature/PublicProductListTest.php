@@ -7,6 +7,7 @@ use App\Models\Producer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PublicProductListTest extends TestCase
@@ -138,5 +139,51 @@ class PublicProductListTest extends TestCase
 
         $this->actingAs($user)->get(route('marketplace.products.index'))
             ->assertInertia(fn ($page) => $page->where('products.data.0.is_favorited', true));
+    }
+
+    public function test_only_the_favourites_on_the_page_are_read()
+    {
+        $producer = Producer::factory()->active()->create();
+        $shown = Product::factory()->for($producer)->create(['status' => 'active']);
+        $elsewhere = Product::factory()->for($producer)->create(['status' => 'draft']);
+        $user = User::factory()->create();
+        $user->favorites()->create(['favoritable_type' => 'product', 'favoritable_id' => $shown->id]);
+        $user->favorites()->create(['favoritable_type' => 'product', 'favoritable_id' => $elsewhere->id]);
+
+        $read = [];
+        DB::listen(function ($query) use (&$read) {
+            if (str_contains($query->sql, 'from "favorites"') || str_contains($query->sql, 'from `favorites`')) {
+                $read[] = [$query->sql, $query->bindings];
+            }
+        });
+
+        $this->actingAs($user)->get(route('marketplace.products.index'))
+            ->assertInertia(fn ($page) => $page->where('products.data.0.is_favorited', true));
+
+        // One query, asking about the product on the page and not about
+        // everything this reader ever saved.
+        $this->assertCount(1, $read);
+        $this->assertMatchesRegularExpression('/favoritable_id.? in \(\?\)/', $read[0][0]);
+        $this->assertContains($shown->id, $read[0][1]);
+    }
+
+    public function test_the_producer_filter_arrives_after_the_page()
+    {
+        $producer = Producer::factory()->active()->create(['name' => 'Pčelarstvo Đorđević']);
+        Product::factory()->for($producer)->create(['status' => 'active']);
+
+        // The page itself carries no list of producers, whatever their number...
+        $this->get(route('marketplace.products.index'))
+            ->assertInertia(fn ($page) => $page
+                ->missing('producers')
+                ->where('selectedProducer', null)
+                // ...and asks for it straight after.
+                ->loadDeferredProps(fn ($reload) => $reload->where('producers', [['id' => $producer->id, 'name' => 'Pčelarstvo Đorđević']])));
+
+        // A filter already set is named from the first moment.
+        $this->get(route('marketplace.products.index', ['producer_id' => $producer->id]))
+            ->assertInertia(fn ($page) => $page
+                ->missing('producers')
+                ->where('selectedProducer', ['id' => $producer->id, 'name' => 'Pčelarstvo Đorđević']));
     }
 }
