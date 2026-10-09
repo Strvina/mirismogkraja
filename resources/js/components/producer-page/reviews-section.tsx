@@ -1,3 +1,4 @@
+import FormErrors from '@/components/form-errors';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import { Button } from '@/components/ui/button';
@@ -11,14 +12,21 @@ function ReviewForm({ producerId }: { producerId: number }) {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
     const [image, setImage] = useState<File | null>(null);
+    const [sending, setSending] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
+        if (sending) return;
+        setSending(true);
+        setErrors({});
         router.post(
             route('reviews.store', producerId),
             { rating, comment, image },
             {
                 forceFormData: true,
+                onError: setErrors,
+                onFinish: () => setSending(false),
                 onSuccess: () => {
                     setComment('');
                     setImage(null);
@@ -29,6 +37,7 @@ function ReviewForm({ producerId }: { producerId: number }) {
 
     return (
         <form onSubmit={submit} className="border-border/70 mt-6 space-y-3 rounded-lg border p-5">
+            <FormErrors errors={errors} />
             <div>
                 <h3 className="font-serif text-xl">{t('Ostavi utisak')}</h3>
                 <p className="text-muted-foreground mt-1 text-sm">
@@ -74,7 +83,7 @@ function ReviewForm({ producerId }: { producerId: number }) {
                     className="border-input bg-background w-full max-w-xs rounded-md border px-3 py-2 text-sm"
                 />
             </div>
-            <Button>{t('Pošalji utisak')}</Button>
+            <Button disabled={sending}>{t('Pošalji utisak')}</Button>
         </form>
     );
 }

@@ -1,3 +1,4 @@
+import FormErrors from '@/components/form-errors';
 import { Button } from '@/components/ui/button';
 import { formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
@@ -35,6 +36,7 @@ export default function ReviewCard({
     const [editing, setEditing] = useState(false);
     const [reply, setReply] = useState(review.reply ?? '');
     const [saving, setSaving] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const saveReply = () =>
         router.put(
@@ -42,7 +44,11 @@ export default function ReviewCard({
             { reply },
             {
                 preserveScroll: true,
-                onStart: () => setSaving(true),
+                onStart: () => {
+                    setSaving(true);
+                    setErrors({});
+                },
+                onError: setErrors,
                 onFinish: () => setSaving(false),
                 onSuccess: () => setEditing(false),
             },
@@ -98,6 +104,7 @@ export default function ReviewCard({
                     {canReply &&
                         (editing ? (
                             <div className="mt-3 grid gap-2">
+                                <FormErrors errors={errors} />
                                 <textarea
                                     value={reply}
                                     onChange={(event) => setReply(event.target.value)}

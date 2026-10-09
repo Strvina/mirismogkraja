@@ -1,3 +1,4 @@
+import FormErrors from '@/components/form-errors';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { t, tx } from '@/lib/i18n';
@@ -30,9 +31,12 @@ export default function ReportButton({
     const [reason, setReason] = useState(Object.keys(reasons)[0] ?? '');
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const submit: FormEventHandler = (event) => {
         event.preventDefault();
+        if (sending) return;
+        setErrors({});
         setSending(true);
 
         router.post(
@@ -45,6 +49,7 @@ export default function ReportButton({
                     setMessage('');
                 },
                 onFinish: () => setSending(false),
+                onError: setErrors,
             },
         );
     };
@@ -63,6 +68,7 @@ export default function ReportButton({
                 <DialogDescription>{t('Prijava ide našem timu, a ne proizvođaču. Nećemo je javno objaviti.')}</DialogDescription>
 
                 <form onSubmit={submit} className="space-y-4">
+                    <FormErrors errors={errors} />
                     <div className="grid gap-1.5">
                         <label htmlFor="report-reason" className="text-muted-foreground text-xs">
                             {t('Šta se desilo?')}

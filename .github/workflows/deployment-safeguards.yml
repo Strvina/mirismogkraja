@@ -1,0 +1,20 @@
+name: deployment-safeguards
+
+on:
+  push:
+    branches: [master, improve/integration]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: bash -n deploy/deploy.sh scripts/test-deploy.sh
+      - name: Exercise safeguards without deploying
+        run: bash scripts/test-deploy.sh

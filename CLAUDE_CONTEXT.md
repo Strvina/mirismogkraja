@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-06 (posle zadatka 147).
+Poslednja izmena: 2026-10-09 (prvi talas spojen; na projektu se smenjuju Claude i Codex).
 
 ## 1. Šta je ovo
 
@@ -25,24 +25,17 @@ Jezici: srpski (izvor), engleski, ruski.
 - Laravel 12, PHP 8.2+, MySQL/MariaDB (SQLite u testovima)
 - Inertia v2 + React 19 + TypeScript, Tailwind v4, bez SSR-a
 - Spatie permission (uloge `buyer`, `seller`, `admin`), Ziggy, Socialite (Google), Sentry
-- PHPUnit (`tests/`), Playwright (`e2e/`), pint + prettier + eslint + tsc
-- CI: `.github/workflows/tests.yml` (sqlite, mysql, browser) i `lint.yml`, na `master`
+- PHPUnit (`tests/`), Vitest (`resources/js/__tests__/`), Playwright (`e2e/`), Larastan 5, pint + prettier + eslint + tsc
+- CI proverava SQLite, MySQL, browser, frontend, lint i zavisnosti; integracija je na `improve/integration`.
+- Lokalni Docker stack: PHP-FPM, nginx, MySQL 8.4, Redis, queue worker i scheduler. Redis čuva sesije,
+  keš i red poslova; lokalni demo je dostupan samo sa ovog računara (`docs/docker.md`).
 
 ## 3. Gde šta živi
 
-| Mesto | Šta |
-|---|---|
-| `app/Http/Controllers` | Vlasnikove stranice (proizvođač, proizvodi, poruke, plaćeno) |
-| `…/Marketplace` | Javne stranice (lista i profil proizvođača, proizvodi, katalog, priče) |
-| `…/Admin` | Admin panel |
-| `app/Services` | Poslovna logika (članarine, isticanje, osnivači, preporuke, statistika, Google) |
-| `app/Support` | Pomoćne klase bez stanja (`Media`, `Search`, `PageMeta`, `UniqueSlug`, `Qr`) |
-| `app/Notifications/SiteNotification` | Sva obaveštenja, jedna klasa sa imenovanim konstruktorima |
-| `routes/*.php` | Po oblasti; `web.php` ih samo učitava |
-| `resources/js/pages` | Inertia stranice, mala slova (`config/inertia.php`) |
-| `resources/js/components` | `marketplace/`, `producer-page/`, `messages/`, `producer-form/`, `admin/`, `ui/` |
-| `lang/` | `en.json`, `ru.json` (ključ je srpska rečenica), `{sr,en,ru}/notifications.php` |
-| `docs/` | `database.md` (šema), `deploy.md`, `scaling.md`, `design-tokens.md` |
+Kontroleri su podeljeni na vlasničke, `Marketplace` i `Admin`; poslovna logika ide u `Services`,
+pomoćne klase bez stanja u `Support`. Rute su odvojene po oblasti. Inertia stranice imaju mala
+slova u nazivima; obaveštenja koristi jedna klasa `SiteNotification` sa imenovanim konstruktorima.
+Šema, deploy, skaliranje i dizajn su u `docs/`; prevodi u `lang/`.
 
 ## 4. Modeli
 
@@ -208,7 +201,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Van produkcije Eloquent je strog (`AppServiceProvider`): lenjo učitana relacija (N+1) i polje koje nije
   `fillable` bacaju izuzetak, pa to hvataju testovi. Ono što forma ne sme da postavi (`blocked_at`,
   `published_at`) nije `fillable` i upisuje se sa `forceFill`.
-- Statička analiza: `composer analyse` (Larastan, nivo 1) i u CI-u. Viši nivo traži da se modeli prvo tipiziraju.
+- Statička analiza: `composer analyse` (Larastan, nivo 5) i u CI-u; modeli i relacije su tipizirani.
 - U produkciji: lozinka mora imati slovo i broj i ne sme biti u poznatim curenjima; `migrate:fresh` i
   `db:wipe` su zabranjeni; ako je ispred servera proxy (Cloudflare), `TRUSTED_PROXIES` mora biti upisan.
 - Dizajn: boje, fontovi i razmaci iz `docs/design-tokens.md`; nove strane liče na postojeće.
@@ -219,11 +212,15 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 
 ## 10. Trenutno stanje
 
-- Urađeni su svi zadaci do 146; sve do 145 je spojeno u `master`. Zadatak 146 je bezbednosni pregled
-  celog koda: nije nađena nijedna ranjivost, uvedena su ojačanja navedena u konvencijama ispod.
-- Testovi: 598 PHP (3 preskočena bez GD-a) i 24 u pregledaču; CI zelen na MySQL-u i SQLite-u.
-- Testovi u pregledaču prolaze cele lance kroz tri uloge (`full-cycle`, `producer-chains`,
-  `wanted-pause-places`). Test sajt piše mejlove u `storage/logs/mail.log`, odakle test čita link.
+- Zadaci do 147 su spojeni u `master`. Prvi talas unapređenja (Docker, Larastan, komponentni testovi,
+  CI/CD, performanse, zaštite deploy skripte) spojen je u `improve/integration` kroz PR #249.
+- Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 601 test prolazi u Docker-u, bez
+  preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 24 testa i prolazi u CI-u.
+  Pint, Larastan 5, TypeScript, ESLint, Prettier, build i oba dependency audit-a prolaze.
+  MySQL 8.4 pre/posle merenja za 74 scenarija i sirovi rezultati su u `docs/performance/`.
+- Na projektu se smenjuju Claude Code i Codex, nikad u isto vreme. Primopredaja je
+  `docs/development-plan.md` (šta je urađeno, šta je sledeće) i ovaj odeljak: ko završava sesiju,
+  ažurira oba i ostavlja rad na grani sa PR-om. Produkcioni deploy traži vlasnika.
 - **Sajt nikad nije pušten u rad.** Nema servera, domena ni stvarnih korisnika.
 
 ## 11. Poznata ograničenja
@@ -237,7 +234,9 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Puštanje u rad po `docs/deploy.md` (samo uz vlasnika): server, domen, mejl, Turnstile, Sentry,
   backup, Google ključevi.
 - Upisati prave podatke za uplatnicu i cene; naći prvih 10–20 proizvođača.
-- Kad zatreba (vidi `docs/scaling.md`): tabela razgovora, Redis, Meilisearch, SSR.
+- Po nastavku završiti drugi i treći talas po `docs/development-plan.md`; prvi ne ponavljati.
+  MySQL merenja imaju izolovanu bazu i CI workflow; ostaju poznata uska grla kataloga i kontrolera.
+- Kad zatreba (vidi `docs/scaling.md`): tabela razgovora, Meilisearch, SSR.
 
 ## 13. Ne dirati bez dogovora
 
@@ -250,4 +249,5 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 ## 14. Provera pre PR-a
 
 `vendor/bin/pint --test`, `npx prettier --check resources/`, `npx eslint .`, `npx tsc --noEmit`,
-`npx vite build` (pre testova koji otvaraju novu stranicu), `php artisan test`, `npx playwright test`.
+`npx vite build` (pre testova koji otvaraju novu stranicu), `php artisan test`, `npm test`,
+`composer analyse`, `npx playwright test` i `bash scripts/test-deploy.sh` na Linux-u.

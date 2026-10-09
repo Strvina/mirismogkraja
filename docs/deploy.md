@@ -69,9 +69,9 @@ cd /var/www/vrelina-juga
 
 cp deploy/env.production.example .env
 nano .env            # popunite sve ispod redova sa "CHANGE"
-php artisan key:generate
 
 composer install --no-dev --optimize-autoloader
+php artisan key:generate
 npm ci && npm run build
 
 php artisan migrate --force
@@ -170,11 +170,14 @@ poslat vidi se u `storage/logs` i u Sentry-ju.
 php artisan mail:test vas@email.com     # stiže li mejl?
 php artisan sentry:test                 # stiže li greška u Sentry?
 php artisan backup:database             # pravi li se backup?
-curl -s -o /dev/null -w "%{http_code}\n" https://vasdomen.rs/up    # 200 = sve radi
+curl -s -o /dev/null -w "%{http_code}\n" https://vasdomen.rs/up
+curl -s -o /dev/null -w "%{http_code}\n" https://vasdomen.rs/
 ```
 
 Na kraju na [UptimeRobot](https://uptimerobot.com) (besplatno) dodajte proveru adrese
-`https://vasdomen.rs/up`. Ako sajt ili baza prestanu da rade, javiće vam mejlom.
+`https://vasdomen.rs/up` i početne stranice. Obe moraju vratiti 200: `/up` sam može
+raditi i tokom održavanja, dok početna stranica tada vraća 503. To nisu provere slanja
+mejlova, izvršavanja redova poslova niti svih korisničkih tokova.
 
 ## Svaka sledeća verzija
 
@@ -184,9 +187,18 @@ Kada se novi PR-ovi spoje u `master`, na serveru pokrenite:
 cd /var/www/vrelina-juga && ./deploy/deploy.sh
 ```
 
-Skripta uključi stranicu „održavanje“, povuče kod, instalira pakete, napravi frontend, pokrene
+Skripta proveri lokalne izmene, povuče i proveri ciljni commit pre održavanja, instalira pakete, napravi frontend, pokrene
 migracije, osveži keš i vrati sajt. Ako bilo koji korak ne uspe, sajt ostaje u režimu održavanja dok
 se greška ne ispravi. Tako kupci nikad ne vide polovično ažuriran sajt.
+
+Automatski deploy je isključen dok `DEPLOY_ENABLED` nije `true`. Pre uključivanja podesite
+GitHub environment `production` sa obaveznim reviewer-om, tajnim SSH ključem, poznatim host ključem
+i adresom servera. Deploy zahteva zelene testove, lint, frontend testove, audit i proveru deploy
+skripte za isti commit; zatim čeka odobrenje environment-a. Bez tog odobrenja nema deploya.
+Skripta ne briše lokalne izmene i odbija vraćanje na stariji ili nepovezan commit.
+
+Provere zaštita, bez servera i stvarnih aplikacionih komandi: `bash scripts/test-deploy.sh`
+na Linux-u. Fixture repozitorijumi ostaju u ispisanom privremenom direktorijumu za pregled.
 
 ## Ako nešto ne radi
 

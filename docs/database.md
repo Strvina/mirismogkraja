@@ -72,7 +72,7 @@ A producer's public page: name, story, contact, location, delivery methods, cove
 | `paused_until` | date | yes | the day they said they are back; the pause ends by itself after it |
 | `pause_note` | string | yes | what visitors read during the pause (200) |
 
-Indexes: (status, name); unique (founding_number); unique (referral_code); (city); unique (slug)
+Indexes: (status, name); unique (founding_number); unique (referral_code); (city); unique (slug); (user_id)
 
 ## products
 
@@ -96,7 +96,7 @@ A producer's products. `status`: draft, active, archived (owner) or blocked (adm
 | `season_from` | integer | yes |  |
 | `season_to` | integer | yes |  |
 
-Indexes: (status, created_at); unique (slug); (producer_id, status); (category_id, status)
+Indexes: (status, created_at); unique (slug); (category_id, status); (created_at); (producer_id, status, created_at)
 
 ## product_images
 
@@ -110,6 +110,8 @@ Photos of a product; `order` 0 is the main one.
 | `order` | integer |  |  |
 | `created_at` | datetime | yes |  |
 | `updated_at` | datetime | yes |  |
+
+Indexes: (product_id, order)
 
 ## producer_images
 
@@ -227,7 +229,7 @@ Messages between a buyer and a producer. A conversation is the pair (`producer_i
 | `wanted_ad_id` | integer | yes | → wanted_ads.id (set null); set on a producer's answer to a "Tražim" ad |
 | `emailed_at` | datetime | yes |  |
 
-Indexes: (read_at, emailed_at, created_at); (producer_id, read_at); (buyer_id, read_at); (producer_id, buyer_id, created_at)
+Indexes: (read_at, emailed_at, created_at); (producer_id, read_at); (buyer_id, read_at); (producer_id, buyer_id, created_at); (product_id)
 
 ## wanted_ads
 
@@ -632,3 +634,5 @@ Site notifications (the bell), Laravel's database channel.
 Indexes: (notifiable_type, notifiable_id)
 
 On MySQL there are also FULLTEXT indexes on `products(name, description)` and `producers(name, description)`, used by the catalogue search.
+
+MySQL and MariaDB index every foreign key column themselves, so `producers(user_id)` and `producer_messages(product_id)` above are created by a migration only where the database does not (SQLite).
