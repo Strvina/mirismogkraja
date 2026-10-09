@@ -72,7 +72,11 @@ export default function ReviewCard({
                             <BadgeCheck className="size-3" />
                             {t('Provereni korisnik')}
                         </span>
-                        <span className="text-gold flex items-center gap-0.5" aria-label={t('Ocena :rating od 5', { rating: review.rating })}>
+                        <span
+                            className="text-gold flex items-center gap-0.5"
+                            role="img"
+                            aria-label={t('Ocena :rating od 5', { rating: review.rating })}
+                        >
                             {Array.from({ length: review.rating }).map((_, index) => (
                                 <Star key={index} className="fill-gold size-3.5" />
                             ))}

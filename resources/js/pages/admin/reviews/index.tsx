@@ -96,7 +96,7 @@ export default function AdminReviewsIndex({
                                             {review.producer.name}
                                         </a>
                                     </span>
-                                    <span className="text-gold flex items-center gap-0.5" aria-label={`Ocena ${review.rating} od 5`}>
+                                    <span className="text-gold flex items-center gap-0.5" role="img" aria-label={`Ocena ${review.rating} od 5`}>
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <Star key={i} className="fill-gold size-3.5" />
                                         ))}

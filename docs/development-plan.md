@@ -18,7 +18,7 @@ Wave 1 was merged on 9 October 2026 with the owner's approval. Production deploy
 
 - [ ] Policy authorization for private reads and writes, including negative tests.
 - [ ] Coverage and Infection for Services/Support, with measured results and additional tests for surviving mutants.
-- [ ] Playwright axe checks across visitor, buyer, producer and admin pages; fix serious/critical findings.
+- [x] Playwright axe checks across visitor, buyer, producer and admin pages; fix serious/critical findings. Done in `e2e/accessibility.spec.ts` (37 pages, the public ones also in the dark theme). Not yet covered: pages reached only through a dialog or a filled form, and the dark theme for signed-in pages.
 
 ## Wave 3
 
@@ -52,4 +52,6 @@ Local PHP 8.2.4 has no GD, zip or coverage driver. WSL was updated to 3.0.1 and 
 
 PR #249 is merged into `improve/integration`; #244 and #248 were closed without merging, because #249 carried their commits unchanged. Before the merge Claude reviewed it and changed two things: the four forms share `FormErrors` instead of four copies of the same block, and the `performance` workflow no longer runs on every migration, only when the measuring changes or by hand.
 
-Start with Wave 2 authorization checks and the inventory of private routes; accessibility and coverage work can be prepared independently. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture or MySQL baseline work.
+The accessibility item of Wave 2 is done (task 148, its own pull request against `improve/integration`). It found the dark theme unreadable on the home page: the brand colours had no dark values. They have now; see `docs/design-tokens.md`.
+
+Next: Wave 2 authorization. The app already has five policies and about 110 checks in controllers, and task 146 reviewed them, so start with the inventory of private routes and negative tests for what has none, not with a rewrite. Coverage work can be prepared independently. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture or MySQL baseline work.
