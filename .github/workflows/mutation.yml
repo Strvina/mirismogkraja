@@ -1,0 +1,75 @@
+name: mutation
+
+# Mutation testing of app/Services and app/Support (infection.json5): how
+# many deliberate mistakes in the rules of the site the tests notice.
+#
+# Slow, so it is run by hand ("Run workflow"), and by itself only when its
+# own settings change. It reports and does not judge: the result is a number
+# to watch and a list of unnoticed changes to read, in the run's summary and
+# in the `mutation` artifact.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'infection.json5'
+      - '.github/workflows/mutation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  infection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd, exif, pdo_sqlite
+          tools: composer:v2
+          coverage: pcov
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Prepare Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          npm run build
+
+      - name: Mutation tests
+        run: vendor/bin/infection --threads=max --only-covered --no-progress
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo '```'
+            cat storage/infection/summary.log
+            echo '```'
+            cat storage/infection/per-mutator.md
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the list of unnoticed changes
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: mutation
+          path: |
+            storage/infection/*.log
+            storage/infection/*.md

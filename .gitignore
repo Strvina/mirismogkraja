@@ -26,6 +26,8 @@ npm-debug.log
 yarn-error.log
 /storage/e2e.sqlite
 /storage/perf/
+/storage/infection/
+/storage/coverage/
 /storage/wave1-*.log
 /test-results
 /playwright-report

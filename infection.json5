@@ -1,0 +1,24 @@
+{
+    // Mutation testing: Infection changes one thing in the code at a time
+    // (a < into a <=, a true into a false) and runs the tests that reach
+    // that line. A change no test notices is a rule nobody checks.
+    //
+    // Only where the rules of the site are, as with scripts/coverage.php.
+    // Run by .github/workflows/mutation.yml; it needs a coverage driver,
+    // so not on a PHP without pcov or Xdebug.
+    "$schema": "vendor/infection/infection/resources/schema.json",
+    "source": {
+        "directories": ["app/Services", "app/Support"]
+    },
+    "testFramework": "phpunit",
+    "timeout": 60,
+    "tmpDir": "storage/infection",
+    "logs": {
+        "text": "storage/infection/escaped.log",
+        "summary": "storage/infection/summary.log",
+        "perMutator": "storage/infection/per-mutator.md"
+    },
+    "mutators": {
+        "@default": true
+    }
+}
