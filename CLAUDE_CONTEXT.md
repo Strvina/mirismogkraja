@@ -7,7 +7,7 @@ Održavanje: posle svake značajne izmene (baza, dozvole, poslovna pravila, arhi
 funkcionalnost) ispravi odgovarajući odeljak. Zastarelo zameni, ne dopisuj. Bez koda i bez spiskova
 fajlova koji se vide iz repoa. Ako pređe ~250 redova, sažmi.
 
-Poslednja izmena: 2026-10-09 (prvi talas pripremljen za pregled, ostali odloženi).
+Poslednja izmena: 2026-10-09 (prvi talas spojen; na projektu se smenjuju Claude i Codex).
 
 ## 1. Šta je ovo
 
@@ -212,16 +212,15 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 
 ## 10. Trenutno stanje
 
-- Zadaci do 147 su spojeni u `master`. Unapređenja Docker-a, Larastan-a i komponentnih testova su
-  u `improve/integration`; CI/CD i performanse iz otvorenih PR-ova sačuvani su na `codex/wave1-completion`.
+- Zadaci do 147 su spojeni u `master`. Prvi talas unapređenja (Docker, Larastan, komponentni testovi,
+  CI/CD, performanse, zaštite deploy skripte) spojen je u `improve/integration` kroz PR #249.
 - Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 601 test prolazi u Docker-u, bez
   preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 24 testa i prolazi u CI-u.
   Pint, Larastan 5, TypeScript, ESLint, Prettier, build i oba dependency audit-a prolaze.
-  PR #249 prema `improve/integration` čuva CI/performance rad iz #244 i #248, koji nisu zatvoreni.
   MySQL 8.4 pre/posle merenja za 74 scenarija i sirovi rezultati su u `docs/performance/`.
-- Vlasnik je zatim tražio da se stane posle prvog talasa; drugi i treći ostaju za sledeću sesiju.
-  Spajanje PR-ova i produkcioni deploy i dalje traže njegovo odobrenje.
-  Preostali rad i provereni rezultati prate se u `docs/development-plan.md`.
+- Na projektu se smenjuju Claude Code i Codex, nikad u isto vreme. Primopredaja je
+  `docs/development-plan.md` (šta je urađeno, šta je sledeće) i ovaj odeljak: ko završava sesiju,
+  ažurira oba i ostavlja rad na grani sa PR-om. Produkcioni deploy traži vlasnika.
 - **Sajt nikad nije pušten u rad.** Nema servera, domena ni stvarnih korisnika.
 
 ## 11. Poznata ograničenja
