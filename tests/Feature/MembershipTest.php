@@ -11,6 +11,7 @@ use App\Services\SubscriptionService;
 use Database\Seeders\RolesSeeder;
 use Database\Seeders\SubscriptionPlansSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /**
@@ -168,7 +169,9 @@ class MembershipTest extends TestCase
     /** An upgrade stopped half-way must not leave the producer with no plan while a paid one waits. */
     public function test_cancelling_an_upgrade_brings_the_plan_behind_it_back_at_once(): void
     {
-        $this->travelTo(now()->startOfDay());
+        // A date whose plans cross both changes of the clocks (October and
+        // March): an hour gained or lost on the way must not show at the end.
+        $this->travelTo(Carbon::parse('2026-10-12'));
         $producer = Producer::factory()->active()->create();
         $subscriptions = app(SubscriptionService::class);
 
