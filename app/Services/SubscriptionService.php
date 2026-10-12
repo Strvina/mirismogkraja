@@ -257,9 +257,16 @@ class SubscriptionService
             return;
         }
 
-        $unused = (int) max(now(), $stopped->starts_at)->diffInSeconds($stopped->ends_at);
+        // In whole days on the calendar and the rest of a day in seconds, the
+        // way the plans behind were pushed back (addDays above). In seconds
+        // alone a plan would come back an hour short or long across a change
+        // of the clocks; in months, a day short or long, months not being
+        // of one length.
+        $unused = max(now(), $stopped->starts_at)->diff($stopped->ends_at);
+        $days = (int) $unused->days;
+        $rest = $unused->h * 3600 + $unused->i * 60 + $unused->s;
 
-        DB::transaction(function () use ($stopped, $unused) {
+        DB::transaction(function () use ($stopped, $days, $rest) {
             $behind = $stopped->producer
                 ->subscriptions()
                 ->active()
@@ -270,8 +277,8 @@ class SubscriptionService
 
             foreach ($behind as $subscription) {
                 $subscription->update([
-                    'starts_at' => $subscription->starts_at->copy()->subSeconds($unused),
-                    'ends_at' => $subscription->ends_at->copy()->subSeconds($unused),
+                    'starts_at' => $subscription->starts_at->copy()->subDays($days)->subSeconds($rest),
+                    'ends_at' => $subscription->ends_at->copy()->subDays($days)->subSeconds($rest),
                     'expiry_warned_at' => null,
                 ]);
             }
