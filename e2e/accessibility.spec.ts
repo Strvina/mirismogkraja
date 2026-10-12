@@ -30,6 +30,20 @@ const through =
         }
     };
 
+/**
+ * `target`, and then what a visitor does there: a dialog opened, a form
+ * sent and refused. What only shows after a click is checked too.
+ */
+const after = (target: Target, act: (page: Page) => Promise<unknown>) => async (page: Page) => {
+    await (typeof target === 'string' ? page.goto(target) : target(page));
+    await act(page);
+};
+
+const dialog = (name: string | RegExp) => async (page: Page) => {
+    await page.getByRole('button', { name }).first().click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+};
+
 async function check(page: Page, targets: Record<string, Target>): Promise<void> {
     const found: string[] = [];
 
@@ -71,6 +85,20 @@ const audiences: { who: string; account?: { email: string; password: string }; p
             'sign in': '/login',
             'sign up': '/register',
             'forgotten password': '/forgot-password',
+            'sign in, refused': after('/login', async (page) => {
+                await page.getByLabel('Email adresa').fill('nobody@example.com');
+                await page.getByLabel('Lozinka', { exact: true }).fill('not-the-password1');
+                await page.getByRole('button', { name: 'Prijavi se' }).click();
+                // Refused: the password is cleared and the reason shown.
+                await expect(page.getByLabel('Lozinka', { exact: true })).toHaveValue('');
+            }),
+            // Last: the window stays phone-sized for the rest of this test.
+            'menu on a phone': async (page) => {
+                await page.setViewportSize({ width: 390, height: 844 });
+                await page.goto('/');
+                await page.getByRole('button', { name: 'Meni' }).click();
+                await expect(page.getByRole('menu')).toBeVisible();
+            },
         },
     },
     {
@@ -84,6 +112,8 @@ const audiences: { who: string; account?: { email: string; password: string }; p
             profile: '/settings/profile',
             password: '/settings/password',
             appearance: '/settings/appearance',
+            'report dialog': after(through('/proizvodi', '/proizvod/'), dialog('Prijavi problem')),
+            'new wanted ad, refused': after('/trazim/novi', (page) => page.getByRole('button', { name: 'Objavi oglas' }).click()),
         },
     },
     {
@@ -98,6 +128,9 @@ const audiences: { who: string; account?: { email: string; password: string }; p
             inbox: '/poruke-proizvodjaca',
             membership: '/clanarina',
             boost: '/isticanje',
+            'new product, refused': after(through('/moji-proizvodjaci', '/proizvodi', '/proizvodi/novi'), (page) =>
+                page.getByRole('button', { name: 'Kreiraj' }).click(),
+            ),
         },
     },
     {
