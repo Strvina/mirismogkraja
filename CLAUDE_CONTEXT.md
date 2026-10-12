@@ -216,7 +216,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
   CI/CD, performanse, zaštite deploy skripte) spojen je u `master`.
 - Prvi talas: 849 Vitest testova prolazi u 87 fajlova. PHP: 605 testova prolazi u CI-u, bez
   preskakanja; lokalni PHP bez GD-a preskače 3 testa. Browser paket ima 32 testa i prolazi u CI-u;
-  osam od njih (`e2e/accessibility.spec.ts`) pušta axe kroz 37 stranica i šest otvorenih dijaloga i
+  osam od njih (`e2e/accessibility.spec.ts`) pušta axe kroz 37 stranica i pet otvorenih dijaloga i
   odbijenih formi, u svetloj i tamnoj temi, i pada
   na ozbiljnim nalazima.
   Pint, Larastan 5, TypeScript, ESLint, Prettier, build i oba dependency audit-a prolaze.
