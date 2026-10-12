@@ -20,8 +20,10 @@ class ContentSecurityPolicyTest extends TestCase
         preg_match("/'nonce-([A-Za-z0-9]+)'/", $policy, $match);
 
         // Every inline script on the page - Ziggy's route list among them -
-        // carries this response's nonce.
-        preg_match_all('/<script(?![^>]*\bsrc=)([^>]*)>/', $response->getContent(), $scripts);
+        // carries this response's nonce. Not the page's data, which Inertia
+        // writes as a JSON block: the browser does not run it, and the
+        // policy does not apply to it.
+        preg_match_all('/<script(?![^>]*\bsrc=)(?![^>]*type="application\/json")([^>]*)>/', $response->getContent(), $scripts);
         $this->assertNotEmpty($scripts[1]);
         foreach ($scripts[1] as $attributes) {
             $this->assertStringContainsString('nonce="'.$match[1].'"', $attributes);
