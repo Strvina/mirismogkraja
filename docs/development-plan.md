@@ -22,10 +22,10 @@ Wave 1 was merged on 9 October 2026 with the owner's approval. Production deploy
 
 ## Wave 3
 
-- [ ] Extract queries/presentation from large controllers and address measured performance bottlenecks.
-- [ ] Reliable background mail/notifications, structured logs and dependency health checks.
-- [ ] English README, Serbian companion, screenshots, architecture diagram and operational documentation.
-- [ ] Final verification and reviewable PRs; no deployment or PR merge without owner approval.
+- [x] Address measured performance bottlenecks. Task 156: the catalogue's producer filter is a deferred, once-only prop (page 1 measured 193 KB to 54 KB at 2,000 producers), favourites read for the page only, no second list query without boosts, one count less on the admin dashboard. Task 153: every admin list ends its order on `id`. Not done on purpose: forcing an index and caching totals (items 1 to 3 of `docs/performance.md`), which depend on the production database and matter at tens of thousands of products. Moving queries out of large controllers was not done either: no measurement asked for it.
+- [x] Structured logs and dependency health checks. Task 157: `/up` fails without the database, the cache, a writable `storage`, or a cron heard from in ten minutes; `php artisan health:check` names each; every log line carries the request's id, route and user id, and a `json` channel exists. Mail stays without a queue worker, by the decision in `CLAUDE_CONTEXT.md` section 8.
+- [x] English README, Serbian companion, screenshots, architecture diagram and operational documentation. Task 155: `README.md`, `README.sr.md`, `docs/screenshots/`, `docs/operations.md`.
+- [ ] Final verification and reviewable PRs; no deployment or PR merge without owner approval. Every task above went through its own pull request; the deployment itself waits for the owner (server, domain, keys).
 
 ## Only when something needs it
 
@@ -50,10 +50,12 @@ Local PHP 8.2.4 has no GD, zip or coverage driver. WSL was updated to 3.0.1 and 
 
 ## Next-session handoff
 
-State on 9 October 2026: Wave 1, the accessibility checks (task 148), `composer dev` without Pail (task 149) and five Dependabot updates are on `master`. `improve/integration` has served its purpose: branch from `master` and open pull requests against `master`. The owner merges; an assistant does not merge into `master`.
+State on 12 October 2026. Waves 1 to 3 are done, apart from the deployment, which needs the owner. Work branches from `master` and goes back through a pull request to `master`; the owner merges.
 
-Dependabot proposes updates every Monday. Its major bumps of `vite`, `laravel-vite-plugin`, `@vitejs/plugin-react` and `inertiajs/inertia-laravel` failed CI and were closed: they need changes in the code and are a task of their own, not urgent.
+Also done since Wave 1: Vite 8 with its plugins (task 158), Inertia 3 on both sides (task 160), and a membership bug (task 159): a cancelled upgrade gave the plan behind it its time back in seconds instead of days, an hour off across a change of the clocks. Its test now starts on a fixed date.
+
+Dependabot proposes updates every Monday. An npm lock file made on Windows can be refused by `npm ci` on the runners (packages of a WebAssembly fallback left out): write it with npm in a Linux container, `docker run --rm -v <repo>:/mirismogkraja -w /mirismogkraja node:22 npm install --package-lock-only`, and check that its `name` is still `mirismogkraja`.
 
 Two assistants may work at the same time only in separate copies of the repository, on tasks that touch different files. Both end by editing this file, so the second pull request to be merged resolves that conflict.
 
-Wave 2 is done. The accessibility checks do not yet cover pages reached only through a dialog or a filled form. The mutation run is by hand (`mutation` workflow); `Support/Media.php` and `Support/PageMeta.php` have the most escaped mutants, nearly all in image sizes and meta text. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture, MySQL baseline, accessibility or route-inventory work.
+What is left is the owner's: a server and a domain, mail, Turnstile, Sentry and Google keys, the real payment details and prices, the first producers, and a legal reading of the terms and the privacy policy. Then `docs/deploy.md`, and `docs/operations.md` once it is live. Do not repeat the completed Docker, component-test, deployment-fixture, MySQL baseline, accessibility, route-inventory, coverage or mutation work.
