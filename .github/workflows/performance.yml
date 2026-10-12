@@ -50,7 +50,7 @@ jobs:
           php-version: '8.2'
           extensions: gd, exif, pdo_mysql
           coverage: none
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -68,7 +68,7 @@ jobs:
         run: |
           sh scripts/perf/run.sh
           cat storage/perf/mysql-report.md >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: mysql-performance
