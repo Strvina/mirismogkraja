@@ -16,8 +16,10 @@ export default defineConfig({
     resolve: {
         alias: { '@': fileURLToPath(new URL('./resources/js', import.meta.url)) },
     },
-    esbuild: {
-        jsx: 'automatic',
+    // No React plugin here, so the JSX transform is named: the automatic
+    // one, which needs no `import React` in every file.
+    oxc: {
+        jsx: { runtime: 'automatic' },
     },
     test: {
         environment: 'jsdom',
