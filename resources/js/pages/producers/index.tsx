@@ -132,13 +132,14 @@ export default function ProducersIndex({
                                 {producer.completeness.missing.length > 0 && (
                                     <div className="bg-muted/40 mt-4 rounded-lg p-3">
                                         <div className="flex items-center justify-between gap-3 text-sm">
-                                            <span className="font-medium">
+                                            <span id={`completeness-${producer.id}`} className="font-medium">
                                                 {t('Profil je popunjen :percent%', { percent: producer.completeness.percent })}
                                             </span>
                                         </div>
                                         <div
                                             className="bg-border mt-2 h-1.5 overflow-hidden rounded-full"
                                             role="progressbar"
+                                            aria-labelledby={`completeness-${producer.id}`}
                                             aria-valuenow={producer.completeness.percent}
                                             aria-valuemin={0}
                                             aria-valuemax={100}
