@@ -67,7 +67,8 @@ step "The site answers"
 expect_status 200 /up
 
 home=$(curl -fsS "$url/")
-grep -q 'component&quot;:&quot;welcome&quot;' <<< "$home" || fail "the home page is not the Inertia page 'welcome'"
+# Inertia 3 writes the page as a JSON block, not as an HTML attribute.
+grep -q '"component":"welcome"' <<< "$home" || fail "the home page is not the Inertia page 'welcome'"
 grep -q 'Mlekara Zapis' <<< "$home" || fail "the home page does not show the demo producers"
 echo "GET / -> the home page, with the demo producers on it"
 
