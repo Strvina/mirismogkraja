@@ -17,7 +17,7 @@ Wave 1 was merged on 9 October 2026 with the owner's approval. Production deploy
 ## Wave 2
 
 - [x] Policy authorization for private reads and writes, including negative tests. Task 150: `PrivateRouteInventoryTest` reads every signed-in route with a record in its address from the router (61 of them), sends a stranger to the 53 that belong to somebody, and fails when a new route is not written down. It found no hole.
-- [ ] Coverage and Infection for Services/Support, with measured results and additional tests for surviving mutants.
+- [x] Coverage and Infection for Services/Support, with measured results and additional tests for surviving mutants. Task 154. Coverage of `app/Services` and `app/Support`: **97.0 %** of 1,339 statements; the `coverage` workflow fails under 95 %. Mutation run (Infection 0.32, 25 minutes on CI): 1,700 mutants, 1,132 killed, 562 escaped, 5 timed out, MSI about 67 %. Most of the escaped ones change nothing a person would see (a cast that PHP makes anyway, a `?->` on a relation that is never null, a cache lifetime, the decimals of a number in a log); the ones in the money code that did change behaviour now have tests (`PaymentNoticesTest`, `CoverageGapsTest`). Not killed on purpose: the bounds of the random payment reference and its retry on a collision, which cannot be forced without making the randomness injectable.
 - [x] Playwright axe checks across visitor, buyer, producer and admin pages; fix serious/critical findings. Done in `e2e/accessibility.spec.ts` (37 pages, each in the light and in the dark theme since task 151). Not yet covered: pages reached only through a dialog or a filled form.
 
 ## Wave 3
@@ -56,4 +56,4 @@ Dependabot proposes updates every Monday. Its major bumps of `vite`, `laravel-vi
 
 Two assistants may work at the same time only in separate copies of the repository, on tasks that touch different files. Both end by editing this file, so the second pull request to be merged resolves that conflict.
 
-Left of Wave 2: coverage and Infection for Services/Support. The accessibility checks do not yet cover pages reached only through a dialog or a filled form. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture, MySQL baseline, accessibility or route-inventory work.
+Wave 2 is done. The accessibility checks do not yet cover pages reached only through a dialog or a filled form. The mutation run is by hand (`mutation` workflow); `Support/Media.php` and `Support/PageMeta.php` have the most escaped mutants, nearly all in image sizes and meta text. Keep the measured catalogue/filter payload and inbox/controller bottlenecks for Wave 3. Do not repeat the completed Docker, component-test, deployment-fixture, MySQL baseline, accessibility or route-inventory work.
