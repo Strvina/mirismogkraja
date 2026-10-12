@@ -15,9 +15,14 @@ assume the site is in `/var/www/vrelina-juga`.
 
 There is no queue worker to watch: side jobs run after the response is sent or from the scheduler.
 
-An outside monitor (UptimeRobot is enough) should watch both `/up` and the home page. `/up` alone
-keeps answering 200 in maintenance mode, where a deployment that stopped half-way leaves the site;
-the home page answers 503 then.
+`php artisan health:check` asks all of it at once and names what is wrong: the database, the cache,
+that `storage` can be written to, and that cron has called in the last ten minutes.
+
+An outside monitor (UptimeRobot is enough) should watch both `/up` and the home page. `/up` answers
+500 when the database, the cache or the storage folder is gone, and when cron has been silent for
+ten minutes: the pages still open then, but no mail goes out and nothing expires. `/up` alone keeps
+answering 200 in maintenance mode, where a deployment that stopped half-way leaves the site; the
+home page answers 503 then.
 
 ## What runs by itself
 
@@ -77,12 +82,13 @@ that; a migration that has run is not undone by the script.
 
 | What you see | Where to look |
 | --- | --- |
-| A white page or a 500 | `storage/logs/laravel-*.log`, and Sentry |
+| A white page or a 500 | `storage/logs/laravel-*.log`, and Sentry. Every line carries a `request_id`, the route and the user's id; the same id is in the response's `X-Request-Id` header, so one visitor's failed request can be found among the rest |
 | 503 on every page | maintenance mode: a deployment stopped half-way. Read its output, then run it again or `php artisan up` |
 | "Permission denied" in the log | the `chown` and `chmod` of step 3 in [deploy.md](deploy.md) |
 | Something on a page is blocked (the browser's console says so) | set `CSP_REPORT_ONLY=true` in `.env` and run `php artisan optimize`; the console keeps naming what would be blocked, so it can be allowed properly |
 | Mail does not arrive | `php artisan mail:test you@example.com`; the daily limit of the mail service (the weekly digest keeps to `DIGEST_MAX_PER_RUN`); failures are in `storage/logs` and Sentry |
-| A membership did not end, or no warning went out | cron: see "What has to be running" |
+| A membership did not end, or no warning went out | cron: `php artisan health:check` |
+| `/up` answers 500 while the pages open | `php artisan health:check` names which of the four it is |
 | Pages are slow | [scaling.md](scaling.md), and [performance.md](performance.md) for what is known to cost at size |
 
 After any change to `.env`: `php artisan optimize`, because the configuration is cached.

@@ -170,6 +170,7 @@ poslat vidi se u `storage/logs` i u Sentry-ju.
 php artisan mail:test vas@email.com     # stiže li mejl?
 php artisan sentry:test                 # stiže li greška u Sentry?
 php artisan backup:database             # pravi li se backup?
+php artisan health:check                # baza, keš, upis na disk i cron (sačekajte minut posle koraka 5)
 curl -s -o /dev/null -w "%{http_code}\n" https://vasdomen.rs/up
 curl -s -o /dev/null -w "%{http_code}\n" https://vasdomen.rs/
 ```

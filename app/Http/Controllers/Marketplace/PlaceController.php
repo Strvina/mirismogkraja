@@ -92,7 +92,7 @@ class PlaceController extends Controller
             'category' => $category?->only(['id', 'name', 'slug', 'search_name']),
             'categories' => $places->categoriesIn($place),
             'producers' => $producers,
-            'products' => $products->through(ProductCards::for($request->user())),
+            'products' => $products->through(ProductCards::for($request->user(), $products)),
         ]);
     }
 

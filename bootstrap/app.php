@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserIsNotBlocked;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\LogContext;
 use App\Http\Middleware\RefuseDeepPages;
 use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SetLocale;
@@ -39,6 +40,8 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
             EnsureUserIsNotBlocked::class,
+            // Last, when the route and the signed-in user are known.
+            LogContext::class,
         ]);
 
         $middleware->alias([

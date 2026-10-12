@@ -58,7 +58,7 @@ class SeasonController extends Controller
             'months' => collect(SeasonCalendar::SLUGS)
                 ->map(fn (string $slug, int $each) => ['number' => $each, 'slug' => $slug, 'has_products' => in_array($each, $withProducts, true)])
                 ->values(),
-            'products' => $products->through(ProductCards::for($request->user())),
+            'products' => $products->through(ProductCards::for($request->user(), $products)),
         ]);
     }
 }
