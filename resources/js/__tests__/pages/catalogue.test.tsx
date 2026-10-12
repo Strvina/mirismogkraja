@@ -12,6 +12,7 @@ const listing: ComponentProps<typeof ProductsIndex> = {
     featured: [],
     categories: [],
     producers: [],
+    selectedProducer: null,
     cities: [],
     priceBounds: { min: 0, max: 1000 },
     filters: { q: 'ajvar', city: 'Niš', sort: 'price_asc' },
@@ -48,6 +49,18 @@ function renderProduct(overrides: Partial<ComponentProps<typeof ProductShow>> = 
 }
 
 describe('catalogue pages', () => {
+    it('names the chosen producer before the list of all of them has arrived', () => {
+        renderOnPage(
+            <ProductsIndex
+                {...listing}
+                producers={undefined}
+                selectedProducer={{ id: 7, name: 'Pčelarstvo Đorđević' }}
+                filters={{ producer_id: '7' }}
+            />,
+        );
+        expect(screen.getByLabelText('Proizvođač')).toHaveTextContent('Pčelarstvo Đorđević');
+    });
+
     it('offers sign-in to a visitor instead of an inquiry form', () => {
         renderProduct();
         expect(screen.getByRole('link', { name: 'Prijavite se da pošaljete upit' })).toHaveAttribute('href', route('login'));

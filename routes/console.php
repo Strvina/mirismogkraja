@@ -3,8 +3,17 @@
 use App\Models\ActivityLog;
 use App\Services\ProducerPause;
 use App\Services\SearchMisses;
+use App\Support\Health;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Schedule;
+
+// A mark that cron is calling, read by /up and `php artisan health:check`
+// (App\Support\Health). Also during a deployment, so the site is not
+// reported down for the minute after it comes back.
+Schedule::call(fn () => Health::beat())
+    ->everyMinute()
+    ->evenInMaintenanceMode()
+    ->name('scheduler-heartbeat');
 
 // Memberships and boosts are paid by bank slip, so nothing tells the
 // application when one runs out - it has to look. Daily is often enough,

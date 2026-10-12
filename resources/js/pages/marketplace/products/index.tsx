@@ -21,6 +21,7 @@ export default function ProductsIndex({
     featured,
     categories,
     producers,
+    selectedProducer,
     cities,
     priceBounds,
     filters,
@@ -36,7 +37,9 @@ export default function ProductsIndex({
     products: Paginated<ProductCardProduct>;
     featured: ProductCardProduct[];
     categories: Category[];
-    producers: { id: number; name: string }[];
+    /** Arrives after the page, once (a deferred prop); until then only the chosen one is known. */
+    producers?: { id: number; name: string }[];
+    selectedProducer: { id: number; name: string } | null;
     cities: string[];
     priceBounds: { min: number; max: number };
     filters: ProductFilterValues;
@@ -186,7 +189,7 @@ export default function ProductsIndex({
                 <ProductFilters
                     filters={filters}
                     categories={categories}
-                    producers={producers}
+                    producers={producers ?? (selectedProducer ? [selectedProducer] : [])}
                     cities={cities}
                     priceBounds={priceBounds}
                     onChange={update}
