@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
+import { sendOnEnter } from '@/lib/send-on-enter';
 import { type Review } from '@/types';
 import { router } from '@inertiajs/react';
 import { BadgeCheck, Clock, CornerDownRight, Star } from 'lucide-react';
@@ -112,6 +113,7 @@ export default function ReviewCard({
                                 <textarea
                                     value={reply}
                                     onChange={(event) => setReply(event.target.value)}
+                                    onKeyDown={sendOnEnter(() => !saving && saveReply())}
                                     maxLength={1000}
                                     rows={3}
                                     aria-label={t('Vaš odgovor')}

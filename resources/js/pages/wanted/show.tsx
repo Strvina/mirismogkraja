@@ -8,6 +8,7 @@ import { ask } from '@/lib/confirm';
 import { formatDate, formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
+import { sendOnEnter } from '@/lib/send-on-enter';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { EyeOff } from 'lucide-react';
@@ -59,6 +60,8 @@ export default function WantedShow({
 
     const respond: FormEventHandler = (e) => {
         e.preventDefault();
+        // Enter submits too, and does not wait for the button to come back.
+        if (processing || !data.body.trim()) return;
         post(route('wanted.respond', ad.id));
     };
 
@@ -166,6 +169,7 @@ export default function WantedShow({
                                     value={data.body}
                                     maxLength={2000}
                                     onChange={(e) => setData('body', e.target.value)}
+                                    onKeyDown={sendOnEnter()}
                                     placeholder={t('Zdravo, imamo to što tražite…')}
                                     aria-label={t('Odgovor kupcu')}
                                     className="border-input bg-background min-h-28 w-full rounded-md border px-3 py-2 text-sm"

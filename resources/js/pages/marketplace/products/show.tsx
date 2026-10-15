@@ -11,6 +11,7 @@ import { formatPrice } from '@/lib/format';
 import { t, tx } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
 import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
+import { sendOnEnter } from '@/lib/send-on-enter';
 import { type BreadcrumbItem, type Producer, type Product, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { BellRing, MapPin } from 'lucide-react';
@@ -210,6 +211,7 @@ export default function ProductShow({
                                 <textarea
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
+                                    onKeyDown={sendOnEnter(sendInquiry)}
                                     maxLength={2000}
                                     placeholder={t('Zdravo, zainteresovan/a sam za...')}
                                     aria-label={t('Poruka proizvođaču')}

@@ -2,6 +2,7 @@ import FormErrors from '@/components/form-errors';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { t, tx } from '@/lib/i18n';
+import { sendOnEnter } from '@/lib/send-on-enter';
 import { router } from '@inertiajs/react';
 import { Flag } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
@@ -95,6 +96,7 @@ export default function ReportButton({
                             id="report-message"
                             value={message}
                             onChange={(event) => setMessage(event.target.value)}
+                            onKeyDown={sendOnEnter()}
                             maxLength={1000}
                             className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                         />

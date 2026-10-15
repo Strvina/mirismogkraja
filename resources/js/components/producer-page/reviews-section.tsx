@@ -3,6 +3,7 @@ import Pagination, { type Paginated } from '@/components/marketplace/pagination'
 import ReviewCard, { type ReviewWithAuthor } from '@/components/marketplace/review-card';
 import { Button } from '@/components/ui/button';
 import { t } from '@/lib/i18n';
+import { sendOnEnter } from '@/lib/send-on-enter';
 import { shrinkImage } from '@/lib/shrink-image';
 import { router } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
@@ -64,6 +65,7 @@ function ReviewForm({ producerId }: { producerId: number }) {
             <textarea
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
+                onKeyDown={sendOnEnter()}
                 placeholder={t('Kako je prošlo? Napišite par rečenica...')}
                 aria-label={t('Vaš utisak')}
                 className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"

@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { t } from '@/lib/i18n';
+import { sendOnEnter } from '@/lib/send-on-enter';
 import { Link } from '@inertiajs/react';
 import { SendHorizontal, Zap } from 'lucide-react';
 import { type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
@@ -110,11 +111,7 @@ export default function Composer({
                     setBody(event.target.value);
                     fitHeight();
                 }}
-                onKeyDown={(event) => {
-                    if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
-                        submit(event);
-                    }
-                }}
+                onKeyDown={sendOnEnter()}
                 rows={1}
                 maxLength={MAX_LENGTH}
                 placeholder={t('Napišite poruku...')}
