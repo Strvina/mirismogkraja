@@ -52,7 +52,12 @@ export default function Register({
     };
 
     return (
-        <AuthLayout title={t('Napravite nalog')} description={t('Unesite podatke da biste napravili nalog')}>
+        <AuthLayout
+            title={t('Napravite nalog')}
+            description={t(
+                'Jedan nalog za sve: čuvate omiljene proizvođače, pišete im i ostavljate utiske. Ako proizvodite, posle registracije otvarate i svoju stranicu.',
+            )}
+        >
             <Head title={t('Registracija')} />
             <form className="flex flex-col gap-5" onSubmit={submit}>
                 {referrer && (

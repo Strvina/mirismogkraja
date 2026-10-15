@@ -46,6 +46,10 @@ class ProducerCrudTest extends TestCase
         $this->assertSame($user->id, $producer->user_id);
         $this->assertSame('domacinstvo-nicic', $producer->slug);
         $this->assertSame('pending', $producer->status);
+
+        // The owner is told what happens next, and the card says it again.
+        $this->actingAs($user)->get(route('producers.index'))
+            ->assertInertia(fn ($page) => $page->where('notice', 'Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.'));
     }
 
     public function test_creating_two_producers_with_the_same_name_gets_unique_slugs()

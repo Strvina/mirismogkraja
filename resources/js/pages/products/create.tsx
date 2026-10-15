@@ -17,6 +17,13 @@ export default function ProductsCreate({ producer, categories }: { producer: Pro
             <Head title={t('Novi proizvod')} />
             <div className="flex flex-col gap-4">
                 <h1 className="font-serif text-4xl sm:text-5xl">{t('Novi proizvod')}</h1>
+                <p className="text-muted-foreground max-w-3xl leading-7">
+                    {t(
+                        'Proizvod se čuva kao nacrt, koji vidite samo vi. Kada je spreman, u polju „Vidljivost” izaberite „Objavljeno” i kupci će ga videti i moći da vam pišu o njemu.',
+                    )}{' '}
+                    {producer.status !== 'active' &&
+                        t('Vaša stranica još čeka odobrenje, pa će i objavljeni proizvodi biti vidljivi tek kad je odobrimo.')}
+                </p>
                 <ProductForm
                     categories={categories}
                     action={route('producers.products.store', producer.id)}

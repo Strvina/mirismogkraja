@@ -1,3 +1,4 @@
+import FlashNotice from '@/components/marketplace/flash-notice';
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
 import VerifyEmailBanner from '@/components/marketplace/verify-email-banner';
@@ -32,6 +33,7 @@ export default function MarketplaceLayout({
         <div className="bg-background paper-grain flex min-h-screen flex-col">
             <Navbar />
             <VerifyEmailBanner />
+            <FlashNotice />
 
             {fullBleed ? (
                 <main id="top" className={cn('flex-1', enter && 'page-enter')}>

@@ -36,7 +36,7 @@ class WantedAdController extends Controller
     {
         $ad = $ads->create($request->user(), $request->validated());
 
-        return to_route('wanted.show', $ad)->with('status', __('Oglas je objavljen. Javićemo proizvođačima koji prodaju u toj kategoriji.'));
+        return to_route('wanted.show', $ad)->with('notice', __('Oglas je objavljen. Javićemo proizvođačima koji prodaju u toj kategoriji.'));
     }
 
     public function close(WantedAd $ad, WantedAdService $ads): RedirectResponse
@@ -45,7 +45,7 @@ class WantedAdController extends Controller
 
         $ads->close($ad);
 
-        return back()->with('status', __('Oglas je zatvoren.'));
+        return back()->with('notice', __('Oglas je zatvoren.'));
     }
 
     public function destroy(WantedAd $ad): RedirectResponse
@@ -54,7 +54,7 @@ class WantedAdController extends Controller
 
         $ad->delete();
 
-        return to_route('wanted.index')->with('status', __('Oglas je obrisan.'));
+        return to_route('wanted.index')->with('notice', __('Oglas je obrisan.'));
     }
 
     /** A producer answers: straight into the conversation with the buyer. */

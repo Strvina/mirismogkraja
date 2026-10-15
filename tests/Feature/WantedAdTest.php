@@ -91,6 +91,11 @@ class WantedAdTest extends TestCase
         Bus::assertDispatchedAfterResponse(NotifyProducersOfWantedAd::class);
         $this->assertSame('admin.wanted-posted', $this->admin->notifications()->sole()->data['type']);
 
+        // Said once on the page the buyer lands on, and gone on the next.
+        $this->actingAs($this->buyer)->get(route('wanted.show', $ad))
+            ->assertInertia(fn ($page) => $page->where('notice', 'Oglas je objavljen. Javićemo proizvođačima koji prodaju u toj kategoriji.'));
+        $this->actingAs($this->buyer)->get(route('wanted.show', $ad))->assertInertia(fn ($page) => $page->where('notice', null));
+
         $this->app['auth']->forgetGuards();
         $this->get(route('wanted.index'))->assertOk()->assertInertia(fn ($page) => $page
             ->component('wanted/index')

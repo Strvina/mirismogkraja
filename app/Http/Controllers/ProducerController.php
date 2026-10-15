@@ -94,7 +94,8 @@ class ProducerController extends Controller
             'city' => $producer->city ?: '—',
         ], route('admin.producers.index', ['status' => 'pending'])));
 
-        return to_route('producers.index');
+        return to_route('producers.index')
+            ->with('notice', __('Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.'));
     }
 
     /**
