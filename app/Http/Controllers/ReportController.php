@@ -61,6 +61,6 @@ class ReportController extends Controller
             'reason_label' => Report::REASONS[$report->reason] ?? $report->reason,
         ], route('admin.reports.index')));
 
-        return back()->with('status', __('Hvala. Prijava je poslata i neko će je pregledati.'));
+        return back()->with('notice', __('Hvala. Prijava je poslata i neko će je pregledati.'));
     }
 }

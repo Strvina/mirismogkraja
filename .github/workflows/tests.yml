@@ -25,7 +25,9 @@ jobs:
       mysql:
         # The official image from Amazon's mirror: Docker Hub limits how
         # often GitHub's shared runners may pull, and then no test starts.
-        image: public.ecr.aws/docker/library/mysql:8.0
+        # Only for the MySQL run: with an empty image no service is started,
+        # so the SQLite run cannot fail on a pull it has no use for.
+        image: ${{ matrix.database == 'mysql' && 'public.ecr.aws/docker/library/mysql:8.0' || '' }}
         env:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: testing

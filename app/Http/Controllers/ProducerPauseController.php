@@ -46,7 +46,7 @@ class ProducerPauseController extends Controller
         if ($data['paused']) {
             $pause->pause($producer, filled($data['until'] ?? null) ? Carbon::parse($data['until']) : null, $data['note'] ?? null);
 
-            return back()->with('status', __('Pauza je uključena. Stranica ostaje vidljiva, a novi upiti čekaju dok se ne vratite.'));
+            return back()->with('notice', __('Pauza je uključena. Stranica ostaje vidljiva, a novi upiti čekaju dok se ne vratite.'));
         }
 
         $wasPaused = $producer->isPaused();
@@ -56,6 +56,6 @@ class ProducerPauseController extends Controller
             NotifyFollowersOfResume::dispatchAfterResponse($producer);
         }
 
-        return back()->with('status', __('Pauza je isključena. Ponovo primate upite.'));
+        return back()->with('notice', __('Pauza je isključena. Ponovo primate upite.'));
     }
 }

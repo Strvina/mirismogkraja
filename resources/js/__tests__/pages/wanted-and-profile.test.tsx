@@ -24,7 +24,7 @@ const wanted: ComponentProps<typeof WantedShow> = {
     },
     isAuthor: false,
     responders: [],
-    producers: [{ id: 9, name: 'Pčelinjak Ana', answered: false }],
+    producers: [{ id: 9, name: 'Pčelinjak Ana', answered: false, thread: null }],
     canRespond: true,
 };
 
@@ -50,6 +50,15 @@ describe('wanted offers and account settings', () => {
         );
         expect(screen.queryByRole('textbox', { name: 'Odgovor kupcu' })).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: 'Pošalji ponudu' })).not.toBeInTheDocument();
+    });
+
+    it('takes a producer who already answered straight to the conversation with the buyer', () => {
+        renderOnPage(<WantedShow {...wanted} producers={[{ id: 9, name: 'Pčelinjak Ana', answered: true, thread: '/poruke-proizvodjaca/9/4' }]} />, {
+            props: { auth: { user: makeUser({ role: 'seller' }) } },
+        });
+
+        expect(screen.getByText('Već ste odgovorili na ovaj oglas.')).toBeVisible();
+        expect(screen.getByRole('link', { name: 'Nastavite razgovor sa kupcem' })).toHaveAttribute('href', '/poruke-proizvodjaca/9/4');
     });
 
     it('asks a visitor to sign in before offering to a buyer', () => {

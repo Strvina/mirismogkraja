@@ -95,6 +95,14 @@ export default function ProducersIndex({
                                 </div>
                                 {producer.city && <p className="text-muted-foreground mt-1 text-sm">{producer.city}</p>}
 
+                                {producer.status === 'pending' && (
+                                    <p className="bg-muted/50 mt-3 rounded-lg px-3 py-2 text-sm">
+                                        {t(
+                                            'Prijava je kod nas na pregledu. Javićemo vam obaveštenjem kad stranica postane javna; do tada je ne vide kupci. U međuvremenu možete da dodajete proizvode.',
+                                        )}
+                                    </p>
+                                )}
+
                                 {producer.is_paused && (
                                     <Link
                                         href={route('producers.pause.edit', producer.id)}

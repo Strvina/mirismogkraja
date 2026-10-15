@@ -137,6 +137,8 @@ export interface SharedData {
     auth: Auth;
     unreadMessages: number;
     unreadNotifications: number;
+    /** A sentence on what the last click did, for one page (components/marketplace/flash-notice). */
+    notice: string | null;
     /** Where uploaded images are served from (see lib/media). */
     media: { url: string; thumbs: boolean };
     /**

@@ -111,7 +111,7 @@ class CampaignController extends Controller
             ], PaidItems::adminUrl($place)));
         }
 
-        return back()->with('status', __('Prijava je zabeležena. Uplatite iznos i mi ćemo vas uključiti u kampanju.'));
+        return back()->with('notice', __('Prijava je zabeležena. Uplatite iznos i mi ćemo vas uključiti u kampanju.'));
     }
 
     public function slip(CampaignParticipant $participant, PaymentSlipPdf $pdf): HttpResponse

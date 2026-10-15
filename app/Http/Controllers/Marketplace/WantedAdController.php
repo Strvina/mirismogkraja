@@ -107,6 +107,9 @@ class WantedAdController extends Controller
                 'id' => $producer->id,
                 'name' => $producer->name,
                 'answered' => $answered->contains($producer->id),
+                // Where the answer went: the conversation with this ad's
+                // author, not the whole inbox.
+                'thread' => $answered->contains($producer->id) ? route('messages.thread', [$producer->id, $ad->user_id]) : null,
             ]),
             'canRespond' => $ad->isListed() && $producers->isNotEmpty(),
         ]);

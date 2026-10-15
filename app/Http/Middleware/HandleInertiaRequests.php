@@ -84,6 +84,8 @@ class HandleInertiaRequests extends Middleware
                 // link without every page having to pass them.
                 'user' => $request->user()?->loadMissing('roles:id,name'),
             ],
+            // What the last action did, said once on the page that follows it.
+            'notice' => fn () => $request->session()->get('notice'),
             'unreadMessages' => fn () => $this->unreadMessageCount($request),
             // A count, not the notifications themselves: the bell only needs
             // a number on every page, and the list is fetched when it is

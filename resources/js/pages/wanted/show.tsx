@@ -27,6 +27,8 @@ interface OwnProducer {
     id: number;
     name: string;
     answered: boolean;
+    /** Once answered: the conversation with the ad's author. */
+    thread: string | null;
 }
 
 /**
@@ -184,13 +186,22 @@ export default function WantedShow({
                         )}
 
                         {producers.length > 0 && waiting.length === 0 && (
-                            <p className="text-muted-foreground mt-3 text-sm">
-                                {t('Već ste odgovorili na ovaj oglas.')}{' '}
-                                <Link href={route('messages.index')} className="text-foreground font-medium underline underline-offset-4">
-                                    {t('Nastavite u porukama')}
-                                </Link>
-                                .
-                            </p>
+                            <div className="text-muted-foreground mt-3 text-sm">
+                                <p>{t('Već ste odgovorili na ovaj oglas.')}</p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    {producers
+                                        .filter((producer) => producer.thread)
+                                        .map((producer, _, answered) => (
+                                            <Button key={producer.id} asChild variant="outline" size="sm">
+                                                <Link href={producer.thread!}>
+                                                    {answered.length > 1
+                                                        ? t('Razgovor sa kupcem, kao :name', { name: producer.name })
+                                                        : t('Nastavite razgovor sa kupcem')}
+                                                </Link>
+                                            </Button>
+                                        ))}
+                                </div>
+                            </div>
                         )}
 
                         {producers.length === 0 && (

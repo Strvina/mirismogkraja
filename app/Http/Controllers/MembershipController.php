@@ -112,6 +112,6 @@ class MembershipController extends Controller
 
         $subscriptions->request($producer, $plan);
 
-        return back()->with('status', __('Zabeležili smo izbor paketa. Uplatite iznos i mi ćemo aktivirati članarinu.'));
+        return back()->with('notice', __('Zabeležili smo izbor paketa. Uplatite iznos i mi ćemo aktivirati članarinu.'));
     }
 }
