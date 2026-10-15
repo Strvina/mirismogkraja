@@ -1280,7 +1280,6 @@
     "Odgovor kupcu": "Ответ покупателю",
     "Pošalji ponudu": "Отправить предложение",
     "Već ste odgovorili na ovaj oglas.": "Вы уже ответили на это объявление.",
-    "Nastavite u porukama": "Продолжите в сообщениях",
     "Na oglase odgovaraju proizvođači sa odobrenom stranicom.": "На объявления отвечают производители с одобренной страницей.",
     "Kupci pišu šta traže, a domaći proizvođači im se javljaju. Napišite i vi šta vam treba.": "Покупатели пишут, что ищут, а домашние производители им отвечают. Напишите и вы, что вам нужно.",
     "Oglas je objavljen. Javićemo proizvođačima koji prodaju u toj kategoriji.": "Объявление опубликовано. Мы сообщим производителям, которые продают в этой категории.",
@@ -1459,5 +1458,7 @@
     "Prijava je kod nas na pregledu. Javićemo vam obaveštenjem kad stranica postane javna; do tada je ne vide kupci. U međuvremenu možete da dodajete proizvode.": "Мы проверяем вашу заявку. Сообщим уведомлением, когда страница станет публичной; до тех пор покупатели её не видят. Пока можно добавлять товары.",
     "Proizvod se čuva kao nacrt, koji vidite samo vi. Kada je spreman, u polju „Vidljivost” izaberite „Objavljeno” i kupci će ga videti i moći da vam pišu o njemu.": "Товар сохраняется как черновик, который видите только вы. Когда он готов, в поле «Видимость» выберите «Опубликовано», и покупатели увидят его и смогут вам написать.",
     "Vaša stranica još čeka odobrenje, pa će i objavljeni proizvodi biti vidljivi tek kad je odobrimo.": "Ваша страница ещё ждёт одобрения, поэтому опубликованные товары станут видны только после одобрения.",
-    "Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.": "Заявка отправлена. Мы её проверим и сообщим уведомлением на сайте, когда страница станет публичной."
+    "Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.": "Заявка отправлена. Мы её проверим и сообщим уведомлением на сайте, когда страница станет публичной.",
+    "Razgovor sa kupcem, kao :name": "Переписка с покупателем от имени :name",
+    "Nastavite razgovor sa kupcem": "Продолжить переписку с покупателем"
 }

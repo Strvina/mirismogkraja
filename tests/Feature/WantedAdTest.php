@@ -204,7 +204,7 @@ class WantedAdTest extends TestCase
 
         $this->actingAs($producer->user)->get(route('wanted.show', $ad))->assertInertia(fn ($page) => $page
             ->where('canRespond', true)
-            ->where('producers', [['id' => $producer->id, 'name' => $producer->name, 'answered' => false]]));
+            ->where('producers', [['id' => $producer->id, 'name' => $producer->name, 'answered' => false, 'thread' => null]]));
 
         $this->actingAs($producer->user)
             ->post(route('wanted.respond', $ad), ['producer_id' => $producer->id, 'body' => 'Imamo bagremov med, 900 din/kg.'])
@@ -218,7 +218,10 @@ class WantedAdTest extends TestCase
             ->post(route('wanted.respond', $ad), ['producer_id' => $producer->id, 'body' => 'Još jednom.'])
             ->assertSessionHasErrors('body');
         $this->actingAs($producer->user)->get(route('wanted.show', $ad))
-            ->assertInertia(fn ($page) => $page->where('producers.0.answered', true));
+            ->assertInertia(fn ($page) => $page
+                ->where('producers.0.answered', true)
+                // Back on the ad, the way on is the conversation with this buyer.
+                ->where('producers.0.thread', route('messages.thread', [$producer->id, $this->buyer->id])));
 
         // The buyer sees who answered, reads it with the ad it answers, and writes back.
         $this->actingAs($this->buyer)->get(route('wanted.show', $ad))->assertInertia(fn ($page) => $page

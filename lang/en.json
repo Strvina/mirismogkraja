@@ -1267,7 +1267,6 @@
     "Odgovor kupcu": "Answer to the buyer",
     "Pošalji ponudu": "Send the offer",
     "Već ste odgovorili na ovaj oglas.": "You have already answered this ad.",
-    "Nastavite u porukama": "Continue in your messages",
     "Na oglase odgovaraju proizvođači sa odobrenom stranicom.": "Ads are answered by producers with an approved page.",
     "Kupci pišu šta traže, a domaći proizvođači im se javljaju. Napišite i vi šta vam treba.": "Buyers write what they are looking for, and home producers answer them. Write what you need too.",
     "Oglas je objavljen. Javićemo proizvođačima koji prodaju u toj kategoriji.": "The ad is posted. We will tell the producers who sell in that category.",
@@ -1446,5 +1445,7 @@
     "Prijava je kod nas na pregledu. Javićemo vam obaveštenjem kad stranica postane javna; do tada je ne vide kupci. U međuvremenu možete da dodajete proizvode.": "We are reviewing your application. We will let you know with a notification when the page goes public; until then buyers cannot see it. Meanwhile you can add products.",
     "Proizvod se čuva kao nacrt, koji vidite samo vi. Kada je spreman, u polju „Vidljivost” izaberite „Objavljeno” i kupci će ga videti i moći da vam pišu o njemu.": "The product is saved as a draft, which only you can see. When it is ready, choose \"Published\" under \"Visibility\" and buyers will see it and be able to write to you about it.",
     "Vaša stranica još čeka odobrenje, pa će i objavljeni proizvodi biti vidljivi tek kad je odobrimo.": "Your page is still waiting for approval, so published products become visible only once we approve it.",
-    "Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.": "Your application is sent. We will review it and let you know with a notification on the site when the page goes public."
+    "Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.": "Your application is sent. We will review it and let you know with a notification on the site when the page goes public.",
+    "Razgovor sa kupcem, kao :name": "Conversation with the buyer, as :name",
+    "Nastavite razgovor sa kupcem": "Continue the conversation with the buyer"
 }
