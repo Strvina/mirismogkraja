@@ -5,6 +5,40 @@ bilo kom VPS-u. Komande se kucaju u terminalu servera, preko SSH-a.
 
 Šta je potrebno i šta su detalji pojedinih podešavanja opisano je u [scaling.md](scaling.md).
 
+## Pre početka: šta pripremiti
+
+Sve ovo se nabavlja ili odlučuje pre prvog koraka, da se usred postavljanja ne čeka.
+
+**Obavezno**
+
+- [ ] **Server** sa Ubuntu 24.04 i SSH pristupom (korak 0: besplatan Oracle ili VPS od par evra).
+- [ ] **Domen**, sa `A` zapisom na IP adresu servera (korak 0).
+- [ ] **Nalog za slanje mejlova** (npr. Brevo, besplatno do 300 dnevno): SMTP adresa, port,
+  korisnik i lozinka, i adresa pošiljaoca na vašem domenu, potvrđena kod tog servisa. Ide u
+  `MAIL_*` u `.env`.
+- [ ] **Cloudflare Turnstile** (besplatno, dash.cloudflare.com → Turnstile → dodajte domen):
+  „site key“ i „secret key“, za `TURNSTILE_SITE_KEY` i `TURNSTILE_SECRET_KEY`. Bez njih
+  registracija i zahtev za novu lozinku nemaju zaštitu od botova.
+- [ ] **Adresa za kontakt** sa sajta (`PLATFORM_CONTACT_EMAIL`) i adresa za obaveštenje kad
+  noćni backup ne uspe (`BACKUP_NOTIFY_EMAIL`).
+- [ ] **Podaci za uplatnicu**: primalac, broj računa, adresa, model i šifra plaćanja. Upisuju se
+  posle puštanja, u admin panelu na stranici „Članarine“; dok se ne upišu, uplatnice nose
+  primer-račun `000-0000000000000-00`.
+- [ ] **Cene** paketa, isticanja i kampanja, takođe u admin panelu.
+- [ ] **Uslovi korišćenja i politika privatnosti** pregledani od strane pravnika.
+
+**Preporučeno**
+
+- [ ] **Sentry** (besplatan nalog, sentry.io → novi Laravel projekat): DSN za
+  `SENTRY_LARAVEL_DSN`, da greške stižu same umesto da se traže po logovima.
+- [ ] **Mesto za backup van servera**: bilo koje S3-kompatibilno skladište, za `BACKUP_DISK`.
+  Backup na istom serveru ne pomaže ako se server izgubi.
+- [ ] **UptimeRobot** (besplatno) za `/up` i početnu stranicu, posle koraka 6.
+
+**Po želji**
+
+- [ ] **Google prijava**: ključevi iz koraka 3, „Prijava preko Google naloga“.
+
 ## 0. Server i domen
 
 **Server bez troška: Oracle Cloud „Always Free“.** Oracle daje besplatan virtuelni server bez

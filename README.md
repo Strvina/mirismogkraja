@@ -139,6 +139,7 @@ producers on MySQL, the second changes the services one thing at a time to see w
 
 | | |
 | --- | --- |
+| [docs/case-study.md](docs/case-study.md) | The decisions behind the site and what was measured, on one page |
 | [docs/database.md](docs/database.md) | The database schema |
 | [docs/deploy.md](docs/deploy.md) | Putting the site on a server, step by step (in Serbian) |
 | [docs/operations.md](docs/operations.md) | Running it once it is live: what runs when, backups, what to do when something is wrong |
