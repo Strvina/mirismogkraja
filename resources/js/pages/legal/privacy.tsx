@@ -28,6 +28,31 @@ export default function Privacy() {
                 </section>
 
                 <section className="mt-10 space-y-4 leading-7">
+                    <h2 className="font-serif text-2xl">{t('Koliko dugo čuvamo')}</h2>
+                    <ul className="text-muted-foreground list-disc space-y-2 pl-5">
+                        <li>
+                            {t(
+                                'Podatke naloga: dok nalog postoji. Kada ga obrišete, ime, telefon, adresa, grad, lokacija i profilna slika brišu se odmah, a email se zamenjuje oznakom bez veze sa vama.',
+                            )}
+                        </li>
+                        <li>
+                            {t(
+                                'Poruke i utiske: dok postoji razgovor. Posle brisanja naloga ostaju uz ime „Obrisan korisnik“, jer pripadaju i drugoj strani.',
+                            )}
+                        </li>
+                        <li>
+                            {t(
+                                'Podatke o prijavi (adresu uređaja i pregledač): dok ste prijavljeni. Posle dva sata bez aktivnosti prijava ističe i ti podaci se brišu.',
+                            )}
+                        </li>
+                        <li>{t('Pročitana obaveštenja: šest meseci.')}</li>
+                        <li>{t('Zapis o izmenama proizvoda i proizvođača: dvanaest meseci.')}</li>
+                        <li>{t('Rezervne kopije baze: četrnaest dana.')}</li>
+                        <li>{t('Tehnički zapis grešaka sa servera, u kome stoji samo broj naloga, ne ime: četrnaest dana.')}</li>
+                    </ul>
+                </section>
+
+                <section className="mt-10 space-y-4 leading-7">
                     <h2 className="font-serif text-2xl">{t('Šta ne radimo')}</h2>
                     <p className="text-muted-foreground">
                         {t(
