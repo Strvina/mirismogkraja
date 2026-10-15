@@ -297,6 +297,9 @@ class ProductController extends Controller
 
         $user = $request->user();
 
+        $own = $user !== null && $product->producer->user_id === $user->id;
+        $blocked = $user !== null && ! $own && $product->producer->hasBlocked($user);
+
         return Inertia::render('marketplace/products/show', [
             'product' => $product,
             'similar' => $similar,
@@ -329,11 +332,15 @@ class ProductController extends Controller
                 ],
             ],
             // The owner has no one to ask about their own listing; anyone else
-            // signed in can open a thread from here.
+            // signed in can open a thread from here, unless the conversation
+            // with this producer was closed by either side.
             // While the producer is paused, only for someone already in a
             // conversation with them.
-            'canInquire' => $user !== null && $product->producer->user_id !== $user->id
+            'canInquire' => $user !== null && ! $own && ! $blocked
                 && (! $product->producer->isPaused() || ProducerMessage::thread($product->producer, $user)->exists()),
+            // Why someone signed in gets no form, said in its place. A pause
+            // has a notice of its own.
+            'noInquiry' => $own ? 'own' : ($blocked ? 'blocked' : null),
             // Sold out or away: instead of the form, an offer to follow the
             // producer and hear when they are back.
             'pause' => $product->producer->pauseForVisitors(),

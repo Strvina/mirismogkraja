@@ -30,6 +30,7 @@ export default function ProductShow({
     similar,
     place,
     canInquire,
+    noInquiry,
     pause,
     canFollow,
     isFollowing,
@@ -45,6 +46,8 @@ export default function ProductShow({
     /** The producer's town as a page of its own, when it has one. */
     place: { slug: string; name: string } | null;
     canInquire: boolean;
+    /** Why someone signed in has no inquiry form: it is their own product, or the conversation is closed. */
+    noInquiry: 'own' | 'blocked' | null;
     /** The producer is sold out or away and takes no new inquiries. */
     pause: Pause | null;
     canFollow: boolean;
@@ -216,6 +219,29 @@ export default function ProductShow({
                                     className="border-input bg-background min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                                 />
                             </>
+                        )}
+
+                        {noInquiry === 'own' && (
+                            <p className="text-muted-foreground text-sm">
+                                {t('Ovo je vaš proizvod.')}{' '}
+                                <Link
+                                    href={route('producers.products.edit', [product.producer_id, product.id])}
+                                    className="text-foreground font-medium underline underline-offset-4"
+                                >
+                                    {t('Izmenite ga')}
+                                </Link>
+                            </p>
+                        )}
+                        {noInquiry === 'blocked' && (
+                            <p className="text-muted-foreground text-sm">
+                                {t('Razgovor sa ovim proizvođačem je zatvoren, pa mu ne možete poslati upit.')}{' '}
+                                <Link
+                                    href={route('messages.show', product.producer.slug)}
+                                    className="text-foreground font-medium underline underline-offset-4"
+                                >
+                                    {t('Otvorite razgovor')}
+                                </Link>
+                            </p>
                         )}
 
                         <FormErrors errors={errors} />
