@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Producer;
+use App\Models\ProducerMessage;
 use App\Models\Product;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -50,5 +52,23 @@ class PublicProductPageTest extends TestCase
 
         $this->get(route('marketplace.products.show', $product))->assertNotFound();
         $this->get(route('marketplace.products.index'))->assertInertia(fn ($page) => $page->has('products.data', 0));
+    }
+
+    public function test_someone_signed_in_without_an_inquiry_form_is_told_why(): void
+    {
+        $product = Product::factory()->for(Producer::factory()->active())->create(['status' => 'active']);
+        $producer = $product->producer;
+        $buyer = User::factory()->create();
+        $page = fn (User $user) => $this->actingAs($user)->get(route('marketplace.products.show', $product->slug));
+
+        $page($buyer)->assertInertia(fn ($page) => $page->where('canInquire', true)->where('noInquiry', null));
+        $page($producer->user)->assertInertia(fn ($page) => $page->where('canInquire', false)->where('noInquiry', 'own'));
+
+        // Closed by either side: no form that the server would then refuse.
+        ProducerMessage::create(['producer_id' => $producer->id, 'buyer_id' => $buyer->id, 'sender_id' => $buyer->id, 'body' => 'Imate li?']);
+        $this->actingAs($producer->user)->patch(route('messages.block', [$producer->id, $buyer->id]))->assertRedirect();
+
+        $page($buyer)->assertInertia(fn ($page) => $page->where('canInquire', false)->where('noInquiry', 'blocked'));
+        $this->actingAs($buyer)->post(route('inquiries.store', $product->slug), ['body' => 'Ipak?'])->assertForbidden();
     }
 }

@@ -33,6 +33,7 @@ function renderProduct(overrides: Partial<ComponentProps<typeof ProductShow>> = 
             similar={[]}
             place={null}
             canInquire={false}
+            noInquiry={null}
             pause={null}
             canFollow={false}
             isFollowing={false}
@@ -59,6 +60,19 @@ describe('catalogue pages', () => {
             />,
         );
         expect(screen.getByLabelText('Proizvođač')).toHaveTextContent('Pčelarstvo Đorđević');
+    });
+
+    it('tells the owner it is their own product instead of leaving the place empty', () => {
+        renderProduct({ noInquiry: 'own' }, true);
+        expect(screen.getByText('Ovo je vaš proizvod.')).toBeVisible();
+        expect(screen.getByRole('link', { name: 'Izmenite ga' })).toBeVisible();
+        expect(screen.queryByRole('button', { name: 'Pošalji upit' })).not.toBeInTheDocument();
+    });
+
+    it('tells a buyer whose conversation is closed why there is no form', () => {
+        renderProduct({ noInquiry: 'blocked' }, true);
+        expect(screen.getByText(/Razgovor sa ovim proizvođačem je zatvoren/)).toBeVisible();
+        expect(screen.getByRole('link', { name: 'Otvorite razgovor' })).toBeVisible();
     });
 
     it('offers sign-in to a visitor instead of an inquiry form', () => {
@@ -97,6 +111,7 @@ describe('catalogue pages', () => {
                 similar={[]}
                 place={{ slug: 'nis', name: 'Niš' }}
                 canInquire
+                noInquiry={null}
                 pause={null}
                 canFollow
                 isFollowing={false}

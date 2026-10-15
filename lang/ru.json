@@ -1444,5 +1444,9 @@
     "Još nema poruka": "Сообщений пока нет",
     "Razgovor počinje upitom sa stranice proizvoda ili proizvođača. Sve što dogovorite sa proizvođačem ostaje ovde.": "Разговор начинается с запроса со страницы товара или производителя. Всё, о чём вы договоритесь с производителем, остаётся здесь.",
     "Još ništa niste sačuvali": "Вы пока ничего не сохранили",
-    "Srce na kartici proizvođača ili proizvoda čuva ga ovde, da ga sledeći put ne tražite ponovo.": "Сердечко на карточке производителя или товара сохраняет его здесь, чтобы в следующий раз не искать заново."
+    "Srce na kartici proizvođača ili proizvoda čuva ga ovde, da ga sledeći put ne tražite ponovo.": "Сердечко на карточке производителя или товара сохраняет его здесь, чтобы в следующий раз не искать заново.",
+    "Ovo je vaš proizvod.": "Это ваш продукт.",
+    "Izmenite ga": "Изменить его",
+    "Razgovor sa ovim proizvođačem je zatvoren, pa mu ne možete poslati upit.": "Переписка с этим производителем закрыта, поэтому вы не можете отправить ему запрос.",
+    "Otvorite razgovor": "Открыть переписку"
 }
