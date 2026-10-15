@@ -37,6 +37,10 @@ Schedule::call(fn () => app(SearchMisses::class)->prune())
     ->dailyAt('03:50')
     ->name('prune-search-misses');
 
+// Favourites, follows, alerts and old addresses left pointing at something
+// deleted or archived (see PruneOrphans). Nothing shows them; weekly is enough.
+Schedule::command('database:prune-orphans')->weeklyOn(0, '04:00')->withoutOverlapping();
+
 // The database, nightly, before the other jobs touch it (see config/backup.php).
 $backup = Schedule::command('backup:database')->dailyAt('02:30')->withoutOverlapping();
 
