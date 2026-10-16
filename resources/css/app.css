@@ -95,26 +95,26 @@
 }
 
 :root {
-    --background: oklch(0.972 0.017 80);
+    --background: oklch(0.952 0.02 80);
     --foreground: oklch(0.245 0.025 48);
-    --card: oklch(0.992 0.009 80);
+    --card: oklch(0.975 0.013 80);
     --card-foreground: oklch(0.245 0.025 48);
-    --popover: oklch(0.992 0.009 80);
+    --popover: oklch(0.975 0.013 80);
     --popover-foreground: oklch(0.245 0.025 48);
     --primary: oklch(0.49 0.13 33);
     --primary-foreground: oklch(0.985 0.012 83);
-    --secondary: oklch(0.88 0.035 76);
+    --secondary: oklch(0.865 0.035 76);
     --secondary-foreground: oklch(0.28 0.03 48);
-    --muted: oklch(0.935 0.022 80);
+    --muted: oklch(0.915 0.024 80);
     --muted-foreground: oklch(0.47 0.03 54);
     --accent: oklch(0.61 0.06 92);
     --accent-foreground: oklch(0.21 0.025 55);
     --destructive: oklch(0.47 0.14 31);
     --destructive-foreground: oklch(0.984 0.003 247.858);
-    --border: oklch(0.86 0.027 74);
-    --input: oklch(0.86 0.027 74);
+    --border: oklch(0.845 0.028 74);
+    --input: oklch(0.845 0.028 74);
     --ring: oklch(0.49 0.13 33);
-    --cream-deep: oklch(0.925 0.033 78);
+    --cream-deep: oklch(0.905 0.035 78);
     --olive: oklch(0.42 0.055 116);
     --olive-soft: oklch(0.9 0.035 112);
     --terracotta: oklch(0.6 0.115 42);
@@ -300,5 +300,20 @@
     textarea,
     select {
         font-size: 16px;
+    }
+}
+
+/* The page's width: 1380px, and more on a screen wide enough to have it
+   (a 2K monitor left a third of itself empty at the sides): 1680px from
+   1800px of screen, 1920px from 2400px. */
+@utility max-w-page {
+    max-width: 86.25rem;
+
+    @media (width >= 112.5rem) {
+        max-width: 105rem;
+    }
+
+    @media (width >= 150rem) {
+        max-width: 120rem;
     }
 }

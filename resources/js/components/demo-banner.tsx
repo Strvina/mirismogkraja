@@ -17,7 +17,7 @@ export default function DemoBanner({ className }: { className?: string }) {
 
     return (
         <div className={cn('bg-charcoal text-white', className)}>
-            <div className="mx-auto flex max-w-[1380px] flex-wrap items-center justify-center gap-x-3 gap-y-1 px-5 py-2 text-center text-sm sm:px-8 lg:px-12">
+            <div className="max-w-page mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-1 px-5 py-2 text-center text-sm sm:px-8 lg:px-12">
                 <FlaskConical className="size-4 shrink-0" aria-hidden />
                 <span>
                     {t(
