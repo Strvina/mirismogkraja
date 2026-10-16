@@ -291,6 +291,21 @@
     }
 }
 
+/* Radix holds the page still under a dialog with `overflow: hidden` on the
+   body. With the overflow of html clipped (above), that never reaches the
+   viewport: the body becomes a scroll container of its own, the sticky
+   header comes loose from the top of the screen and the page jumps - 900px
+   down became 159px. The lock goes on html instead, and the body stays as
+   it was. */
+html:has(> body[data-scroll-locked]) {
+    overflow: hidden !important;
+}
+
+html body[data-scroll-locked] {
+    overflow-x: clip !important;
+    overflow-y: visible !important;
+}
+
 /* On a phone, Safari zooms in on any field whose text is under 16px when it
    is tapped, and stays zoomed in after the search is sent. At 16px it does
    not zoom at all. Outside any layer, so it wins over a field's own

@@ -3,6 +3,8 @@ import Brand from '@/components/marketplace/brand';
 import LanguageSwitcher from '@/components/marketplace/language-switcher';
 import MenuIcon from '@/components/marketplace/menu-icon';
 import { Button } from '@/components/ui/button';
+import { useMediaQuery } from '@/hooks/use-media-query';
+import { useScrollLock } from '@/hooks/use-scroll-lock';
 import { t, tx } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
@@ -27,7 +29,7 @@ import {
     Users,
     Wallet,
 } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 const sections = [
     { href: '/admin', label: tx('Evidencija'), icon: LayoutDashboard, exact: true },
@@ -59,6 +61,22 @@ const sections = [
 export default function AdminLayout({ children, title }: { children: ReactNode; title: string }) {
     const { url } = usePage();
     const [menuOpen, setMenuOpen] = useState(false);
+    // Only on a phone is the menu a panel over the page; from lg it is the sidebar.
+    const phone = !useMediaQuery('(min-width: 64rem)');
+    const menu = useRef<HTMLDivElement>(null);
+    useScrollLock(menuOpen && phone, menu);
+
+    useEffect(() => {
+        if (!menuOpen) {
+            return;
+        }
+
+        const close = (event: KeyboardEvent) => event.key === 'Escape' && setMenuOpen(false);
+
+        window.addEventListener('keydown', close);
+
+        return () => window.removeEventListener('keydown', close);
+    }, [menuOpen]);
 
     // Derived from the URL, and matched a whole segment at a time so one
     // section's path can never light up a sibling whose path starts the same
@@ -99,6 +117,8 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
                             size="icon"
                             className="lg:hidden"
                             aria-label={t('Admin meni')}
+                            aria-expanded={menuOpen}
+                            aria-controls="admin-menu"
                             onClick={() => setMenuOpen((o) => !o)}
                         >
                             <MenuIcon open={menuOpen} />
@@ -106,7 +126,20 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
                     </div>
                 </div>
 
-                <div className={cn('px-3 pb-5', menuOpen ? 'block' : 'hidden lg:block')}>
+                {/* On a phone the open menu is a panel of its own under the
+                    header, scrolling by itself while the page stays put: all
+                    twenty links did not fit, and folded into the sticky
+                    header they pushed the page down and could not be reached. */}
+                <div
+                    id="admin-menu"
+                    ref={menu}
+                    className={cn(
+                        'px-3 pb-5',
+                        menuOpen
+                            ? 'max-lg:bg-background block max-lg:fixed max-lg:inset-x-0 max-lg:top-20 max-lg:bottom-0 max-lg:z-40 max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:border-t max-lg:pt-3'
+                            : 'hidden lg:block',
+                    )}
+                >
                     {nav}
 
                     <div className="border-border/70 mt-5 border-t pt-4">
