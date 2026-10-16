@@ -239,7 +239,7 @@ mejl o nepročitanim porukama (5 min), „Javi mi kad stigne" (na sat), kraj pau
 - Upisati prave podatke za uplatnicu i cene; naći prvih 10–20 proizvođača.
 - Po nastavku završiti drugi i treći talas po `docs/development-plan.md`; prvi ne ponavljati.
   MySQL merenja imaju izolovanu bazu i CI workflow; ostaju poznata uska grla kataloga i kontrolera.
-- Kad zatreba (vidi `docs/scaling.md`): tabela razgovora, Meilisearch, SSR.
+- Kad zatreba (vidi `docs/scaling.md`): Meilisearch, SSR. Tabela razgovora (`conversations`) postoji od zadatka 170.
 
 ## 13. Ne dirati bez dogovora
 

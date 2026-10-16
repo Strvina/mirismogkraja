@@ -280,6 +280,20 @@ A producer's saved answers for the message box. At most 12 per producer; `{ime}`
 
 Indexes: (producer_id)
 
+## conversations
+
+One row per conversation (`producer_id`, `buyer_id`), kept beside the messages so the inbox and the header's unread badge read one row each instead of grouping every message. The messages stay the record: `App\Models\Conversation` updates the row when a message is written and when a side opens the thread, and `php artisan messages:rebuild-conversations` works every row out again from the messages.
+
+| Column | Type | Null | Notes |
+|---|---|---|---|
+| `id` | integer |  | primary key |
+| `producer_id` | integer |  | → producers.id (cascade); unique with `buyer_id` |
+| `buyer_id` | integer |  | → users.id (cascade) |
+| `last_message_id` | integer | yes | → producer_messages.id (set null); the inbox's order |
+| `unread_by_producer` | integer |  | the buyer's messages the producer has not read |
+| `unread_by_buyer` | integer |  | the producer's messages the buyer has not read |
+| `created_at`, `updated_at` | datetime | yes |  |
+
 ## conversation_blocks
 
 A closed conversation and which side closed it.

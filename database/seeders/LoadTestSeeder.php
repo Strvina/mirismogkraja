@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Boost;
+use App\Models\Conversation;
 use App\Models\InquiryOutcome;
 use App\Models\ProducerSubscription;
 use App\Models\Product;
@@ -168,6 +169,9 @@ class LoadTestSeeder extends Seeder
         $this->seedProducers();
         $this->seedProducts();
         $this->seedMessages();
+        // The messages went in by the thousand, past the model that keeps
+        // each conversation's summary; it is worked out from them at once.
+        Conversation::rebuild();
         $this->seedOutcomesAndBlocks();
         $this->seedReviews();
         $this->seedFollowsAndFavorites();

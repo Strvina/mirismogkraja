@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\ProducerMessage;
+use App\Models\Conversation;
 use App\Support\Media;
 use App\Support\NotificationText;
 use Closure;
@@ -127,22 +127,15 @@ class HandleInertiaRequests extends Middleware
             return 0;
         }
 
-        // Two indexed counts rather than one query with an OR: this runs on
-        // every page of every signed-in visitor, and "buyer is me OR the
-        // producer is mine" cannot use an index, so it scanned every unread
-        // message on the site. The halves never overlap - nobody writes to
-        // their own producer.
-        $asBuyer = ProducerMessage::query()
-            ->where('buyer_id', $user->id)
-            ->whereNull('read_at')
-            ->where('sender_id', '!=', $user->id)
-            ->count();
+        // Read from the conversations' own counters (App\Models\Conversation):
+        // this runs on every page of every signed-in visitor. Two sums rather
+        // than one with an OR, so each is answered by its own index; the
+        // halves never overlap, since nobody writes to their own producer.
+        $asBuyer = (int) Conversation::query()->where('buyer_id', $user->id)->sum('unread_by_buyer');
 
-        $asSeller = ProducerMessage::query()
+        $asSeller = (int) Conversation::query()
             ->whereIn('producer_id', $user->producers()->select('id'))
-            ->whereNull('read_at')
-            ->where('sender_id', '!=', $user->id)
-            ->count();
+            ->sum('unread_by_producer');
 
         return $asBuyer + $asSeller;
     }
