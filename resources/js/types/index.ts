@@ -72,6 +72,8 @@ export interface Producer {
     story: string | null;
     address: string | null;
     city: string | null;
+    /** Districts::keys(); worked out from the town when the producer picks none. */
+    district: string | null;
     phone: string | null;
     contact_email: string | null;
     delivery_methods: string[] | null;

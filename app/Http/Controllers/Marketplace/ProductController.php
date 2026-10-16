@@ -9,18 +9,21 @@ use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Report;
+use App\Models\Review;
 use App\Services\BoostService;
 use App\Services\CategoryPrices;
 use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SearchMisses;
+use App\Support\Districts;
 use App\Support\Media;
 use App\Support\PageMeta;
 use App\Support\Price;
 use App\Support\ProductCards;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -32,6 +35,15 @@ use function Illuminate\Support\defer;
 
 class ProductController extends Controller
 {
+    /** How a buyer gets it: brought or sent ("dostava"), or fetched from the producer. */
+    private const DELIVERY = [
+        'dostava' => ['licna_dostava', 'kurirska_sluzba'],
+        'preuzimanje' => ['preuzimanje'],
+    ];
+
+    /** "Added in the last N days" choices. */
+    private const PERIODS = [1, 3, 7];
+
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
@@ -76,8 +88,13 @@ class ProductController extends Controller
         $products = $this->filtered($request)
             ->when($sort === 'price_asc', fn ($query) => $query->orderBy('price'))
             ->when($sort === 'price_desc', fn ($query) => $query->orderByDesc('price'))
+            // Products have no ratings of their own; their producers do.
+            // Unrated producers' products last, the newest first among alike.
+            ->when($sort === 'rating', fn ($query) => $query->orderByDesc(
+                Review::query()->approved()->whereColumn('reviews.producer_id', 'products.producer_id')->selectRaw('avg(rating)')
+            ))
             // A search with no sort chosen: best matches first.
-            ->when($search !== '' && ! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => Search::orderByRelevance($query, self::SEARCHED, $search))
+            ->when($search !== '' && ! in_array($sort, ['price_asc', 'price_desc', 'rating']), fn ($query) => Search::orderByRelevance($query, self::SEARCHED, $search))
             ->when(! in_array($sort, ['price_asc', 'price_desc']), fn ($query) => $query->latest())
             // Whatever the order, a tie is broken the same way every time:
             // two products at one price, or added in the same second, must
@@ -171,7 +188,7 @@ class ProductController extends Controller
                 ? collect($choices['producers'])->firstWhere('id', $request->integer('producer_id'))
                 : null,
             'filters' => [
-                ...$request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'sort']),
+                ...$request->only(['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period', 'sort']),
                 'q' => $search !== '' ? $search : null,
             ],
             'matchingProducers' => $matchingProducers,
@@ -201,11 +218,11 @@ class ProductController extends Controller
      * change, while working it out reads the whole catalogue - so it is
      * worked out once every few minutes, not on every page and filter.
      *
-     * @return array{categories: array<int, mixed>, browse: array<int, mixed>, producers: array<int, mixed>, cities: array<int, string>, priceBounds: array{min: float, max: float}}
+     * @return array{categories: array<int, mixed>, browse: array<int, mixed>, producers: array<int, mixed>, districts: list<array{value: string, label: string, cities: list<string>}>, cities: array<int, string>, priceBounds: array{min: float, max: float}}
      */
     private function filterChoices(): array
     {
-        return Cache::remember('catalog:filter-choices:v2', self::FILTERS_SECONDS, function () {
+        return Cache::remember('catalog:filter-choices:v3', self::FILTERS_SECONDS, function () {
             // Cities straight off Producer, not by loading every product.
             $sellingProducers = Producer::published()
                 ->whereHas('products', fn ($query) => $query->where('status', 'active'));
@@ -224,6 +241,7 @@ class ProductController extends Controller
                     ->values()
                     ->toArray(),
                 'producers' => (clone $sellingProducers)->orderBy('name')->get(['id', 'name'])->toArray(),
+                'districts' => Districts::withTowns(clone $sellingProducers),
                 'cities' => (clone $sellingProducers)->whereNotNull('city')->distinct()->orderBy('city')->pluck('city')->all(),
                 'priceBounds' => ['min' => (float) $bounds->lowest, 'max' => (float) $bounds->highest],
             ];
@@ -233,7 +251,7 @@ class ProductController extends Controller
     /** Whether anything besides the search words narrows the list. */
     private function narrowed(Request $request): bool
     {
-        return collect($request->only(['category_id', 'producer_id', 'city', 'min_price', 'max_price', 'in_stock', 'in_season']))
+        return collect($request->only(['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period']))
             ->filter(fn ($value) => filled($value))
             ->isNotEmpty();
     }
@@ -252,6 +270,10 @@ class ProductController extends Controller
             ->when($request->filled('q'), fn ($query) => Search::apply($query, self::SEARCHED, $request->string('q')->toString()))
             ->when($request->integer('category_id'), fn ($query, $categoryId) => $query->inCategory($categoryId))
             ->when($request->integer('producer_id'), fn ($query, $producerId) => $query->where('producer_id', $producerId))
+            ->when($request->string('district')->toString(), fn ($query, $district) => $query->whereHas(
+                'producer',
+                fn ($q) => $q->where('district', $district)
+            ))
             ->when($request->string('city')->toString(), fn ($query, $city) => $query->whereHas(
                 'producer',
                 fn ($q) => $q->where('city', $city)
@@ -259,7 +281,25 @@ class ProductController extends Controller
             ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->float('min_price')))
             ->when($request->filled('max_price'), fn ($query) => $query->where('price', '<=', $request->float('max_price')))
             ->when($request->boolean('in_stock'), fn ($query) => $query->where('stock_quantity', '>', 0))
-            ->when($request->boolean('in_season'), fn ($query) => $query->inSeason());
+            ->when($request->boolean('in_season'), fn ($query) => $query->inSeason())
+            ->when(self::DELIVERY[$request->string('delivery')->toString()] ?? null, fn ($query, $methods) => $query->whereHas(
+                'producer',
+                fn ($q) => $q->where(fn ($any) => collect($methods)->each(fn (string $method) => $any->orWhereJsonContains('delivery_methods', $method)))
+            ))
+            ->when(in_array($request->integer('period'), self::PERIODS, true), fn ($query) => $query->where(
+                $query->qualifyColumn('created_at'),
+                '>=',
+                now()->subDays($request->integer('period'))
+            ));
+    }
+
+    /**
+     * How many products the filters being chosen would show, for the button
+     * that applies them - before the visitor commits to them.
+     */
+    public function count(Request $request): JsonResponse
+    {
+        return response()->json(['count' => $this->filtered($request)->count()]);
     }
 
     /**

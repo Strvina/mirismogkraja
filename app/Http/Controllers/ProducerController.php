@@ -12,6 +12,7 @@ use App\Services\FoundingProducerService;
 use App\Services\ProducerPosterPdf;
 use App\Services\ProducerService;
 use App\Support\Admins;
+use App\Support\Districts;
 use App\Support\ProfileCompleteness;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -70,6 +71,7 @@ class ProducerController extends Controller
             ],
             // For the wizard's products step.
             'categories' => Category::options(),
+            'districts' => Districts::options(),
         ]);
     }
 
@@ -108,6 +110,7 @@ class ProducerController extends Controller
         return Inertia::render('producers/edit', [
             'producer' => $producer,
             'gallery' => $producer->images()->get(['id', 'path', 'caption']),
+            'districts' => Districts::options(),
         ]);
     }
 

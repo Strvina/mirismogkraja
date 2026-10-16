@@ -3,9 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Models\Producer;
+use App\Support\Districts;
 use App\Support\Media;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreProducerRequest extends FormRequest
 {
@@ -46,6 +48,8 @@ class StoreProducerRequest extends FormRequest
             'story' => ['nullable', 'string', 'max:10000'],
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:255'],
+            // Left empty, it is worked out from the town.
+            'district' => ['nullable', Rule::in(Districts::keys())],
             'phone' => ['nullable', 'string', self::PHONE_RULE],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'delivery_methods' => ['nullable', 'array'],

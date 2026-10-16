@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import CompactSelect, { type SelectOption } from '@/components/marketplace/compact-select';
 import { LocationPicker } from '@/components/marketplace/map';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -6,7 +7,7 @@ import { t } from '@/lib/i18n';
 import { type ProducerFormFields } from './types';
 
 /** Who the producer is and where: name, town, address and a pin on the map. */
-export default function BasicsFields({ data, setData, errors }: ProducerFormFields) {
+export default function BasicsFields({ data, setData, errors, districts = [] }: ProducerFormFields & { districts?: SelectOption[] }) {
     const location = data.lat && data.lng ? { lat: Number(data.lat), lng: Number(data.lng) } : null;
     const setLocation = (point: { lat: number; lng: number } | null) =>
         setData((current) => ({ ...current, lat: point ? String(point.lat) : '', lng: point ? String(point.lng) : '' }));
@@ -24,6 +25,23 @@ export default function BasicsFields({ data, setData, errors }: ProducerFormFiel
                 <Input id="city" value={data.city} onChange={(e) => setData('city', e.target.value)} />
                 <InputError message={errors.city} />
             </div>
+
+            {districts.length > 0 && (
+                <div className="grid gap-2">
+                    <Label htmlFor="district">{t('Okrug')}</Label>
+                    <CompactSelect
+                        id="district"
+                        className="w-full"
+                        value={data.district}
+                        onChange={(district) => setData('district', district)}
+                        options={[{ value: '', label: t('Prema mestu') }, ...districts]}
+                    />
+                    <p className="text-muted-foreground text-xs">
+                        {t('Za grad ili opštinu okrug se upisuje sam. Izaberite ga ako ste upisali selo, da bi vas kupci našli po okrugu.')}
+                    </p>
+                    <InputError message={errors.district} />
+                </div>
+            )}
 
             <div className="grid gap-2">
                 <Label htmlFor="address">{t('Adresa')}</Label>
