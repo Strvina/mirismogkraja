@@ -195,6 +195,7 @@ export default function ProductsIndex({
                     districts={districts}
                     cities={cities}
                     priceBounds={priceBounds}
+                    total={products.total}
                     onChange={update}
                     onReset={reset}
                 />

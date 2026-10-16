@@ -23,6 +23,7 @@ use App\Support\Price;
 use App\Support\ProductCards;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -34,6 +35,15 @@ use function Illuminate\Support\defer;
 
 class ProductController extends Controller
 {
+    /** How a buyer gets it: brought or sent ("dostava"), or fetched from the producer. */
+    private const DELIVERY = [
+        'dostava' => ['licna_dostava', 'kurirska_sluzba'],
+        'preuzimanje' => ['preuzimanje'],
+    ];
+
+    /** "Added in the last N days" choices. */
+    private const PERIODS = [1, 3, 7];
+
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
@@ -178,7 +188,7 @@ class ProductController extends Controller
                 ? collect($choices['producers'])->firstWhere('id', $request->integer('producer_id'))
                 : null,
             'filters' => [
-                ...$request->only(['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'sort']),
+                ...$request->only(['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period', 'sort']),
                 'q' => $search !== '' ? $search : null,
             ],
             'matchingProducers' => $matchingProducers,
@@ -241,7 +251,7 @@ class ProductController extends Controller
     /** Whether anything besides the search words narrows the list. */
     private function narrowed(Request $request): bool
     {
-        return collect($request->only(['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season']))
+        return collect($request->only(['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period']))
             ->filter(fn ($value) => filled($value))
             ->isNotEmpty();
     }
@@ -271,7 +281,25 @@ class ProductController extends Controller
             ->when($request->filled('min_price'), fn ($query) => $query->where('price', '>=', $request->float('min_price')))
             ->when($request->filled('max_price'), fn ($query) => $query->where('price', '<=', $request->float('max_price')))
             ->when($request->boolean('in_stock'), fn ($query) => $query->where('stock_quantity', '>', 0))
-            ->when($request->boolean('in_season'), fn ($query) => $query->inSeason());
+            ->when($request->boolean('in_season'), fn ($query) => $query->inSeason())
+            ->when(self::DELIVERY[$request->string('delivery')->toString()] ?? null, fn ($query, $methods) => $query->whereHas(
+                'producer',
+                fn ($q) => $q->where(fn ($any) => collect($methods)->each(fn (string $method) => $any->orWhereJsonContains('delivery_methods', $method)))
+            ))
+            ->when(in_array($request->integer('period'), self::PERIODS, true), fn ($query) => $query->where(
+                $query->qualifyColumn('created_at'),
+                '>=',
+                now()->subDays($request->integer('period'))
+            ));
+    }
+
+    /**
+     * How many products the filters being chosen would show, for the button
+     * that applies them - before the visitor commits to them.
+     */
+    public function count(Request $request): JsonResponse
+    {
+        return response()->json(['count' => $this->filtered($request)->count()]);
     }
 
     /**
