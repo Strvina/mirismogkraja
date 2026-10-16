@@ -127,6 +127,7 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
     return (
         <QuickViewLink
             href={route('marketplace.products.show', product.slug)}
+            preview={{ name: product.name, price: product.price, unit: product.unit, image: product.image, producer: product.producer }}
             className="group border-border/70 hover:border-border bg-background flex h-full flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg"
         >
             <div className="bg-muted aspect-square overflow-hidden">

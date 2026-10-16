@@ -7,6 +7,8 @@ import ReportButton from '@/components/marketplace/report-button';
 import ResponseTimeBadge, { type ResponseTimeBucket } from '@/components/marketplace/response-time-badge';
 import ShareButtons from '@/components/marketplace/share-buttons';
 import { Button } from '@/components/ui/button';
+import { ChatError, chatApi } from '@/lib/chat/api';
+import { chat, type ThreadRef } from '@/lib/chat/store';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
@@ -16,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { BellRing, MapPin } from 'lucide-react';
-import { type ReactNode, useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 type CategoryLink = { id: number; name: string; slug: string };
 
@@ -72,8 +74,11 @@ export default function ProductDetails({
     isFavorited,
     compact = false,
     title: Title = 'h1',
+    onConversation,
 }: ProductPageProps & {
     compact?: boolean;
+    /** The question went into a conversation: the popup closes and the chat window opens it. */
+    onConversation?: (thread: ThreadRef) => void;
     /** The element the name is set in: the page's h1, or the popup's own title. */
     title?: 'h1' | ((props: { className: string; children: ReactNode }) => ReactNode);
 }) {
@@ -87,6 +92,36 @@ export default function ProductDetails({
 
     const sendInquiry = () => {
         if (sending || !message.trim()) {
+            return;
+        }
+
+        // With a chat window on the page, the question goes into it and the
+        // conversation opens there - the reader stays where they were.
+        if (chat.available()) {
+            setSending(true);
+            setErrors({});
+            chatApi
+                .inquiry(product.slug, message)
+                .then(({ thread }) => {
+                    setMessage('');
+                    const ref = { producerId: thread.producer_id, buyerId: thread.buyer_id, title: thread.title, avatarPath: thread.avatar_path };
+                    // Over the popup the window would be out of reach: the popup goes first.
+                    if (onConversation) {
+                        onConversation(ref);
+                    } else {
+                        chat.openThread(ref);
+                    }
+                })
+                .catch((error: unknown) =>
+                    setErrors({
+                        body:
+                            error instanceof ChatError && error.message
+                                ? error.message
+                                : t('Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.'),
+                    }),
+                )
+                .finally(() => setSending(false));
+
             return;
         }
 
@@ -107,7 +142,11 @@ export default function ProductDetails({
     return (
         <>
             <div className={cn('grid gap-10', compact ? 'md:grid-cols-2 md:gap-8' : 'lg:grid-cols-2')}>
-                <div className="bg-muted aspect-square overflow-hidden rounded-md">
+                {/* The card's small photo underneath, already loaded: the large one comes in over it, not out of nothing. */}
+                <div
+                    className="bg-muted aspect-square overflow-hidden rounded-md bg-cover bg-center"
+                    style={mainImage ? { backgroundImage: `url(${thumbUrl(mainImage.path)})` } : undefined}
+                >
                     {mainImage && (
                         <img
                             src={mediaUrl(mainImage.path)}
@@ -326,7 +365,12 @@ export default function ProductDetails({
                     <h2 className="font-serif text-2xl">{t('Slični proizvodi')}</h2>
                     <div className={cn('mt-6 grid grid-cols-2 gap-6', compact ? 'sm:grid-cols-4' : 'lg:grid-cols-4')}>
                         {similar.map((p) => (
-                            <QuickViewLink key={p.id} href={route('marketplace.products.show', p.slug)} className="group">
+                            <QuickViewLink
+                                key={p.id}
+                                href={route('marketplace.products.show', p.slug)}
+                                preview={{ name: p.name, image: p.images?.[0]?.path ?? null }}
+                                className="group"
+                            >
                                 <div className="bg-muted aspect-square overflow-hidden rounded-md">
                                     {p.images?.[0] && (
                                         <img

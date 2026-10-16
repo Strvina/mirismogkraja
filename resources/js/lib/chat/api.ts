@@ -111,6 +111,15 @@ export const chatApi = {
             }),
         ),
 
+    inquiry: (productSlug: string, body: string) =>
+        request<{ thread: { producer_id: number; buyer_id: number; title: string; avatar_path: string | null } }>(
+            route('chat.inquiry', productSlug),
+            {
+                method: 'POST',
+                body: JSON.stringify({ body }),
+            },
+        ),
+
     send: (producerId: number, buyerId: number, body: string) =>
         request<{ message: Message }>(route('chat.send', { producer: producerId, buyer: buyerId }), {
             method: 'POST',

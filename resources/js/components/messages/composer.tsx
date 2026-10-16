@@ -27,6 +27,7 @@ export default function Composer({
     draft,
     onDraftChange,
     autoFocus = false,
+    pill = false,
     className,
 }: {
     onSend: (text: string) => void;
@@ -36,6 +37,8 @@ export default function Composer({
     draft?: string;
     onDraftChange?: (text: string) => void;
     autoFocus?: boolean;
+    /** A rounded box with the send button inside it, as a chat app's - for the chat window. */
+    pill?: boolean;
     className?: string;
 }) {
     const [ownBody, setOwnBody] = useState('');
@@ -137,9 +140,18 @@ export default function Composer({
                 maxLength={MAX_LENGTH}
                 placeholder={t('Napišite poruku...')}
                 aria-label={t('Poruka')}
-                className="border-input bg-background max-h-40 min-h-11 flex-1 resize-none rounded-md border px-3 py-2.5 text-sm"
+                className={cn(
+                    'border-input bg-background max-h-40 min-h-11 flex-1 resize-none border px-3 py-2.5 text-sm',
+                    pill ? 'bg-muted/60 focus-visible:border-input rounded-[1.4rem] border-transparent px-4' : 'rounded-md',
+                )}
             />
-            <Button type="submit" size="icon" disabled={!body.trim()} aria-label={t('Pošalji poruku')} className="size-11 shrink-0">
+            <Button
+                type="submit"
+                size="icon"
+                disabled={!body.trim()}
+                aria-label={t('Pošalji poruku')}
+                className={cn('size-11 shrink-0', pill && 'rounded-full')}
+            >
                 <SendHorizontal className="size-4" />
             </Button>
         </form>

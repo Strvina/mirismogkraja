@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { LoaderCircle, X } from 'lucide-react';
 import { useEffect } from 'react';
-import { Avatar } from './chat-thread';
+import { Avatar } from './chat-avatar';
 
 /** How often the open list looks for new conversations and replies. */
 const LIST_REFRESH_MS = 20_000;

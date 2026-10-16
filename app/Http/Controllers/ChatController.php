@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Producer;
 use App\Models\ProducerMessage;
+use App\Models\Product;
 use App\Models\User;
 use App\Services\Messaging;
 use Illuminate\Http\JsonResponse;
@@ -95,6 +96,32 @@ class ChatController extends Controller
             'has_older' => $hasOlder,
             'unread' => $messaging->unreadCount($viewer),
         ]);
+    }
+
+    /**
+     * A question about a product, asked from its page or its popup, under
+     * the same rules as the page's own form - answered with the conversation
+     * it went into, for the window to open, instead of a page to go to.
+     */
+    public function inquiry(Request $request, Product $product, Messaging $messaging): JsonResponse
+    {
+        $product->load('producer');
+        $buyer = $request->user();
+
+        abort_unless($product->isPubliclyVisible(), 404);
+        abort_if($product->producer->user_id === $buyer->id, 403);
+        abort_if($product->producer->hasBlocked($buyer), 403);
+
+        $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
+
+        $messaging->send($buyer, $product->producer, $buyer, $data['body'], ['product_id' => $product->id]);
+
+        return response()->json(['thread' => [
+            'producer_id' => $product->producer->id,
+            'buyer_id' => $buyer->id,
+            'title' => $product->producer->name,
+            'avatar_path' => $product->producer->logo_path,
+        ]], 201);
     }
 
     /** Writes into a thread and answers with the message as it was saved. */

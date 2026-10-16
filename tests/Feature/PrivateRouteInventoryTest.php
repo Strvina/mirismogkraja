@@ -46,6 +46,7 @@ class PrivateRouteInventoryTest extends TestCase
         'messages.show' => "the buyer's own conversation with that producer",
         'messages.store' => "the buyer's own conversation with that producer",
         'inquiries.store' => 'a buyer asks about a public product',
+        'chat.inquiry' => 'a buyer asks about a public product, from the chat window',
         'products.alert' => 'a buyer asks to hear when a public product is back',
         'producers.follow' => 'a buyer follows a public producer',
         'reviews.store' => 'a buyer reviews a public producer; ReviewPolicy says who may',

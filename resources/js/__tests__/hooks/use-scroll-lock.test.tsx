@@ -2,7 +2,7 @@ import { setMediaQuery } from '@/__tests__/support/browser';
 import { renderOnPage } from '@/__tests__/support/render';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { TOUCH_SCREEN } from '@/hooks/use-media-query';
-import { useScrollLock } from '@/hooks/use-scroll-lock';
+import { holdTouchUntilItEnds, useScrollLock } from '@/hooks/use-scroll-lock';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
@@ -107,5 +107,47 @@ describe('a dropdown menu and the page behind it', () => {
         // Down and up on it: a tap.
         await user.pointer({ keys: '[TouchA]', target: button });
         expect(screen.getByRole('menu')).toBeInTheDocument();
+    });
+
+    it('with a mouse, closes when the page scrolls - not when the menu itself scrolls', async () => {
+        const { user } = renderOnPage(<Menu />);
+
+        await user.click(screen.getByRole('button', { name: 'Meni' }));
+        fireEvent.scroll(screen.getByRole('menu'));
+        expect(screen.getByRole('menu')).toBeInTheDocument();
+
+        fireEvent.scroll(window);
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+
+    it('on a touch screen, is a sheet over a dimmed page', async () => {
+        setMediaQuery(TOUCH_SCREEN, true);
+        const { user } = renderOnPage(<Menu />);
+
+        await user.pointer({ keys: '[TouchA]', target: screen.getByRole('button', { name: 'Meni' }) });
+
+        expect(screen.getByRole('menu')).toHaveAttribute('data-sheet');
+        expect(document.querySelector('[class*="bg-black"]')).not.toBeNull();
+    });
+});
+
+describe('holdTouchUntilItEnds', () => {
+    it('refuses the rest of the touch, and lets the next touch scroll even if this one never reports its end', async () => {
+        holdTouchUntilItEnds();
+        const move = () => {
+            const drag = new Event('touchmove', { cancelable: true, bubbles: true });
+            document.body.dispatchEvent(drag);
+
+            return drag.defaultPrevented;
+        };
+
+        // The touch that closed the menu: its own start, just behind its pointerdown, does not end the hold.
+        document.dispatchEvent(new Event('touchstart', { bubbles: true }));
+        expect(move()).toBe(true);
+
+        // Its end went to the backdrop, gone from the page: the document never heard it.
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        document.dispatchEvent(new Event('touchstart', { bubbles: true }));
+        expect(move()).toBe(false);
     });
 });

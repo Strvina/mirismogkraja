@@ -49,10 +49,24 @@ test('the phone menu holds the page while open and lets it go after, also once t
         const at = await scrollY(page);
         await menuButton.click();
         await expect(menu, moment).toBeVisible();
+        // Measured once it has slid into place.
+        await expect
+            .poll(
+                async () => {
+                    const placed = (await menu.boundingBox())!;
+
+                    return Math.round(placed.y + placed.height);
+                },
+                { message: moment },
+            )
+            .toBe(page.viewportSize()!.height);
         const box = (await menu.boundingBox())!;
 
-        // In view under the header, wherever the page is.
-        expect(box.y, moment).toBeLessThan(120);
+        // A sheet at the foot of the screen, full width, wherever the page is.
+        const screen = page.viewportSize()!;
+        expect(Math.round(box.x), moment).toBe(0);
+        expect(Math.round(box.width), moment).toBe(screen.width);
+        expect(Math.abs(box.y + box.height - screen.height), moment).toBeLessThan(2);
         expect(await pageHeld(page), moment).toBe(true);
 
         // A drag on the menu scrolls the menu, never the page.
@@ -60,8 +74,8 @@ test('the phone menu holds the page while open and lets it go after, also once t
         await drag(box.x + box.width / 2, box.y + box.height * 0.4, 250);
         expect(await scrollY(page), moment).toBe(at);
 
-        // A drag beside it closes it and does not move the page either.
-        await drag(20, Math.min(box.y + box.height + 40, 600), -200);
+        // A drag on the dimmed page above it closes it and does not move the page either.
+        await drag(195, Math.max(box.y - 60, 90), 200);
         await expect(menu, moment).toBeHidden();
         expect(await scrollY(page), moment).toBe(at);
 
@@ -71,12 +85,18 @@ test('the phone menu holds the page while open and lets it go after, also once t
         expect(await scrollY(page), moment).toBeGreaterThan(at);
     }
 
-    // Opened and closed over and over, nothing is left behind.
-    for (let round = 0; round < 6; round++) {
+    // Opened and closed over and over - by a touch on the dimmed page, which
+    // lies over the button too - and nothing is left behind.
+    for (let round = 0; round < 4; round++) {
         await menuButton.click();
+        await expect(menu).toBeVisible();
+        await page.mouse.click(195, 40);
+        await expect(menu).toBeHidden();
     }
-    await expect(menu).toBeHidden();
     expect(await pageHeld(page)).toBe(false);
+    const at = await scrollY(page);
+    await drag(180, 450, -150);
+    expect(await scrollY(page)).toBeGreaterThan(at);
 });
 
 test('the admin menu on a phone scrolls by itself, reaches its last link, and leaves the page in place', async ({ page }) => {
@@ -120,7 +140,8 @@ test('a dialog over a scrolled page leaves the page and its header where they we
         .evaluate((link: HTMLElement) => link.click());
     await expect(page.getByRole('dialog')).toBeVisible();
 
-    expect(await scrollY(page)).toBe(at);
+    // Within the rounding of a 3x screen: it used to jump by hundreds of pixels.
+    expect(Math.abs((await scrollY(page)) - at)).toBeLessThanOrEqual(2);
     expect(
         await page
             .locator('header')
@@ -130,7 +151,7 @@ test('a dialog over a scrolled page leaves the page and its header where they we
 
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toBeHidden();
-    expect(await scrollY(page)).toBe(at);
+    expect(Math.abs((await scrollY(page)) - at)).toBeLessThanOrEqual(2);
 });
 
 test('"Pronađi domaće" on the home page leads to the products', async ({ page }) => {

@@ -115,9 +115,13 @@ test('from sign-up to a published review, across producer, admin and buyer', asy
 
         await page.getByRole('link', { name: new RegExp(productName) }).click();
         await expect(page).toHaveURL(/\/proizvod\//);
-        await page.getByRole('textbox', { name: 'Poruka proizvođaču' }).fill(question);
-        await page.getByRole('button', { name: 'Pošalji upit' }).click();
+        await page.getByRole('dialog').getByRole('textbox', { name: 'Poruka proizvođaču' }).fill(question);
+        await page.getByRole('dialog').getByRole('button', { name: 'Pošalji upit' }).click();
 
+        // Into the chat window, on the producer's page; its page is a click away.
+        const chat = page.getByRole('dialog', { name: 'Razgovor' });
+        await expect(chat.getByText(question)).toBeVisible();
+        await chat.getByRole('link', { name: /Otvori ceo razgovor/ }).click();
         await expect(page).toHaveURL(/\/poruke\//);
         await expect(page.getByText(question)).toBeVisible();
         threadUrl = page.url();

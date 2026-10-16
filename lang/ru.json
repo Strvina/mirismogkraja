@@ -1528,5 +1528,8 @@
     "Otvori razgovor sa :name": "Открыть разговор с :name",
     "Poruke, nepročitanih: :count": "Сообщения, непрочитанных: :count",
     "Ovaj razgovor vam nije dostupan.": "Этот разговор вам недоступен.",
-    "Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.": "Не удалось связаться с сервером. Проверьте интернет и попробуйте снова."
+    "Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.": "Не удалось связаться с сервером. Проверьте интернет и попробуйте снова.",
+    "juče": "вчера",
+    "Filteri i redosled": "Фильтры и порядок",
+    "Redosled": "Порядок"
 }

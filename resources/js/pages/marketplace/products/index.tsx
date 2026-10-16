@@ -77,6 +77,13 @@ export default function ProductsIndex({
         router.get('/proizvodi', { ...filters, per_page: perPage, ...patch, page: undefined }, { preserveState: true, preserveScroll: true });
     };
 
+    const sortOptions = [
+        { value: '', label: t('Najnovije') },
+        { value: 'price_asc', label: t('Cena: niža prvo') },
+        { value: 'price_desc', label: t('Cena: viša prvo') },
+        { value: 'rating', label: t('Najbolje ocenjeni proizvođači') },
+    ];
+
     const reset = () => {
         router.get('/proizvodi', { sort: filters.sort, q: filters.q }, { preserveScroll: true });
     };
@@ -127,7 +134,8 @@ export default function ProductsIndex({
 
             {/* The catalogue's own page: the general categories, each a page of its own. */}
             {!category && browse.length > 0 && (
-                <nav aria-label={t('Kategorije')} className="mt-6 flex flex-wrap gap-2">
+                // On a phone the category is chosen in "Filteri"; the row of them said it twice.
+                <nav aria-label={t('Kategorije')} className="mt-6 hidden flex-wrap gap-2 lg:flex">
                     {browse.map((item) => (
                         <Link key={item.id} href={route('marketplace.categories.show', item.slug)} className={chip(false)}>
                             {t(item.name)}
@@ -196,6 +204,7 @@ export default function ProductsIndex({
                     cities={cities}
                     priceBounds={priceBounds}
                     total={products.total}
+                    sortOptions={sortOptions}
                     onChange={update}
                     onReset={reset}
                 />
@@ -223,8 +232,9 @@ export default function ProductsIndex({
                                 />
                             </span>
 
-                            <span className="flex items-center gap-2 text-sm">
-                                <label htmlFor="sort" className="text-muted-foreground sr-only sm:not-sr-only">
+                            {/* On a phone the order is chosen in "Filteri", with everything else. */}
+                            <span className="hidden items-center gap-2 text-sm lg:flex">
+                                <label htmlFor="sort" className="text-muted-foreground">
                                     {t('Sortiraj:')}
                                 </label>
                                 <CompactSelect
@@ -232,12 +242,7 @@ export default function ProductsIndex({
                                     className="w-56"
                                     value={filters.sort ?? ''}
                                     onChange={(value) => update({ sort: value || undefined })}
-                                    options={[
-                                        { value: '', label: t('Najnovije') },
-                                        { value: 'price_asc', label: t('Cena: niža prvo') },
-                                        { value: 'price_desc', label: t('Cena: viša prvo') },
-                                        { value: 'rating', label: t('Najbolje ocenjeni proizvođači') },
-                                    ]}
+                                    options={sortOptions}
                                 />
                             </span>
                         </div>

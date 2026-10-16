@@ -82,13 +82,23 @@ function scrollsWithin(target: Element | null, panel: HTMLElement | null): boole
  */
 export function holdTouchUntilItEnds(): void {
     const refuse = (event: TouchEvent) => event.cancelable && event.preventDefault();
+    let timer = 0;
     const end = () => {
+        window.clearTimeout(timer);
         document.removeEventListener('touchmove', refuse);
         document.removeEventListener('touchend', end);
         document.removeEventListener('touchcancel', end);
+        document.removeEventListener('touchstart', end, true);
     };
 
     document.addEventListener('touchmove', refuse, { passive: false });
     document.addEventListener('touchend', end);
     document.addEventListener('touchcancel', end);
+    // The touch may end on what it closed - the dimmed page behind a menu,
+    // gone by then - and an end there never reaches the document: without
+    // these, the page stayed unscrollable for good. The next touch is a new
+    // one, and no touch outlasts this.
+    // After this touch's own touchstart, which comes just behind its pointerdown.
+    window.setTimeout(() => document.addEventListener('touchstart', end, true));
+    timer = window.setTimeout(end, 2_000);
 }

@@ -1515,5 +1515,8 @@
     "Otvori razgovor sa :name": "Open the conversation with :name",
     "Poruke, nepročitanih: :count": "Messages, unread: :count",
     "Ovaj razgovor vam nije dostupan.": "This conversation is not available to you.",
-    "Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.": "Could not reach the server. Check your connection and try again."
+    "Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.": "Could not reach the server. Check your connection and try again.",
+    "juče": "yesterday",
+    "Filteri i redosled": "Filters and order",
+    "Redosled": "Order"
 }
