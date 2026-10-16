@@ -1,41 +1,32 @@
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useAppearance, type Appearance } from '@/hooks/use-appearance';
-import { t, tx } from '@/lib/i18n';
-import { Monitor, Moon, Sun, type LucideIcon } from 'lucide-react';
+import { useAppearance } from '@/hooks/use-appearance';
+import { t } from '@/lib/i18n';
+import { Moon, Sun } from 'lucide-react';
 
-const CHOICES: { value: Appearance; label: string; icon: LucideIcon }[] = [
-    { value: 'light', label: tx('Svetla'), icon: Sun },
-    { value: 'dark', label: tx('Tamna'), icon: Moon },
-    { value: 'system', label: tx('Kao na uređaju'), icon: Monitor },
-];
+/** Whether the page is dark now: chosen so, or left to a device that is. */
+const darkNow = (appearance: string) =>
+    appearance === 'dark' ||
+    (appearance === 'system' && typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches);
 
 /**
- * Light, dark or as the device has it, from the header of every page - the
- * same choice as Podešavanja → Izgled, one click away instead of three.
+ * Light or dark, switched with one click in the header of every page. A
+ * visitor who never chose follows the device until the first click.
  */
 export default function ThemeToggle() {
     const { appearance, updateAppearance } = useAppearance();
-    // The button shows what is in force: a moon at night, a sun by day.
-    const Icon = appearance === 'dark' ? Moon : appearance === 'light' ? Sun : Monitor;
+    const dark = darkNow(appearance);
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label={t('Tema sajta')} className="text-foreground/70 hover:text-foreground">
-                    <Icon className="size-5" />
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-44">
-                <DropdownMenuRadioGroup value={appearance} onValueChange={(value) => updateAppearance(value as Appearance)}>
-                    {CHOICES.map((choice) => (
-                        <DropdownMenuRadioItem key={choice.value} value={choice.value} className="gap-2.5 py-2">
-                            <choice.icon className="text-muted-foreground size-4" />
-                            {t(choice.label)}
-                        </DropdownMenuRadioItem>
-                    ))}
-                </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t('Tamna tema')}
+            aria-pressed={dark}
+            onClick={() => updateAppearance(dark ? 'light' : 'dark')}
+            className="text-foreground/70 hover:text-foreground"
+        >
+            {/* What a click gives: the sun at night, the moon by day. */}
+            {dark ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </Button>
     );
 }
