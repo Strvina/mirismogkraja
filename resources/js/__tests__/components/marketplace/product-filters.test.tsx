@@ -1,7 +1,7 @@
 import { createUser } from '@/__tests__/support/render';
 import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { render, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const CATEGORIES = [
     { id: 1, name: 'Zimnica' },
@@ -12,13 +12,14 @@ const PRODUCERS = [
     { id: 4, name: 'Mlekara Zapis' },
     { id: 9, name: 'Pčelinjak Rtanj' },
 ];
-
 const DISTRICTS = [
     { value: 'jablanicki', label: 'Jablanički okrug', cities: ['Leskovac'] },
     { value: 'nisavski', label: 'Nišavski okrug', cities: ['Aleksinac', 'Niš'] },
 ];
 
-function renderFilters(filters: ProductFilterValues = {}, cities = ['Leskovac', 'Niš']) {
+let fetchCount: ReturnType<typeof vi.fn>;
+
+function renderFilters(filters: ProductFilterValues = {}) {
     const onChange = vi.fn();
     const onReset = vi.fn();
 
@@ -28,8 +29,9 @@ function renderFilters(filters: ProductFilterValues = {}, cities = ['Leskovac', 
             categories={CATEGORIES}
             producers={PRODUCERS}
             districts={DISTRICTS}
-            cities={cities}
+            cities={['Aleksinac', 'Leskovac', 'Niš']}
             priceBounds={{ min: 120.5, max: 2499.1 }}
+            total={40}
             onChange={onChange}
             onReset={onReset}
         />,
@@ -38,248 +40,191 @@ function renderFilters(filters: ProductFilterValues = {}, cities = ['Leskovac', 
     return { user: createUser(), onChange, onReset };
 }
 
+/** The panel beside the list (on a phone the same one opens from "Filteri"). */
+const panel = () => within(screen.getByRole('region', { name: 'Filteri' }));
 const options = () => screen.getAllByRole('menuitemradio').map((option) => option.textContent);
+const applyButton = () => panel().getByRole('button', { name: /^Prikaži rezultate/ });
+
+async function choose(user: ReturnType<typeof createUser>, field: HTMLElement, option: string) {
+    await user.click(field);
+    await user.click(screen.getByRole('menuitemradio', { name: option }));
+}
 
 describe('ProductFilters', () => {
-    describe('category', () => {
-        it('starts on "all categories"', () => {
+    beforeEach(() => {
+        fetchCount = vi.fn(async () => ({ ok: true, json: async () => ({ count: 5 }) }));
+        vi.stubGlobal('fetch', fetchCount);
+    });
+    afterEach(() => vi.unstubAllGlobals());
+
+    describe('choosing, then applying', () => {
+        it('shows how many the filters in force show, with nothing to apply yet', () => {
             renderFilters();
 
-            expect(screen.getByLabelText('Kategorija')).toHaveTextContent('Sve kategorije');
+            expect(applyButton()).toHaveTextContent('Prikaži rezultate (40)');
+            expect(applyButton()).toBeDisabled();
         });
 
-        it('offers the tree, subcategories set in under their parent', async () => {
+        it('applies nothing until the button, which says beforehand how many it will show', async () => {
+            const { user, onChange } = renderFilters({ q: 'ajvar' });
+
+            await choose(user, panel().getByLabelText('Kategorija'), 'Zimnica');
+
+            expect(onChange).not.toHaveBeenCalled();
+            await waitFor(() => expect(applyButton()).toHaveTextContent('Prikaži rezultate (5)'));
+            // Asked with the search in force, which the panel does not change.
+            expect(fetchCount).toHaveBeenCalledWith(route('marketplace.products.count', { category_id: '1', q: 'ajvar' }), expect.anything());
+
+            await user.click(applyButton());
+
+            expect(onChange).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ category_id: '1', city: undefined, in_stock: undefined }));
+        });
+
+        it('offers no reset while nothing is in force', () => {
+            renderFilters();
+
+            expect(panel().queryByRole('button', { name: 'Poništi' })).not.toBeInTheDocument();
+        });
+
+        it('resets everything with one click', async () => {
+            const { user, onReset } = renderFilters({ in_stock: '1' });
+
+            await user.click(panel().getByRole('button', { name: 'Poništi' }));
+
+            expect(onReset).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('category, then subcategory', () => {
+        it('offers the general categories first', async () => {
             const { user } = renderFilters();
 
-            await user.click(screen.getByLabelText('Kategorija'));
+            await user.click(panel().getByLabelText('Kategorija'));
 
-            expect(options()).toEqual(['Sve kategorije', 'Zimnica', '— Ajvar', 'Med']);
+            expect(options()).toEqual(['Sve kategorije', 'Zimnica', 'Med']);
         });
 
-        it('reports the chosen category by its id', async () => {
+        it('opens the narrower choice once a category with subcategories is chosen', async () => {
             const { user, onChange } = renderFilters();
 
-            await user.click(screen.getByLabelText('Kategorija'));
-            await user.click(screen.getByRole('menuitemradio', { name: '— Ajvar' }));
+            expect(panel().queryByRole('button', { name: /^Potkategorija/ })).not.toBeInTheDocument();
+            await choose(user, panel().getByLabelText('Kategorija'), 'Zimnica');
+            await user.click(panel().getByRole('button', { name: /^Potkategorija/ }));
+            expect(options()).toEqual(['Sve iz „Zimnica”', 'Ajvar']);
 
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ category_id: '7' });
+            await user.click(screen.getByRole('menuitemradio', { name: 'Ajvar' }));
+            await user.click(applyButton());
+
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ category_id: '7' }));
         });
 
-        it('clears the filter on "all categories"', async () => {
-            const { user, onChange } = renderFilters({ category_id: '7' });
+        it('shows a subcategory chosen before under its own category, also when its id arrives as a number', () => {
+            renderFilters({ category_id: 7 as unknown as string });
 
-            await user.click(screen.getByLabelText('Kategorija'));
-            await user.click(screen.getByRole('menuitemradio', { name: 'Sve kategorije' }));
-
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ category_id: undefined });
-        });
-
-        it('shows the chosen one, also when its id arrives as a number from a category page', () => {
-            renderFilters({ category_id: 2 as unknown as string });
-
-            expect(screen.getByLabelText('Kategorija')).toHaveTextContent('Med');
+            expect(panel().getByLabelText('Kategorija')).toHaveTextContent('Zimnica');
+            expect(panel().getByRole('button', { name: /^Potkategorija/ })).toHaveTextContent('Ajvar');
         });
     });
 
-    describe('producer', () => {
-        it('offers every producer, and reports the chosen one', async () => {
-            const { user, onChange } = renderFilters();
+    describe('district, then town', () => {
+        it('has no town to pick until a district is chosen', () => {
+            renderFilters();
 
-            await user.click(screen.getByLabelText('Proizvođač'));
-            expect(options()).toEqual(['Svi proizvođači', 'Mlekara Zapis', 'Pčelinjak Rtanj']);
-
-            await user.click(screen.getByRole('menuitemradio', { name: 'Pčelinjak Rtanj' }));
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ producer_id: '9' });
+            expect(panel().getByRole('button', { name: /^Mesto/ })).toBeDisabled();
         });
 
-        it('shows the chosen producer and clears it on "all producers"', async () => {
-            const { user, onChange } = renderFilters({ producer_id: '4' });
+        it('offers the towns of the chosen district, and lets go of the town when the district changes', async () => {
+            const { user, onChange } = renderFilters({ district: 'nisavski', city: 'Niš' });
 
-            expect(screen.getByLabelText('Proizvođač')).toHaveTextContent('Mlekara Zapis');
+            await user.click(panel().getByRole('button', { name: /^Mesto/ }));
+            expect(options()).toEqual(['Sva mesta', 'Aleksinac', 'Niš']);
+            await user.keyboard('{Escape}');
 
-            await user.click(screen.getByLabelText('Proizvođač'));
-            await user.click(screen.getByRole('menuitemradio', { name: 'Svi proizvođači' }));
+            await choose(user, panel().getByRole('button', { name: /^Okrug/ }), 'Jablanički okrug');
+            await user.click(applyButton());
 
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ producer_id: undefined });
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ district: 'jablanicki', city: undefined }));
         });
     });
 
-    describe('town', () => {
-        it('offers the towns products are sold from, and reports the chosen one', async () => {
-            const { user, onChange } = renderFilters();
-
-            await user.click(screen.getByLabelText('Mesto'));
-            expect(options()).toEqual(['Cela Srbija', 'Leskovac', 'Niš']);
-
-            await user.click(screen.getByRole('menuitemradio', { name: 'Niš' }));
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ city: 'Niš' });
-        });
-
-        it('clears it on "all of Serbia"', async () => {
-            const { user, onChange } = renderFilters({ city: 'Niš' });
-
-            await user.click(screen.getByLabelText('Mesto'));
-            await user.click(screen.getByRole('menuitemradio', { name: 'Cela Srbija' }));
-
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ city: undefined });
-        });
-
-        it('is not offered at all while no town has products', () => {
-            renderFilters({}, []);
-
-            expect(screen.queryByLabelText('Mesto')).not.toBeInTheDocument();
-        });
-    });
-
-    describe('price', () => {
+    describe('price, availability and delivery', () => {
         it('hints at the cheapest and the dearest product, in whole dinars', () => {
             renderFilters();
 
-            expect(screen.getByLabelText('Najniža cena')).toHaveAttribute('placeholder', '120');
-            expect(screen.getByLabelText('Najviša cena')).toHaveAttribute('placeholder', '2500');
+            expect(panel().getByLabelText('Najniža cena')).toHaveAttribute('placeholder', 'od 120');
+            expect(panel().getByLabelText('Najviša cena')).toHaveAttribute('placeholder', 'do 2500');
         });
 
-        it('reports a bound once the field is left, not on every key', async () => {
+        it('applies the price range, being available now and the way of delivery together', async () => {
             const { user, onChange } = renderFilters();
 
-            await user.type(screen.getByLabelText('Najniža cena'), '300');
-            expect(onChange).not.toHaveBeenCalled();
+            await user.type(panel().getByLabelText('Najniža cena'), '300');
+            await user.type(panel().getByLabelText('Najviša cena'), '900');
+            await user.click(panel().getByRole('checkbox', { name: 'Dostupno odmah' }));
+            await user.click(panel().getByRole('checkbox', { name: 'Lično preuzimanje' }));
+            await user.click(applyButton());
 
-            await user.tab();
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ min_price: '300' });
+            expect(onChange).toHaveBeenCalledWith(
+                expect.objectContaining({ min_price: '300', max_price: '900', in_stock: '1', delivery: 'preuzimanje' }),
+            );
         });
 
-        it('reports the upper bound the same way', async () => {
-            const { user, onChange } = renderFilters();
+        it('takes both ways of delivery as no filter at all', async () => {
+            const { user, onChange } = renderFilters({ delivery: 'dostava' });
 
-            await user.type(screen.getByLabelText('Najviša cena'), '900');
-            await user.tab();
+            await user.click(panel().getByRole('checkbox', { name: 'Lično preuzimanje' }));
+            await user.click(applyButton());
 
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ max_price: '900' });
-        });
-
-        it('clears a bound when its field is emptied', async () => {
-            const { user, onChange } = renderFilters({ min_price: '300' });
-            const lowest = screen.getByLabelText('Najniža cena');
-
-            expect(lowest).toHaveValue(300);
-
-            await user.clear(lowest);
-            await user.tab();
-
-            expect(onChange).toHaveBeenCalledExactlyOnceWith({ min_price: undefined });
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ delivery: undefined }));
         });
     });
 
-    describe('in stock and in season', () => {
-        it('are both off by default', () => {
-            renderFilters();
-
-            expect(screen.getByRole('checkbox', { name: 'Samo dostupno na stanju' })).not.toBeChecked();
-            expect(screen.getByRole('checkbox', { name: 'Samo ono što je sada u sezoni' })).not.toBeChecked();
-        });
-
-        it('turn on as the flag "1"', async () => {
-            const { user, onChange } = renderFilters();
-
-            await user.click(screen.getByRole('checkbox', { name: 'Samo dostupno na stanju' }));
-            expect(onChange).toHaveBeenLastCalledWith({ in_stock: '1' });
-
-            await user.click(screen.getByRole('checkbox', { name: 'Samo ono što je sada u sezoni' }));
-            expect(onChange).toHaveBeenLastCalledWith({ in_season: '1' });
-        });
-
-        it('show as on, and turn off by dropping the flag', async () => {
-            const { user, onChange } = renderFilters({ in_stock: '1', in_season: '1' });
-            const inStock = screen.getByRole('checkbox', { name: 'Samo dostupno na stanju' });
-            const inSeason = screen.getByRole('checkbox', { name: 'Samo ono što je sada u sezoni' });
-
-            expect(inStock).toBeChecked();
-            expect(inSeason).toBeChecked();
-
-            await user.click(inStock);
-            expect(onChange).toHaveBeenLastCalledWith({ in_stock: undefined });
-
-            await user.click(inSeason);
-            expect(onChange).toHaveBeenLastCalledWith({ in_season: undefined });
-        });
-    });
-
-    describe('how many filters are on', () => {
-        const toggle = () => screen.getByRole('button', { name: /^Filteri/ });
-
-        it('is not counted, and nothing can be reset, while none is', () => {
-            renderFilters();
-
-            expect(toggle()).toHaveTextContent(/^Filteri$/);
-            expect(screen.queryByRole('button', { name: 'Poništi' })).not.toBeInTheDocument();
-        });
-
-        it('is counted on the button that opens the panel on a phone', () => {
-            renderFilters({ category_id: '7', city: 'Niš', min_price: '300', in_season: '1' });
-
-            expect(toggle()).toHaveTextContent(/^Filteri4$/);
-        });
-
-        it('counts all eight kinds', () => {
-            renderFilters({
-                category_id: '7',
-                producer_id: '4',
-                district: 'nisavski',
-                city: 'Niš',
-                min_price: '1',
-                max_price: '9',
-                in_stock: '1',
-                in_season: '1',
-            });
-
-            expect(toggle()).toHaveTextContent(/^Filteri8$/);
-        });
-
-        it('does not count the search or the order, which are not filters of this panel', () => {
-            renderFilters({ q: 'ajvar', sort: 'price_asc' });
-
-            expect(toggle()).toHaveTextContent(/^Filteri$/);
-            expect(screen.queryByRole('button', { name: 'Poništi' })).not.toBeInTheDocument();
-        });
-
-        it('offers to reset them all at once', async () => {
-            const { user, onReset, onChange } = renderFilters({ in_stock: '1' });
-
-            await user.click(screen.getByRole('button', { name: 'Poništi' }));
-
-            expect(onReset).toHaveBeenCalledTimes(1);
-            expect(onChange).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('district', () => {
-        it('offers the districts something is sold from', async () => {
+    describe('more filters', () => {
+        it('are folded away until asked for', async () => {
             const { user } = renderFilters();
 
-            await user.click(screen.getByLabelText('Okrug'));
+            expect(panel().queryByLabelText('Proizvođač')).not.toBeInTheDocument();
+            await user.click(panel().getByRole('button', { name: /Dodatni filteri/ }));
 
-            expect(options()).toEqual(['Svi okruzi', 'Jablanički okrug', 'Nišavski okrug']);
+            expect(panel().getByLabelText('Proizvođač')).toBeInTheDocument();
         });
 
-        it('narrows the towns to the chosen district', async () => {
-            const { user } = renderFilters({ district: 'nisavski' });
+        it('are open when one of them is in force', () => {
+            renderFilters({ producer_id: '4' });
 
-            await user.click(screen.getByLabelText('Mesto'));
-
-            expect(options()).toEqual(['Sva mesta u okrugu', 'Aleksinac', 'Niš']);
+            expect(panel().getByLabelText('Proizvođač')).toHaveTextContent('Mlekara Zapis');
         });
 
-        it('keeps a town that is in the new district, and lets go of one that is not', async () => {
-            const first = renderFilters({ city: 'Niš' });
+        it('narrow by producer, season and how recently it was added', async () => {
+            const { user, onChange } = renderFilters();
 
-            await first.user.click(screen.getByLabelText('Okrug'));
-            await first.user.click(screen.getByRole('menuitemradio', { name: 'Nišavski okrug' }));
-            expect(first.onChange).toHaveBeenLastCalledWith({ district: 'nisavski' });
+            await user.click(panel().getByRole('button', { name: /Dodatni filteri/ }));
+            await choose(user, panel().getByLabelText('Proizvođač'), 'Pčelinjak Rtanj');
+            await user.click(panel().getByRole('checkbox', { name: 'Samo ono što je sada u sezoni' }));
+            await user.click(panel().getByRole('radio', { name: 'Poslednja 3 dana' }));
+            await user.click(applyButton());
 
-            await first.user.click(screen.getByLabelText('Okrug'));
-            await first.user.click(screen.getByRole('menuitemradio', { name: 'Jablanički okrug' }));
-            expect(first.onChange).toHaveBeenLastCalledWith({ district: 'jablanicki', city: undefined });
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ producer_id: '9', in_season: '1', period: '3' }));
+        });
+    });
+
+    describe('on a phone', () => {
+        it('applies a quick choice at once', async () => {
+            const { user, onChange } = renderFilters();
+
+            await user.click(screen.getByRole('button', { name: 'Dostupno odmah' }));
+
+            expect(onChange).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ in_stock: '1' }));
+        });
+
+        it('opens the whole panel from "Filteri", counting what is in force', async () => {
+            const { user } = renderFilters({ category_id: '2', in_stock: '1' });
+            const open = screen.getByRole('button', { name: /^Filteri/ });
+
+            expect(open).toHaveTextContent('Filteri2');
+            await user.click(open);
+
+            expect(screen.getByRole('dialog', { name: 'Filteri' })).toBeInTheDocument();
         });
     });
 });

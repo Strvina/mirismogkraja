@@ -22,6 +22,8 @@ Route::get('/proizvodjac/{producer:slug}', [ProducerController::class, 'show'])-
 // A producer's price list, on an address short enough to send in a chat.
 Route::get('/katalog/{producer:slug}', CatalogController::class)->name('marketplace.catalog');
 Route::get('/proizvodi', [ProductController::class, 'index'])->middleware('deep-pages')->name('marketplace.products.index');
+// How many the filters being chosen would show, asked for as they change.
+Route::get('/proizvodi/broj', [ProductController::class, 'count'])->middleware('throttle:120,1')->name('marketplace.products.count');
 Route::get('/kategorija/{category:slug}', [ProductController::class, 'category'])->middleware('deep-pages')->name('marketplace.categories.show');
 Route::get('/proizvod/{product:slug}', [ProductController::class, 'show'])->name('marketplace.products.show');
 // A town's own page, and a category within it ("domaći med Niš").

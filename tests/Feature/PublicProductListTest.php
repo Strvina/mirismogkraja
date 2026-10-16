@@ -205,4 +205,43 @@ class PublicProductListTest extends TestCase
 
         $this->assertSame(['Od dobrog', 'Od solidnog', 'Od neocenjenog'], $names);
     }
+
+    public function test_products_narrow_by_how_the_buyer_gets_them()
+    {
+        $courier = Producer::factory()->active()->create(['delivery_methods' => ['kurirska_sluzba']]);
+        $pickUp = Producer::factory()->active()->create(['delivery_methods' => ['preuzimanje']]);
+        Product::factory()->for($courier)->create(['status' => 'active', 'name' => 'Šalje se']);
+        Product::factory()->for($pickUp)->create(['status' => 'active', 'name' => 'Preuzima se']);
+
+        $names = fn (array $query) => collect($this->get(route('marketplace.products.index', $query))->viewData('page')['props']['products']['data'])->pluck('name')->all();
+
+        $this->assertSame(['Šalje se'], $names(['delivery' => 'dostava']));
+        $this->assertSame(['Preuzima se'], $names(['delivery' => 'preuzimanje']));
+        $this->assertCount(2, $names(['delivery' => 'teleport']));
+    }
+
+    public function test_products_narrow_by_how_recently_they_were_added()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory()->for($producer)->create(['status' => 'active', 'name' => 'Juče', 'created_at' => now()->subDay()->addHour()]);
+        Product::factory()->for($producer)->create(['status' => 'active', 'name' => 'Prošle nedelje', 'created_at' => now()->subDays(5)]);
+
+        $names = fn (array $query) => collect($this->get(route('marketplace.products.index', $query))->viewData('page')['props']['products']['data'])->pluck('name')->all();
+
+        $this->assertSame(['Juče'], $names(['period' => 1]));
+        $this->assertSame(['Juče', 'Prošle nedelje'], $names(['period' => 7]));
+        // Only the periods on offer.
+        $this->assertCount(2, $names(['period' => 2]));
+    }
+
+    public function test_the_filter_button_learns_how_many_a_choice_would_show()
+    {
+        $producer = Producer::factory()->active()->create();
+        Product::factory()->for($producer)->count(3)->create(['status' => 'active', 'stock_quantity' => 5]);
+        Product::factory()->for($producer)->create(['status' => 'active', 'stock_quantity' => 0]);
+        Product::factory()->for($producer)->create(['status' => 'draft', 'stock_quantity' => 5]);
+
+        $this->getJson(route('marketplace.products.count'))->assertOk()->assertExactJson(['count' => 4]);
+        $this->getJson(route('marketplace.products.count', ['in_stock' => 1]))->assertExactJson(['count' => 3]);
+    }
 }
