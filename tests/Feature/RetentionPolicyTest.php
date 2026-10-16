@@ -16,7 +16,13 @@ class RetentionPolicyTest extends TestCase
 {
     public function test_the_periods_the_privacy_policy_names_are_the_ones_in_force(): void
     {
-        $production = file_get_contents(base_path('deploy/env.production.example'));
+        // Not in the Docker image, which ships the application and not the
+        // deployment's files; the suite runs in a checkout everywhere else.
+        if (! is_file($example = base_path('deploy/env.production.example'))) {
+            $this->markTestSkipped('deploy/ is not part of this copy of the application.');
+        }
+
+        $production = file_get_contents($example);
 
         // "Posle dva sata bez aktivnosti prijava ističe."
         $this->assertStringContainsString("\nSESSION_LIFETIME=120\n", $production);
