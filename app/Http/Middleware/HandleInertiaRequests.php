@@ -72,6 +72,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            // A public demo: the banner and the sign-in page offer its accounts.
+            'demo' => (bool) config('platform.demo'),
             // In the footer of every page, so it comes from one place.
             'contactEmail' => config('platform.contact_email'),
             // Which language the page is in; the client loads its words.

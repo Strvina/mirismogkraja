@@ -10,6 +10,8 @@ Platforma zarađuje od proizvođača. Postoje članarine (Basic, Premium, Pro), 
 profila ili proizvoda i sezonske kampanje. Sve se plaća uplatnicom sa IPS QR kodom, a admin
 potvrđuje uplatu.
 
+Javni demo sa izmišljenim proizvođačima i demo nalozima za prijavu opisan je u [docs/demo.md](docs/demo.md).
+
 ## Ko šta može
 
 | Uloga | Šta može |

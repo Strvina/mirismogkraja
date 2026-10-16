@@ -1,3 +1,4 @@
+import DemoBanner from '@/components/demo-banner';
 import FlashNotice from '@/components/marketplace/flash-notice';
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
@@ -31,6 +32,7 @@ export default function MarketplaceLayout({
 
     return (
         <div className="bg-background paper-grain flex min-h-screen flex-col">
+            <DemoBanner />
             <Navbar />
             <VerifyEmailBanner />
             <FlashNotice />

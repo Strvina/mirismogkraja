@@ -132,6 +132,8 @@ export interface NavItem {
 
 export interface SharedData {
     name: string;
+    /** A public demo of the site: the banner and the demo accounts are shown. */
+    demo: boolean;
     /** The address visitors write to (footer, contact page). */
     contactEmail: string;
     auth: Auth;

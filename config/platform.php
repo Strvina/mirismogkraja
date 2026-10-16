@@ -7,6 +7,12 @@
  */
 return [
     /*
+     * A public demo of the site (Dockerfile, stage "demo"): made-up data,
+     * the demo accounts shown on every page, and nothing for search engines.
+     */
+    'demo' => (bool) env('APP_DEMO', false),
+
+    /*
      * The address visitors write to, shown in the footer and on /kontakt.
      */
     'contact_email' => env('PLATFORM_CONTACT_EMAIL', 'zdravo@vrelinajuga.rs'),

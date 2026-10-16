@@ -1455,5 +1455,10 @@
     "Pročitana obaveštenja: šest meseci.": "Read notifications: six months.",
     "Zapis o izmenama proizvoda i proizvođača: dvanaest meseci.": "The record of changes to products and producers: twelve months.",
     "Rezervne kopije baze: četrnaest dana.": "Database backups: fourteen days.",
-    "Tehnički zapis grešaka sa servera, u kome stoji samo broj naloga, ne ime: četrnaest dana.": "The server's technical error log, which holds only an account number, not a name: fourteen days."
+    "Tehnički zapis grešaka sa servera, u kome stoji samo broj naloga, ne ime: četrnaest dana.": "The server's technical error log, which holds only an account number, not a name: fourteen days.",
+    "Ovo je demo sajta: proizvođači, proizvodi i poruke su izmišljeni, a sve se vraća na početno stanje posle ponovnog pokretanja.": "This is a demo of the site: the producers, products and messages are made up, and everything returns to its first state after a restart.",
+    "Prijavite se demo nalogom": "Sign in with a demo account",
+    "Administrator": "Administrator",
+    "Demo nalozi": "Demo accounts",
+    "Izaberite kako želite da vidite sajt; podaci se upisuju sami.": "Choose how you want to see the site; the details are filled in for you."
 }

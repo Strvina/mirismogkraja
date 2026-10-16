@@ -1468,5 +1468,10 @@
     "Pročitana obaveštenja: šest meseci.": "Прочитанные уведомления: шесть месяцев.",
     "Zapis o izmenama proizvoda i proizvođača: dvanaest meseci.": "Журнал изменений товаров и производителей: двенадцать месяцев.",
     "Rezervne kopije baze: četrnaest dana.": "Резервные копии базы: четырнадцать дней.",
-    "Tehnički zapis grešaka sa servera, u kome stoji samo broj naloga, ne ime: četrnaest dana.": "Технический журнал ошибок сервера, где указан только номер аккаунта, а не имя: четырнадцать дней."
+    "Tehnički zapis grešaka sa servera, u kome stoji samo broj naloga, ne ime: četrnaest dana.": "Технический журнал ошибок сервера, где указан только номер аккаунта, а не имя: четырнадцать дней.",
+    "Ovo je demo sajta: proizvođači, proizvodi i poruke su izmišljeni, a sve se vraća na početno stanje posle ponovnog pokretanja.": "Это демо сайта: производители, товары и сообщения выдуманы, и после перезапуска всё возвращается в исходное состояние.",
+    "Prijavite se demo nalogom": "Войти с демо-аккаунтом",
+    "Administrator": "Администратор",
+    "Demo nalozi": "Демо-аккаунты",
+    "Izaberite kako želite da vidite sajt; podaci se upisuju sami.": "Выберите, как вы хотите посмотреть сайт; данные заполнятся сами."
 }

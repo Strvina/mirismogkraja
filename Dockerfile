@@ -144,3 +144,41 @@ FROM nginxinc/nginx-unprivileged:${NGINX_VERSION}-alpine AS web
 
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=app /var/www/html/public /var/www/html/public
+
+# A public demo in one container, for a free host (render.yaml, docs/demo.md).
+# SQLite with the demo content written in at build time, served by PHP's own
+# server: no database or web server to run beside it, and every restart
+# begins again from the same data, which is what a demo anybody can sign
+# into wants. The last stage, so a plain `docker build .` makes it; the
+# Compose stack names its own targets.
+FROM app AS demo
+
+USER root
+
+ENV APP_ENV=production \
+    APP_DEBUG=false \
+    APP_DEMO=true \
+    DB_CONNECTION=sqlite \
+    DB_DATABASE=/var/www/html/database/demo.sqlite \
+    SESSION_DRIVER=file \
+    CACHE_STORE=file \
+    QUEUE_CONNECTION=sync \
+    MAIL_MAILER=log \
+    LOG_CHANNEL=stderr \
+    TRUSTED_PROXIES=* \
+    PHP_CLI_SERVER_WORKERS=4
+
+# Seeded as a local install is: the demo producers, products and
+# conversations are only ever written outside production. The key is the
+# image's own; nothing in a demo is worth keeping secret.
+RUN printf 'APP_KEY=base64:%s\n' "$(php -r 'echo base64_encode(random_bytes(32));')" > .env \
+    && touch database/demo.sqlite \
+    && APP_ENV=local php artisan migrate --seed --force --no-interaction \
+    && chown -R www-data:www-data database storage bootstrap/cache .env
+
+USER www-data
+
+# The address is the host's (Render names it), known only when the
+# container starts; the configuration is cached then, with it in.
+ENTRYPOINT []
+CMD ["sh", "-c", "export APP_URL=\"${RENDER_EXTERNAL_URL:-http://localhost:${PORT:-8080}}\" && php artisan optimize && exec php artisan serve --host=0.0.0.0 --port=\"${PORT:-8080}\""]

@@ -11,7 +11,7 @@ The platform earns from producers: memberships (Basic, Premium, Pro), paid boost
 product, and seasonal campaigns. All of it is paid by bank slip with an IPS QR code, and an
 administrator confirms the payment.
 
-The site has not been launched yet. What is here runs locally and in CI, with demo content.
+The site has not been launched yet. A demo with made-up producers runs as a single container on a free host, with one-click sign-in as a buyer, a producer or the administrator: see [docs/demo.md](docs/demo.md).
 
 | | |
 | --- | --- |
@@ -142,6 +142,7 @@ producers on MySQL, the second changes the services one thing at a time to see w
 | [docs/case-study.md](docs/case-study.md) | The decisions behind the site and what was measured, on one page |
 | [docs/database.md](docs/database.md) | The database schema |
 | [docs/deploy.md](docs/deploy.md) | Putting the site on a server, step by step (in Serbian) |
+| [docs/demo.md](docs/demo.md) | The public demo: what differs from the real site, and putting it on Render (in Serbian) |
 | [docs/operations.md](docs/operations.md) | Running it once it is live: what runs when, backups, what to do when something is wrong |
 | [docs/scaling.md](docs/scaling.md) | What to change as traffic grows |
 | [docs/performance.md](docs/performance.md) | The load test, its numbers, and what is left |
