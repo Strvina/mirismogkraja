@@ -35,6 +35,7 @@ Times are in `APP_TIMEZONE` (Belgrade unless changed). The list with each job's 
 | hourly | "tell me when it is back" for products available again | `php artisan products:send-alerts` |
 | 02:30 | the database backup | `php artisan backup:database` |
 | 03:30 to 03:50 | old log entries, read notifications and search counters are deleted | nothing: the next night catches up |
+| Sunday, 04:00 | favourites, follows, alerts, notifications and old addresses that point at something deleted are removed | `php artisan database:prune-orphans` |
 | 06:00 | pauses whose return date has passed end; followers are told | the next morning catches up |
 | 07:00 | memberships and boosts: a warning before the end (by e-mail too) and closing the ended ones | `php artisan memberships:process-expiries` |
 | 10:00 | a reminder to the owner of a page that is still mostly empty after a week | `php artisan producers:nudge-incomplete` |

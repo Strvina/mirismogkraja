@@ -185,6 +185,7 @@ Dodajte red:
 | na sat | „Javi mi kad stigne“ za proizvode koji su ponovo dostupni |
 | 02:30 | backup baze |
 | 03:30–03:50 | brisanje starih logova, pročitanih obaveštenja i brojača pretraga |
+| nedelja u 04:00 | brisanje omiljenih, praćenja, obaveštenja i starih adresa koji pokazuju na nešto obrisano |
 | 06:00 | kraj pauza kojima je prošao datum povratka; pratioci dobijaju obaveštenje |
 | 07:00 | članarine i isticanja: upozorenje pred istek (i mejlom) i zatvaranje isteklih |
 | 10:00 | podsetnik vlasniku stranice koja je posle nedelju dana i dalje skoro prazna |
