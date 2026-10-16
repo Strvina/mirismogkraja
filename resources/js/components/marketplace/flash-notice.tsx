@@ -22,7 +22,7 @@ export default function FlashNotice() {
 
     return (
         <div role="status" className="bg-olive-soft text-olive border-olive/20 border-b">
-            <div className="mx-auto flex max-w-[1380px] items-center gap-3 px-5 py-2.5 text-sm sm:px-8 lg:px-12">
+            <div className="max-w-page mx-auto flex items-center gap-3 px-5 py-2.5 text-sm sm:px-8 lg:px-12">
                 <CircleCheck className="size-4 shrink-0" aria-hidden />
                 <span className="flex-1">{notice}</span>
                 <button type="button" onClick={() => setClosed(notice)} aria-label={t('Zatvori')} className="hover:opacity-70">

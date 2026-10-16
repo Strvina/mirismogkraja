@@ -284,7 +284,7 @@ export default function ProductsIndex({
                         </EmptyState>
                     ) : (
                         <>
-                            <CardGrid className="grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                            <CardGrid className="grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 min-[112.5rem]:grid-cols-5 min-[150rem]:grid-cols-6">
                                 {products.data.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} />
                                 ))}
