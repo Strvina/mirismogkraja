@@ -5,7 +5,7 @@ import EmptyState from '@/components/marketplace/empty-state';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
-import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
+import ProductFilters, { type DistrictOption, type ProductFilterValues } from '@/components/marketplace/product-filters';
 import SearchBox from '@/components/marketplace/search-box';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -22,6 +22,7 @@ export default function ProductsIndex({
     categories,
     producers,
     selectedProducer,
+    districts,
     cities,
     priceBounds,
     filters,
@@ -40,6 +41,7 @@ export default function ProductsIndex({
     /** Arrives after the page, once (a deferred prop); until then only the chosen one is known. */
     producers?: { id: number; name: string }[];
     selectedProducer: { id: number; name: string } | null;
+    districts: DistrictOption[];
     cities: string[];
     priceBounds: { min: number; max: number };
     filters: ProductFilterValues;
@@ -190,6 +192,7 @@ export default function ProductsIndex({
                     filters={filters}
                     categories={categories}
                     producers={producers ?? (selectedProducer ? [selectedProducer] : [])}
+                    districts={districts}
                     cities={cities}
                     priceBounds={priceBounds}
                     onChange={update}
@@ -225,13 +228,14 @@ export default function ProductsIndex({
                                 </label>
                                 <CompactSelect
                                     id="sort"
-                                    className="w-44"
+                                    className="w-56"
                                     value={filters.sort ?? ''}
                                     onChange={(value) => update({ sort: value || undefined })}
                                     options={[
                                         { value: '', label: t('Najnovije') },
                                         { value: 'price_asc', label: t('Cena: niža prvo') },
                                         { value: 'price_desc', label: t('Cena: viša prvo') },
+                                        { value: 'rating', label: t('Najbolje ocenjeni proizvođači') },
                                     ]}
                                 />
                             </span>

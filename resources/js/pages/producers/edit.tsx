@@ -1,5 +1,6 @@
 import Head from '@/components/head';
 import InputError from '@/components/input-error';
+import { type SelectOption } from '@/components/marketplace/compact-select';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +21,7 @@ interface GalleryImage {
     caption: string | null;
 }
 
-export default function ProducersEdit({ producer, gallery }: { producer: Producer; gallery: GalleryImage[] }) {
+export default function ProducersEdit({ producer, gallery, districts }: { producer: Producer; gallery: GalleryImage[]; districts: SelectOption[] }) {
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t('Moji proizvođači'), href: '/moji-proizvodjaci' },
         { title: producer.name, href: `/moji-proizvodjaci/${producer.id}/izmena` },
@@ -56,7 +57,13 @@ export default function ProducersEdit({ producer, gallery }: { producer: Produce
             <h1 className="font-serif text-4xl sm:text-5xl">{t('Izmena proizvođača')}</h1>
 
             <div className="mt-8">
-                <ProducerForm producer={producer} action={route('producers.update', producer.id)} method="put" submitLabel={t('Sačuvaj izmene')} />
+                <ProducerForm
+                    producer={producer}
+                    action={route('producers.update', producer.id)}
+                    method="put"
+                    submitLabel={t('Sačuvaj izmene')}
+                    districts={districts}
+                />
             </div>
 
             <section className="mt-16 max-w-xl">

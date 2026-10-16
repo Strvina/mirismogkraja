@@ -13,6 +13,11 @@ const PRODUCERS = [
     { id: 9, name: 'Pčelinjak Rtanj' },
 ];
 
+const DISTRICTS = [
+    { value: 'jablanicki', label: 'Jablanički okrug', cities: ['Leskovac'] },
+    { value: 'nisavski', label: 'Nišavski okrug', cities: ['Aleksinac', 'Niš'] },
+];
+
 function renderFilters(filters: ProductFilterValues = {}, cities = ['Leskovac', 'Niš']) {
     const onChange = vi.fn();
     const onReset = vi.fn();
@@ -22,6 +27,7 @@ function renderFilters(filters: ProductFilterValues = {}, cities = ['Leskovac', 
             filters={filters}
             categories={CATEGORIES}
             producers={PRODUCERS}
+            districts={DISTRICTS}
             cities={cities}
             priceBounds={{ min: 120.5, max: 2499.1 }}
             onChange={onChange}
@@ -212,13 +218,22 @@ describe('ProductFilters', () => {
         it('is counted on the button that opens the panel on a phone', () => {
             renderFilters({ category_id: '7', city: 'Niš', min_price: '300', in_season: '1' });
 
-            expect(toggle()).toHaveTextContent('Filteri (4)');
+            expect(toggle()).toHaveTextContent(/^Filteri4$/);
         });
 
-        it('counts all seven kinds', () => {
-            renderFilters({ category_id: '7', producer_id: '4', city: 'Niš', min_price: '1', max_price: '9', in_stock: '1', in_season: '1' });
+        it('counts all eight kinds', () => {
+            renderFilters({
+                category_id: '7',
+                producer_id: '4',
+                district: 'nisavski',
+                city: 'Niš',
+                min_price: '1',
+                max_price: '9',
+                in_stock: '1',
+                in_season: '1',
+            });
 
-            expect(toggle()).toHaveTextContent('Filteri (7)');
+            expect(toggle()).toHaveTextContent(/^Filteri8$/);
         });
 
         it('does not count the search or the order, which are not filters of this panel', () => {
@@ -235,6 +250,36 @@ describe('ProductFilters', () => {
 
             expect(onReset).toHaveBeenCalledTimes(1);
             expect(onChange).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('district', () => {
+        it('offers the districts something is sold from', async () => {
+            const { user } = renderFilters();
+
+            await user.click(screen.getByLabelText('Okrug'));
+
+            expect(options()).toEqual(['Svi okruzi', 'Jablanički okrug', 'Nišavski okrug']);
+        });
+
+        it('narrows the towns to the chosen district', async () => {
+            const { user } = renderFilters({ district: 'nisavski' });
+
+            await user.click(screen.getByLabelText('Mesto'));
+
+            expect(options()).toEqual(['Sva mesta u okrugu', 'Aleksinac', 'Niš']);
+        });
+
+        it('keeps a town that is in the new district, and lets go of one that is not', async () => {
+            const first = renderFilters({ city: 'Niš' });
+
+            await first.user.click(screen.getByLabelText('Okrug'));
+            await first.user.click(screen.getByRole('menuitemradio', { name: 'Nišavski okrug' }));
+            expect(first.onChange).toHaveBeenLastCalledWith({ district: 'nisavski' });
+
+            await first.user.click(screen.getByLabelText('Okrug'));
+            await first.user.click(screen.getByRole('menuitemradio', { name: 'Jablanički okrug' }));
+            expect(first.onChange).toHaveBeenLastCalledWith({ district: 'jablanicki', city: undefined });
         });
     });
 });

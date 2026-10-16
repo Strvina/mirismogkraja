@@ -1,4 +1,5 @@
 import Head from '@/components/head';
+import { type SelectOption } from '@/components/marketplace/compact-select';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t, tx } from '@/lib/i18n';
 import { type BreadcrumbItem, type Category } from '@/types';
@@ -13,9 +14,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function ProducersCreate({
     founding,
     categories,
+    districts,
 }: {
     founding: { claimed: number; limit: number; remaining: number };
     categories: Category[];
+    districts: SelectOption[];
 }) {
     return (
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
@@ -70,6 +73,7 @@ export default function ProducersCreate({
                     submitLabel={t('Pošalji na odobrenje')}
                     wizard
                     categories={categories}
+                    districts={districts}
                 />
             </div>
         </MarketplaceLayout>

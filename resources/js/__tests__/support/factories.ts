@@ -55,6 +55,7 @@ export function makeProducer(overrides: Partial<Producer> = {}): Producer {
         story: null,
         address: null,
         city: 'Niš',
+        district: 'nisavski',
         phone: null,
         contact_email: null,
         delivery_methods: null,
@@ -71,8 +72,23 @@ export function makeProducer(overrides: Partial<Producer> = {}): Producer {
 
 /** The producer as their public page receives it. */
 export function makePublicProducer(overrides: Partial<PublicProducer> = {}): PublicProducer {
-    const { id, name, slug, founding_number, verified_at, description, story, address, city, contact_email, delivery_methods, lat, lng, ...rest } =
-        makeProducer();
+    const {
+        id,
+        name,
+        slug,
+        founding_number,
+        verified_at,
+        description,
+        story,
+        address,
+        city,
+        district,
+        contact_email,
+        delivery_methods,
+        lat,
+        lng,
+        ...rest
+    } = makeProducer();
 
     return {
         id,
@@ -84,6 +100,7 @@ export function makePublicProducer(overrides: Partial<PublicProducer> = {}): Pub
         story,
         address,
         city,
+        district,
         contact_email,
         delivery_methods,
         lat,

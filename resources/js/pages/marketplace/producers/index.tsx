@@ -6,6 +6,7 @@ import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
+import { type DistrictOption } from '@/components/marketplace/product-filters';
 import SearchBox from '@/components/marketplace/search-box';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -19,6 +20,7 @@ export default function ProducersIndex({
     producers,
     featured,
     mapPoints,
+    districts,
     cities,
     filters,
 }: {
@@ -26,8 +28,9 @@ export default function ProducersIndex({
     featured: ProducerCardProducer[];
     /** Present once the visitor has opened the map. */
     mapPoints?: MapPoint[];
+    districts: DistrictOption[];
     cities: string[];
-    filters: { city: string | null; q: string | null; lat: number | null; lng: number | null; sort: string | null };
+    filters: { district: string | null; city: string | null; q: string | null; lat: number | null; lng: number | null; sort: string | null };
 }) {
     const [showMap, setShowMap] = useState(false);
 
@@ -46,6 +49,7 @@ export default function ProducersIndex({
         router.get(
             '/proizvodjaci',
             {
+                district: next.district || undefined,
                 city: next.city || undefined,
                 q: next.q || undefined,
                 lat: next.lat ?? undefined,
@@ -88,6 +92,15 @@ export default function ProducersIndex({
 
     const filterByCity = (city: string) => visit({ city });
 
+    // Within a district, only its towns; a town from another district goes.
+    const district = districts.find((option) => option.value === filters.district);
+    const towns = district ? district.cities : cities;
+    const filterByDistrict = (value: string) => {
+        const chosen = districts.find((option) => option.value === value);
+
+        visit({ district: value || null, ...(chosen && filters.city && !chosen.cities.includes(filters.city) ? { city: null } : {}) });
+    };
+
     return (
         <MarketplaceLayout>
             <Head title={t('Proizvođači | Vrelina juga')} />
@@ -105,13 +118,26 @@ export default function ProducersIndex({
                     className="w-full sm:w-auto sm:min-w-64 sm:flex-1 lg:max-w-md"
                 />
 
-                {cities.length > 0 && (
+                {districts.length > 0 && (
+                    <CompactSelect
+                        label={t('Filtriraj po okrugu')}
+                        className="h-10 w-full sm:w-56"
+                        value={filters.district ?? ''}
+                        onChange={filterByDistrict}
+                        options={[{ value: '', label: t('Svi okruzi') }, ...districts]}
+                    />
+                )}
+
+                {towns.length > 0 && (
                     <CompactSelect
                         label={t('Filtriraj po mestu')}
                         className="h-10 w-full sm:w-48"
                         value={filters.city ?? ''}
                         onChange={filterByCity}
-                        options={[{ value: '', label: t('Cela Srbija') }, ...cities.map((city) => ({ value: city, label: city }))]}
+                        options={[
+                            { value: '', label: district ? t('Sva mesta u okrugu') : t('Cela Srbija') },
+                            ...towns.map((city) => ({ value: city, label: city })),
+                        ]}
                     />
                 )}
 
@@ -199,8 +225,8 @@ export default function ProducersIndex({
                     className="mt-8"
                     title={filters.q ? t('Nema proizvođača za „:query”', { query: filters.q }) : t('Nema proizvođača za prikaz.')}
                     actions={
-                        (filters.q || filters.city) && (
-                            <Button type="button" variant="outline" onClick={() => visit({ q: null, city: null })}>
+                        (filters.q || filters.city || filters.district) && (
+                            <Button type="button" variant="outline" onClick={() => visit({ q: null, city: null, district: null })}>
                                 {t('Prikaži sve proizvođače')}
                             </Button>
                         )

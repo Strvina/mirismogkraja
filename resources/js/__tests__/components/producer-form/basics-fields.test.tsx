@@ -121,4 +121,28 @@ describe('BasicsFields', () => {
             expect(screen.getByText('Dužina nije ispravna.')).toBeVisible();
         });
     });
+
+    it('lets the producer pick a district, which otherwise comes from the town', async () => {
+        const onData = vi.fn();
+        const user = createUser();
+
+        render(
+            <ProducerFormHarness initial={{}} errors={{}} onData={onData}>
+                {(fields) => <BasicsFields {...fields} districts={[{ value: 'nisavski', label: 'Nišavski okrug' }]} />}
+            </ProducerFormHarness>,
+        );
+
+        expect(screen.getByLabelText('Okrug')).toHaveTextContent('Prema mestu');
+
+        await user.click(screen.getByLabelText('Okrug'));
+        await user.click(screen.getByRole('menuitemradio', { name: 'Nišavski okrug' }));
+
+        expect(onData.mock.lastCall?.[0]).toMatchObject({ district: 'nisavski' });
+    });
+
+    it('does not ask for a district when there are none to offer', () => {
+        renderFields();
+
+        expect(screen.queryByLabelText('Okrug')).not.toBeInTheDocument();
+    });
 });
