@@ -218,6 +218,16 @@ export const router = {
     reload: (options: VisitOptions = {}) => {
         record('get', state.page.url, {}, options, true);
     },
+    /** A visit with no request: the page takes the new address and props at once, as Inertia's does. */
+    push: ({ url, props }: { url?: string; props?: Props | ((current: Props) => Props) }) => {
+        act(() =>
+            publishPage({
+                ...state.page,
+                url: url ?? state.page.url,
+                props: typeof props === 'function' ? props(state.page.props) : { ...state.page.props, ...props },
+            }),
+        );
+    },
     on: (event: string, listener: (event: unknown) => void) => {
         const listeners = state.routerListeners.get(event) ?? new Set();
 

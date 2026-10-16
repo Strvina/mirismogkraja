@@ -2,6 +2,7 @@ import DemoBanner from '@/components/demo-banner';
 import FlashNotice from '@/components/marketplace/flash-notice';
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
+import { QuickViewProvider } from '@/components/marketplace/product-quick-view';
 import VerifyEmailBanner from '@/components/marketplace/verify-email-banner';
 import { t } from '@/lib/i18n';
 import { arrivedFromAnotherPage } from '@/lib/motion';
@@ -31,40 +32,42 @@ export default function MarketplaceLayout({
     const [enter] = useState(arrivedFromAnotherPage);
 
     return (
-        <div className="bg-background paper-grain flex min-h-screen flex-col">
-            <DemoBanner />
-            <Navbar />
-            <VerifyEmailBanner />
-            <FlashNotice />
+        <QuickViewProvider>
+            <div className="bg-background paper-grain flex min-h-screen flex-col">
+                <DemoBanner />
+                <Navbar />
+                <VerifyEmailBanner />
+                <FlashNotice />
 
-            {fullBleed ? (
-                <main id="top" className={cn('flex-1', enter && 'page-enter')}>
-                    {children}
-                </main>
-            ) : (
-                <main className={cn('mx-auto w-full max-w-[1380px] flex-1 px-5 py-12 sm:px-8 lg:px-12', enter && 'page-enter')}>
-                    {breadcrumbs && breadcrumbs.length > 0 && (
-                        <nav aria-label={t('Putanja')} className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
-                            {breadcrumbs.map((crumb, index) => (
-                                <span key={crumb.href} className="flex items-center gap-1.5">
-                                    {index > 0 && <ChevronRight className="size-3.5 opacity-50" />}
-                                    {index === breadcrumbs.length - 1 ? (
-                                        <span className="text-foreground font-medium">{t(crumb.title)}</span>
-                                    ) : (
-                                        <Link href={crumb.href} className="hover:text-foreground transition-colors">
-                                            {t(crumb.title)}
-                                        </Link>
-                                    )}
-                                </span>
-                            ))}
-                        </nav>
-                    )}
+                {fullBleed ? (
+                    <main id="top" className={cn('flex-1', enter && 'page-enter')}>
+                        {children}
+                    </main>
+                ) : (
+                    <main className={cn('mx-auto w-full max-w-[1380px] flex-1 px-5 py-12 sm:px-8 lg:px-12', enter && 'page-enter')}>
+                        {breadcrumbs && breadcrumbs.length > 0 && (
+                            <nav aria-label={t('Putanja')} className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
+                                {breadcrumbs.map((crumb, index) => (
+                                    <span key={crumb.href} className="flex items-center gap-1.5">
+                                        {index > 0 && <ChevronRight className="size-3.5 opacity-50" />}
+                                        {index === breadcrumbs.length - 1 ? (
+                                            <span className="text-foreground font-medium">{t(crumb.title)}</span>
+                                        ) : (
+                                            <Link href={crumb.href} className="hover:text-foreground transition-colors">
+                                                {t(crumb.title)}
+                                            </Link>
+                                        )}
+                                    </span>
+                                ))}
+                            </nav>
+                        )}
 
-                    {children}
-                </main>
-            )}
+                        {children}
+                    </main>
+                )}
 
-            <Footer />
-        </div>
+                <Footer />
+            </div>
+        </QuickViewProvider>
     );
 }

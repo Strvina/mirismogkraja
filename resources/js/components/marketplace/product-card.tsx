@@ -1,11 +1,12 @@
 import { FeaturedLabel } from '@/components/marketplace/plan-badges';
+import { QuickViewLink } from '@/components/marketplace/quick-view-link';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
 import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { Heart, ImageOff } from 'lucide-react';
 
 /** What the catalog sends per card - not the whole product row. */
@@ -44,7 +45,7 @@ export default function ProductCard({
     };
 
     return (
-        <Link
+        <QuickViewLink
             href={route('marketplace.products.show', product.slug)}
             className={cn(
                 'group bg-background flex h-full flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg',
@@ -112,6 +113,6 @@ export default function ProductCard({
                     <span className="text-muted-foreground ml-1 font-sans text-xs">/ {product.unit}</span>
                 </p>
             </div>
-        </Link>
+        </QuickViewLink>
     );
 }

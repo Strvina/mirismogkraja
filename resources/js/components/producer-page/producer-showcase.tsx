@@ -1,3 +1,4 @@
+import { QuickViewLink } from '@/components/marketplace/quick-view-link';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
@@ -89,7 +90,7 @@ export function ProducerProducts({
             ) : (
                 <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
                     {products.map((product) => (
-                        <Link key={product.id} href={route('marketplace.products.show', product.slug)} className="group">
+                        <QuickViewLink key={product.id} href={route('marketplace.products.show', product.slug)} className="group">
                             <div className="bg-muted aspect-square overflow-hidden rounded-md">
                                 {product.images?.[0] && (
                                     <img
@@ -102,7 +103,7 @@ export function ProducerProducts({
                             </div>
                             <p className="mt-2 text-sm font-medium break-words">{product.name}</p>
                             <p className="text-muted-foreground text-sm">{formatPrice(product.price)}</p>
-                        </Link>
+                        </QuickViewLink>
                     ))}
                 </div>
             )}
