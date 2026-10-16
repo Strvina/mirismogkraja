@@ -1,3 +1,4 @@
+import ChatDock from '@/components/chat/chat-dock';
 import DemoBanner from '@/components/demo-banner';
 import FlashNotice from '@/components/marketplace/flash-notice';
 import Footer from '@/components/marketplace/footer';
@@ -7,8 +8,8 @@ import VerifyEmailBanner from '@/components/marketplace/verify-email-banner';
 import { t } from '@/lib/i18n';
 import { arrivedFromAnotherPage } from '@/lib/motion';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
@@ -30,6 +31,7 @@ export default function MarketplaceLayout({
     // Decided once, when the page appears: a page that was loaded and then
     // filtered must not fade in as a whole on the first filter.
     const [enter] = useState(arrivedFromAnotherPage);
+    const signedIn = Boolean(usePage<SharedData>().props.auth.user);
 
     return (
         <QuickViewProvider>
@@ -67,6 +69,9 @@ export default function MarketplaceLayout({
                 )}
 
                 <Footer />
+                {/* Signed in, the chat button sits in the corner: the page's last line ends above it. */}
+                {signedIn && <div className="h-20" aria-hidden />}
+                <ChatDock />
             </div>
         </QuickViewProvider>
     );

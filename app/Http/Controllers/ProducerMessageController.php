@@ -9,11 +9,10 @@ use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\Report;
 use App\Models\User;
+use App\Services\Messaging;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -26,19 +25,12 @@ use Inertia\Response;
 class ProducerMessageController extends Controller
 {
     /**
-     * New conversations one account may start in a day. Far above what a
-     * buyer asking around needs; far below what it takes to message every
-     * producer on the site.
-     */
-    public const NEW_CONVERSATIONS_PER_DAY = 20;
-
-    /**
      * Start a conversation from a product page. The product is recorded on
      * the message so the thread shows what the first question was about;
      * everything after it - quantity, price, delivery - the two sides agree
      * on between themselves, so no order or fulfilment state is created.
      */
-    public function storeInquiry(Request $request, Product $product): RedirectResponse
+    public function storeInquiry(Request $request, Product $product, Messaging $messaging): RedirectResponse
     {
         $product->load('producer');
 
@@ -47,15 +39,8 @@ class ProducerMessageController extends Controller
         abort_if($product->producer->hasBlocked($request->user()), 403);
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
-        $this->countNewConversation($request->user(), $product->producer);
 
-        ProducerMessage::create([
-            'producer_id' => $product->producer_id,
-            'product_id' => $product->id,
-            'buyer_id' => $request->user()->id,
-            'sender_id' => $request->user()->id,
-            'body' => $data['body'],
-        ]);
+        $messaging->send($request->user(), $product->producer, $request->user(), $data['body'], ['product_id' => $product->id]);
 
         return to_route('messages.show', $product->producer->slug);
     }
@@ -64,7 +49,7 @@ class ProducerMessageController extends Controller
      * One thread, from whichever side is looking at it. Opening it marks the
      * other side's messages as read.
      */
-    public function show(Request $request, Producer $producer, ?User $buyer = null): Response
+    public function show(Request $request, Producer $producer, Messaging $messaging, ?User $buyer = null): Response
     {
         $buyer ??= $request->user();
 
@@ -74,14 +59,7 @@ class ProducerMessageController extends Controller
         // badge. The pages that show those are kept honest on the client:
         // see resources/js/lib/revalidate-on-history-navigation.ts, since a
         // page restored by the Back button never reaches the server at all.
-        $read = ProducerMessage::thread($producer, $buyer)
-            ->where('sender_id', '!=', $request->user()->id)
-            ->whereNull('read_at')
-            ->update(['read_at' => now()]);
-
-        if ($read > 0) {
-            Conversation::markRead($producer->id, $buyer->id, byBuyer: $request->user()->id === $buyer->id);
-        }
+        $messaging->markRead($request->user(), $producer, $buyer);
 
         return Inertia::render('messages/show', [
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
@@ -114,8 +92,7 @@ class ProducerMessageController extends Controller
             // the page is flipped back to chronological order below, and
             // "older messages" therefore means the next page.
             'messages' => tap(ProducerMessage::thread($producer, $buyer)
-                // Only each product's main photo: the thread shows one.
-                ->with(['sender:id,name,avatar_path', 'wantedAd:id,title', 'product:id,name,slug,price,unit', 'product.images' => fn ($images) => $images->orderBy('order')->limit(1)])
+                ->with(Messaging::presentedWith())
                 ->latest('id')
                 // Simple pagination: the page only needs to know whether
                 // there are older messages, and the thread is re-read every
@@ -123,29 +100,11 @@ class ProducerMessageController extends Controller
                 // waste.
                 ->simplePaginate(50)
                 ->withQueryString()
-                ->through(fn (ProducerMessage $message) => [
-                    'id' => $message->id,
-                    'body' => $message->body,
-                    'created_at' => $message->created_at,
-                    'mine' => $message->sender_id === $request->user()->id,
-                    'sender' => $message->sender->only(['id', 'name', 'avatar_path']),
-                    // The thumbnail and price ride along so the thread shows
-                    // what was asked about, not just its name.
-                    'product' => $message->product === null ? null : [
-                        'id' => $message->product->id,
-                        'name' => $message->product->name,
-                        'slug' => $message->product->slug,
-                        'price' => $message->product->price,
-                        'unit' => $message->product->unit,
-                        'image' => $message->product->images->first()?->path,
-                    ],
-                    // A producer's answer to a "Tražim" ad says which one.
-                    'wanted_ad' => $message->wantedAd?->only(['id', 'title']),
-                ]), fn (Paginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
+                ->through(fn (ProducerMessage $message) => $messaging->present($message, $request->user())), fn (Paginator $page) => $page->setCollection($page->getCollection()->reverse()->values())),
         ]);
     }
 
-    public function store(Request $request, Producer $producer, ?User $buyer = null): RedirectResponse
+    public function store(Request $request, Producer $producer, Messaging $messaging, ?User $buyer = null): RedirectResponse
     {
         $buyer ??= $request->user();
 
@@ -153,47 +112,8 @@ class ProducerMessageController extends Controller
 
         $data = $request->validate(['body' => ['required', 'string', 'max:2000']]);
 
-        if ($producer->user_id !== $request->user()->id) {
-            $this->countNewConversation($request->user(), $producer);
-        }
-
-        ProducerMessage::create([
-            'producer_id' => $producer->id,
-            'buyer_id' => $buyer->id,
-            'sender_id' => $request->user()->id,
-            'body' => $data['body'],
-        ]);
+        $messaging->send($request->user(), $producer, $buyer, $data['body']);
 
         return back();
-    }
-
-    /**
-     * What applies to a first message to a producer and not to one in a
-     * conversation that already exists: the producer has to be taking new
-     * inquiries, and it counts against the buyer's allowance for the day.
-     */
-    private function countNewConversation(User $buyer, Producer $producer): void
-    {
-        if (ProducerMessage::thread($producer, $buyer)->exists()) {
-            return;
-        }
-
-        // The page says so and hides the form; this is for a form left open
-        // from before the pause.
-        if ($producer->isPaused()) {
-            throw ValidationException::withMessages([
-                'body' => __('Proizvođač trenutno ne prima nove upite. Zapratite ga i javićemo vam kad se vrati.'),
-            ]);
-        }
-
-        $key = 'new-conversations:'.$buyer->id;
-
-        if (RateLimiter::tooManyAttempts($key, self::NEW_CONVERSATIONS_PER_DAY)) {
-            throw ValidationException::withMessages([
-                'body' => __('Danas ste započeli dosta novih razgovora. Novi možete sutra, a postojeći možete da nastavite.'),
-            ]);
-        }
-
-        RateLimiter::hit($key, 24 * 60 * 60);
     }
 }

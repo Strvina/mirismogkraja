@@ -1,3 +1,4 @@
+import ChatLink from '@/components/chat/chat-link';
 import FavoriteButton from '@/components/favorite-button';
 import InfoHint from '@/components/info-hint';
 import { PremiumBadge } from '@/components/marketplace/plan-badges';
@@ -137,10 +138,10 @@ export default function ProducerHeader({
                 )}
                 {canMessage && (
                     <Button asChild variant="outline" size="sm">
-                        <Link href={route('messages.show', producer.slug)}>
+                        <ChatLink producer={producer}>
                             <MessageCircle className="size-4" />
                             {t('Pošalji poruku')}
-                        </Link>
+                        </ChatLink>
                     </Button>
                 )}
                 {canFavorite && <FavoriteButton type="producer" id={producer.id} isFavorited={isFavorited} />}

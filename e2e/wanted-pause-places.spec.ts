@@ -49,10 +49,10 @@ test('a town and a month each have a page of their own', async ({ page }) => {
     await expect(page).toHaveURL(/\/mesto\/nis\/.+/);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('— Niš');
 
-    // And back from a product: its producer's town is a link to the place.
+    // And back from a product - opened over the list - its producer's town is a link to the place.
     await page.locator('main a[href*="/proizvod/"]').first().click();
     await expect(page).toHaveURL(/\/proizvod\//);
-    await page.getByRole('main').getByRole('link', { name: 'Niš', exact: true }).click();
+    await page.getByRole('dialog').getByRole('link', { name: 'Niš', exact: true }).click();
     await expect(page).toHaveURL(/\/mesto\/nis$/);
 
     await page.goto('/sezona');
@@ -111,9 +111,11 @@ test('a buyer says what they are looking for, a producer answers, and it becomes
         await switchTo(page, accounts.buyer);
         await page.goto(adUrl);
         await expect(page.getByRole('heading', { name: 'Ko se javio' })).toBeVisible();
+        // In the chat window, on the ad's own page.
         await page.getByRole('link', { name: 'Otvori razgovor' }).click();
-        await expect(page).toHaveURL(/\/poruke\//);
-        await expect(page.getByText(offer)).toBeVisible();
+        await expect(page).toHaveURL(adUrl);
+        await expect(page.getByRole('dialog', { name: 'Razgovor' }).getByText(offer)).toBeVisible();
+        await page.getByRole('dialog', { name: 'Razgovor' }).getByRole('button', { name: 'Zatvori razgovor' }).click();
 
         await page.goto(adUrl);
         await page.getByRole('button', { name: /zatvori oglas/ }).click();
@@ -154,11 +156,13 @@ test('a producer on a pause stays visible and takes no new inquiries', async ({ 
         await expect(page.getByText('Trenutno ne prima nove upite.')).toBeVisible();
         await expect(page.getByText(note)).toBeVisible();
 
+        // The product, opened over the producer's page, says the same.
         await page.locator('main a[href*="/proizvod/"]').first().click();
         await expect(page).toHaveURL(/\/proizvod\//);
-        await expect(page.getByText('Trenutno ne prima nove upite.')).toBeVisible();
-        await expect(page.getByText('i javićemo vam kad se vrati.')).toBeVisible();
-        await expect(page.getByRole('link', { name: 'Prijavite se da pošaljete upit' })).toHaveCount(0);
+        const product = page.getByRole('dialog');
+        await expect(product.getByText('Trenutno ne prima nove upite.')).toBeVisible();
+        await expect(product.getByText('i javićemo vam kad se vrati.')).toBeVisible();
+        await expect(product.getByRole('link', { name: 'Prijavite se da pošaljete upit' })).toHaveCount(0);
     } finally {
         // Back to taking inquiries, whatever happened above: other tests write to this producer.
         await logIn(page, accounts.gardener);

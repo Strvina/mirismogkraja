@@ -227,6 +227,9 @@ class PrivateRouteInventoryTest extends TestCase
             'messages.thread.store' => [$producer, $this->buyer],
             'messages.block' => [$producer, $this->buyer],
             'messages.outcome' => [$producer, $this->buyer],
+            // The chat window's way into the same thread.
+            'chat.thread' => [$producer, $this->buyer],
+            'chat.send' => [$producer, $this->buyer],
 
             'reviews.reply' => $review,
             'reviews.destroy' => $review,

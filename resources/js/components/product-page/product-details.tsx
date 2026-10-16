@@ -1,3 +1,4 @@
+import ChatLink from '@/components/chat/chat-link';
 import FavoriteButton from '@/components/favorite-button';
 import FormErrors from '@/components/form-errors';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
@@ -240,12 +241,9 @@ export default function ProductDetails({
                         {noInquiry === 'blocked' && (
                             <p className="text-muted-foreground text-sm">
                                 {t('Razgovor sa ovim proizvođačem je zatvoren, pa mu ne možete poslati upit.')}{' '}
-                                <Link
-                                    href={route('messages.show', product.producer.slug)}
-                                    className="text-foreground font-medium underline underline-offset-4"
-                                >
+                                <ChatLink producer={product.producer} className="text-foreground font-medium underline underline-offset-4">
                                     {t('Otvorite razgovor')}
-                                </Link>
+                                </ChatLink>
                             </p>
                         )}
 

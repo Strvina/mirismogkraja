@@ -218,6 +218,10 @@ export const router = {
     reload: (options: VisitOptions = {}) => {
         record('get', state.page.url, {}, options, true);
     },
+    /** One prop changed in place, with no request - as Inertia's replaceProp. */
+    replaceProp: (name: string, value: unknown) => {
+        act(() => publishPage({ ...state.page, props: { ...state.page.props, [name]: value } }));
+    },
     /** A visit with no request: the page takes the new address and props at once, as Inertia's does. */
     push: ({ url, props }: { url?: string; props?: Props | ((current: Props) => Props) }) => {
         act(() =>

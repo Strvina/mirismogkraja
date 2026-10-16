@@ -1,3 +1,4 @@
+import ChatLink from '@/components/chat/chat-link';
 import Head from '@/components/head';
 import InputError from '@/components/input-error';
 import CompactSelect from '@/components/marketplace/compact-select';
@@ -125,7 +126,7 @@ export default function WantedShow({
                                             </span>
                                         </Link>
                                         <Button asChild variant="outline" size="sm">
-                                            <Link href={route('messages.show', producer.slug)}>{t('Otvori razgovor')}</Link>
+                                            <ChatLink producer={producer}>{t('Otvori razgovor')}</ChatLink>
                                         </Button>
                                     </li>
                                 ))}
