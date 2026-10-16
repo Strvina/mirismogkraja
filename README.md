@@ -11,7 +11,9 @@ The platform earns from producers: memberships (Basic, Premium, Pro), paid boost
 product, and seasonal campaigns. All of it is paid by bank slip with an IPS QR code, and an
 administrator confirms the payment.
 
-The site has not been launched yet. A demo with made-up producers runs as a single container on a free host, with one-click sign-in as a buyer, a producer or the administrator: see [docs/demo.md](docs/demo.md).
+**Demo: [vrelina-juga-demo.onrender.com](https://vrelina-juga-demo.onrender.com)**, with made-up producers and one-click sign-in as a buyer, a producer or the administrator. It runs on a free host that sleeps when nobody visits, so the first page can take about a minute; [docs/demo.md](docs/demo.md) says how it is built.
+
+The site itself has not been launched yet.
 
 | | |
 | --- | --- |

@@ -10,7 +10,7 @@ Platforma zarađuje od proizvođača. Postoje članarine (Basic, Premium, Pro), 
 profila ili proizvoda i sezonske kampanje. Sve se plaća uplatnicom sa IPS QR kodom, a admin
 potvrđuje uplatu.
 
-Javni demo sa izmišljenim proizvođačima i demo nalozima za prijavu opisan je u [docs/demo.md](docs/demo.md).
+**Demo: [vrelina-juga-demo.onrender.com](https://vrelina-juga-demo.onrender.com)**, sa izmišljenim proizvođačima i prijavom jednim klikom kao kupac, proizvođač ili administrator. Besplatan hosting se uspava kad nema posetilaca, pa prva strana može da se otvara oko minut. Kako je napravljen: [docs/demo.md](docs/demo.md).
 
 ## Ko šta može
 
