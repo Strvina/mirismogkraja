@@ -1,34 +1,61 @@
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
+import { cn } from '@/lib/utils';
 import { type Product } from '@/types';
 import { Link } from '@inertiajs/react';
 
-/** The producer's gallery: photos of the place and the work, with captions. */
-export function ProducerGallery({ images }: { images: { id: number; path: string; caption: string | null }[] }) {
+/**
+ * The producer's photos of the place and the work. On a phone a row to
+ * swipe through, each photo most of the screen wide with the next one
+ * showing at the edge; from a tablet up a mosaic, the first photo large,
+ * with the captions laid over the foot of each.
+ */
+export function ProducerGallery({ images, className }: { images: { id: number; path: string; caption: string | null }[]; className?: string }) {
     if (images.length === 0) {
         return null;
     }
 
+    // A mosaic that closes without a hole, whatever the number of photos.
+    const grid = { 1: 'sm:grid-cols-1', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3' }[images.length] ?? 'sm:grid-cols-4';
+
     return (
-        <section className="mt-12">
-            <h2 className="font-serif text-2xl">{t('Galerija')}</h2>
-            <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                {images.map((image) => (
-                    <figure key={image.id} className="group">
-                        <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md">
-                            <img
-                                src={thumbUrl(image.path)}
-                                alt={image.caption ?? ''}
-                                loading="lazy"
-                                className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
-                        </div>
-                        {image.caption && <figcaption className="text-muted-foreground mt-2 text-xs leading-5">{image.caption}</figcaption>}
-                    </figure>
-                ))}
-            </div>
-        </section>
+        <div
+            role="region"
+            aria-label={t('Galerija')}
+            tabIndex={0}
+            className={cn(
+                '-mx-5 flex snap-x snap-mandatory scroll-px-5 [scrollbar-width:none] gap-3 overflow-x-auto px-5 pb-2 sm:mx-0 sm:grid sm:scroll-px-0 sm:auto-rows-[9rem] sm:overflow-visible sm:px-0 sm:pb-0 lg:auto-rows-[11rem] [&::-webkit-scrollbar]:hidden',
+                grid,
+                className,
+            )}
+        >
+            {images.map((image, index) => (
+                <figure
+                    key={image.id}
+                    className={cn(
+                        'group relative w-[80%] shrink-0 snap-start sm:w-auto',
+                        index === 0 && images.length > 2 && 'sm:col-span-2 sm:row-span-2',
+                        images.length <= 2 && 'sm:row-span-2',
+                        index === 3 && images.length === 4 && 'sm:col-span-2',
+                    )}
+                >
+                    <div className="bg-muted aspect-[4/3] overflow-hidden rounded-md sm:aspect-auto sm:h-full">
+                        <img
+                            src={thumbUrl(image.path)}
+                            alt={image.caption ?? ''}
+                            loading="lazy"
+                            className="image-warm size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                    </div>
+                    {image.caption && (
+                        <figcaption className="text-muted-foreground sm:text-on-photo mt-2 text-xs leading-5 sm:absolute sm:inset-x-0 sm:bottom-0 sm:mt-0 sm:rounded-b-md sm:bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_80%,transparent),transparent)] sm:px-3 sm:pt-8 sm:pb-2">
+                            {image.caption}
+                        </figcaption>
+                    )}
+                </figure>
+            ))}
+        </div>
     );
 }
 

@@ -1,4 +1,5 @@
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { formatDays, todayWeekday } from '@/lib/weekdays';
 import { type ProducerMarket } from '@/types';
 import { CalendarDays, Clock, MapPin } from 'lucide-react';
@@ -8,7 +9,7 @@ import { CalendarDays, Clock, MapPin } from 'lucide-react';
  * person. A place they are at today is marked, since that is the one a
  * visitor can still walk to.
  */
-export default function MarketList({ markets }: { markets: ProducerMarket[] }) {
+export default function MarketList({ markets, className }: { markets: ProducerMarket[]; className?: string }) {
     if (markets.length === 0) {
         return null;
     }
@@ -16,9 +17,9 @@ export default function MarketList({ markets }: { markets: ProducerMarket[] }) {
     const today = todayWeekday();
 
     return (
-        <section id="pijace" className="mt-12 max-w-2xl scroll-mt-28">
+        <section id="pijace" className={cn('@container mt-12 max-w-2xl scroll-mt-28', className)}>
             <h2 className="font-serif text-2xl">{t('Gde me nađete')}</h2>
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            <ul className="mt-4 grid gap-3 @lg:grid-cols-2">
                 {markets.map((market) => (
                     <li key={market.id} className="border-border/70 rounded-lg border p-4 text-sm">
                         <div className="flex flex-wrap items-start justify-between gap-2">

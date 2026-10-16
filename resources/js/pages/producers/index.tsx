@@ -86,11 +86,33 @@ export default function ProducersIndex({
                     <div className="grid gap-4 md:grid-cols-2">
                         {producers.map((producer) => (
                             <div key={producer.id} className="rounded-xl border p-4">
-                                {producer.cover_image_path && (
-                                    <img src={thumbUrl(producer.cover_image_path)} alt="" className="mb-3 h-32 w-full rounded-md object-cover" />
-                                )}
-                                <div className="flex items-start justify-between">
-                                    <h2 className="font-serif text-lg">{producer.name}</h2>
+                                {/* The page as buyers see it, once it is public. */}
+                                {producer.cover_image_path &&
+                                    (producer.status === 'active' ? (
+                                        <Link href={route('marketplace.producers.show', producer.slug)} tabIndex={-1} aria-hidden>
+                                            <img
+                                                src={thumbUrl(producer.cover_image_path)}
+                                                alt=""
+                                                className="mb-3 h-32 w-full rounded-md object-cover"
+                                            />
+                                        </Link>
+                                    ) : (
+                                        <img src={thumbUrl(producer.cover_image_path)} alt="" className="mb-3 h-32 w-full rounded-md object-cover" />
+                                    ))}
+                                <div className="flex items-start justify-between gap-3">
+                                    <h2 className="font-serif text-lg">
+                                        {producer.status === 'active' ? (
+                                            <Link
+                                                href={route('marketplace.producers.show', producer.slug)}
+                                                className="underline-offset-4 hover:underline"
+                                                title={t('Otvori stranicu kako je vide kupci')}
+                                            >
+                                                {producer.name}
+                                            </Link>
+                                        ) : (
+                                            producer.name
+                                        )}
+                                    </h2>
                                     <span className="bg-muted rounded-full px-2 py-1 text-xs">{t(statusLabels[producer.status])}</span>
                                 </div>
                                 {producer.city && <p className="text-muted-foreground mt-1 text-sm">{producer.city}</p>}

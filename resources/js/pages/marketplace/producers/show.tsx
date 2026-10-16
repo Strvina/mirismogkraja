@@ -169,45 +169,67 @@ export default function ProducerShow({
                 </nav>
             )}
 
-            <ContactCard producer={producer} phone={phone} />
-            <LocationLinks producer={producer} />
+            {/* Two columns from a laptop up: what the producer is and makes
+                on the left, how to reach them on the right, staying in view
+                while the left is read. On a phone the contact comes straight
+                after the introduction, then the products. */}
+            <div className="mt-8 grid items-start gap-x-12 gap-y-10 lg:grid-cols-[minmax(0,1fr)_22rem]">
+                {(producer.description || (producer.delivery_methods && producer.delivery_methods.length > 0)) && (
+                    <div className="min-w-0 lg:col-start-1">
+                        {producer.description && <p className="max-w-2xl text-base leading-8">{producer.description}</p>}
 
-            {producer.description && <p className="text-muted-foreground mt-6 max-w-2xl leading-7">{producer.description}</p>}
+                        {producer.delivery_methods && producer.delivery_methods.length > 0 && (
+                            <div className="mt-5 flex flex-wrap items-center gap-2">
+                                <span className="text-muted-foreground flex items-center gap-1.5 text-sm">
+                                    <Truck className="size-4" />
+                                    {t('Način dostave:')}
+                                </span>
+                                {producer.delivery_methods.map((method) => (
+                                    <span key={method} className="bg-olive-soft text-olive rounded-full px-3 py-1 text-xs font-medium">
+                                        {deliveryMethodLabel(method)}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
 
-            {producer.delivery_methods && producer.delivery_methods.length > 0 && (
-                <div className="mt-6 flex flex-wrap items-center gap-2">
-                    <span className="text-muted-foreground flex items-center gap-1.5 text-sm">
-                        <Truck className="size-4" />
-                        {t('Način dostave:')}
-                    </span>
-                    {producer.delivery_methods.map((method) => (
-                        <span key={method} className="bg-olive-soft text-olive rounded-full px-3 py-1 text-xs font-medium">
-                            {deliveryMethodLabel(method)}
-                        </span>
-                    ))}
+                <aside className="min-w-0 lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+                    <div className="bg-card/60 border-border/70 space-y-8 rounded-xl border p-5">
+                        <div>
+                            <h2 className="font-serif text-xl">{t('Kontakt')}</h2>
+                            <ContactCard producer={producer} phone={phone} className="mt-3" />
+                            <LocationLinks producer={producer} />
+                        </div>
+                        <MarketList markets={markets} className="mt-0" />
+                        <CertificateList certificates={certificates} className="mt-0" />
+                    </div>
+                </aside>
+
+                <div className="min-w-0 lg:col-start-1">
+                    <ProducerProducts producerId={producer.id} producerSlug={producer.slug} products={products} total={productsCount} />
+
+                    {(producer.story || gallery.length > 0) && (
+                        <section className="mt-14">
+                            <h2 className="font-serif text-2xl">{producer.story ? t('Kako nastaje') : t('Galerija')}</h2>
+                            {producer.story && (
+                                <p className="text-muted-foreground mt-3 max-w-2xl leading-7 break-words whitespace-pre-line">{producer.story}</p>
+                            )}
+                            <ProducerGallery images={gallery} className="mt-6" />
+                        </section>
+                    )}
+
+                    <ProducerPosts posts={posts} producerSlug={producer.slug} />
+                    <ReviewsSection
+                        producer={producer}
+                        reviews={reviews}
+                        myPendingReview={myPendingReview}
+                        canReview={canReview}
+                        canReply={canReply}
+                        signedIn={Boolean(auth.user)}
+                    />
                 </div>
-            )}
-
-            {producer.story && (
-                <section className="mt-12 max-w-2xl">
-                    <h2 className="font-serif text-2xl">{t('Kako nastaje')}</h2>
-                    <p className="text-muted-foreground mt-3 leading-7 break-words whitespace-pre-line">{producer.story}</p>
-                </section>
-            )}
-
-            <CertificateList certificates={certificates} />
-            <MarketList markets={markets} />
-            <ProducerGallery images={gallery} />
-            <ProducerProducts producerId={producer.id} producerSlug={producer.slug} products={products} total={productsCount} />
-            <ProducerPosts posts={posts} producerSlug={producer.slug} />
-            <ReviewsSection
-                producer={producer}
-                reviews={reviews}
-                myPendingReview={myPendingReview}
-                canReview={canReview}
-                canReply={canReply}
-                signedIn={Boolean(auth.user)}
-            />
+            </div>
         </MarketplaceLayout>
     );
 }
