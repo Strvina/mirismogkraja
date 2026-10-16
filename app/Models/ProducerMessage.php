@@ -24,11 +24,6 @@ use Illuminate\Support\Carbon;
  * @property-read WantedAd|null $wantedAd
  * @property-read User|null $buyer
  * @property-read User|null $sender
- *
- * Not columns: selected only by the inbox's grouped query, one row per
- * conversation (MessageInboxController::threadSummaries).
- * @property-read int|null $last_message_id
- * @property-read int|string|null $unread_count
  */
 class ProducerMessage extends Model
 {
@@ -41,6 +36,12 @@ class ProducerMessage extends Model
         'body',
         'read_at',
     ];
+
+    protected static function booted(): void
+    {
+        // The conversation's summary (App\Models\Conversation) follows every new message.
+        static::created(fn (self $message) => Conversation::recordMessage($message));
+    }
 
     /** @return array<string, string> */
     protected function casts(): array

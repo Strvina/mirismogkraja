@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
 use App\Models\InquiryOutcome;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\User;
-use Closure;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -31,12 +31,7 @@ class MessageInboxController extends Controller
         $user = $request->user();
         $ownedProducerIds = $user->producers()->pluck('id');
 
-        $threads = $this->threadSummaries(
-            $user,
-            fn ($query) => $query->where(fn ($inner) => $inner
-                ->where('buyer_id', $user->id)
-                ->orWhereIn('producer_id', $ownedProducerIds))
-        );
+        $threads = $this->threadSummaries($user, $ownedProducerIds);
 
         // The producer's own note on each of their threads on this page, in one query.
         $outcomes = InquiryOutcome::query()
@@ -71,43 +66,38 @@ class MessageInboxController extends Controller
     }
 
     /**
-     * A thread is a (producer, buyer) pair rather than a table of its own, so
-     * its summary is aggregated in one grouped query: the id of its newest
-     * message and how many of them the viewer hasn't read. Using max(id) -
-     * not max(created_at) - makes "last message" unambiguous when a reply
-     * lands in the same second as the message it answers, and it keeps the
-     * whole inbox to two queries instead of loading every message of every
-     * conversation into memory.
+     * The viewer's conversations, newest first, each with its last message
+     * and how many of the other side's messages the viewer hasn't read: one
+     * row each in `conversations`, kept current as messages are written and
+     * read (see App\Models\Conversation), rather than every message the
+     * viewer ever exchanged grouped on every visit.
      *
-     * Paginated, newest conversation first: a busy producer's inbox holds
-     * thousands of them, and only a page is ever on screen.
+     * Paginated: a busy producer's inbox holds thousands of them, and only
+     * a page is ever on screen.
      *
-     * @param  Closure(Builder<ProducerMessage>): mixed  $scope
+     * @param  Collection<int, int>  $ownedProducerIds
      * @return LengthAwarePaginator<int, array{message: ProducerMessage, unread: int}>
      */
-    private function threadSummaries(User $viewer, Closure $scope): LengthAwarePaginator
+    private function threadSummaries(User $viewer, Collection $ownedProducerIds): LengthAwarePaginator
     {
-        $aggregates = ProducerMessage::query()
-            ->tap($scope)
-            ->selectRaw('max(id) as last_message_id')
-            ->selectRaw('sum(case when sender_id != ? and read_at is null then 1 else 0 end) as unread_count', [$viewer->id])
-            ->groupBy('producer_id', 'buyer_id')
+        $conversations = Conversation::query()
+            ->whereNotNull('last_message_id')
+            // Someone who owns no producer is only ever the buyer: no OR,
+            // so the index on buyer_id answers it alone.
+            ->when(
+                $ownedProducerIds->isEmpty(),
+                fn ($query) => $query->where('buyer_id', $viewer->id),
+                fn ($query) => $query->where(fn ($inner) => $inner->where('buyer_id', $viewer->id)->orWhereIn('producer_id', $ownedProducerIds)),
+            )
             ->orderByDesc('last_message_id')
+            ->with(['lastMessage.producer:id,name,slug,logo_path', 'lastMessage.buyer:id,name,avatar_path'])
             ->paginate(self::THREADS_PER_PAGE);
 
-        $messages = ProducerMessage::query()
-            ->whereIn('id', $aggregates->pluck('last_message_id'))
-            ->with(['producer:id,name,slug,logo_path', 'buyer:id,name,avatar_path'])
-            ->get()
-            ->keyBy('id');
-
-        // Every id asked for above was just read from the same table; a
-        // key that is not there throws, it does not come back as null.
         /** @var LengthAwarePaginator<int, array{message: ProducerMessage, unread: int}> */
-        return $aggregates->through(fn ($row) => [
-            'message' => $messages[$row->last_message_id],
-            // SQLite hands sum() back as a string.
-            'unread' => (int) $row->unread_count,
+        return $conversations->through(fn (Conversation $conversation) => [
+            // whereNotNull above: every row here has its last message.
+            'message' => $conversation->lastMessage,
+            'unread' => $ownedProducerIds->contains($conversation->producer_id) ? $conversation->unread_by_producer : $conversation->unread_by_buyer,
         ]);
     }
 }

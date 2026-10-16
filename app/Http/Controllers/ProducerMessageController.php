@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
 use App\Models\InquiryOutcome;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
@@ -73,10 +74,14 @@ class ProducerMessageController extends Controller
         // badge. The pages that show those are kept honest on the client:
         // see resources/js/lib/revalidate-on-history-navigation.ts, since a
         // page restored by the Back button never reaches the server at all.
-        ProducerMessage::thread($producer, $buyer)
+        $read = ProducerMessage::thread($producer, $buyer)
             ->where('sender_id', '!=', $request->user()->id)
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
+
+        if ($read > 0) {
+            Conversation::markRead($producer->id, $buyer->id, byBuyer: $request->user()->id === $buyer->id);
+        }
 
         return Inertia::render('messages/show', [
             'producer' => $producer->only(['id', 'name', 'slug', 'logo_path']),
