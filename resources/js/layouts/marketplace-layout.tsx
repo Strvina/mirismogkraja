@@ -1,13 +1,15 @@
+import ChatDock from '@/components/chat/chat-dock';
 import DemoBanner from '@/components/demo-banner';
 import FlashNotice from '@/components/marketplace/flash-notice';
 import Footer from '@/components/marketplace/footer';
 import Navbar from '@/components/marketplace/navbar';
+import { QuickViewProvider } from '@/components/marketplace/product-quick-view';
 import VerifyEmailBanner from '@/components/marketplace/verify-email-banner';
 import { t } from '@/lib/i18n';
 import { arrivedFromAnotherPage } from '@/lib/motion';
 import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
-import { Link } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
@@ -29,42 +31,48 @@ export default function MarketplaceLayout({
     // Decided once, when the page appears: a page that was loaded and then
     // filtered must not fade in as a whole on the first filter.
     const [enter] = useState(arrivedFromAnotherPage);
+    const signedIn = Boolean(usePage<SharedData>().props.auth.user);
 
     return (
-        <div className="bg-background paper-grain flex min-h-screen flex-col">
-            <DemoBanner />
-            <Navbar />
-            <VerifyEmailBanner />
-            <FlashNotice />
+        <QuickViewProvider>
+            <div className="bg-background paper-grain flex min-h-screen flex-col">
+                <DemoBanner />
+                <Navbar />
+                <VerifyEmailBanner />
+                <FlashNotice />
 
-            {fullBleed ? (
-                <main id="top" className={cn('flex-1', enter && 'page-enter')}>
-                    {children}
-                </main>
-            ) : (
-                <main className={cn('max-w-page mx-auto w-full flex-1 px-5 py-12 sm:px-8 lg:px-12', enter && 'page-enter')}>
-                    {breadcrumbs && breadcrumbs.length > 0 && (
-                        <nav aria-label={t('Putanja')} className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
-                            {breadcrumbs.map((crumb, index) => (
-                                <span key={crumb.href} className="flex items-center gap-1.5">
-                                    {index > 0 && <ChevronRight className="size-3.5 opacity-50" />}
-                                    {index === breadcrumbs.length - 1 ? (
-                                        <span className="text-foreground font-medium">{t(crumb.title)}</span>
-                                    ) : (
-                                        <Link href={crumb.href} className="hover:text-foreground transition-colors">
-                                            {t(crumb.title)}
-                                        </Link>
-                                    )}
-                                </span>
-                            ))}
-                        </nav>
-                    )}
+                {fullBleed ? (
+                    <main id="top" className={cn('flex-1', enter && 'page-enter')}>
+                        {children}
+                    </main>
+                ) : (
+                    <main className={cn('max-w-page mx-auto w-full flex-1 px-5 py-12 sm:px-8 lg:px-12', enter && 'page-enter')}>
+                        {breadcrumbs && breadcrumbs.length > 0 && (
+                            <nav aria-label={t('Putanja')} className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
+                                {breadcrumbs.map((crumb, index) => (
+                                    <span key={crumb.href} className="flex items-center gap-1.5">
+                                        {index > 0 && <ChevronRight className="size-3.5 opacity-50" />}
+                                        {index === breadcrumbs.length - 1 ? (
+                                            <span className="text-foreground font-medium">{t(crumb.title)}</span>
+                                        ) : (
+                                            <Link href={crumb.href} className="hover:text-foreground transition-colors">
+                                                {t(crumb.title)}
+                                            </Link>
+                                        )}
+                                    </span>
+                                ))}
+                            </nav>
+                        )}
 
-                    {children}
-                </main>
-            )}
+                        {children}
+                    </main>
+                )}
 
-            <Footer />
-        </div>
+                <Footer />
+                {/* Signed in, the chat button sits in the corner: the page's last line ends above it. */}
+                {signedIn && <div className="h-20" aria-hidden />}
+                <ChatDock />
+            </div>
+        </QuickViewProvider>
     );
 }

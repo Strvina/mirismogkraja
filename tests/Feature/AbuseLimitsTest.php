@@ -2,13 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\ProducerMessageController;
 use App\Jobs\NotifyFollowersOfProduct;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\ProducerMessage;
 use App\Models\Product;
 use App\Models\User;
+use App\Services\Messaging;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -104,9 +104,9 @@ class AbuseLimitsTest extends TestCase
     public function test_an_account_can_start_only_so_many_new_conversations_a_day_but_keep_existing_ones(): void
     {
         $buyer = User::factory()->create();
-        $producers = Producer::factory()->active()->count(ProducerMessageController::NEW_CONVERSATIONS_PER_DAY + 1)->create();
+        $producers = Producer::factory()->active()->count(Messaging::NEW_CONVERSATIONS_PER_DAY + 1)->create();
 
-        foreach ($producers->take(ProducerMessageController::NEW_CONVERSATIONS_PER_DAY) as $producer) {
+        foreach ($producers->take(Messaging::NEW_CONVERSATIONS_PER_DAY) as $producer) {
             $this->actingAs($buyer)->post(route('messages.store', $producer->slug), ['body' => 'Zdravo'])->assertSessionHasNoErrors();
         }
 
@@ -116,7 +116,7 @@ class AbuseLimitsTest extends TestCase
 
         // An existing conversation is not a new one.
         $this->actingAs($buyer)->post(route('messages.store', $producers->first()->slug), ['body' => 'Još nešto'])->assertSessionHasNoErrors();
-        $this->assertSame(ProducerMessageController::NEW_CONVERSATIONS_PER_DAY + 1, ProducerMessage::count());
+        $this->assertSame(Messaging::NEW_CONVERSATIONS_PER_DAY + 1, ProducerMessage::count());
 
         $this->travel(25)->hours();
         $this->actingAs($buyer)->post(route('messages.store', $producers->last()->slug), ['body' => 'Zdravo'])->assertSessionHasNoErrors();

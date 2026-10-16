@@ -1,3 +1,4 @@
+import ChatLink from '@/components/chat/chat-link';
 import Head from '@/components/head';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import PauseNotice, { type Pause } from '@/components/marketplace/pause-notice';
@@ -102,10 +103,10 @@ export default function Catalog({
                 <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                     {canMessage && (
                         <Button asChild size="sm">
-                            <Link href={route('messages.show', producer.slug)}>
+                            <ChatLink producer={producer}>
                                 <MessageCircle className="size-4" />
                                 {t('Pošalji poruku')}
-                            </Link>
+                            </ChatLink>
                         </Button>
                     )}
                     <Button asChild variant="outline" size="sm">

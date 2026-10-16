@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MessageInboxController;
 use App\Http\Controllers\ProducerMessageController;
@@ -25,4 +26,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/poruke-proizvodjaca/{producer}/{buyer}', [ProducerMessageController::class, 'store'])
         ->middleware('throttle:20,1')
         ->withTrashed()->name('messages.thread.store');
+
+    // The chat window in the corner: the same threads, as JSON, without
+    // leaving the page. A thread is named by its producer and its buyer,
+    // whichever side is asking; ProducerMessagePolicy decides as above.
+    Route::get('/chat/razgovori', [ChatController::class, 'conversations'])->middleware('throttle:60,1')->name('chat.conversations');
+    Route::get('/chat/{producer}/{buyer}', [ChatController::class, 'thread'])->middleware('throttle:120,1')->withTrashed()->name('chat.thread');
+    Route::post('/chat/{producer}/{buyer}', [ChatController::class, 'send'])->middleware('throttle:20,1')->withTrashed()->name('chat.send');
 });

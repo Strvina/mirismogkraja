@@ -128,19 +128,29 @@ export default function Welcome({
             <Head title={t('Vrelina juga | Domaći proizvođači sa juga Srbije')} />
 
             <MarketplaceLayout fullBleed>
-                <section className="relative flex min-h-[620px] items-end overflow-hidden sm:min-h-[700px] lg:min-h-[min(820px,86vh)]">
-                    <img
-                        src={heroImage}
-                        alt={t('Priprema domaćeg ajvara u tradicionalnoj kuhinji')}
-                        width={1600}
-                        height={1056}
-                        // The largest thing on the first screen: fetched ahead of
-                        // the scripts instead of after them.
-                        fetchPriority="high"
-                        className="image-warm absolute inset-0 size-full object-cover object-[64%_center]"
-                    />
-                    <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_92%,transparent)_0%,color-mix(in_oklab,var(--charcoal)_68%,transparent)_42%,color-mix(in_oklab,var(--charcoal)_10%,transparent)_78%),linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_60%,transparent),transparent_52%)]" />
-                    <div className="text-on-photo max-w-page relative mx-auto w-full px-5 pt-20 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
+                {/* The photo's subject - the hands and the copper pot - sits right of
+                    centre, with the dark kitchen wall on the left for the words.
+                    From lg the words lie on that wall. On a phone or a tablet there
+                    is no wall to spare: laid over the photo, the words and buttons
+                    covered the pot, so the photo comes first, as a band cut around
+                    the pot, and the words follow on the photo's own dark colour. */}
+                <section className="bg-charcoal relative overflow-hidden lg:flex lg:min-h-[min(820px,86vh)] lg:items-end">
+                    <div className="relative h-[min(92vw,380px)] sm:h-[440px] lg:absolute lg:inset-0 lg:h-auto">
+                        <img
+                            src={heroImage}
+                            alt={t('Priprema domaćeg ajvara u tradicionalnoj kuhinji')}
+                            width={1600}
+                            height={1056}
+                            // The largest thing on the first screen: fetched ahead of
+                            // the scripts instead of after them.
+                            fetchPriority="high"
+                            className="image-warm absolute inset-0 size-full object-cover object-[80%_42%] sm:object-[70%_40%] lg:object-[64%_center]"
+                        />
+                        {/* Below lg: the band fades into the dark the words stand on. */}
+                        <div className="absolute inset-0 bg-[linear-gradient(0deg,var(--charcoal)_0%,color-mix(in_oklab,var(--charcoal)_55%,transparent)_22%,transparent_50%)] lg:hidden" />
+                        <div className="absolute inset-0 hidden bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_92%,transparent)_0%,color-mix(in_oklab,var(--charcoal)_68%,transparent)_42%,color-mix(in_oklab,var(--charcoal)_10%,transparent)_78%),linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_60%,transparent),transparent_52%)] lg:block" />
+                    </div>
+                    <div className="text-on-photo max-w-page relative mx-auto -mt-14 w-full px-5 pb-14 sm:-mt-20 sm:px-8 sm:pb-20 lg:mt-0 lg:px-12 lg:pt-20 lg:pb-24">
                         <div className="reveal-up max-w-3xl">
                             <p className="text-on-photo/80 mb-5 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] uppercase">
                                 <span className="bg-gold h-px w-9" /> {t('Iz srca juga Srbije')}
@@ -154,7 +164,7 @@ export default function Welcome({
 
                             <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                                 <Button asChild variant="cream" size="xl">
-                                    <Link href={route('marketplace.producers.index')}>
+                                    <Link href={route('marketplace.products.index')}>
                                         {t('Pronađi domaće')} <ArrowRight />
                                     </Link>
                                 </Button>

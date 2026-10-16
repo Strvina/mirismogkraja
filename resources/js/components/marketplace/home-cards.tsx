@@ -1,4 +1,5 @@
 import { FeaturedLabel, PremiumBadge } from '@/components/marketplace/plan-badges';
+import { QuickViewLink } from '@/components/marketplace/quick-view-link';
 import { formatPrice } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
@@ -124,7 +125,7 @@ export function HomeProducerCard({ producer, featured = false }: { producer: Hom
 
 export function HomeProductCard({ product }: { product: HomeProduct }) {
     return (
-        <Link
+        <QuickViewLink
             href={route('marketplace.products.show', product.slug)}
             className="group border-border/70 hover:border-border bg-background flex h-full flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg"
         >
@@ -154,6 +155,6 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
                     <span className="text-muted-foreground ml-1 font-sans text-xs">/ {product.unit}</span>
                 </p>
             </div>
-        </Link>
+        </QuickViewLink>
     );
 }

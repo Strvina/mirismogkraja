@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { t } from '@/lib/i18n';
 import { sendOnEnter } from '@/lib/send-on-enter';
+import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { SendHorizontal, Zap } from 'lucide-react';
 import { type FormEvent, type KeyboardEvent, useRef, useState } from 'react';
@@ -23,12 +24,31 @@ const MAX_LENGTH = 2000;
 export default function Composer({
     onSend,
     quickReplies,
+    draft,
+    onDraftChange,
+    autoFocus = false,
+    className,
 }: {
     onSend: (text: string) => void;
     /** Present on the producer's side of a thread only. */
     quickReplies?: { items: QuickReply[]; manageHref: string; recipientName: string };
+    /** What is typed, when it is kept outside - the chat window keeps it while folded away. */
+    draft?: string;
+    onDraftChange?: (text: string) => void;
+    autoFocus?: boolean;
+    className?: string;
 }) {
-    const [body, setBody] = useState('');
+    const [ownBody, setOwnBody] = useState('');
+    const body = draft ?? ownBody;
+    const setBody = (next: string | ((current: string) => string)) => {
+        const text = typeof next === 'function' ? next(body) : next;
+
+        if (onDraftChange) {
+            onDraftChange(text);
+        } else {
+            setOwnBody(text);
+        }
+    };
     const field = useRef<HTMLTextAreaElement>(null);
 
     const fitHeight = () => {
@@ -70,7 +90,7 @@ export default function Composer({
     };
 
     return (
-        <form onSubmit={submit} className="border-border/70 flex items-end gap-2 border-t px-3 py-3">
+        <form onSubmit={submit} className={cn('border-border/70 flex items-end gap-2 border-t px-3 py-3', className)}>
             {quickReplies && (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -112,6 +132,7 @@ export default function Composer({
                     fitHeight();
                 }}
                 onKeyDown={sendOnEnter()}
+                autoFocus={autoFocus}
                 rows={1}
                 maxLength={MAX_LENGTH}
                 placeholder={t('Napišite poruku...')}

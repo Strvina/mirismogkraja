@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Conversation;
+use App\Services\Messaging;
 use App\Support\Media;
 use App\Support\NotificationText;
 use Closure;
@@ -125,20 +125,6 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        if (! $user) {
-            return 0;
-        }
-
-        // Read from the conversations' own counters (App\Models\Conversation):
-        // this runs on every page of every signed-in visitor. Two sums rather
-        // than one with an OR, so each is answered by its own index; the
-        // halves never overlap, since nobody writes to their own producer.
-        $asBuyer = (int) Conversation::query()->where('buyer_id', $user->id)->sum('unread_by_buyer');
-
-        $asSeller = (int) Conversation::query()
-            ->whereIn('producer_id', $user->producers()->select('id'))
-            ->sum('unread_by_producer');
-
-        return $asBuyer + $asSeller;
+        return $user ? app(Messaging::class)->unreadCount($user) : 0;
     }
 }
