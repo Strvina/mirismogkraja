@@ -72,6 +72,8 @@ class StatusConstraintsTest extends TestCase
         foreach ($used as $column => $values) {
             $clause = $checks->get(str_replace('.', '_', $column).'_check')?->clause;
             $this->assertNotNull($clause, "No check on {$column}.");
+            // MySQL 8 writes the quotes escaped (_utf8mb4\'active\'), MariaDB plain.
+            $clause = str_replace('\\', '', $clause);
 
             foreach ($values as $value) {
                 if (! str_contains($clause, "'{$value}'")) {
