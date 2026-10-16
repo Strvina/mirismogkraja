@@ -20,7 +20,10 @@ Route::controller(InfoPageController::class)->name('legal.')->group(function () 
 
 // A route, not a file in public/: the sitemap line needs the site's full
 // address, which only the running app knows.
-Route::get('/robots.txt', fn () => response("User-agent: *\nDisallow: /admin\n\nSitemap: ".route('sitemap')."\n", 200, ['Content-Type' => 'text/plain']))
+// A demo is kept out of search results altogether: its products are made up.
+Route::get('/robots.txt', fn () => response(config('platform.demo')
+    ? "User-agent: *\nDisallow: /\n"
+    : "User-agent: *\nDisallow: /admin\n\nSitemap: ".route('sitemap')."\n", 200, ['Content-Type' => 'text/plain']))
     ->name('robots');
 
 // An index, the static pages, and the catalogue in files of 10,000 each:

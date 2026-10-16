@@ -11,7 +11,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthLayout from '@/layouts/auth-layout';
+import { DEMO_ACCOUNTS } from '@/lib/demo';
 import { t } from '@/lib/i18n';
+import { type SharedData } from '@/types';
 
 interface LoginForm extends Record<string, string | boolean> {
     email: string;
@@ -35,6 +37,8 @@ export default function Login({ status, canResetPassword, googleEnabled }: Login
     // A sign-in with Google that did not work comes back here as a page
     // load, so its message is on the page rather than on the form.
     const pageErrors = usePage().props.errors as Record<string, string> | undefined;
+    // A public demo offers its accounts above the form.
+    const { demo } = usePage<SharedData>().props;
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -46,6 +50,26 @@ export default function Login({ status, canResetPassword, googleEnabled }: Login
     return (
         <AuthLayout title={t('Prijavite se na nalog')} description={t('Unesite email i lozinku da biste se prijavili')}>
             <Head title={t('Prijava')} />
+
+            {demo && (
+                <div className="border-border/70 bg-muted/40 mb-6 rounded-lg border p-4 text-sm">
+                    <p className="font-medium">{t('Demo nalozi')}</p>
+                    <p className="text-muted-foreground mt-1">{t('Izaberite kako želite da vidite sajt; podaci se upisuju sami.')}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        {DEMO_ACCOUNTS.map((account) => (
+                            <Button
+                                key={account.email}
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setData({ ...data, email: account.email, password: account.password })}
+                            >
+                                {t(account.role)}
+                            </Button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <form className="flex flex-col gap-5" onSubmit={submit}>
                 <div className="grid gap-4">

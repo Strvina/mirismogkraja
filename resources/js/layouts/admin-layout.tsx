@@ -1,3 +1,4 @@
+import DemoBanner from '@/components/demo-banner';
 import Brand from '@/components/marketplace/brand';
 import LanguageSwitcher from '@/components/marketplace/language-switcher';
 import MenuIcon from '@/components/marketplace/menu-icon';
@@ -130,6 +131,8 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
             </aside>
 
             <main className="min-w-0 flex-1 px-5 py-8 sm:px-8 lg:px-12">
+                {/* Edge to edge across the main column, above the title. */}
+                <DemoBanner className="-mx-5 -mt-8 mb-8 sm:-mx-8 lg:-mx-12" />
                 <h1 className="font-serif text-3xl sm:text-4xl">{title}</h1>
                 <div className="mt-8">{children}</div>
             </main>

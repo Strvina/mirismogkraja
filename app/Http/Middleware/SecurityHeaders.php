@@ -47,6 +47,12 @@ class SecurityHeaders
             'Permissions-Policy' => 'camera=(), microphone=(), geolocation=(self), payment=()',
         ]);
 
+        // robots.txt keeps crawlers out of a demo; this keeps a page they
+        // reach by a link out of the results too.
+        if (config('platform.demo')) {
+            $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
+        }
+
         if (str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             // Under `composer dev` the scripts come from Vite's server, often
             // at http://[::1]:5173 - an address a policy cannot name - so

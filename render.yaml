@@ -1,0 +1,13 @@
+# The public demo of the site (docs/demo.md): one free web service, built from
+# the Dockerfile's last stage, "demo". Render reads this file when the
+# repository is added as a Blueprint, and builds again on every push to master.
+services:
+  - type: web
+    name: vrelina-juga-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: master
+    autoDeploy: true
+    healthCheckPath: /up

@@ -15,6 +15,7 @@ on:
       - composer.lock
       - package-lock.json
       - .github/workflows/docker.yml
+      - render.yaml
   pull_request:
     paths:
       - Dockerfile
@@ -24,6 +25,7 @@ on:
       - composer.lock
       - package-lock.json
       - .github/workflows/docker.yml
+      - render.yaml
 
 permissions:
   contents: read
@@ -111,11 +113,30 @@ jobs:
           [ "$before" = "$after" ] || { echo "The test suite touched the stack's database." >&2; exit 1; }
           [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8080/up)" = 200 ]
 
+      # The public demo (docs/demo.md) is the Dockerfile's last stage, built
+      # and run as Render does: the port from $PORT, the data baked in.
+      - name: Demo Image Builds and Answers
+        run: |
+          docker build -t vrelina-demo .
+          docker run -d --name demo -p 8090:10000 -e PORT=10000 vrelina-demo
+
+          for attempt in $(seq 1 30); do
+            [ "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:8090/up)" = 200 ] && break
+            sleep 2
+          done
+
+          home=$(curl -fsS http://localhost:8090/)
+          grep -q '"demo":true' <<< "$home" || { echo "The demo does not say it is one." >&2; exit 1; }
+          grep -q 'Mlekara Zapis' <<< "$home" || { echo "The demo has no demo producers." >&2; exit 1; }
+          [ "$(curl -s http://localhost:8090/robots.txt)" = "$(printf 'User-agent: *\nDisallow: /')" ] || { echo "The demo is open to search engines." >&2; exit 1; }
+          echo "Demo answers at /up, shows the demo producers and keeps search engines out."
+
       - name: Logs of a Failed Run
         if: failure()
         run: |
           docker compose ps --all
           docker compose logs --no-color --tail=300
+          docker logs demo 2>&1 | tail -100 || true
 
       - name: Stop and Remove Everything
         if: always()
