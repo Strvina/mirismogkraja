@@ -44,7 +44,9 @@ export default function ThreadHeader({
     };
 
     return (
-        <header className="border-border/70 flex items-center gap-3 border-b px-4 py-3">
+        // On a phone the actions take a line of their own under the name:
+        // beside it they left the name two letters wide.
+        <header className="border-border/70 flex flex-wrap items-center gap-x-3 gap-y-1 border-b px-4 py-3">
             {avatar ? (
                 <img src={thumbUrl(avatar)} alt="" className="size-10 shrink-0 rounded-full object-cover" />
             ) : (
@@ -53,18 +55,18 @@ export default function ThreadHeader({
                 </span>
             )}
             <div className="min-w-0 flex-1">
-                <h1 className="truncate font-serif text-lg leading-tight">{title}</h1>
+                <h1 className="line-clamp-2 font-serif text-lg leading-tight break-words">{title}</h1>
                 {!isOwner && (
                     <Link
                         href={route('marketplace.producers.show', producer.slug)}
-                        className="text-muted-foreground hover:text-foreground text-xs transition-colors"
+                        className="text-muted-foreground hover:text-foreground text-xs whitespace-nowrap transition-colors"
                     >
                         {t('Otvori profil proizvođača')}
                     </Link>
                 )}
             </div>
 
-            <div className="flex shrink-0 items-center gap-1">
+            <div className="-mr-2 flex w-full shrink-0 items-center justify-end gap-1 sm:mr-0 sm:w-auto">
                 {(!blocked || blockedByMe) && (
                     <Button variant="ghost" size="sm" onClick={toggleBlock}>
                         {blocked ? t('Odblokiraj') : t('Blokiraj')}

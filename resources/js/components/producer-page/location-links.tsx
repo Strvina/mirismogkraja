@@ -1,5 +1,6 @@
 import { PointsMap } from '@/components/marketplace/map';
 import { t } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { type PublicProducer } from './types';
 
@@ -8,7 +9,7 @@ import { type PublicProducer } from './types';
  * request, so Leaflet and its tiles load only for a visitor who asks;
  * directions go to Google Maps, which every phone already has.
  */
-export default function LocationLinks({ producer }: { producer: PublicProducer }) {
+export default function LocationLinks({ producer, className }: { producer: PublicProducer; className?: string }) {
     const [shown, setShown] = useState(false);
 
     if (!producer.lat || !producer.lng) {
@@ -18,7 +19,7 @@ export default function LocationLinks({ producer }: { producer: PublicProducer }
     const point = { id: producer.id, name: producer.name, lat: Number(producer.lat), lng: Number(producer.lng) };
 
     return (
-        <div className="mt-4">
+        <div className={cn('mt-4', className)}>
             <div className="flex flex-wrap items-center gap-4 text-sm">
                 <button type="button" onClick={() => setShown(!shown)} aria-expanded={shown} className="text-primary font-medium underline">
                     {shown ? t('Sakrij mapu') : t('Prikaži na mapi')}

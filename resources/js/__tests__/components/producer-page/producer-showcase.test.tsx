@@ -14,7 +14,7 @@ describe('ProducerGallery', () => {
     it('shows each photo with its caption, which also describes it', () => {
         renderOnPage(<ProducerGallery images={[{ id: 1, path: 'gallery/stado.jpg', caption: 'Stado na Svrljiškim planinama' }]} />);
 
-        expect(screen.getByRole('heading', { name: 'Galerija' })).toBeVisible();
+        expect(screen.getByRole('region', { name: 'Galerija' })).toBeVisible();
         expect(screen.getByRole('img', { name: 'Stado na Svrljiškim planinama' })).toHaveAttribute('src', '/storage/gallery/stado.jpg');
         expect(screen.getByRole('figure')).toHaveTextContent('Stado na Svrljiškim planinama');
     });
