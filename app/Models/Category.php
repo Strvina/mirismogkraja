@@ -71,6 +71,19 @@ class Category extends Model
     }
 
     /**
+     * The photo at the head of the category's listing - honey and bees for
+     * "Med" - shared by a family: a subcategory shows its parent's. Null for
+     * a category nobody has picked a photo for yet. Wants `parent` loaded.
+     */
+    public function bannerUrl(): ?string
+    {
+        $family = $this->parent_id === null ? $this : $this->parent;
+        $file = 'images/categories/'.$family?->slug.'.webp';
+
+        return is_file(public_path($file)) ? '/'.$file : null;
+    }
+
+    /**
      * Top-level categories only.
      *
      * @param  Builder<Category>  $query

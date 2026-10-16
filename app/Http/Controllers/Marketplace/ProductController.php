@@ -155,6 +155,7 @@ class ProductController extends Controller
                     __('Domaći proizvodi: cene i prodaja od proizvođača | Vrelina juga'),
                     __('Domaći med, sir, rakija, zimnica i drugi proizvodi sa juga Srbije, sa cenama. Pišite proizvođaču direktno, bez posrednika.'),
                 ),
+            'banner' => $this->banner($request, $category),
             'category' => $category ? [
                 ...$category->only(['id', 'name', 'slug', 'search_name', 'intro']),
                 'parent' => $parent?->only(['id', 'name', 'slug']),
@@ -185,6 +186,22 @@ class ProductController extends Controller
             'perPage' => $this->perPage($request),
             'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
+    }
+
+    /**
+     * The photo of the category being looked at - on its own page, or chosen
+     * in the filter - with what it shows.
+     *
+     * @return array{src: string, alt: string}|null
+     */
+    private function banner(Request $request, ?Category $category): ?array
+    {
+        $category ??= $request->integer('category_id')
+            ? Category::with('parent:id,name,slug')->find($request->integer('category_id'), ['id', 'name', 'slug', 'parent_id'])
+            : null;
+        $src = $category?->bannerUrl();
+
+        return $src ? ['src' => $src, 'alt' => __($category->name)] : null;
     }
 
     /**

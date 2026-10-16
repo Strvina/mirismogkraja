@@ -34,6 +34,7 @@ export default function ProductsIndex({
     prices,
     places,
     matchingProducers,
+    banner,
 }: {
     products: Paginated<ProductCardProduct>;
     featured: ProductCardProduct[];
@@ -68,6 +69,8 @@ export default function ProductsIndex({
     places: { slug: string; name: string }[];
     /** On the first page of a search: the producers it matches. */
     matchingProducers: { id: number; name: string; slug: string; city: string | null; logo_path: string | null }[];
+    /** The photo of the category on screen - its page's, or the one chosen in the filter. */
+    banner: { src: string; alt: string } | null;
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -104,13 +107,37 @@ export default function ProductsIndex({
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
-            <p className="text-muted-foreground mt-3 max-w-lg leading-7">
-                {category
-                    ? category.intro ||
-                      t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
-                    : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
-            </p>
+            <header
+                className={cn(banner && 'grid items-center gap-6 md:grid-cols-[1fr_minmax(0,24rem)] lg:grid-cols-[1fr_minmax(0,30rem)] lg:gap-10')}
+            >
+                <div>
+                    <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
+                    <p className="text-muted-foreground mt-3 max-w-lg leading-7">
+                        {category
+                            ? category.intro ||
+                              t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
+                            : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
+                    </p>
+                </div>
+
+                {/* What the category is, at a glance: honey and bees for "Med". */}
+                {banner && (
+                    <figure key={banner.src} className="animate-in fade-in relative overflow-hidden rounded-xl shadow-sm duration-500">
+                        <img
+                            src={banner.src}
+                            alt={banner.alt}
+                            fetchPriority="high"
+                            className="image-warm aspect-[2/1] w-full object-cover md:aspect-[16/9]"
+                        />
+                        {/* Chosen in the filter, not on the category's own page: say which. */}
+                        {!category && (
+                            <figcaption className="text-on-photo absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent)] px-4 pt-10 pb-3 font-serif text-xl">
+                                {banner.alt}
+                            </figcaption>
+                        )}
+                    </figure>
+                )}
+            </header>
 
             {category && general && subcategories.length > 0 && (
                 <nav aria-label={t('Potkategorije')} className="mt-6 flex flex-wrap gap-2">

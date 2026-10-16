@@ -25,6 +25,7 @@ const listing: ComponentProps<typeof ProductsIndex> = {
     prices: [],
     places: [],
     matchingProducers: [],
+    banner: null,
 };
 
 function renderProduct(overrides: Partial<ComponentProps<typeof ProductShow>> = {}, signedIn = false) {
