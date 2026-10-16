@@ -4,6 +4,7 @@ import { t } from '@/lib/i18n';
 import { type Producer } from '@/types';
 import { Link } from '@inertiajs/react';
 import { BookOpen, CalendarHeart, ChevronDown, CirclePause, Gift, MapPin, Megaphone, QrCode, ShieldCheck, Zap, type LucideIcon } from 'lucide-react';
+import { useId } from 'react';
 
 interface Item {
     label: string;
@@ -20,6 +21,7 @@ interface Item {
  * behind one button - listed out, it would bury the three actions used daily.
  */
 export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer, 'id' | 'status'> }) {
+    const id = useId();
     const items: Item[] = [
         { label: t('Priče i recepti'), href: route('producers.posts.index', producer.id), icon: BookOpen },
         { label: t('Gde me nađete'), href: route('producers.markets.index', producer.id), icon: MapPin },
@@ -54,13 +56,24 @@ export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-72">
-                {items.map((item) => {
+                {items.map((item, index) => {
+                    // Named by its label alone; the hint is read after it, as a description.
+                    const hintId = item.hint ? `${id}-hint-${index}` : undefined;
+                    const attributes = {
+                        className: 'cursor-pointer gap-2.5 py-2',
+                        'aria-label': item.hint ? item.label : undefined,
+                        'aria-describedby': hintId,
+                    };
                     const content = (
                         <>
                             <item.icon className="text-muted-foreground mt-0.5 size-4 shrink-0 self-start" />
                             <span>
                                 {item.label}
-                                {item.hint && <span className="text-muted-foreground mt-0.5 block text-xs leading-5">{item.hint}</span>}
+                                {item.hint && (
+                                    <span id={hintId} className="text-muted-foreground mt-0.5 block text-xs leading-5">
+                                        {item.hint}
+                                    </span>
+                                )}
                             </span>
                         </>
                     );
@@ -68,11 +81,11 @@ export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer
                     return (
                         <DropdownMenuItem key={item.href} asChild>
                             {item.download ? (
-                                <a href={item.href} className="cursor-pointer gap-2.5 py-2">
+                                <a href={item.href} {...attributes}>
                                     {content}
                                 </a>
                             ) : (
-                                <Link href={item.href} className="cursor-pointer gap-2.5 py-2">
+                                <Link href={item.href} {...attributes}>
                                     {content}
                                 </Link>
                             )}
