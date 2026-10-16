@@ -28,6 +28,9 @@
     --color-terracotta: var(--terracotta);
     --color-gold: var(--gold);
     --color-charcoal: var(--charcoal);
+    /* Text on a photograph or on charcoal: light in both themes, because
+       what is under it stays dark in both. */
+    --color-on-photo: oklch(0.985 0.012 83);
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -133,46 +136,50 @@
     --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
 }
 
+/* The brand's own colours at night, not a generic grey-blue: a warm dark
+   brown under cream text, the brick red lightened to terracotta so it still
+   reads as text on the dark page, and with dark writing on it as a button.
+   Every pair is checked for contrast by e2e/accessibility.spec.ts. */
 .dark {
-    --background: oklch(0.129 0.042 264.695);
-    --foreground: oklch(0.984 0.003 247.858);
-    --card: oklch(0.208 0.042 265.755);
-    --card-foreground: oklch(0.984 0.003 247.858);
-    --popover: oklch(0.208 0.042 265.755);
-    --popover-foreground: oklch(0.984 0.003 247.858);
-    --primary: oklch(0.929 0.013 255.508);
-    --primary-foreground: oklch(0.208 0.042 265.755);
-    --secondary: oklch(0.279 0.041 260.031);
-    --secondary-foreground: oklch(0.984 0.003 247.858);
-    --muted: oklch(0.279 0.041 260.031);
-    --muted-foreground: oklch(0.704 0.04 256.788);
-    --accent: oklch(0.279 0.041 260.031);
-    --accent-foreground: oklch(0.984 0.003 247.858);
+    --background: oklch(0.17 0.012 55);
+    --foreground: oklch(0.94 0.015 80);
+    --card: oklch(0.21 0.014 55);
+    --card-foreground: oklch(0.94 0.015 80);
+    --popover: oklch(0.22 0.014 55);
+    --popover-foreground: oklch(0.94 0.015 80);
+    --primary: oklch(0.72 0.12 40);
+    --primary-foreground: oklch(0.2 0.02 45);
+    --secondary: oklch(0.27 0.015 60);
+    --secondary-foreground: oklch(0.94 0.015 80);
+    --muted: oklch(0.25 0.012 60);
+    --muted-foreground: oklch(0.74 0.02 70);
+    --accent: oklch(0.29 0.02 70);
+    --accent-foreground: oklch(0.94 0.015 80);
     /* Light enough to read as text on the dark page, so what is written on
        it as a button has to be dark. */
-    --destructive: oklch(0.66 0.13 31);
-    --destructive-foreground: oklch(0.208 0.042 265.755);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.551 0.027 264.364);
+    --destructive: oklch(0.68 0.13 31);
+    --destructive-foreground: oklch(0.2 0.02 45);
+    --border: oklch(0.33 0.015 60);
+    --input: oklch(0.36 0.015 60);
+    --ring: oklch(0.72 0.12 40);
     /* The brand colours used as a surface or as text keep that role here:
        a section stays behind its text, a tag stays readable on its badge. */
-    --cream-deep: oklch(0.17 0.042 265);
+    --cream-deep: oklch(0.2 0.013 60);
     --olive: oklch(0.82 0.07 116);
     --olive-soft: oklch(0.32 0.04 116);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar-background: hsl(0, 0%, 7%);
-    --sidebar-foreground: hsl(0, 0%, 80%);
-    --sidebar-primary: hsl(360, 100%, 100%);
-    --sidebar-primary-foreground: hsl(0, 0%, 100%);
-    --sidebar-accent: hsl(0, 0%, 15.9%);
-    --sidebar-accent-foreground: hsl(240, 4.8%, 95.9%);
-    --sidebar-border: hsl(0, 0%, 15.9%);
-    --sidebar-ring: hsl(217.2, 91.2%, 59.8%);
+    --chart-1: oklch(0.72 0.12 40);
+    --chart-2: oklch(0.7 0.09 150);
+    --chart-3: oklch(0.8 0.11 85);
+    --chart-4: oklch(0.68 0.08 250);
+    --chart-5: oklch(0.65 0.13 20);
+    --sidebar-background: oklch(0.15 0.012 55);
+    --sidebar-foreground: oklch(0.86 0.015 80);
+    --sidebar-primary: oklch(0.72 0.12 40);
+    --sidebar-primary-foreground: oklch(0.2 0.02 45);
+    --sidebar-accent: oklch(0.25 0.012 60);
+    --sidebar-accent-foreground: oklch(0.94 0.015 80);
+    --sidebar-border: oklch(0.29 0.014 60);
+    --sidebar-ring: oklch(0.72 0.12 40);
 }
 
 @utility paper-grain {
@@ -281,5 +288,17 @@
     label:has(> input[type='checkbox']:not(:disabled)),
     input[type='checkbox']:not(:disabled) {
         cursor: pointer;
+    }
+}
+
+/* On a phone, Safari zooms in on any field whose text is under 16px when it
+   is tapped, and stays zoomed in after the search is sent. At 16px it does
+   not zoom at all. Outside any layer, so it wins over a field's own
+   text-sm; computers and mice keep the smaller text. */
+@media (pointer: coarse) {
+    input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']),
+    textarea,
+    select {
+        font-size: 16px;
     }
 }

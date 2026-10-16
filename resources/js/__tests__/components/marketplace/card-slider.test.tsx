@@ -9,6 +9,15 @@ function trackOf({ visible, total }: { visible: number; total: number }) {
     vi.spyOn(HTMLElement.prototype, 'scrollWidth', 'get').mockReturnValue(total);
 }
 
+/** The cards start `step` pixels apart (a card and the gap after it). */
+function cardsEvery(step: number) {
+    vi.spyOn(HTMLElement.prototype, 'offsetLeft', 'get').mockImplementation(function (this: HTMLElement) {
+        const row = this.parentElement;
+
+        return row?.getAttribute('role') === 'region' ? Array.from(row.children).indexOf(this) * step : 0;
+    });
+}
+
 function renderSlider(props: Partial<Parameters<typeof CardSlider>[0]> = {}) {
     render(
         <CardSlider label="Istaknuti proizvođači" {...props}>
@@ -25,7 +34,7 @@ function renderSlider(props: Partial<Parameters<typeof CardSlider>[0]> = {}) {
 }
 
 /** The reader drags the track `pixels` along. */
-function scrollTo(track: HTMLElement, pixels: number) {
+function dragTo(track: HTMLElement, pixels: number) {
     track.scrollLeft = pixels;
     fireEvent.scroll(track);
 }
@@ -58,7 +67,7 @@ describe('CardSlider', () => {
         trackOf({ visible: 400, total: 1200 });
         const { track, previous, next } = renderSlider();
 
-        scrollTo(track, 300);
+        dragTo(track, 300);
 
         expect(previous).toBeEnabled();
         expect(next).toBeEnabled();
@@ -68,33 +77,40 @@ describe('CardSlider', () => {
         trackOf({ visible: 400, total: 1200 });
         const { track, previous, next } = renderSlider();
 
-        scrollTo(track, 799);
+        dragTo(track, 799);
 
         expect(previous).toBeEnabled();
         expect(next).toBeDisabled();
     });
 
-    it('moves most of a screen at a time, smoothly', async () => {
-        trackOf({ visible: 400, total: 1200 });
+    it('moves by the cards fully in view, to the start of one, smoothly', async () => {
+        trackOf({ visible: 700, total: 1200 });
+        cardsEvery(320);
         const { user, track, next, previous } = renderSlider();
-        const scrollBy = vi.spyOn(track, 'scrollBy').mockImplementation(() => undefined);
+        const scrollTo = vi.spyOn(track, 'scrollTo').mockImplementation(() => undefined);
 
+        // Two whole cards fit: the third one comes to the front.
         await user.click(next);
-        expect(scrollBy).toHaveBeenLastCalledWith({ left: 320, behavior: 'smooth' });
+        expect(scrollTo).toHaveBeenLastCalledWith({ left: 640, behavior: 'smooth' });
 
-        scrollTo(track, 320);
+        dragTo(track, 640);
         await user.click(previous);
-        expect(scrollBy).toHaveBeenLastCalledWith({ left: -320, behavior: 'smooth' });
+        expect(scrollTo).toHaveBeenLastCalledWith({ left: 0, behavior: 'smooth' });
     });
 
-    it('moves at least a card along on a narrow phone', async () => {
-        trackOf({ visible: 200, total: 1200 });
+    it('moves one whole card on a phone, never stopping half-way through one', async () => {
+        trackOf({ visible: 350, total: 1200 });
+        cardsEvery(324);
         const { user, track, next } = renderSlider();
-        const scrollBy = vi.spyOn(track, 'scrollBy').mockImplementation(() => undefined);
+        const scrollTo = vi.spyOn(track, 'scrollTo').mockImplementation(() => undefined);
 
         await user.click(next);
+        expect(scrollTo).toHaveBeenLastCalledWith({ left: 324, behavior: 'smooth' });
 
-        expect(scrollBy).toHaveBeenLastCalledWith({ left: 240, behavior: 'smooth' });
+        // From part of the way through the second card, on to the third.
+        dragTo(track, 400);
+        await user.click(next);
+        expect(scrollTo).toHaveBeenLastCalledWith({ left: 648, behavior: 'smooth' });
     });
 
     it('checks the arrows again when the window changes size', () => {

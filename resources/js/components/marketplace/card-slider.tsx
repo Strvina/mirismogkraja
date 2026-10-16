@@ -57,12 +57,25 @@ export default function CardSlider({
         return () => window.removeEventListener('resize', sync);
     }, [sync, children.length]);
 
+    // By whole cards, to the start of one: moved by a share of the width, a
+    // phone stopped half-way through a card (Safari does not snap a scroll
+    // made from script), with its name and price off screen. As many cards
+    // as are fully in view, at least one.
     const scrollBy = (direction: -1 | 1) => {
         const track = trackRef.current;
+        const items = track ? Array.from(track.children as HTMLCollectionOf<HTMLElement>) : [];
 
-        if (track) {
-            track.scrollBy({ left: direction * Math.max(track.clientWidth * 0.8, 240), behavior: 'smooth' });
+        if (!track || items.length === 0) {
+            return;
         }
+
+        const first = items[0].offsetLeft;
+        const step = items.length > 1 ? items[1].offsetLeft - first : items[0].offsetWidth;
+        const inView = Math.max(1, Math.floor((track.clientWidth + 1) / step));
+        const current = Math.round(track.scrollLeft / step);
+        const target = Math.min(Math.max(current + direction * inView, 0), items.length - 1);
+
+        track.scrollTo({ left: items[target].offsetLeft - first, behavior: 'smooth' });
     };
 
     return (

@@ -11,8 +11,9 @@ const buttonVariants = cva(
             variant: {
                 default: 'bg-primary text-primary-foreground hover:bg-primary/90',
                 warm: 'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
-                cream: 'bg-background text-foreground shadow-sm hover:bg-background/90',
-                outlineLight: 'border border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground/10',
+                // For photographs and dark bands: a light button in both themes.
+                cream: 'bg-on-photo text-charcoal shadow-sm hover:bg-on-photo/90',
+                outlineLight: 'border border-on-photo/50 bg-transparent text-on-photo hover:bg-on-photo/10',
                 destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                 outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
                 secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',

@@ -140,15 +140,15 @@ export default function Welcome({
                         className="image-warm absolute inset-0 size-full object-cover object-[64%_center]"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_92%,transparent)_0%,color-mix(in_oklab,var(--charcoal)_68%,transparent)_42%,color-mix(in_oklab,var(--charcoal)_10%,transparent)_78%),linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_60%,transparent),transparent_52%)]" />
-                    <div className="text-primary-foreground relative mx-auto w-full max-w-[1380px] px-5 pt-20 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
+                    <div className="text-on-photo relative mx-auto w-full max-w-[1380px] px-5 pt-20 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
                         <div className="reveal-up max-w-3xl">
-                            <p className="text-primary-foreground/80 mb-5 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] uppercase">
+                            <p className="text-on-photo/80 mb-5 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] uppercase">
                                 <span className="bg-gold h-px w-9" /> {t('Iz srca juga Srbije')}
                             </p>
                             <h1 className="max-w-2xl font-serif text-6xl leading-[0.97] font-medium sm:text-7xl lg:text-[6.6rem]">
                                 {t('Vrelina juga.')}
                             </h1>
-                            <p className="text-primary-foreground/85 mt-7 max-w-xl text-base leading-7 sm:text-lg">
+                            <p className="text-on-photo/85 mt-7 max-w-xl text-base leading-7 sm:text-lg">
                                 {t('Upoznajte proizvođače, ljude i proizvode koji čuvaju tradiciju.')}
                             </p>
 
@@ -174,7 +174,7 @@ export default function Welcome({
                             </div>
 
                             {!auth.user && (
-                                <p className="text-primary-foreground/75 mt-5 max-w-md text-sm leading-6">
+                                <p className="text-on-photo/75 mt-5 max-w-md text-sm leading-6">
                                     {t('Nalog vam treba da sačuvate omiljene proizvođače, pišete im i ostavite utisak. Proizvođač ste?')}{' '}
                                     <Link href={route('register')} className="decoration-gold/70 font-semibold underline underline-offset-4">
                                         {t('I vi počinjete odavde.')}
@@ -183,7 +183,7 @@ export default function Welcome({
                             )}
                         </div>
 
-                        <div className="text-primary-foreground/70 mt-14 flex items-center gap-4 text-xs tracking-[0.13em] uppercase">
+                        <div className="text-on-photo/70 mt-14 flex items-center gap-4 text-xs tracking-[0.13em] uppercase">
                             <Leaf className="text-gold size-4" />
                             <span>{t('Od ljudi koje možete da upoznate')}</span>
                         </div>
@@ -214,9 +214,7 @@ export default function Welcome({
                                 className={`image-warm size-full object-cover transition duration-700 group-hover:scale-105 ${categoryImages[index % categoryImages.length].position}`}
                             />
                             <div className="absolute inset-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent_68%)]" />
-                            <h3 className="text-primary-foreground absolute inset-x-4 bottom-4 font-serif text-lg leading-tight">
-                                {t(category.name)}
-                            </h3>
+                            <h3 className="text-on-photo absolute inset-x-4 bottom-4 font-serif text-lg leading-tight">{t(category.name)}</h3>
                         </Link>
                     ))}
                 </Section>

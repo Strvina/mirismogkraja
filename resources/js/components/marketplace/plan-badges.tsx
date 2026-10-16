@@ -29,7 +29,7 @@ export function FeaturedLabel({ className }: { className?: string }) {
     return (
         <span
             className={cn(
-                'bg-charcoal/85 text-primary-foreground rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.1em] uppercase backdrop-blur',
+                'bg-charcoal/85 text-on-photo rounded-full px-3 py-1 text-[0.65rem] font-semibold tracking-[0.1em] uppercase backdrop-blur',
                 className,
             )}
         >
