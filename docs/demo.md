@@ -1,5 +1,7 @@
 # Javni demo sajta
 
+Adresa: **https://vrelina-juga-demo.onrender.com**
+
 Demo je ista aplikacija, sa izmišljenim proizvođačima, proizvodima, porukama i uplatama, na
 besplatnom hostingu. Služi da se sajt pokaže (portfolio, razgovor za posao, budući proizvođači),
 dok pravi sajt ne proradi.
