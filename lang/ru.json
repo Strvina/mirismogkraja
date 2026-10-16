@@ -1531,5 +1531,17 @@
     "Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.": "Не удалось связаться с сервером. Проверьте интернет и попробуйте снова.",
     "juče": "вчера",
     "Filteri i redosled": "Фильтры и порядок",
-    "Redosled": "Порядок"
+    "Redosled": "Порядок",
+    "Spusti poruke": "Свернуть сообщения",
+    "Brzi filteri": "Быстрые фильтры",
+    "Nazad na filtere": "Назад к фильтрам",
+    "Zatvori filtere": "Закрыть фильтры",
+    "Resetuj": "Сбросить",
+    "Pretražite…": "Поиск…",
+    "Ništa ne odgovara pretrazi.": "Ничего не найдено.",
+    "Cena u dinarima": "Цена в динарах",
+    "Dostupnost": "Наличие",
+    "Svejedno": "Неважно",
+    "Proizvođač donosi ili šalje": "Производитель привозит или отправляет",
+    "Preuzimate kod proizvođača": "Вы забираете у производителя"
 }

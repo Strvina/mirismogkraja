@@ -135,14 +135,15 @@ const DropdownMenuSubContent = React.forwardRef<
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
 /**
- * Beside its button with a mouse; on a touch screen, a sheet from the foot
- * of the screen over a dimmed page, as a phone's own menus are.
+ * Beside its button with a mouse; on a touch screen, a sheet hanging from
+ * the foot of the site's header over a dimmed page - the header, and the
+ * menu button in it, stay in sight and in reach.
  *
  * A menu floating by its button has to be placed again as the page moves,
  * and on the iPhone, where the address bar grows and shrinks with every
  * scroll, it landed in the wrong place or followed the page about. A sheet
- * at the foot of the screen has nothing to follow, is in reach of a thumb,
- * and its items are big enough for a finger.
+ * along the top edge has nothing to follow, and its items are big enough
+ * for a finger.
  *
  * With a mouse it closes as soon as the page scrolls or the window changes
  * size, instead of trailing after its button.
@@ -191,7 +192,7 @@ const DropdownMenuContent = React.forwardRef<
                         // After the caller's classes, and over them: a sheet is the
                         // width of the screen whatever width the menu asked for.
                         touch &&
-                            'z-[61]! w-full! max-w-none! min-w-0! max-h-[min(75dvh,36rem)]! rounded-t-2xl! rounded-b-none! border-x-0! border-b-0! p-2! pb-[calc(0.75rem+env(safe-area-inset-bottom))]! shadow-2xl! data-[state=open]:zoom-in-100! data-[state=closed]:zoom-out-100! data-[state=open]:slide-in-from-bottom-10 [&_[role^=menuitem]]:min-h-12 [&_[role^=menuitem]]:text-base',
+                            'z-[61]! w-full! max-w-none! min-w-0! max-h-[calc(100dvh-var(--sheet-top,0px)-3rem)]! rounded-b-2xl! rounded-t-none! border-x-0! border-t-0! p-2! shadow-xl! data-[state=open]:zoom-in-100! data-[state=closed]:zoom-out-100! data-[state=open]:slide-in-from-top-10 data-[state=closed]:slide-out-to-top-10 [&_[role^=menuitem]]:min-h-12 [&_[role^=menuitem]]:text-base',
                     )}
                     {...props}
                 >
@@ -216,6 +217,14 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 function HoldPageStill({ panel }: { panel: React.RefObject<HTMLElement | null> }) {
     useScrollLock(true, panel);
 
+    // Where the sheet hangs from: the foot of the site's header, measured as it opens.
+    React.useLayoutEffect(() => {
+        const header = document.querySelector('[data-site-header]');
+        const top = header ? Math.max(0, Math.round(header.getBoundingClientRect().bottom)) : 0;
+
+        document.documentElement.style.setProperty('--sheet-top', `${top}px`);
+    }, []);
+
     return null;
 }
 
@@ -237,7 +246,8 @@ function SheetBackdrop() {
         // Not taken off when it leaves the page: the touch that removed it is still going.
     }, []);
 
-    return <div ref={backdrop} aria-hidden className="animate-in fade-in-0 fixed inset-0 z-[60] bg-black/40" />;
+    // Below the header, which stays in sight and in reach: its menu button closes the menu again.
+    return <div ref={backdrop} aria-hidden className="animate-in fade-in-0 fixed inset-x-0 top-(--sheet-top,0px) bottom-0 z-[60] bg-black/40" />;
 }
 
 /** With a mouse: the page scrolled (not the menu itself) or the window changed - the menu goes. */

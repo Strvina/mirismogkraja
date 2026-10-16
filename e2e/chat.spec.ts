@@ -66,30 +66,28 @@ test('a buyer and a producer write to each other through the window, without lea
     await sellerWindow.getByRole('button', { name: 'Pošalji poruku' }).click();
     await expect(buyerWindow.getByText(answer)).toBeVisible({ timeout: 25_000 });
 
-    // Folded away, a new message waits unread; brought back, it is read.
-    await buyerWindow.getByRole('button', { name: 'Umanji' }).click();
+    // Folded into the button, a new message waits unread; brought back, it is read.
+    await buyerWindow.getByRole('button', { name: 'Spusti poruke' }).click();
     const followUp = `Još nešto ${stamp}`;
     await sellerWindow.getByRole('textbox', { name: 'Poruka' }).fill(followUp);
     await sellerWindow.getByRole('textbox', { name: 'Poruka' }).press('Enter');
     await expect(sellerWindow.getByText(followUp)).toBeVisible();
     await page.waitForTimeout(4_000);
     expect(await unreadOnServer(page)).toBeGreaterThan(0);
-    await page.getByRole('button', { name: /Otvori razgovor sa/ }).click();
+    await page.getByRole('button', { name: /^Poruke/ }).click();
     await expect(buyerWindow.getByText(followUp)).toBeVisible();
     await expect.poll(() => unreadOnServer(page)).toBe(0);
 
     // What was typed survives folding the window and moving to another page.
     await buyerWindow.getByRole('textbox', { name: 'Poruka' }).fill('Nedovršeno');
-    await buyerWindow.getByRole('button', { name: 'Umanji' }).click();
+    await buyerWindow.getByRole('button', { name: 'Spusti poruke' }).click();
     await page.locator('header').getByRole('link', { name: 'Proizvodi' }).first().click();
     await page.waitForURL(/\/proizvodi/);
-    await page.getByRole('button', { name: /Otvori razgovor sa/ }).click();
+    await page.getByRole('button', { name: /^Poruke/ }).click();
     await expect(buyerWindow.getByRole('textbox', { name: 'Poruka' })).toHaveValue('Nedovršeno');
 
-    // Closed, the conversation is still there - and its page shows the same messages, once each.
-    await buyerWindow.getByRole('button', { name: 'Zatvori razgovor' }).click();
-    await expect(page.getByRole('dialog')).toHaveCount(0);
-    await page.getByRole('button', { name: /^Poruke/ }).click();
+    // Back to the list - the conversation is there - and its page shows the same messages, once each.
+    await buyerWindow.getByRole('button', { name: 'Nazad na razgovore' }).click();
     await page.getByRole('dialog', { name: 'Poruke' }).getByRole('link', { name: 'Sve poruke' }).click();
     await page.waitForURL(/\/poruke$/);
     await page.getByText(followUp).first().click();
@@ -198,7 +196,7 @@ test('on a phone the conversation takes the screen, scrolls by itself, and keeps
     // Back to the list, and closed: the page is free again.
     await chat.getByRole('button', { name: 'Nazad na razgovore' }).click();
     await expect(list).toBeVisible();
-    await list.getByRole('button', { name: 'Zatvori poruke' }).click();
+    await list.getByRole('button', { name: 'Spusti poruke' }).click();
     expect(await phone.evaluate(() => getComputedStyle(document.documentElement).overflowY)).not.toBe('hidden');
 
     await phone.context().close();

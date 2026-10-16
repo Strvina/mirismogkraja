@@ -72,7 +72,10 @@ export default function Navbar() {
     const isActive = (paths: string[]) => paths.some((candidate) => path === candidate || path.startsWith(`${candidate}/`));
 
     return (
-        <header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 border-b backdrop-blur">
+        <header
+            data-site-header
+            className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 border-b backdrop-blur"
+        >
             <div className="max-w-page mx-auto flex h-16 items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
                 <Brand />
 

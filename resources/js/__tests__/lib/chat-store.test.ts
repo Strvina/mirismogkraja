@@ -108,18 +108,30 @@ describe('the chat window state', () => {
         expect(chat.get().threads[key].pending[0].error).toBe('Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.');
     });
 
-    it('keeps the conversation and what was typed when folded away, and the conversation when closed', () => {
+    it('folds into the button as it is, and the button brings it back on the same conversation', () => {
         chat.openThread(thread);
         chat.setDraft(key, 'Nedovršeno');
-        chat.minimize();
-
-        expect(chat.get()).toMatchObject({ panel: 'thread', minimized: true, active: thread, drafts: { [key]: 'Nedovršeno' } });
-
-        chat.restore();
-        expect(chat.get().minimized).toBe(false);
-
         chat.close();
-        expect(chat.get()).toMatchObject({ panel: 'closed', active: null, drafts: { [key]: 'Nedovršeno' } });
+
+        expect(chat.get()).toMatchObject({ open: false, view: 'thread', active: thread, drafts: { [key]: 'Nedovršeno' } });
+
+        chat.open();
+        expect(chat.get()).toMatchObject({ open: true, view: 'thread', active: thread });
+    });
+
+    it('goes back from a conversation to the list, keeping what was typed in it', () => {
+        serve(() => ({ body: { threads: [], unread: 0 } }));
+        chat.openThread(thread);
+        chat.setDraft(key, 'Nedovršeno');
+
+        chat.backToList();
+
+        expect(chat.get()).toMatchObject({ open: true, view: 'list', active: null, drafts: { [key]: 'Nedovršeno' } });
+
+        // Folded on the list, it comes back on the list.
+        chat.close();
+        chat.open();
+        expect(chat.get()).toMatchObject({ open: true, view: 'list' });
     });
 
     it("forgets another account's conversation and drafts", () => {

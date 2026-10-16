@@ -1,11 +1,12 @@
 import ClosedNotice from '@/components/messages/closed-notice';
 import Composer from '@/components/messages/composer';
 import { Button } from '@/components/ui/button';
+import { TOUCH_SCREEN, useMediaQuery } from '@/hooks/use-media-query';
 import { chat, threadKey, useChat, type ThreadRef } from '@/lib/chat/store';
 import { t } from '@/lib/i18n';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { ArrowDown, ArrowLeft, LoaderCircle, Minus, X } from 'lucide-react';
+import { ArrowDown, ArrowLeft, LoaderCircle, X } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Avatar } from './chat-avatar';
 import ChatMessages from './chat-messages';
@@ -73,7 +74,7 @@ function useThreadUpdates(ref: ThreadRef, open: boolean) {
  * One conversation in the chat window: who it is with, the messages, and
  * the box to write in - the same messages and the same box as its page.
  */
-export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; phone: boolean }) {
+export default function ChatThread({ thread: ref }: { thread: ThreadRef }) {
     const { auth } = usePage<SharedData>().props;
     const state = useChat();
     const key = threadKey(ref);
@@ -84,8 +85,11 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
     const title = meta?.title ?? ref.title ?? '';
     const avatar = meta ? meta.avatar_path : ref.avatarPath;
     const isOwner = auth.user?.id !== ref.buyerId;
+    // On a touch screen the keyboard is not opened before one asks for it.
+    const touch = useMediaQuery(TOUCH_SCREEN);
 
-    useThreadUpdates(ref, !state.minimized);
+    // Only while the window is open: folded into the button, nothing is asked and nothing counts as read.
+    useThreadUpdates(ref, state.open);
 
     // The conversation opens on its newest message and follows new ones -
     // unless the reader has scrolled up into the history, who is left there
@@ -144,12 +148,10 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
 
     return (
         <div className="flex h-full min-h-0 flex-col">
-            <header className="border-border/70 flex items-center gap-2 border-b py-2 pr-2 pl-2">
-                {phone && (
-                    <Button variant="ghost" size="icon" aria-label={t('Nazad na razgovore')} onClick={chat.backToList}>
-                        <ArrowLeft className="size-5" />
-                    </Button>
-                )}
+            <header className="border-border/70 flex items-center gap-1 border-b py-2 pr-2 pl-1">
+                <Button variant="ghost" size="icon" aria-label={t('Nazad na razgovore')} onClick={chat.backToList}>
+                    <ArrowLeft className="size-5" />
+                </Button>
                 <Link
                     href={meta?.href ?? '#'}
                     onClick={() => chat.close()}
@@ -162,13 +164,8 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
                         <span className="text-muted-foreground block truncate text-xs">{t('Otvori ceo razgovor')}</span>
                     </span>
                 </Link>
-                {!phone && (
-                    <Button variant="ghost" size="icon" className="size-8" aria-label={t('Umanji')} onClick={chat.minimize}>
-                        <Minus className="size-4" />
-                    </Button>
-                )}
-                <Button variant="ghost" size="icon" className={phone ? undefined : 'size-8'} aria-label={t('Zatvori razgovor')} onClick={chat.close}>
-                    <X className="size-4" />
+                <Button variant="ghost" size="icon" aria-label={t('Spusti poruke')} onClick={chat.close}>
+                    <X className="size-5" />
                 </Button>
             </header>
 
@@ -248,7 +245,7 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
                     key={key}
                     draft={state.drafts[key] ?? ''}
                     onDraftChange={(text) => chat.setDraft(key, text)}
-                    autoFocus={!phone}
+                    autoFocus={!touch}
                     pill
                     className="border-t-0 py-2"
                     onSend={(text) => {

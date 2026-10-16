@@ -107,7 +107,10 @@ export default function AdminLayout({ children, title }: { children: ReactNode; 
 
     return (
         <div className="bg-background paper-grain min-h-screen lg:flex">
-            <aside className="border-border/70 bg-background/95 sticky top-0 z-40 border-b lg:h-screen lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
+            <aside
+                data-site-header
+                className="border-border/70 bg-background/95 sticky top-0 z-40 border-b lg:h-screen lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0"
+            >
                 <div className="flex items-center justify-between gap-3 p-5">
                     <Brand />
                     <div className="flex items-center gap-2">

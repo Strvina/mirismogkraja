@@ -4,17 +4,19 @@ import CompactSelect from '@/components/marketplace/compact-select';
 import EmptyState from '@/components/marketplace/empty-state';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import { type MapPoint, PointsMap } from '@/components/marketplace/map';
+import { ChoiceList, FilterButton, type FilterPage, FilterPills, FilterSheet, SortMenu } from '@/components/marketplace/mobile-filters';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProducerCard, { type ProducerCardProducer } from '@/components/marketplace/producer-card';
 import { type DistrictOption } from '@/components/marketplace/product-filters';
 import SearchBox from '@/components/marketplace/search-box';
 import { Button } from '@/components/ui/button';
+import { usePendingCount } from '@/hooks/use-pending-count';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { router } from '@inertiajs/react';
 import { LocateFixed, Map as MapIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function ProducersIndex({
     producers,
@@ -92,6 +94,66 @@ export default function ProducersIndex({
 
     const filterByCity = (city: string) => visit({ city });
 
+    // On a phone the filters are chosen in a sheet first, and applied together.
+    const applied = { district: filters.district ?? '', city: filters.city ?? '' };
+    const [draft, setDraft] = useState(applied);
+    const [sheet, setSheet] = useState<string | null>(null);
+    const activeFilters = [filters.district, filters.city].filter(Boolean).length;
+    const appliedKey = JSON.stringify(applied);
+    useEffect(() => setDraft(JSON.parse(appliedKey) as typeof applied), [appliedKey]);
+    const count = usePendingCount('marketplace.producers.count', draft, applied, { q: filters.q ?? '' }, producers.total);
+    const draftDistrict = districts.find((option) => option.value === draft.district);
+    const pages: FilterPage[] = [
+        ...(districts.length > 0
+            ? [
+                  {
+                      key: 'district',
+                      label: t('Okrug'),
+                      summary: draftDistrict?.label,
+                      pill: true,
+                      reset: () => setDraft({ district: '', city: '' }),
+                      render: (done: () => void) => (
+                          <ChoiceList
+                              value={draft.district}
+                              onChoose={(value) => {
+                                  const next = districts.find((option) => option.value === value);
+                                  setDraft({ district: value, city: next && draft.city && !next.cities.includes(draft.city) ? '' : draft.city });
+                                  done();
+                              }}
+                              options={[{ value: '', label: t('Svi okruzi') }, ...districts]}
+                          />
+                      ),
+                  },
+              ]
+            : []),
+        {
+            key: 'city',
+            label: t('Mesto'),
+            summary: draft.city || undefined,
+            pill: true,
+            reset: () => setDraft({ ...draft, city: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.city}
+                    onChoose={(value) => {
+                        setDraft({ ...draft, city: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: draftDistrict ? t('Sva mesta u okrugu') : t('Cela Srbija') },
+                        ...(draftDistrict ? draftDistrict.cities : cities).map((city) => ({ value: city, label: city })),
+                    ]}
+                />
+            ),
+        },
+    ];
+    const sortOptions = [
+        { value: '', label: filters.q ? t('Najbolje se poklapa') : t('Po imenu') },
+        { value: 'rating', label: t('Najbolje ocenjeni') },
+        { value: 'reviews', label: t('Najviše utisaka') },
+        { value: 'newest', label: t('Najnoviji') },
+    ];
+
     // Within a district, only its towns; a town from another district goes.
     const district = districts.find((option) => option.value === filters.district);
     const towns = district ? district.cities : cities;
@@ -116,12 +178,30 @@ export default function ProducersIndex({
                     onSearch={(q) => visit({ q })}
                     placeholder={t('Pretraži proizvođače…')}
                     className="w-full sm:w-auto sm:min-w-64 sm:flex-1 lg:max-w-md"
+                    trailing={activeFilters === 0 ? <FilterButton className="sm:hidden" onOpen={() => setSheet('index')} /> : undefined}
                 />
+
+                {/* On a phone, as KupujemProdajem has it: the pills, and one sheet behind them. */}
+                <div className="w-full sm:hidden">
+                    {/* Only once something is chosen; until then "Filteri" is inside the search field. */}
+                    {activeFilters > 0 && <FilterPills pages={pages} activeCount={activeFilters} onOpen={setSheet} />}
+                    <FilterSheet
+                        page={sheet}
+                        onPage={setSheet}
+                        pages={pages}
+                        count={count}
+                        onApply={() => {
+                            setSheet(null);
+                            visit({ district: draft.district || null, city: draft.city || null });
+                        }}
+                        onResetAll={() => setDraft({ district: '', city: '' })}
+                    />
+                </div>
 
                 {districts.length > 0 && (
                     <CompactSelect
                         label={t('Filtriraj po okrugu')}
-                        className="h-10 w-full sm:w-56"
+                        className="hidden h-10 w-full sm:inline-flex sm:w-56"
                         value={filters.district ?? ''}
                         onChange={filterByDistrict}
                         options={[{ value: '', label: t('Svi okruzi') }, ...districts]}
@@ -131,7 +211,7 @@ export default function ProducersIndex({
                 {towns.length > 0 && (
                     <CompactSelect
                         label={t('Filtriraj po mestu')}
-                        className="h-10 w-full sm:w-48"
+                        className="hidden h-10 w-full sm:inline-flex sm:w-48"
                         value={filters.city ?? ''}
                         onChange={filterByCity}
                         options={[
@@ -143,16 +223,11 @@ export default function ProducersIndex({
 
                 <CompactSelect
                     label={t('Sortiraj')}
-                    className="h-10 w-full sm:w-52"
+                    className="hidden h-10 w-full sm:inline-flex sm:w-52"
                     // Choosing an order leaves "nearest to me".
                     value={sortedByDistance ? '' : (filters.sort ?? '')}
                     onChange={(sort) => visit({ sort, lat: null, lng: null })}
-                    options={[
-                        { value: '', label: filters.q ? t('Najbolje se poklapa') : t('Po imenu') },
-                        { value: 'rating', label: t('Najbolje ocenjeni') },
-                        { value: 'reviews', label: t('Najviše utisaka') },
-                        { value: 'newest', label: t('Najnoviji') },
-                    ]}
+                    options={sortOptions}
                 />
 
                 {/* Pressed while the list is in order of distance; pressing it again puts the list back. */}
@@ -172,6 +247,16 @@ export default function ProducersIndex({
                     <MapIcon className="size-4" />
                     {showMap ? t('Sakrij mapu') : t('Prikaži mapu')}
                 </Button>
+            </div>
+
+            {/* On a phone: how many, and "Sortiraj" beside it. */}
+            <div className="mt-4 flex items-center justify-between border-b pb-3 sm:hidden">
+                <p className="text-muted-foreground text-sm">{t('Proizvođača: :count', { count: producers.total })}</p>
+                <SortMenu
+                    value={sortedByDistance ? '' : (filters.sort ?? '')}
+                    options={sortOptions}
+                    onChange={(sort) => visit({ sort, lat: null, lng: null })}
+                />
             </div>
 
             {sortedByDistance && (

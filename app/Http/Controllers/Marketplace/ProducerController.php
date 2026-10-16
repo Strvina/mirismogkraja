@@ -21,6 +21,7 @@ use App\Support\Media;
 use App\Support\PageMeta;
 use App\Support\Search;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -125,6 +126,14 @@ class ProducerController extends Controller
                 'lng' => $near['lng'] ?? null,
                 'sort' => in_array($sort, self::SORTS, true) ? $sort : null,
             ],
+        ]);
+    }
+
+    /** How many producers the filters being chosen would show, for the phone's "Prikaži" button. */
+    public function count(Request $request): JsonResponse
+    {
+        return response()->json([
+            'count' => $this->cards($request->string('city')->toString(), $request->string('district')->toString(), Search::clean($request->string('q')->toString()))->count(),
         ]);
     }
 

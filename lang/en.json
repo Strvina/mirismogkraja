@@ -1518,5 +1518,17 @@
     "Veza sa serverom nije uspela. Proverite internet i pokušajte ponovo.": "Could not reach the server. Check your connection and try again.",
     "juče": "yesterday",
     "Filteri i redosled": "Filters and order",
-    "Redosled": "Order"
+    "Redosled": "Order",
+    "Spusti poruke": "Fold messages away",
+    "Brzi filteri": "Quick filters",
+    "Nazad na filtere": "Back to filters",
+    "Zatvori filtere": "Close filters",
+    "Resetuj": "Reset",
+    "Pretražite…": "Search…",
+    "Ništa ne odgovara pretrazi.": "Nothing matches the search.",
+    "Cena u dinarima": "Price in dinars",
+    "Dostupnost": "Availability",
+    "Svejedno": "Either",
+    "Proizvođač donosi ili šalje": "The producer brings or sends it",
+    "Preuzimate kod proizvođača": "You pick it up from the producer"
 }

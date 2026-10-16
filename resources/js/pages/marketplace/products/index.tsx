@@ -3,6 +3,7 @@ import CardGrid from '@/components/marketplace/card-grid';
 import CompactSelect from '@/components/marketplace/compact-select';
 import EmptyState from '@/components/marketplace/empty-state';
 import FeaturedSection from '@/components/marketplace/featured-section';
+import { FilterButton, SortMenu } from '@/components/marketplace/mobile-filters';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
 import ProductFilters, { type DistrictOption, type ProductFilterValues } from '@/components/marketplace/product-filters';
@@ -15,6 +16,7 @@ import { thumbUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type Category, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function ProductsIndex({
     products,
@@ -76,6 +78,12 @@ export default function ProductsIndex({
         // result set would just show an empty grid.
         router.get('/proizvodi', { ...filters, per_page: perPage, ...patch, page: undefined }, { preserveState: true, preserveScroll: true });
     };
+
+    // On a phone: "Filteri" sits inside the search field until a filter is chosen.
+    const [filterSheet, setFilterSheet] = useState<string | null>(null);
+    const activeFilters = (
+        ['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period'] as const
+    ).filter((key) => filters[key]).length;
 
     const sortOptions = [
         { value: '', label: t('Najnovije') },
@@ -159,7 +167,12 @@ export default function ProductsIndex({
                 </nav>
             )}
 
-            <SearchBox value={filters.q ?? ''} onSearch={(q) => update({ q: q || undefined })} className="mt-6 max-w-xl" />
+            <SearchBox
+                value={filters.q ?? ''}
+                onSearch={(q) => update({ q: q || undefined })}
+                className="mt-6 max-w-xl"
+                trailing={activeFilters === 0 ? <FilterButton className="lg:hidden" onOpen={() => setFilterSheet('index')} /> : undefined}
+            />
 
             {filters.q && (
                 <p className="text-muted-foreground mt-3 text-sm">
@@ -204,7 +217,8 @@ export default function ProductsIndex({
                     cities={cities}
                     priceBounds={priceBounds}
                     total={products.total}
-                    sortOptions={sortOptions}
+                    sheet={filterSheet}
+                    onSheet={setFilterSheet}
                     onChange={update}
                     onReset={reset}
                 />
@@ -217,8 +231,13 @@ export default function ProductsIndex({
                                 : t('Prikazano :from–:to od :total', { from: products.from, to: products.to, total: products.total })}
                         </p>
 
-                        <div className="flex flex-wrap items-center gap-3">
-                            {/* On a phone the count and the order share one line; the page size is a desktop nicety. */}
+                        {/* On a phone: "Sortiraj" beside the count, as KupujemProdajem has it. */}
+                        <div className="lg:hidden">
+                            <SortMenu value={filters.sort ?? ''} options={sortOptions} onChange={(value) => update({ sort: value || undefined })} />
+                        </div>
+
+                        <div className="hidden flex-wrap items-center gap-3 lg:flex">
+                            {/* The page size is a desktop nicety. */}
                             <span className="hidden items-center gap-2 text-sm sm:flex">
                                 <label htmlFor="per-page" className="text-muted-foreground">
                                     {t('Po strani:')}
