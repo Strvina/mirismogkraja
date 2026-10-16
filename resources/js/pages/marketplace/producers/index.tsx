@@ -27,7 +27,7 @@ export default function ProducersIndex({
     /** Present once the visitor has opened the map. */
     mapPoints?: MapPoint[];
     cities: string[];
-    filters: { city: string | null; q: string | null; lat: number | null; lng: number | null };
+    filters: { city: string | null; q: string | null; lat: number | null; lng: number | null; sort: string | null };
 }) {
     const [showMap, setShowMap] = useState(false);
 
@@ -45,7 +45,13 @@ export default function ProducersIndex({
 
         router.get(
             '/proizvodjaci',
-            { city: next.city || undefined, q: next.q || undefined, lat: next.lat ?? undefined, lng: next.lng ?? undefined },
+            {
+                city: next.city || undefined,
+                q: next.q || undefined,
+                lat: next.lat ?? undefined,
+                lng: next.lng ?? undefined,
+                sort: next.sort || undefined,
+            },
             { preserveState: true, preserveScroll: true },
         );
     };
@@ -108,6 +114,20 @@ export default function ProducersIndex({
                         options={[{ value: '', label: t('Cela Srbija') }, ...cities.map((city) => ({ value: city, label: city }))]}
                     />
                 )}
+
+                <CompactSelect
+                    label={t('Sortiraj')}
+                    className="h-10 w-full sm:w-52"
+                    // Choosing an order leaves "nearest to me".
+                    value={sortedByDistance ? '' : (filters.sort ?? '')}
+                    onChange={(sort) => visit({ sort, lat: null, lng: null })}
+                    options={[
+                        { value: '', label: filters.q ? t('Najbolje se poklapa') : t('Po imenu') },
+                        { value: 'rating', label: t('Najbolje ocenjeni') },
+                        { value: 'reviews', label: t('Najviše utisaka') },
+                        { value: 'newest', label: t('Najnoviji') },
+                    ]}
+                />
 
                 {/* Pressed while the list is in order of distance; pressing it again puts the list back. */}
                 <Button
