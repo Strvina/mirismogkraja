@@ -1,3 +1,4 @@
+import { type SelectOption } from '@/components/marketplace/compact-select';
 import BasicsFields from '@/components/producer-form/basics-fields';
 import ContactFields from '@/components/producer-form/contact-fields';
 import PresentationFields from '@/components/producer-form/presentation-fields';
@@ -30,6 +31,7 @@ export default function ProducerForm({
     submitLabel,
     wizard = false,
     categories = [],
+    districts = [],
 }: {
     producer?: Producer;
     action: string;
@@ -39,6 +41,7 @@ export default function ProducerForm({
     wizard?: boolean;
     /** For the products step of the wizard. */
     categories?: Category[];
+    districts?: SelectOption[];
 }) {
     const form = useForm<ProducerFormData>({
         name: producer?.name ?? '',
@@ -46,6 +49,7 @@ export default function ProducerForm({
         story: producer?.story ?? '',
         address: producer?.address ?? '',
         city: producer?.city ?? '',
+        district: producer?.district ?? '',
         phone: producer?.phone ?? '',
         contact_email: producer?.contact_email ?? '',
         delivery_methods: producer?.delivery_methods ?? [],
@@ -103,7 +107,7 @@ export default function ProducerForm({
     };
 
     const fields = { data, setData, errors };
-    const basics = <BasicsFields {...fields} />;
+    const basics = <BasicsFields {...fields} districts={districts} />;
     const contact = <ContactFields {...fields} />;
     const presentation = <PresentationFields {...fields} coverPath={producer?.cover_image_path} logoPath={producer?.logo_path} />;
 

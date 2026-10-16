@@ -1462,5 +1462,20 @@
     "Demo nalozi": "Demo accounts",
     "Izaberite kako želite da vidite sajt; podaci se upisuju sami.": "Choose how you want to see the site; the details are filled in for you.",
     "Otvori stranicu kako je vide kupci": "Open the page as buyers see it",
-    "Učitavam proizvod…": "Loading the product…"
+    "Učitavam proizvod…": "Loading the product…",
+    "Sortiraj": "Sort",
+    "Po imenu": "By name",
+    "Najbolje se poklapa": "Best match",
+    "Najbolje ocenjeni": "Best rated",
+    "Najviše utisaka": "Most reviews",
+    "Najnoviji": "Newest",
+    "Okrug": "District",
+    "Prema mestu": "From the town",
+    "Za grad ili opštinu okrug se upisuje sam. Izaberite ga ako ste upisali selo, da bi vas kupci našli po okrugu.": "For a town or municipality the district is filled in by itself. Pick it if you entered a village, so buyers can find you by district.",
+    "Svi okruzi": "All districts",
+    "Sva mesta u okrugu": "All towns in the district",
+    "Filtriraj po okrugu": "Filter by district",
+    "Najbolje ocenjeni proizvođači": "Best-rated producers",
+    "Tema sajta": "Site theme",
+    "Odštampajte ga i stavite na tezgu: kupac skenira kod telefonom i otvori vašu stranicu. Skeniranja vidite u statistici.": "Print it and put it on your stall: a buyer scans the code with a phone and opens your page. You see the scans in your statistics."
 }

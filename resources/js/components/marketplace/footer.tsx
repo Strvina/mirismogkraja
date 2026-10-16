@@ -17,7 +17,7 @@ export default function Footer() {
 
     return (
         <footer className="bg-background">
-            <div className="mx-auto max-w-[1380px] px-5 py-14 sm:px-8 lg:px-12">
+            <div className="max-w-page mx-auto px-5 py-14 sm:px-8 lg:px-12">
                 <div className="border-border grid gap-10 border-b pb-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
                     <div>
                         <Brand />

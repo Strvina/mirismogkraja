@@ -5,7 +5,7 @@ import EmptyState from '@/components/marketplace/empty-state';
 import FeaturedSection from '@/components/marketplace/featured-section';
 import Pagination, { type Paginated } from '@/components/marketplace/pagination';
 import ProductCard, { type ProductCardProduct } from '@/components/marketplace/product-card';
-import ProductFilters, { type ProductFilterValues } from '@/components/marketplace/product-filters';
+import ProductFilters, { type DistrictOption, type ProductFilterValues } from '@/components/marketplace/product-filters';
 import SearchBox from '@/components/marketplace/search-box';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
@@ -22,6 +22,7 @@ export default function ProductsIndex({
     categories,
     producers,
     selectedProducer,
+    districts,
     cities,
     priceBounds,
     filters,
@@ -33,6 +34,7 @@ export default function ProductsIndex({
     prices,
     places,
     matchingProducers,
+    banner,
 }: {
     products: Paginated<ProductCardProduct>;
     featured: ProductCardProduct[];
@@ -40,6 +42,7 @@ export default function ProductsIndex({
     /** Arrives after the page, once (a deferred prop); until then only the chosen one is known. */
     producers?: { id: number; name: string }[];
     selectedProducer: { id: number; name: string } | null;
+    districts: DistrictOption[];
     cities: string[];
     priceBounds: { min: number; max: number };
     filters: ProductFilterValues;
@@ -66,6 +69,8 @@ export default function ProductsIndex({
     places: { slug: string; name: string }[];
     /** On the first page of a search: the producers it matches. */
     matchingProducers: { id: number; name: string; slug: string; city: string | null; logo_path: string | null }[];
+    /** The photo of the category on screen - its page's, or the one chosen in the filter. */
+    banner: { src: string; alt: string } | null;
 }) {
     const { auth } = usePage<SharedData>().props;
 
@@ -102,13 +107,37 @@ export default function ProductsIndex({
         <MarketplaceLayout breadcrumbs={breadcrumbs}>
             <Head />
 
-            <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
-            <p className="text-muted-foreground mt-3 max-w-lg leading-7">
-                {category
-                    ? category.intro ||
-                      t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
-                    : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
-            </p>
+            <header
+                className={cn(banner && 'grid items-center gap-6 md:grid-cols-[1fr_minmax(0,24rem)] lg:grid-cols-[1fr_minmax(0,30rem)] lg:gap-10')}
+            >
+                <div>
+                    <h1 className="font-serif text-4xl sm:text-5xl">{heading}</h1>
+                    <p className="text-muted-foreground mt-3 max-w-lg leading-7">
+                        {category
+                            ? category.intro ||
+                              t('Domaći proizvodi iz kategorije „:category”, direktno od proizvođača sa juga Srbije.', { category: t(category.name) })
+                            : t('Domaći proizvodi, direktno od ljudi koji ih prave.')}
+                    </p>
+                </div>
+
+                {/* What the category is, at a glance: honey and bees for "Med". */}
+                {banner && (
+                    <figure key={banner.src} className="animate-in fade-in relative overflow-hidden rounded-xl shadow-sm duration-500">
+                        <img
+                            src={banner.src}
+                            alt={banner.alt}
+                            fetchPriority="high"
+                            className="image-warm aspect-[2/1] w-full object-cover md:aspect-[16/9]"
+                        />
+                        {/* Chosen in the filter, not on the category's own page: say which. */}
+                        {!category && (
+                            <figcaption className="text-on-photo absolute inset-x-0 bottom-0 bg-[linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_75%,transparent),transparent)] px-4 pt-10 pb-3 font-serif text-xl">
+                                {banner.alt}
+                            </figcaption>
+                        )}
+                    </figure>
+                )}
+            </header>
 
             {category && general && subcategories.length > 0 && (
                 <nav aria-label={t('Potkategorije')} className="mt-6 flex flex-wrap gap-2">
@@ -190,6 +219,7 @@ export default function ProductsIndex({
                     filters={filters}
                     categories={categories}
                     producers={producers ?? (selectedProducer ? [selectedProducer] : [])}
+                    districts={districts}
                     cities={cities}
                     priceBounds={priceBounds}
                     onChange={update}
@@ -225,13 +255,14 @@ export default function ProductsIndex({
                                 </label>
                                 <CompactSelect
                                     id="sort"
-                                    className="w-44"
+                                    className="w-56"
                                     value={filters.sort ?? ''}
                                     onChange={(value) => update({ sort: value || undefined })}
                                     options={[
                                         { value: '', label: t('Najnovije') },
                                         { value: 'price_asc', label: t('Cena: niža prvo') },
                                         { value: 'price_desc', label: t('Cena: viša prvo') },
+                                        { value: 'rating', label: t('Najbolje ocenjeni proizvođači') },
                                     ]}
                                 />
                             </span>
@@ -284,7 +315,7 @@ export default function ProductsIndex({
                         </EmptyState>
                     ) : (
                         <>
-                            <CardGrid className="grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+                            <CardGrid className="grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4 min-[112.5rem]:grid-cols-5 min-[150rem]:grid-cols-6">
                                 {products.data.map((product) => (
                                     <ProductCard key={product.id} product={product} canFavorite={Boolean(auth.user)} />
                                 ))}

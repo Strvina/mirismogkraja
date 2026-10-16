@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Producer;
 use App\Models\Product;
+use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -185,5 +186,23 @@ class PublicProductListTest extends TestCase
             ->assertInertia(fn ($page) => $page
                 ->missing('producers')
                 ->where('selectedProducer', ['id' => $producer->id, 'name' => 'Pčelarstvo Đorđević']));
+    }
+
+    public function test_products_can_be_ordered_by_their_producers_rating()
+    {
+        $good = Producer::factory()->active()->create();
+        $fair = Producer::factory()->active()->create();
+        $unrated = Producer::factory()->active()->create();
+        Review::factory()->for($good)->create(['rating' => 5]);
+        Review::factory()->for($fair)->create(['rating' => 3]);
+
+        // Added newest first, so the default order is the other way round.
+        Product::factory()->for($good)->create(['status' => 'active', 'name' => 'Od dobrog', 'created_at' => now()->subDays(3)]);
+        Product::factory()->for($fair)->create(['status' => 'active', 'name' => 'Od solidnog', 'created_at' => now()->subDays(2)]);
+        Product::factory()->for($unrated)->create(['status' => 'active', 'name' => 'Od neocenjenog', 'created_at' => now()->subDay()]);
+
+        $names = collect($this->get(route('marketplace.products.index', ['sort' => 'rating']))->viewData('page')['props']['products']['data'])->pluck('name')->all();
+
+        $this->assertSame(['Od dobrog', 'Od solidnog', 'Od neocenjenog'], $names);
     }
 }

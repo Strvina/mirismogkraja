@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\KeepsOldSlugs;
+use App\Support\Districts;
 use Database\Factories\ProducerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -91,6 +92,7 @@ class Producer extends Model
         'story',
         'address',
         'city',
+        'district',
         'delivery_methods',
         'phone',
         'contact_email',
@@ -167,6 +169,16 @@ class Producer extends Model
 
     protected static function booted(): void
     {
+        // The district follows the town: worked out from it when none is
+        // set, and again when the town changes - unless a district was
+        // picked in the same change. A town not on the list keeps the one
+        // there was.
+        static::saving(function (self $producer) {
+            if (blank($producer->district) || ($producer->isDirty('city') && ! $producer->isDirty('district'))) {
+                $producer->district = Districts::forCity($producer->city) ?? $producer->district;
+            }
+        });
+
         // An archived producer's documents are not kept on file: they name
         // a person, and nothing shows them any more. Deleted one by one, so
         // each takes its file with it.

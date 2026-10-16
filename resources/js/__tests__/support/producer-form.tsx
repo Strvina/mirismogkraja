@@ -8,6 +8,7 @@ export const EMPTY_PRODUCER: ProducerFormData = {
     story: '',
     address: '',
     city: '',
+    district: '',
     phone: '',
     contact_email: '',
     delivery_methods: [],

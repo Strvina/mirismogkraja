@@ -7,6 +7,8 @@ export type ProducerFormData = {
     story: string;
     address: string;
     city: string;
+    /** Empty: worked out from the town. */
+    district: string;
     phone: string;
     contact_email: string;
     delivery_methods: string[];

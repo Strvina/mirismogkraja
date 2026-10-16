@@ -16,6 +16,7 @@ use App\Services\Places;
 use App\Services\ProducerStatistics;
 use App\Services\ResponseTime;
 use App\Services\SubscriptionService;
+use App\Support\Districts;
 use App\Support\Media;
 use App\Support\PageMeta;
 use App\Support\Search;
@@ -32,6 +33,9 @@ class ProducerController extends Controller
     /** Products on a producer's own page; "all of them" links to the catalogue. */
     private const PRODUCTS_SHOWN = 24;
 
+    /** The orders the list offers besides its own (by name, or by relevance to a search). */
+    private const SORTS = ['rating', 'reviews', 'newest'];
+
     /**
      * List active producers, optionally filtered by city, with everything
      * their card shows: rating, review count and the latest few
@@ -40,14 +44,23 @@ class ProducerController extends Controller
     public function index(Request $request, SubscriptionService $subscriptions, BoostService $boosts): Response
     {
         $city = $request->string('city')->toString();
+        $district = $request->string('district')->toString();
         $search = Search::clean($request->string('q')->toString());
 
         $near = $this->nearPoint($request);
+        // Distance, when asked for, wins: the button says "nearest to me".
+        $sort = $near ? null : $request->string('sort')->toString();
 
-        $producers = $this->cards($city, $search)
+        $producers = $this->cards($city, $district, $search)
             ->when($near, fn ($query) => $this->orderByDistance($query, $near))
-            ->when(! $near, fn ($query) => Search::orderByRelevance($query, ['name', 'description'], $search))
+            // Best rated first, the unrated last (a null sorts lowest); of two alike, the one more
+            // buyers have rated. Then the most reviewed, the newest.
+            ->when($sort === 'rating', fn ($query) => $query->orderByDesc('reviews_avg_rating')->orderByDesc('reviews_count'))
+            ->when($sort === 'reviews', fn ($query) => $query->orderByDesc('reviews_count')->orderByDesc('reviews_avg_rating'))
+            ->when($sort === 'newest', fn ($query) => $query->latest('producers.created_at'))
+            ->when(! $near && ! in_array($sort, self::SORTS, true), fn ($query) => Search::orderByRelevance($query, ['name', 'description'], $search))
             ->orderBy('name')
+            ->orderBy('producers.id')
             ->paginate(12)
             ->withQueryString();
 
@@ -64,7 +77,7 @@ class ProducerController extends Controller
         // the days of a boost they paid for. Filtered by city, it doubles
         // as regional placement.
         $featured = $producers->onFirstPage()
-            ? $this->cards($city, $search)
+            ? $this->cards($city, $district, $search)
                 ->whereIn('id', $subscriptions->producerIdsWith('featured_section')->concat($boosts->runningIds(Boost::PROFILE))->unique()->values())
                 ->inRandomOrder()
                 // Enough to fill the slider on a wide screen.
@@ -79,6 +92,7 @@ class ProducerController extends Controller
             ->distinct()
             ->orderBy('city')
             ->pluck('city');
+        $districts = Districts::withTowns(Producer::published());
 
         return Inertia::render('marketplace/producers/index', [
             'meta' => PageMeta::make(__('Proizvođači | Vrelina juga'), __('Upoznajte domaće proizvođače sa juga Srbije i pišite im direktno, bez posrednika.')),
@@ -90,6 +104,7 @@ class ProducerController extends Controller
             'mapPoints' => Inertia::optional(fn () => Producer::published()
                 ->whereNotNull('lat')
                 ->whereNotNull('lng')
+                ->when($district, fn ($query) => $query->where('district', $district))
                 ->when($city, fn ($query) => $query->where('city', $city))
                 ->get(['id', 'name', 'slug', 'city', 'lat', 'lng'])
                 ->map(fn (Producer $producer) => [
@@ -100,12 +115,15 @@ class ProducerController extends Controller
                     'lat' => (float) $producer->lat,
                     'lng' => (float) $producer->lng,
                 ])),
+            'districts' => $districts,
             'cities' => $cities,
             'filters' => [
+                'district' => $district ?: null,
                 'city' => $city ?: null,
                 'q' => $search !== '' ? $search : null,
                 'lat' => $near['lat'] ?? null,
                 'lng' => $near['lng'] ?? null,
+                'sort' => in_array($sort, self::SORTS, true) ? $sort : null,
             ],
         ]);
     }
@@ -170,10 +188,11 @@ class ProducerController extends Controller
      *
      * @return Builder<Producer>
      */
-    private function cards(string $city, string $search = ''): Builder
+    private function cards(string $city, string $district, string $search = ''): Builder
     {
         return Producer::published()
             ->withCardData()
+            ->when($district, fn ($query) => $query->where('district', $district))
             ->when($city, fn ($query) => $query->where('city', $city))
             ->when($search !== '', fn ($query) => Search::apply($query, ['name', 'description'], $search));
     }

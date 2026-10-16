@@ -67,7 +67,7 @@ function Section({
 }) {
     return (
         <section id={id} className={className}>
-            <div className="mx-auto max-w-[1380px] px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
+            <div className="max-w-page mx-auto px-5 py-16 sm:px-8 lg:px-12 lg:py-20">
                 {/* The heading, the link to the whole list and the slider's
                     arrows share one line: a line of their own for the arrows
                     put a gap between every heading and its cards. */}
@@ -140,7 +140,7 @@ export default function Welcome({
                         className="image-warm absolute inset-0 size-full object-cover object-[64%_center]"
                     />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--charcoal)_92%,transparent)_0%,color-mix(in_oklab,var(--charcoal)_68%,transparent)_42%,color-mix(in_oklab,var(--charcoal)_10%,transparent)_78%),linear-gradient(0deg,color-mix(in_oklab,var(--charcoal)_60%,transparent),transparent_52%)]" />
-                    <div className="text-on-photo relative mx-auto w-full max-w-[1380px] px-5 pt-20 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
+                    <div className="text-on-photo max-w-page relative mx-auto w-full px-5 pt-20 pb-16 sm:px-8 sm:pb-20 lg:px-12 lg:pb-24">
                         <div className="reveal-up max-w-3xl">
                             <p className="text-on-photo/80 mb-5 flex items-center gap-3 text-xs font-semibold tracking-[0.18em] uppercase">
                                 <span className="bg-gold h-px w-9" /> {t('Iz srca juga Srbije')}
@@ -222,7 +222,7 @@ export default function Welcome({
                 {/* Seasonal campaigns under way: one runs wide
                     beside its photograph, several share the row. */}
                 {campaigns.length > 0 && (
-                    <section aria-label={t('Kampanje')} className="mx-auto max-w-[1380px] px-5 pb-16 sm:px-8 lg:px-12">
+                    <section aria-label={t('Kampanje')} className="max-w-page mx-auto px-5 pb-16 sm:px-8 lg:px-12">
                         <div className={campaigns.length > 1 ? 'grid gap-6 lg:grid-cols-2' : undefined}>
                             {campaigns.map((campaign) => (
                                 <CampaignCard key={campaign.id} campaign={campaign} wide={campaigns.length === 1} />
@@ -346,7 +346,7 @@ export default function Welcome({
 
                 <section
                     id="o-nama"
-                    className="mx-auto grid max-w-[1380px] items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-20 lg:px-12 lg:py-28"
+                    className="max-w-page mx-auto grid items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:gap-20 lg:px-12 lg:py-28"
                 >
                     <div className="relative">
                         <div className="border-gold absolute -top-4 -left-4 hidden h-24 w-24 border-t border-l lg:block" />

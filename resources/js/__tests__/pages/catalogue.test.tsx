@@ -13,6 +13,7 @@ const listing: ComponentProps<typeof ProductsIndex> = {
     categories: [],
     producers: [],
     selectedProducer: null,
+    districts: [],
     cities: [],
     priceBounds: { min: 0, max: 1000 },
     filters: { q: 'ajvar', city: 'Niš', sort: 'price_asc' },
@@ -24,6 +25,7 @@ const listing: ComponentProps<typeof ProductsIndex> = {
     prices: [],
     places: [],
     matchingProducers: [],
+    banner: null,
 };
 
 function renderProduct(overrides: Partial<ComponentProps<typeof ProductShow>> = {}, signedIn = false) {

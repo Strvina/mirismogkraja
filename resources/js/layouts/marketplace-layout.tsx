@@ -44,7 +44,7 @@ export default function MarketplaceLayout({
                         {children}
                     </main>
                 ) : (
-                    <main className={cn('mx-auto w-full max-w-[1380px] flex-1 px-5 py-12 sm:px-8 lg:px-12', enter && 'page-enter')}>
+                    <main className={cn('max-w-page mx-auto w-full flex-1 px-5 py-12 sm:px-8 lg:px-12', enter && 'page-enter')}>
                         {breadcrumbs && breadcrumbs.length > 0 && (
                             <nav aria-label={t('Putanja')} className="text-muted-foreground mb-6 flex flex-wrap items-center gap-1.5 text-sm">
                                 {breadcrumbs.map((crumb, index) => (
