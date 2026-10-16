@@ -1447,5 +1447,13 @@
     "Vaša stranica još čeka odobrenje, pa će i objavljeni proizvodi biti vidljivi tek kad je odobrimo.": "Your page is still waiting for approval, so published products become visible only once we approve it.",
     "Prijava je poslata. Pregledamo je i javićemo vam obaveštenjem na sajtu kad stranica postane javna.": "Your application is sent. We will review it and let you know with a notification on the site when the page goes public.",
     "Razgovor sa kupcem, kao :name": "Conversation with the buyer, as :name",
-    "Nastavite razgovor sa kupcem": "Continue the conversation with the buyer"
+    "Nastavite razgovor sa kupcem": "Continue the conversation with the buyer",
+    "Koliko dugo čuvamo": "How long we keep it",
+    "Podatke naloga: dok nalog postoji. Kada ga obrišete, ime, telefon, adresa, grad, lokacija i profilna slika brišu se odmah, a email se zamenjuje oznakom bez veze sa vama.": "Account details: as long as the account exists. When you delete it, your name, phone, address, town, location and profile picture are erased at once, and your e-mail is replaced by a placeholder unconnected to you.",
+    "Poruke i utiske: dok postoji razgovor. Posle brisanja naloga ostaju uz ime „Obrisan korisnik“, jer pripadaju i drugoj strani.": "Messages and reviews: as long as the conversation exists. After an account is deleted they stay under the name \"Deleted user\", because they belong to the other side too.",
+    "Podatke o prijavi (adresu uređaja i pregledač): dok ste prijavljeni. Posle dva sata bez aktivnosti prijava ističe i ti podaci se brišu.": "Sign-in details (your device address and browser): while you are signed in. After two hours without activity the sign-in expires and those details are erased.",
+    "Pročitana obaveštenja: šest meseci.": "Read notifications: six months.",
+    "Zapis o izmenama proizvoda i proizvođača: dvanaest meseci.": "The record of changes to products and producers: twelve months.",
+    "Rezervne kopije baze: četrnaest dana.": "Database backups: fourteen days.",
+    "Tehnički zapis grešaka sa servera, u kome stoji samo broj naloga, ne ime: četrnaest dana.": "The server's technical error log, which holds only an account number, not a name: fourteen days."
 }
