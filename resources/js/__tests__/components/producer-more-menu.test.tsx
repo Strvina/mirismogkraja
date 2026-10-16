@@ -13,7 +13,8 @@ async function openMenu(status: Producer['status']) {
     return view;
 }
 
-const items = () => screen.getAllByRole('menuitem').map((item) => item.textContent);
+// By what each is called; a hint under one is its description, not part of its name.
+const items = () => screen.getAllByRole('menuitem').map((item) => item.getAttribute('aria-label') ?? item.textContent);
 
 describe('ProducerMoreMenu', () => {
     it('keeps everything behind one button', () => {
@@ -36,6 +37,12 @@ describe('ProducerMoreMenu', () => {
             'Isticanje',
             'Kampanje',
         ]);
+    });
+
+    it('says under the poster what it is for', async () => {
+        await openMenu('active');
+
+        expect(screen.getByRole('menuitem', { name: 'QR poster za tezgu' })).toHaveAccessibleDescription(/kupac skenira kod telefonom/);
     });
 
     it.each(['pending', 'blocked'] as const)(
