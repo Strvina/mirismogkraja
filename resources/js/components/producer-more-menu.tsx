@@ -11,6 +11,8 @@ interface Item {
     icon: LucideIcon;
     /** A file the browser downloads, so a plain link rather than a page visit. */
     download?: boolean;
+    /** A line under the label, for what is not obvious from it. */
+    hint?: string;
 }
 
 /**
@@ -25,7 +27,17 @@ export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer
         { label: t('Sertifikati'), href: route('producers.certificates.index', producer.id), icon: ShieldCheck },
         // The code on the poster opens the public page, which exists once approved.
         ...(producer.status === 'active'
-            ? [{ label: t('QR poster za tezgu'), href: route('producers.poster', producer.id), icon: QrCode, download: true }]
+            ? [
+                  {
+                      label: t('QR poster za tezgu'),
+                      href: route('producers.poster', producer.id),
+                      icon: QrCode,
+                      download: true,
+                      hint: t(
+                          'Odštampajte ga i stavite na tezgu: kupac skenira kod telefonom i otvori vašu stranicu. Skeniranja vidite u statistici.',
+                      ),
+                  },
+              ]
             : []),
         { label: t('Pauza'), href: route('producers.pause.edit', producer.id), icon: CirclePause },
         { label: t('Preporuči proizvođača'), href: route('producers.referrals.index', producer.id), icon: Gift },
@@ -41,12 +53,15 @@ export default function ProducerMoreMenu({ producer }: { producer: Pick<Producer
                     <ChevronDown className="size-4" />
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-60">
+            <DropdownMenuContent align="start" className="w-72">
                 {items.map((item) => {
                     const content = (
                         <>
-                            <item.icon className="text-muted-foreground size-4" />
-                            {item.label}
+                            <item.icon className="text-muted-foreground mt-0.5 size-4 shrink-0 self-start" />
+                            <span>
+                                {item.label}
+                                {item.hint && <span className="text-muted-foreground mt-0.5 block text-xs leading-5">{item.hint}</span>}
+                            </span>
                         </>
                     );
 

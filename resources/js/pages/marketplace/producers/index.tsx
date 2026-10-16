@@ -192,7 +192,12 @@ export default function ProducersIndex({
                 </EmptyState>
             ) : (
                 <>
-                    <CardGrid className={cn('gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4', featured.length === 0 && 'mt-8')}>
+                    <CardGrid
+                        className={cn(
+                            'gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 min-[112.5rem]:grid-cols-5',
+                            featured.length === 0 && 'mt-8',
+                        )}
+                    >
                         {producers.data.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} />
                         ))}
