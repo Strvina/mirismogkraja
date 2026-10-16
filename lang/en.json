@@ -1461,5 +1461,8 @@
     "Administrator": "Administrator",
     "Demo nalozi": "Demo accounts",
     "Izaberite kako želite da vidite sajt; podaci se upisuju sami.": "Choose how you want to see the site; the details are filled in for you.",
-    "Otvori stranicu kako je vide kupci": "Open the page as buyers see it"
+    "Otvori stranicu kako je vide kupci": "Open the page as buyers see it",
+    "Tema sajta": "Site theme",
+    "Odštampajte ga i stavite na tezgu: kupac skenira kod telefonom i otvori vašu stranicu. Skeniranja vidite u statistici.": "Print it and put it on your stall: a buyer scans the code with a phone and opens your page. You see the scans in your statistics.",
+    "Tamna tema": "Dark theme"
 }

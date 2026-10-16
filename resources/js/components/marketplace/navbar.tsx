@@ -1,3 +1,4 @@
+import ThemeToggle from '@/components/marketplace/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { t } from '@/lib/i18n';
@@ -72,7 +73,7 @@ export default function Navbar() {
 
     return (
         <header className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/80 sticky top-0 z-50 border-b backdrop-blur">
-            <div className="mx-auto flex h-16 max-w-[1380px] items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
+            <div className="max-w-page mx-auto flex h-16 items-center gap-4 px-5 sm:h-20 sm:px-8 lg:px-12">
                 <Brand />
 
                 <nav className="ml-6 hidden flex-1 items-center gap-7 text-sm lg:flex" aria-label={t('Glavna navigacija')}>
@@ -191,6 +192,7 @@ export default function Navbar() {
                             </Button>
                         </>
                     )}
+                    <ThemeToggle />
                 </div>
             </div>
 

@@ -1474,5 +1474,8 @@
     "Administrator": "Администратор",
     "Demo nalozi": "Демо-аккаунты",
     "Izaberite kako želite da vidite sajt; podaci se upisuju sami.": "Выберите, как вы хотите посмотреть сайт; данные заполнятся сами.",
-    "Otvori stranicu kako je vide kupci": "Открыть страницу так, как её видят покупатели"
+    "Otvori stranicu kako je vide kupci": "Открыть страницу так, как её видят покупатели",
+    "Tema sajta": "Тема сайта",
+    "Odštampajte ga i stavite na tezgu: kupac skenira kod telefonom i otvori vašu stranicu. Skeniranja vidite u statistici.": "Распечатайте и поставьте на прилавок: покупатель сканирует код телефоном и открывает вашу страницу. Сканирования видны в статистике.",
+    "Tamna tema": "Тёмная тема"
 }
