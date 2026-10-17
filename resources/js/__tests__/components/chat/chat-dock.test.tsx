@@ -4,7 +4,7 @@ import { renderOnPage } from '@/__tests__/support/render';
 import ChatDock from '@/components/chat/chat-dock';
 import ChatLink from '@/components/chat/chat-link';
 import { chat } from '@/lib/chat/store';
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const DESKTOP = '(min-width: 40rem)';
@@ -81,25 +81,30 @@ describe('ChatDock', () => {
         expect(list).toHaveTextContent('Nepročitano');
     });
 
-    it('opens a conversation from the list in a window, which can be folded away and brought back', async () => {
+    it('works as Instagram: the list, a conversation in the same window, back to the list, and the cross folds it into the button', async () => {
         serve();
         const { user } = renderOnPage(<ChatDock />, { url: '/proizvodi', props: { auth: { user: me }, unreadMessages: 2 } });
 
         await user.click(screen.getByRole('button', { name: /^Poruke/ }));
         await user.click(await screen.findByRole('button', { name: /Pčelinjak Rtanj/ }));
 
-        expect(await screen.findByRole('dialog', { name: 'Razgovor' })).toBeInTheDocument();
-        expect(screen.getByRole('textbox', { name: 'Poruka' })).toBeInTheDocument();
+        const conversation = await screen.findByRole('dialog', { name: 'Razgovor' });
+        await user.type(within(conversation).getByRole('textbox', { name: 'Poruka' }), 'Nedovršeno');
 
-        await user.type(screen.getByRole('textbox', { name: 'Poruka' }), 'Nedovršeno');
-        await user.click(screen.getByRole('button', { name: 'Umanji' }));
+        // Back: the list again, in the same window.
+        await user.click(within(conversation).getByRole('button', { name: 'Nazad na razgovore' }));
+        const list = await screen.findByRole('dialog', { name: 'Poruke' });
+        await user.click(within(list).getByRole('button', { name: /Pčelinjak Rtanj/ }));
+        expect(within(await screen.findByRole('dialog', { name: 'Razgovor' })).getByRole('textbox', { name: 'Poruka' })).toHaveValue('Nedovršeno');
 
-        expect(screen.queryByRole('dialog', { name: 'Razgovor' })).not.toBeInTheDocument();
-        await user.click(screen.getByRole('button', { name: 'Otvori razgovor sa Pčelinjak Rtanj' }));
-        expect(screen.getByRole('textbox', { name: 'Poruka' })).toHaveValue('Nedovršeno');
+        // The cross: folded into the button, which brings it back where it was.
+        await user.click(within(screen.getByRole('dialog', { name: 'Razgovor' })).getByRole('button', { name: 'Spusti poruke' }));
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        await user.click(screen.getByRole('button', { name: /^Poruke/ }));
+        expect(within(await screen.findByRole('dialog', { name: 'Razgovor' })).getByRole('textbox', { name: 'Poruka' })).toHaveValue('Nedovršeno');
     });
 
-    it('asks the server to count the conversation read only while it is open, not folded away', async () => {
+    it('asks the server to count the conversation read only while the window is open, not folded into the button', async () => {
         const fetch = serve();
         const { user } = renderOnPage(<ChatDock />, { url: '/proizvodi', props: { auth: { user: me }, unreadMessages: 2 } });
 
@@ -107,7 +112,7 @@ describe('ChatDock', () => {
         await screen.findByRole('dialog', { name: 'Razgovor' });
         await waitFor(() => expect(fetch.mock.calls.some(([url]) => String(url).includes('read=1'))).toBe(true));
 
-        await user.click(screen.getByRole('button', { name: 'Umanji' }));
+        await user.click(within(screen.getByRole('dialog', { name: 'Razgovor' })).getByRole('button', { name: 'Spusti poruke' }));
         const asked = fetch.mock.calls.length;
         await new Promise((resolve) => setTimeout(resolve, 50));
 
@@ -163,7 +168,7 @@ describe('ChatDock on a phone', () => {
         await user.click(screen.getByRole('button', { name: 'Nazad na razgovore' }));
         expect(await screen.findByRole('dialog', { name: 'Poruke' })).toBeInTheDocument();
 
-        await user.click(screen.getByRole('button', { name: 'Zatvori poruke' }));
+        await user.click(screen.getByRole('button', { name: 'Spusti poruke' }));
         expect(document.documentElement.style.overflow).toBe('');
     });
 });

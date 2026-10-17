@@ -1,7 +1,7 @@
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
-import { type FormEvent, useEffect, useState } from 'react';
+import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
 
 /**
  * A search field that submits on Enter. Keeps its text in sync with the
@@ -13,12 +13,15 @@ export default function SearchBox({
     placeholder,
     className,
     autoFocus = false,
+    trailing,
 }: {
     value?: string;
     onSearch: (query: string) => void;
     placeholder?: string;
     className?: string;
     autoFocus?: boolean;
+    /** Inside the field, at its right end: the phone's "Filteri", until a filter is chosen. */
+    trailing?: ReactNode;
 }) {
     const [query, setQuery] = useState(value);
 
@@ -40,8 +43,12 @@ export default function SearchBox({
                 aria-label={placeholder ?? t('Pretraži proizvode…')}
                 maxLength={100}
                 autoFocus={autoFocus}
-                className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-10 w-full rounded-full border pr-3 pl-9 text-sm shadow-xs transition outline-none focus-visible:ring-[3px]"
+                className={cn(
+                    'border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-10 w-full rounded-full border pr-3 pl-9 text-sm shadow-xs transition outline-none focus-visible:ring-[3px]',
+                    trailing && 'pr-28 lg:pr-3',
+                )}
             />
+            {trailing && <div className="absolute top-1/2 right-1 -translate-y-1/2">{trailing}</div>}
         </form>
     );
 }

@@ -84,4 +84,16 @@ class PublicProducerListTest extends TestCase
         $this->get(route('marketplace.producers.index', ['sort' => 'newest']))
             ->assertInertia(fn ($page) => $page->where('producers.data.0.name', 'Novi')->where('producers.data.1.name', 'Stari'));
     }
+
+    public function test_the_phone_filter_button_learns_how_many_producers_a_choice_would_show()
+    {
+        Producer::factory()->active()->create(['city' => 'Niš']);
+        Producer::factory()->active()->create(['city' => 'Aleksinac']);
+        Producer::factory()->active()->create(['city' => 'Vranje']);
+        Producer::factory()->create(['city' => 'Niš', 'status' => 'pending']);
+
+        $this->getJson(route('marketplace.producers.count'))->assertOk()->assertExactJson(['count' => 3]);
+        $this->getJson(route('marketplace.producers.count', ['district' => 'nisavski']))->assertExactJson(['count' => 2]);
+        $this->getJson(route('marketplace.producers.count', ['city' => 'Vranje']))->assertExactJson(['count' => 1]);
+    }
 }

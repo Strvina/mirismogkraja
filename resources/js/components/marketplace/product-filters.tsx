@@ -1,13 +1,14 @@
 import CompactSelect from '@/components/marketplace/compact-select';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { sameFilters, usePendingCount } from '@/hooks/use-pending-count';
 import { t } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import { type Category } from '@/types';
 import { ChevronDown, ChevronUp, SlidersHorizontal, X } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
+import { ChoiceList, type FilterPage, FilterPills, FilterSheet } from './mobile-filters';
 
 export interface ProductFilterValues {
     q?: string;
@@ -33,19 +34,14 @@ export interface DistrictOption {
     cities: string[];
 }
 
-/** What the panel narrows by. */
-const FILTERS = ['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period'] as const;
-
-/** What it sets, the order too (on a phone, where it is the only place to set it); never the search. */
-const KEYS = [...FILTERS, 'sort'] as const;
+/** What the panel narrows by; the search and the order are not its to change. */
+const KEYS = ['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period'] as const;
 
 type Draft = Partial<Record<(typeof KEYS)[number], string>>;
 
 const draftOf = (filters: ProductFilterValues): Draft =>
     // A category's own page sends its id as a number.
     Object.fromEntries(KEYS.filter((key) => filters[key]).map((key) => [key, String(filters[key])]));
-
-const same = (a: Draft, b: Draft) => KEYS.every((key) => (a[key] ?? '') === (b[key] ?? ''));
 
 interface Props {
     filters: ProductFilterValues;
@@ -56,10 +52,11 @@ interface Props {
     priceBounds: { min: number; max: number };
     /** How many the filters in force show. */
     total?: number;
-    /** The orders the list offers; on a phone they are chosen here, with the filters. */
-    sortOptions?: { value: string; label: string }[];
     onChange: (patch: ProductFilterValues) => void;
     onReset: () => void;
+    /** The phone's sheet, when the page opens it - from the "Filteri" inside its search field. */
+    sheet?: string | null;
+    onSheet?: (page: string | null) => void;
 }
 
 /**
@@ -70,111 +67,57 @@ interface Props {
  * first, a narrower field opening once the wider one is chosen (category,
  * then subcategory; district, then town); the rest folds away.
  *
- * Beside the list on a computer. On a phone everything - the order too - is
- * behind one "Filteri" button: a row of quick choices beside it only said
- * the same things twice.
+ * Beside the list on a computer. On a phone, as KupujemProdajem has them
+ * there: a row of pills and one sheet with a page for each filter
+ * (mobile-filters.tsx).
  */
-export default function ProductFilters({ filters, total, onChange, onReset, ...choices }: Props) {
+export default function ProductFilters({ filters, total, onChange, onReset, sheet: openSheet, onSheet, ...choices }: Props) {
     const applied = draftOf(filters);
     const [draft, setDraft] = useState<Draft>(applied);
-    const [panelOpen, setPanelOpen] = useState(false);
-    const count = usePendingCount(draft, applied, filters.q, total);
+    const [ownSheet, setOwnSheet] = useState<string | null>(null);
+    const sheet = openSheet !== undefined ? openSheet : ownSheet;
+    const setSheet = onSheet ?? setOwnSheet;
+    const count = usePendingCount('marketplace.products.count', draft, applied, { q: filters.q }, total);
     const appliedKey = JSON.stringify(applied);
 
     // A list changed from outside the panel - a chip, "Poništi", the back button - starts it over.
     useEffect(() => setDraft(JSON.parse(appliedKey) as Draft), [appliedKey]);
 
-    // The order is not a filter: it narrows nothing.
-    const activeCount = FILTERS.filter((key) => applied[key]).length;
+    const activeCount = Object.keys(applied).length;
     const apply = (next: Draft = draft) => {
         onChange(Object.fromEntries(KEYS.map((key) => [key, next[key] || undefined])));
-        setPanelOpen(false);
+        setSheet(null);
     };
+
+    const pages = phonePages(draft, (patch) => setDraft((current) => ({ ...current, ...patch })), choices);
 
     const panel = (
         <FilterFields
             draft={draft}
             setDraft={setDraft}
             count={count}
-            changed={!same(draft, applied)}
+            changed={!sameFilters(draft, applied)}
             activeCount={activeCount}
             onApply={() => apply()}
-            onReset={() => {
-                setPanelOpen(false);
-                onReset();
-            }}
+            onReset={onReset}
             {...choices}
         />
     );
 
     return (
         <div className="lg:w-72 lg:shrink-0">
-            {/* On a phone: one way in, to everything. */}
-            <Button
-                variant="outline"
-                className={cn(
-                    'h-11 w-full justify-center gap-2 text-[0.95rem] font-medium lg:hidden',
-                    activeCount > 0 && 'border-primary text-primary',
-                )}
-                onClick={() => setPanelOpen(true)}
-            >
-                <SlidersHorizontal className="size-4" />
-                {t('Filteri i redosled')}
-                {activeCount > 0 && <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">{activeCount}</span>}
-            </Button>
-
-            <Dialog open={panelOpen} onOpenChange={setPanelOpen}>
-                <DialogContent
-                    aria-describedby={undefined}
-                    className="top-0 left-0 flex h-[100dvh] max-w-none translate-x-0 translate-y-0 flex-col overflow-y-auto rounded-none p-0 sm:rounded-none [&>button:last-child]:top-5"
-                >
-                    <DialogTitle className="sr-only">{t('Filteri')}</DialogTitle>
-                    {panelOpen && (
-                        <section aria-label={t('Filteri')} className="flex flex-1 flex-col">
-                            {panel}
-                        </section>
-                    )}
-                </DialogContent>
-            </Dialog>
+            {/* On a phone: the pills, and the sheet behind them. */}
+            <div className="lg:hidden">
+                {/* Only once something is chosen; until then "Filteri" is inside the search field. */}
+                {(activeCount > 0 || !onSheet) && <FilterPills pages={pages} activeCount={activeCount} onOpen={setSheet} />}
+                <FilterSheet page={sheet} onPage={setSheet} pages={pages} count={count} onApply={() => apply()} onResetAll={() => setDraft({})} />
+            </div>
 
             <section aria-label={t('Filteri')} className="hidden lg:block">
                 {panel}
             </section>
         </div>
     );
-}
-
-/**
- * How many products the filters being chosen would show: asked of the
- * server a moment after the last change, while they differ from the ones in
- * force; those in force show the list's own count.
- */
-function usePendingCount(draft: Draft, applied: Draft, q: string | undefined, total: number | undefined): number | null {
-    const [count, setCount] = useState<number | null>(null);
-    const pending = !same(draft, applied);
-    const query = JSON.stringify({ ...draft, q: q || undefined });
-
-    useEffect(() => {
-        if (!pending) {
-            return;
-        }
-
-        setCount(null);
-        const controller = new AbortController();
-        const timer = setTimeout(() => {
-            fetch(route('marketplace.products.count', JSON.parse(query)), { signal: controller.signal, headers: { Accept: 'application/json' } })
-                .then((response) => (response.ok ? response.json() : null))
-                .then((body: { count?: number } | null) => setCount(typeof body?.count === 'number' ? body.count : null))
-                .catch(() => undefined);
-        }, 300);
-
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [pending, query]);
-
-    return pending ? count : (total ?? null);
 }
 
 // Larger than the site's small print: the panel is read and tapped through,
@@ -196,7 +139,6 @@ function FilterFields({
     districts = [],
     cities,
     priceBounds,
-    sortOptions,
 }: Omit<Props, 'filters' | 'total' | 'onChange' | 'onReset'> & {
     draft: Draft;
     setDraft: (update: (draft: Draft) => Draft) => void;
@@ -252,21 +194,6 @@ function FilterFields({
             </div>
 
             <div className="grid gap-5 p-5">
-                {sortOptions && sortOptions.length > 0 && (
-                    <div className="grid gap-2 lg:hidden">
-                        <Label htmlFor={`${id}-sort`} className={label}>
-                            {t('Redosled')}
-                        </Label>
-                        <CompactSelect
-                            id={`${id}-sort`}
-                            className={control}
-                            value={draft.sort ?? ''}
-                            onChange={(value) => set({ sort: value })}
-                            options={sortOptions}
-                        />
-                    </div>
-                )}
-
                 <p className="text-primary text-sm font-semibold">{t('Osnovni filteri')}</p>
 
                 <div className="grid gap-2">
@@ -465,4 +392,252 @@ function FilterFields({
             </div>
         </div>
     );
+}
+
+/**
+ * The filters as pages of the phone's sheet, in the order the panel has
+ * them; the first ones are pills under the search too.
+ */
+function phonePages(
+    draft: Draft,
+    set: (patch: Draft) => void,
+    { categories, producers, districts = [], cities, priceBounds }: Omit<Props, 'filters' | 'total' | 'onChange' | 'onReset'>,
+): FilterPage[] {
+    const chosen = categories.find((category) => String(category.id) === draft.category_id);
+    const root = chosen?.parent_id ? categories.find((category) => category.id === chosen.parent_id) : chosen;
+    const subcategories = root ? categories.filter((category) => category.parent_id === root.id) : [];
+    const district = districts.find((option) => option.value === draft.district);
+    const towns = district ? district.cities : cities;
+    const producer = producers.find((option) => String(option.id) === draft.producer_id);
+    const periods = [
+        { value: '', label: t('Bilo kada') },
+        { value: '1', label: t('Dodato danas') },
+        { value: '3', label: t('Poslednja 3 dana') },
+        { value: '7', label: t('Poslednjih 7 dana') },
+    ];
+    const price =
+        draft.min_price || draft.max_price
+            ? [draft.min_price && t('od :price', { price: draft.min_price }), draft.max_price && t('do :price', { price: draft.max_price })]
+                  .filter(Boolean)
+                  .join(' ')
+            : undefined;
+
+    return [
+        {
+            key: 'category',
+            label: t('Kategorija'),
+            summary: root ? t(root.name) : undefined,
+            pill: true,
+            reset: () => set({ category_id: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={root ? String(root.id) : ''}
+                    onChoose={(value) => {
+                        set({ category_id: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: t('Sve kategorije') },
+                        ...categories
+                            .filter((category) => !category.parent_id)
+                            .map((category) => ({ value: String(category.id), label: t(category.name) })),
+                    ]}
+                />
+            ),
+        },
+        ...(root && subcategories.length > 0
+            ? [
+                  {
+                      key: 'subcategory',
+                      label: t('Potkategorija'),
+                      summary: chosen && chosen.id !== root.id ? t(chosen.name) : undefined,
+                      pill: true,
+                      reset: () => set({ category_id: String(root.id) }),
+                      render: (done: () => void) => (
+                          <ChoiceList
+                              value={chosen && chosen.id !== root.id ? String(chosen.id) : ''}
+                              onChoose={(value) => {
+                                  set({ category_id: value || String(root.id) });
+                                  done();
+                              }}
+                              options={[
+                                  { value: '', label: t('Sve iz „:category”', { category: t(root.name) }) },
+                                  ...subcategories.map((category) => ({ value: String(category.id), label: t(category.name) })),
+                              ]}
+                          />
+                      ),
+                  },
+              ]
+            : []),
+        ...(districts.length > 0
+            ? [
+                  {
+                      key: 'district',
+                      label: t('Okrug'),
+                      summary: district?.label,
+                      pill: true,
+                      reset: () => set({ district: '', city: '' }),
+                      render: (done: () => void) => (
+                          <ChoiceList
+                              value={draft.district ?? ''}
+                              onChoose={(value) => {
+                                  const next = districts.find((option) => option.value === value);
+                                  // A town from another district would leave nothing to show.
+                                  set({ district: value, ...(next && draft.city && !next.cities.includes(draft.city) ? { city: '' } : {}) });
+                                  done();
+                              }}
+                              options={[{ value: '', label: t('Svi okruzi') }, ...districts]}
+                          />
+                      ),
+                  },
+              ]
+            : []),
+        {
+            key: 'city',
+            label: t('Mesto'),
+            summary: draft.city || undefined,
+            pill: true,
+            reset: () => set({ city: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.city ?? ''}
+                    onChoose={(value) => {
+                        set({ city: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: district ? t('Sva mesta u okrugu') : t('Cela Srbija') },
+                        ...towns.map((city) => ({ value: city, label: city })),
+                    ]}
+                />
+            ),
+        },
+        {
+            key: 'price',
+            label: t('Cena'),
+            summary: price,
+            pill: true,
+            reset: () => set({ min_price: '', max_price: '' }),
+            render: () => (
+                <div className="grid gap-3">
+                    <p className="text-muted-foreground text-sm">{t('Cena u dinarima')}</p>
+                    <div className="grid grid-cols-2 gap-3">
+                        <Input
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            className="h-12"
+                            placeholder={t('od :price', { price: Math.floor(priceBounds.min) })}
+                            aria-label={t('Najniža cena')}
+                            value={draft.min_price ?? ''}
+                            onChange={(event) => set({ min_price: event.target.value })}
+                        />
+                        <Input
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            className="h-12"
+                            placeholder={t('do :price', { price: Math.ceil(priceBounds.max) })}
+                            aria-label={t('Najviša cena')}
+                            value={draft.max_price ?? ''}
+                            onChange={(event) => set({ max_price: event.target.value })}
+                        />
+                    </div>
+                </div>
+            ),
+        },
+        {
+            key: 'availability',
+            label: t('Dostupnost'),
+            summary: draft.in_stock ? t('Dostupno odmah') : undefined,
+            reset: () => set({ in_stock: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.in_stock ?? ''}
+                    onChoose={(value) => {
+                        set({ in_stock: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: t('Sve') },
+                        { value: '1', label: t('Dostupno odmah') },
+                    ]}
+                />
+            ),
+        },
+        {
+            key: 'delivery',
+            label: t('Isporuka'),
+            summary: draft.delivery === 'dostava' ? t('Dostava') : draft.delivery === 'preuzimanje' ? t('Lično preuzimanje') : undefined,
+            reset: () => set({ delivery: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.delivery ?? ''}
+                    onChoose={(value) => {
+                        set({ delivery: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: t('Svejedno') },
+                        { value: 'dostava', label: t('Dostava'), hint: t('Proizvođač donosi ili šalje') },
+                        { value: 'preuzimanje', label: t('Lično preuzimanje'), hint: t('Preuzimate kod proizvođača') },
+                    ]}
+                />
+            ),
+        },
+        {
+            key: 'producer',
+            label: t('Proizvođač'),
+            summary: producer?.name,
+            reset: () => set({ producer_id: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.producer_id ?? ''}
+                    onChoose={(value) => {
+                        set({ producer_id: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: t('Svi proizvođači') },
+                        ...producers.map((option) => ({ value: String(option.id), label: option.name })),
+                    ]}
+                />
+            ),
+        },
+        {
+            key: 'season',
+            label: t('Sezona'),
+            summary: draft.in_season ? t('U sezoni') : undefined,
+            reset: () => set({ in_season: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.in_season ?? ''}
+                    onChoose={(value) => {
+                        set({ in_season: value });
+                        done();
+                    }}
+                    options={[
+                        { value: '', label: t('Sve') },
+                        { value: '1', label: t('Samo ono što je sada u sezoni') },
+                    ]}
+                />
+            ),
+        },
+        {
+            key: 'period',
+            label: t('Period'),
+            summary: periods.find((option) => option.value === (draft.period ?? '') && option.value)?.label,
+            reset: () => set({ period: '' }),
+            render: (done) => (
+                <ChoiceList
+                    value={draft.period ?? ''}
+                    onChoose={(value) => {
+                        set({ period: value });
+                        done();
+                    }}
+                    options={periods}
+                />
+            ),
+        },
+    ];
 }

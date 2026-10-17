@@ -14,6 +14,8 @@ use App\Http\Controllers\ReviewReplyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/proizvodjaci', [ProducerController::class, 'index'])->middleware('deep-pages')->name('marketplace.producers.index');
+// How many the filters being chosen would show, asked for as they change.
+Route::get('/proizvodjaci/broj', [ProducerController::class, 'count'])->middleware('throttle:120,1')->name('marketplace.producers.count');
 Route::get('/osnivaci', FoundingProducerController::class)->name('marketplace.founding');
 // The page's first address, from when there were a hundred places.
 Route::redirect('/prvih-100', '/osnivaci', 301);

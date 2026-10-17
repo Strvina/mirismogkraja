@@ -43,6 +43,7 @@ function renderFilters(filters: ProductFilterValues = {}) {
 /** The panel beside the list (on a phone the same one opens from "Filteri"). */
 const panel = () => within(screen.getByRole('region', { name: 'Filteri' }));
 const options = () => screen.getAllByRole('menuitemradio').map((option) => option.textContent);
+const pills = () => within(screen.getByRole('group', { name: 'Brzi filteri' }));
 const applyButton = () => panel().getByRole('button', { name: /^Prikaži rezultate/ });
 
 async function choose(user: ReturnType<typeof createUser>, field: HTMLElement, option: string) {
@@ -73,7 +74,7 @@ describe('ProductFilters', () => {
             expect(onChange).not.toHaveBeenCalled();
             await waitFor(() => expect(applyButton()).toHaveTextContent('Prikaži rezultate (5)'));
             // Asked with the search in force, which the panel does not change.
-            expect(fetchCount).toHaveBeenCalledWith(route('marketplace.products.count', { category_id: '1', q: 'ajvar' }), expect.anything());
+            expect(fetchCount).toHaveBeenCalledWith(route('marketplace.products.count', { q: 'ajvar', category_id: '1' }), expect.anything());
 
             await user.click(applyButton());
 
@@ -208,45 +209,72 @@ describe('ProductFilters', () => {
         });
     });
 
-    describe('on a phone', () => {
-        it('has one way in, "Filteri", counting what is in force but not the order - nothing said twice beside it', async () => {
-            const { user } = renderFilters({ category_id: '2', in_stock: '1', sort: 'price_asc' });
-            const open = screen.getByRole('button', { name: /^Filteri i redosled/ });
+    describe('on a phone, as KupujemProdajem has them', () => {
+        it('has a row of pills - "Filteri", then the main filters, each saying what is chosen', () => {
+            renderFilters({ category_id: '2', in_stock: '1' });
 
-            expect(open).toHaveTextContent('Filteri i redosled2');
-            expect(screen.queryByRole('button', { name: 'Dostupno odmah' })).not.toBeInTheDocument();
-            await user.click(open);
-
-            expect(screen.getByRole('dialog', { name: 'Filteri' })).toBeInTheDocument();
+            expect(pills().getByRole('button', { name: /^Filteri/ })).toHaveTextContent('Filteri2');
+            expect(pills().getByRole('button', { name: 'Kategorija: Med' })).toBeInTheDocument();
+            expect(pills().getByRole('button', { name: 'Okrug' })).toBeInTheDocument();
+            expect(pills().getByRole('button', { name: 'Mesto' })).toBeInTheDocument();
+            expect(pills().getByRole('button', { name: 'Cena' })).toBeInTheDocument();
         });
 
-        it('sets the order in the panel too, applied with the rest', async () => {
-            const onChange = vi.fn();
-            const { user } = (() => {
-                render(
-                    <ProductFilters
-                        filters={{}}
-                        categories={CATEGORIES}
-                        producers={PRODUCERS}
-                        cities={[]}
-                        priceBounds={{ min: 1, max: 9 }}
-                        sortOptions={[
-                            { value: '', label: 'Najnovije' },
-                            { value: 'price_asc', label: 'Cena: niža prvo' },
-                        ]}
-                        onChange={onChange}
-                        onReset={vi.fn()}
-                    />,
-                );
+        it('opens a filter page from its pill, takes the choice back to the list of filters, and applies them together', async () => {
+            const { user, onChange } = renderFilters();
 
-                return { user: createUser() };
-            })();
+            await user.click(pills().getByRole('button', { name: 'Kategorija' }));
+            const sheet = screen.getByRole('dialog', { name: 'Kategorija' });
+            await user.click(within(sheet).getByRole('button', { name: 'Zimnica' }));
 
-            await choose(user, panel().getByLabelText('Redosled'), 'Cena: niža prvo');
+            // Back on the list of filters, with the choice beside its name.
+            const list = screen.getByRole('dialog', { name: 'Filteri' });
+            expect(within(list).getByRole('button', { name: /Kategorija/ })).toHaveTextContent('Zimnica');
             expect(onChange).not.toHaveBeenCalled();
-            await user.click(applyButton());
 
-            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ sort: 'price_asc' }));
+            // A narrower page opens once the category has one.
+            await user.click(within(list).getByRole('button', { name: /^Potkategorija/ }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Potkategorija' })).getByRole('button', { name: 'Ajvar' }));
+
+            await user.click(within(screen.getByRole('dialog', { name: 'Filteri' })).getByRole('button', { name: /^Prikaži rezultate/ }));
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ category_id: '7' }));
+        });
+
+        it('searches a long list', async () => {
+            const { user } = renderFilters();
+
+            await user.click(pills().getByRole('button', { name: /^Filteri/ }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Filteri' })).getByRole('button', { name: /^Mesto/ }));
+            const page = screen.getByRole('dialog', { name: 'Mesto' });
+
+            // Three towns: short enough to need no search.
+            expect(within(page).queryByRole('textbox')).not.toBeInTheDocument();
+            expect(
+                within(page)
+                    .getAllByRole('button', { pressed: false })
+                    .map((button) => button.textContent),
+            ).toContain('Niš');
+        });
+
+        it('goes back from a page to the list, and from the list out', async () => {
+            const { user } = renderFilters();
+
+            await user.click(pills().getByRole('button', { name: 'Cena' }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Cena' })).getByRole('button', { name: 'Nazad na filtere' }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Filteri' })).getByRole('button', { name: 'Zatvori filtere' }));
+
+            expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        });
+
+        it('resets one filter on its page, or all of them on the list', async () => {
+            const { user, onChange } = renderFilters({ category_id: '2', city: 'Niš' });
+
+            await user.click(pills().getByRole('button', { name: 'Mesto: Niš' }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Mesto' })).getByRole('button', { name: 'Resetuj' }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Mesto' })).getByRole('button', { name: 'Nazad na filtere' }));
+            await user.click(within(screen.getByRole('dialog', { name: 'Filteri' })).getByRole('button', { name: /^Prikaži rezultate/ }));
+
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ category_id: '2', city: undefined }));
         });
     });
 });

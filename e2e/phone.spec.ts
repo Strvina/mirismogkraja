@@ -49,24 +49,14 @@ test('the phone menu holds the page while open and lets it go after, also once t
         const at = await scrollY(page);
         await menuButton.click();
         await expect(menu, moment).toBeVisible();
-        // Measured once it has slid into place.
-        await expect
-            .poll(
-                async () => {
-                    const placed = (await menu.boundingBox())!;
-
-                    return Math.round(placed.y + placed.height);
-                },
-                { message: moment },
-            )
-            .toBe(page.viewportSize()!.height);
+        // Hanging from the foot of the header, full width, wherever the page is - measured once it has slid into place.
+        const header = (await page.locator('header').first().boundingBox())!;
+        await expect.poll(async () => Math.round((await menu.boundingBox())!.y), { message: moment }).toBe(Math.round(header.y + header.height));
         const box = (await menu.boundingBox())!;
-
-        // A sheet at the foot of the screen, full width, wherever the page is.
-        const screen = page.viewportSize()!;
         expect(Math.round(box.x), moment).toBe(0);
-        expect(Math.round(box.width), moment).toBe(screen.width);
-        expect(Math.abs(box.y + box.height - screen.height), moment).toBeLessThan(2);
+        expect(Math.round(box.width), moment).toBe(page.viewportSize()!.width);
+        // The header, and the button in it, stay in sight.
+        await expect(menuButton, moment).toBeVisible();
         expect(await pageHeld(page), moment).toBe(true);
 
         // A drag on the menu scrolls the menu, never the page.
@@ -74,8 +64,8 @@ test('the phone menu holds the page while open and lets it go after, also once t
         await drag(box.x + box.width / 2, box.y + box.height * 0.4, 250);
         expect(await scrollY(page), moment).toBe(at);
 
-        // A drag on the dimmed page above it closes it and does not move the page either.
-        await drag(195, Math.max(box.y - 60, 90), 200);
+        // A drag on the dimmed page below it closes it and does not move the page either.
+        await drag(195, Math.min(box.y + box.height + 20, page.viewportSize()!.height - 10), -150);
         await expect(menu, moment).toBeHidden();
         expect(await scrollY(page), moment).toBe(at);
 
@@ -85,12 +75,11 @@ test('the phone menu holds the page while open and lets it go after, also once t
         expect(await scrollY(page), moment).toBeGreaterThan(at);
     }
 
-    // Opened and closed over and over - by a touch on the dimmed page, which
-    // lies over the button too - and nothing is left behind.
+    // Opened and closed over and over with its own button, which stays in reach - and nothing is left behind.
     for (let round = 0; round < 4; round++) {
         await menuButton.click();
         await expect(menu).toBeVisible();
-        await page.mouse.click(195, 40);
+        await menuButton.click();
         await expect(menu).toBeHidden();
     }
     expect(await pageHeld(page)).toBe(false);

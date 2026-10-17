@@ -7,10 +7,15 @@ import { ChatError, chatApi, type ChatThreadMeta, type ChatThreadSummary } from 
 /**
  * The chat window's state, kept outside React.
  *
+ * The window works as Instagram's messages do: the chat button opens it on
+ * the list of conversations; a conversation opens in it, with "back" to the
+ * list; the cross folds it into the button again, and the button brings it
+ * back as it was left - the list, or the conversation.
+ *
  * Every page is drawn in a layout of its own, so a component's state is
- * gone at each click: here the open conversation, whether it is folded
- * away, what was typed into it and what it holds survive moving between
- * pages - and, for the first three, a reload of the tab (sessionStorage).
+ * gone at each click: here whether the window is open, what it shows, what
+ * was typed and what it holds survive moving between pages - and all but
+ * the messages a reload of the tab (sessionStorage).
  * One store, so two parts of the window never ask the server for the same
  * thing twice.
  */
@@ -36,14 +41,17 @@ export interface ThreadState {
     pending: (PendingMessage & { error?: string })[];
 }
 
-export type Panel = 'closed' | 'list' | 'thread';
+/** What the window shows: every conversation, or one of them. */
+export type View = 'list' | 'thread';
 
 export interface ChatState {
     /** Whose window this is: what a tab remembers is not the next account's to show. */
     owner: number | null;
-    panel: Panel;
+    /** Open, or folded into the chat button. */
+    open: boolean;
+    view: View;
+    /** The conversation the window shows when its view is a conversation. */
     active: ThreadRef | null;
-    minimized: boolean;
     drafts: Record<string, string>;
     threads: Record<string, ThreadState>;
     list: { items: ChatThreadSummary[]; loading: boolean; error: string | null; loaded: boolean };
@@ -55,21 +63,22 @@ export const threadKey = (ref: Pick<ThreadRef, 'producerId' | 'buyerId'>) => `${
 
 const emptyThread = (): ThreadState => ({ meta: null, messages: [], hasOlder: false, loading: false, loadingOlder: false, error: null, pending: [] });
 
-function restored(): Pick<ChatState, 'owner' | 'panel' | 'active' | 'minimized' | 'drafts'> {
-    const fallback = { owner: null, panel: 'closed' as Panel, active: null, minimized: false, drafts: {} };
+type Kept = Pick<ChatState, 'owner' | 'open' | 'view' | 'active' | 'drafts'>;
 
+const folded = (): Kept => ({ owner: null, open: false, view: 'list', active: null, drafts: {} });
+
+function restored(): Kept {
     try {
-        const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? 'null');
+        const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? 'null') as Partial<Kept> | null;
 
-        // The list is not worth reopening after a reload; a conversation is.
-        return saved ? { ...fallback, ...saved, panel: saved.panel === 'thread' ? 'thread' : 'closed' } : fallback;
+        return saved ? { ...folded(), ...saved, view: saved.view === 'thread' && saved.active ? 'thread' : 'list' } : folded();
     } catch {
-        return fallback;
+        return folded();
     }
 }
 
 let state: ChatState = {
-    ...(typeof window === 'undefined' ? { owner: null, panel: 'closed', active: null, minimized: false, drafts: {} } : restored()),
+    ...(typeof window === 'undefined' ? folded() : restored()),
     threads: {},
     list: { items: [], loading: false, error: null, loaded: false },
 };
@@ -82,7 +91,7 @@ function set(next: Partial<ChatState>) {
     try {
         sessionStorage.setItem(
             STORAGE_KEY,
-            JSON.stringify({ owner: state.owner, panel: state.panel, active: state.active, minimized: state.minimized, drafts: state.drafts }),
+            JSON.stringify({ owner: state.owner, open: state.open, view: state.view, active: state.active, drafts: state.drafts }),
         );
     } catch {
         // A private window without storage: the window still works, it just forgets on reload.
@@ -181,8 +190,17 @@ export const chat = {
         return () => listeners.delete(listener);
     },
 
+    /** The chat button: the window opens as it was left - on the list, or on the conversation. */
+    open() {
+        if (state.view === 'thread' && state.active) {
+            set({ open: true });
+        } else {
+            chat.openList();
+        }
+    },
+
     openList() {
-        set({ panel: 'list' });
+        set({ open: true, view: 'list' });
         void chat.loadList();
     },
 
@@ -201,26 +219,18 @@ export const chat = {
 
     /** Opens a conversation in the window - from the list, or from "Pošalji poruku" on a producer's page. */
     openThread(ref: ThreadRef) {
-        set({ panel: 'thread', active: ref, minimized: false });
+        set({ open: true, view: 'thread', active: ref });
     },
 
-    /** Back from a conversation to the list of them. */
+    /** "Back": from a conversation to the list of them. What was typed in it stays. */
     backToList() {
+        set({ active: null });
         chat.openList();
     },
 
-    /** Folded into a bar: the conversation and what was typed stay. */
-    minimize() {
-        set({ minimized: true });
-    },
-
-    restore() {
-        set({ minimized: false, panel: 'thread' });
-    },
-
-    /** The window goes; the conversation itself, and anything typed in it, stays. */
+    /** The cross: the window folds into the chat button, as it is - nothing in it is lost. */
     close() {
-        set({ panel: 'closed', minimized: false, active: null });
+        set({ open: false });
     },
 
     setDraft(key: string, text: string) {
@@ -318,11 +328,7 @@ export const chat = {
     reset() {
         badge = null;
         state = {
-            owner: null,
-            panel: 'closed',
-            active: null,
-            minimized: false,
-            drafts: {},
+            ...folded(),
             threads: {},
             list: { items: [], loading: false, error: null, loaded: false },
         };

@@ -115,7 +115,7 @@ test('a buyer says what they are looking for, a producer answers, and it becomes
         await page.getByRole('link', { name: 'Otvori razgovor' }).click();
         await expect(page).toHaveURL(adUrl);
         await expect(page.getByRole('dialog', { name: 'Razgovor' }).getByText(offer)).toBeVisible();
-        await page.getByRole('dialog', { name: 'Razgovor' }).getByRole('button', { name: 'Zatvori razgovor' }).click();
+        await page.getByRole('dialog', { name: 'Razgovor' }).getByRole('button', { name: 'Spusti poruke' }).click();
 
         await page.goto(adUrl);
         await page.getByRole('button', { name: /zatvori oglas/ }).click();

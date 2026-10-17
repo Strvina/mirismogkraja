@@ -38,7 +38,7 @@ export default function ChatList() {
                     >
                         {t('Sve poruke')}
                     </Link>
-                    <Button variant="ghost" size="icon" className="size-8" aria-label={t('Zatvori poruke')} onClick={chat.close}>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label={t('Spusti poruke')} onClick={chat.close}>
                         <X className="size-4" />
                     </Button>
                 </div>
