@@ -248,6 +248,17 @@ export default function ChatThread({ thread: ref }: { thread: ThreadRef }) {
                     autoFocus={!touch}
                     pill
                     className="border-t-0 py-2"
+                    quickReplies={
+                        isOwner && meta?.quick_replies
+                            ? {
+                                  items: meta.quick_replies,
+                                  manageHref: route('producers.quick-replies.index', ref.producerId),
+                                  // "Dobar dan, Milice" rather than the full name.
+                                  recipientName: title.split(' ')[0],
+                                  onManage: chat.close,
+                              }
+                            : undefined
+                    }
                     onSend={(text) => {
                         following.current = true;
                         chat.setDraft(key, '');

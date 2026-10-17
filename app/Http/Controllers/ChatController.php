@@ -91,6 +91,9 @@ class ChatController extends Controller
                 },
                 'blocked_by' => $producer->blockedBy($buyer),
                 'can_send' => $viewer->can('send', [ProducerMessage::class, $producer, $buyer]),
+                // The producer's saved answers, for the box's menu as on the
+                // thread's page: with the first answer only, not every check for news.
+                ...($owner && $after <= 0 ? ['quick_replies' => $producer->quickReplies()->get(['id', 'title', 'body'])] : []),
             ],
             'messages' => $messages->map(fn (ProducerMessage $message) => $messaging->present($message, $viewer)),
             'has_older' => $hasOlder,

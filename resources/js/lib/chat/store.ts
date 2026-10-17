@@ -256,7 +256,8 @@ export const chat = {
             const before = state.threads[key]?.messages.length ?? 0;
 
             setThread(key, (current) => ({
-                meta: answer.thread,
+                // A check for news leaves out the saved answers: the ones already had stay.
+                meta: { ...answer.thread, quick_replies: answer.thread.quick_replies ?? current.meta?.quick_replies },
                 messages: merge(current.messages, answer.messages),
                 // Only the first answer says what lies above it.
                 hasOlder: current.meta ? current.hasOlder : answer.has_older,

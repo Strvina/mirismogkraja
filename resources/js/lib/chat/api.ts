@@ -1,4 +1,4 @@
-import { type Message, type ThreadSide } from '@/components/messages/types';
+import { type Message, type QuickReply, type ThreadSide } from '@/components/messages/types';
 
 /** A conversation as the window's list shows it (App\Services\Messaging::summaries). */
 export interface ChatThreadSummary {
@@ -28,6 +28,8 @@ export interface ChatThreadMeta {
     closed: ThreadSide | null;
     blocked_by: ThreadSide | null;
     can_send: boolean;
+    /** The producer's saved answers, to the producer only; sent with the first answer, not with every check for news. */
+    quick_replies?: QuickReply[];
 }
 
 export interface ChatThreadResponse {

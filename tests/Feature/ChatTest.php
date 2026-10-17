@@ -122,6 +122,26 @@ class ChatTest extends TestCase
             ->assertJsonPath('messages.0.mine', false);
     }
 
+    public function test_the_producer_gets_their_saved_answers_with_the_first_answer_only()
+    {
+        [$buyer, $owner, $producer] = $this->thread();
+        $producer->quickReplies()->create(['title' => 'Dostava', 'body' => 'Šaljemo kurirom, {ime}.']);
+        $first = $this->message($producer, $buyer, $buyer, 'Imate li meda?');
+
+        $this->actingAs($owner)->getJson(route('chat.thread', [$producer->id, $buyer->id]))
+            ->assertJsonCount(1, 'thread.quick_replies')
+            ->assertJsonPath('thread.quick_replies.0.title', 'Dostava')
+            ->assertJsonPath('thread.quick_replies.0.body', 'Šaljemo kurirom, {ime}.');
+
+        // A check for news does not carry them again.
+        $this->actingAs($owner)->getJson(route('chat.thread', [$producer->id, $buyer->id, 'after' => $first->id]))
+            ->assertJsonMissingPath('thread.quick_replies');
+
+        // They are the producer's, not the buyer's to see.
+        $this->actingAs($buyer)->getJson(route('chat.thread', [$producer->id, $buyer->id]))
+            ->assertJsonMissingPath('thread.quick_replies');
+    }
+
     public function test_sending_answers_with_the_saved_message_and_keeps_the_rules_of_the_page()
     {
         [$buyer, $owner, $producer] = $this->thread();
