@@ -64,8 +64,13 @@ test('a producer drops a saved answer into a conversation', async ({ page }) => 
     await page.locator('main a[href*="/poruke-proizvodjaca/"]').first().click();
     await expect(page).toHaveURL(/\/poruke-proizvodjaca\//);
 
-    await page.getByRole('button', { name: 'Brzi odgovori' }).click();
-    await page.getByRole('menuitem', { name: /Dostava/ }).click();
+    // A long conversation glides down to its last message as it opens, and a
+    // menu closes when the page scrolls: opened during the glide, it is gone
+    // before its item can be picked. Again until the page has come to rest.
+    await expect(async () => {
+        await page.getByRole('button', { name: 'Brzi odgovori' }).click();
+        await page.getByRole('menuitem', { name: /Dostava/ }).click({ timeout: 2000 });
+    }).toPass();
 
     // Written into the box to be read over - not sent.
     await expect(page.getByRole('textbox', { name: 'Poruka', exact: true })).toHaveValue(/Šaljemo kurirskom službom/);
