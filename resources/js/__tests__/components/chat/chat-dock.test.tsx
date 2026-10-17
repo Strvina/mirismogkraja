@@ -119,6 +119,45 @@ describe('ChatDock', () => {
         expect(fetch.mock.calls.length).toBe(asked);
     });
 
+    it("gives the producer their saved answers, written into the box with the buyer's first name, not sent", async () => {
+        const quickReplies = [{ id: 1, title: 'Dostava', body: 'Dobar dan, {ime}! Šaljemo kurirom.' }];
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => ({
+                ok: true,
+                status: 200,
+                json: async () => ({
+                    thread: { ...meta, key: '4-5', buyer_id: 5, title: 'Milica Kupac', quick_replies: quickReplies },
+                    messages: [],
+                    has_older: false,
+                    unread: 0,
+                }),
+            })),
+        );
+        // The producer's side: the buyer is someone else.
+        const { user } = renderOnPage(<ChatDock />, { url: '/proizvodi', props: { auth: { user: me }, unreadMessages: 0 } });
+
+        chat.openThread({ producerId: 4, buyerId: 5, title: 'Milica Kupac' });
+        const window = await screen.findByRole('dialog', { name: 'Razgovor' });
+        await user.click(await within(window).findByRole('button', { name: 'Brzi odgovori' }));
+        await user.click(await screen.findByRole('menuitem', { name: /Dostava/ }));
+
+        expect(within(window).getByRole('textbox', { name: 'Poruka' })).toHaveValue('Dobar dan, Milica! Šaljemo kurirom.');
+        // Nothing went out: it is there to be read over first.
+        expect(chat.get().threads['4-5'].pending).toEqual([]);
+    });
+
+    it('has no saved answers on the buyer side', async () => {
+        serve();
+        renderOnPage(<ChatDock />, { url: '/proizvodi', props: { auth: { user: me }, unreadMessages: 0 } });
+
+        chat.openThread({ producerId: 4, buyerId: 9 });
+        const window = await screen.findByRole('dialog', { name: 'Razgovor' });
+        await within(window).findByRole('textbox', { name: 'Poruka' });
+
+        expect(within(window).queryByRole('button', { name: 'Brzi odgovori' })).not.toBeInTheDocument();
+    });
+
     it('rings when a message comes in, once, and not for the count the page opened with', () => {
         vi.useFakeTimers();
         const page = (unreadMessages: number) => ({ url: '/proizvodi', props: { auth: { user: me }, unreadMessages } });

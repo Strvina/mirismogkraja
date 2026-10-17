@@ -32,7 +32,13 @@ export default function Composer({
 }: {
     onSend: (text: string) => void;
     /** Present on the producer's side of a thread only. */
-    quickReplies?: { items: QuickReply[]; manageHref: string; recipientName: string };
+    quickReplies?: {
+        items: QuickReply[];
+        manageHref: string;
+        recipientName: string;
+        /** Going to edit them: the chat window steps aside for the page. */
+        onManage?: () => void;
+    };
     /** What is typed, when it is kept outside - the chat window keeps it while folded away. */
     draft?: string;
     onDraftChange?: (text: string) => void;
@@ -97,11 +103,22 @@ export default function Composer({
             {quickReplies && (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button type="button" variant="outline" size="icon" aria-label={t('Brzi odgovori')} className="size-11 shrink-0">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            aria-label={t('Brzi odgovori')}
+                            className={cn('size-11 shrink-0', pill && 'rounded-full')}
+                        >
                             <Zap className="size-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" side="top" className="max-h-72 w-72 overflow-y-auto">
+                    <DropdownMenuContent
+                        align="start"
+                        side="top"
+                        // Over the chat window (z-60) it opens from, not under it.
+                        className={cn('max-h-72 w-72 overflow-y-auto', pill && 'z-[70]')}
+                    >
                         {quickReplies.items.length === 0 ? (
                             <p className="text-muted-foreground px-2 py-2 text-xs leading-5">
                                 {t('Sačuvajte odgovore koje često šaljete — cene, dostavu, gde vas mogu naći — i ubacite ih jednim dodirom.')}
@@ -120,7 +137,11 @@ export default function Composer({
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href={quickReplies.manageHref} className="text-primary cursor-pointer py-2 text-sm font-medium">
+                            <Link
+                                href={quickReplies.manageHref}
+                                onClick={quickReplies.onManage}
+                                className="text-primary cursor-pointer py-2 text-sm font-medium"
+                            >
                                 {quickReplies.items.length === 0 ? t('Dodaj brze odgovore') : t('Uredi brze odgovore')}
                             </Link>
                         </DropdownMenuItem>
