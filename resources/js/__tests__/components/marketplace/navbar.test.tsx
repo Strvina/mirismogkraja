@@ -15,19 +15,23 @@ const currentPages = () => screen.queryAllByRole('link', { current: 'page' }).ma
 describe('Navbar', () => {
     describe('for a guest', () => {
         it('offers the four sections, "Kako radi", sign-in and sign-up', () => {
-            renderOnPage(<Navbar />);
+            renderOnPage(<Navbar />, { url: '/proizvodi?kategorija=med' });
 
             expect(
                 within(mainNav())
                     .getAllByRole('link')
                     .map((link) => link.textContent),
             ).toEqual(['Proizvođači', 'Proizvodi', 'Priče i recepti', 'Tražim', 'Kako radi']);
-            expect(screen.getByRole('link', { name: 'Prijava' })).toHaveAttribute('href', route('login'));
-            expect(screen.getByRole('link', { name: 'Otvori nalog' })).toHaveAttribute('href', route('register'));
+            // Both come back to the page they were opened from.
+            expect(screen.getByRole('link', { name: 'Prijava' })).toHaveAttribute('href', route('login', { redirect: '/proizvodi?kategorija=med' }));
+            expect(screen.getByRole('link', { name: 'Otvori nalog' })).toHaveAttribute(
+                'href',
+                route('register', { redirect: '/proizvodi?kategorija=med' }),
+            );
         });
 
         it('has no inbox, no bell and no account menu', () => {
-            renderOnPage(<Navbar />);
+            renderOnPage(<Navbar />, { url: '/proizvodi?kategorija=med' });
 
             expect(screen.queryByRole('link', { name: /^Poruke/ })).not.toBeInTheDocument();
             expect(screen.queryByRole('button', { name: /^Obaveštenja/ })).not.toBeInTheDocument();
@@ -50,7 +54,7 @@ describe('Navbar', () => {
         });
 
         it('does not poll for badges it has no use for', () => {
-            renderOnPage(<Navbar />);
+            renderOnPage(<Navbar />, { url: '/proizvodi?kategorija=med' });
 
             expect(pollRequests()).toEqual([
                 { interval: 30_000, requestOptions: { only: ['unreadMessages', 'unreadNotifications'] }, options: { autoStart: false } },

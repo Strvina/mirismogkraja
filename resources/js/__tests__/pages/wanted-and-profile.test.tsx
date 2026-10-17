@@ -61,9 +61,13 @@ describe('wanted offers and account settings', () => {
         expect(screen.getByRole('link', { name: 'Nastavite razgovor sa kupcem' })).toHaveAttribute('href', '/poruke-proizvodjaca/9/4');
     });
 
-    it('asks a visitor to sign in before offering to a buyer', () => {
-        renderOnPage(<WantedShow {...wanted} canRespond={false} producers={[]} />);
-        expect(screen.getAllByRole('link', { name: 'Prijavite se' }).some((link) => link.getAttribute('href') === route('login'))).toBe(true);
+    it('asks a visitor to sign in before offering to a buyer, coming back to the ad afterwards', () => {
+        renderOnPage(<WantedShow {...wanted} canRespond={false} producers={[]} />, { url: '/trazim/7' });
+        expect(
+            screen
+                .getAllByRole('link', { name: 'Prijavite se' })
+                .some((link) => link.getAttribute('href') === route('login', { redirect: '/trazim/7' })),
+        ).toBe(true);
         expect(screen.queryByRole('textbox', { name: 'Odgovor kupcu' })).not.toBeInTheDocument();
     });
 

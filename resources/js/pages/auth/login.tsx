@@ -43,6 +43,9 @@ export default function Login({ status, canResetPassword, googleEnabled }: Login
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('login'), {
+            // The login page leaves the history: "back" from where one lands
+            // goes to the page before it, not to a form that is done with.
+            replace: true,
             onFinish: () => reset('password'),
         });
     };

@@ -1,10 +1,10 @@
 import { setMediaQuery } from '@/__tests__/support/browser';
-import { visits } from '@/__tests__/support/inertia';
+import { setPage, visits } from '@/__tests__/support/inertia';
 import { renderOnPage } from '@/__tests__/support/render';
 import ChatDock from '@/components/chat/chat-dock';
 import ChatLink from '@/components/chat/chat-link';
 import { chat } from '@/lib/chat/store';
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const DESKTOP = '(min-width: 40rem)';
@@ -117,6 +117,28 @@ describe('ChatDock', () => {
         await new Promise((resolve) => setTimeout(resolve, 50));
 
         expect(fetch.mock.calls.length).toBe(asked);
+    });
+
+    it('rings when a message comes in, once, and not for the count the page opened with', () => {
+        vi.useFakeTimers();
+        const page = (unreadMessages: number) => ({ url: '/proizvodi', props: { auth: { user: me }, unreadMessages } });
+        const button = () => screen.getByRole('button', { name: /^Poruke/ });
+        const { rerender } = renderOnPage(<ChatDock />, page(0));
+        expect(button()).not.toHaveClass('chat-ring');
+
+        // The next poll brings one more.
+        setPage(page(1));
+        rerender(<ChatDock />);
+        expect(button()).toHaveClass('chat-ring');
+
+        act(() => vi.advanceTimersByTime(900));
+        expect(button()).not.toHaveClass('chat-ring');
+
+        // Read elsewhere: fewer is no news.
+        setPage(page(0));
+        rerender(<ChatDock />);
+        expect(button()).not.toHaveClass('chat-ring');
+        vi.useRealTimers();
     });
 });
 

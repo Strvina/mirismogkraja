@@ -79,9 +79,12 @@ describe('catalogue pages', () => {
         expect(screen.getByRole('link', { name: 'Otvorite razgovor' })).toBeVisible();
     });
 
-    it('offers sign-in to a visitor instead of an inquiry form', () => {
+    it('offers sign-in to a visitor instead of an inquiry form, coming back to the product afterwards', () => {
         renderProduct();
-        expect(screen.getByRole('link', { name: 'Prijavite se da pošaljete upit' })).toHaveAttribute('href', route('login'));
+        expect(screen.getByRole('link', { name: 'Prijavite se da pošaljete upit' })).toHaveAttribute(
+            'href',
+            route('login', { redirect: route('marketplace.products.show', makeProduct().slug) }),
+        );
         expect(screen.queryByRole('textbox', { name: 'Poruka proizvođaču' })).not.toBeInTheDocument();
     });
 
