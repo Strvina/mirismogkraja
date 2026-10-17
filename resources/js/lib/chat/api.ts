@@ -28,7 +28,7 @@ export interface ChatThreadMeta {
     closed: ThreadSide | null;
     blocked_by: ThreadSide | null;
     can_send: boolean;
-    /** The producer's saved answers, to the producer only; sent with the first answer, not with every check for news. */
+    /** The producer's saved answers, to the producer only. */
     quick_replies?: QuickReply[];
 }
 

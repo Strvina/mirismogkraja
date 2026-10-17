@@ -70,3 +70,27 @@ test('a producer drops a saved answer into a conversation', async ({ page }) => 
     // Written into the box to be read over - not sent.
     await expect(page.getByRole('textbox', { name: 'Poruka', exact: true })).toHaveValue(/Šaljemo kurirskom službom/);
 });
+
+test('an answer saved from the chat window is in its menu at once, without a refresh', async ({ page }) => {
+    await logIn(page, accounts.producer);
+    await page.goto('/proizvodi');
+    await page.getByRole('button', { name: /^Poruke/ }).click();
+    await page.getByRole('dialog', { name: 'Poruke' }).locator('li button').first().click();
+    const window = page.getByRole('dialog', { name: 'Razgovor' });
+
+    await window.getByRole('button', { name: 'Brzi odgovori' }).click();
+    await page.getByRole('menuitem', { name: 'Uredi brze odgovore' }).click();
+    await expect(page).toHaveURL(/\/brzi-odgovori$/);
+    // The window steps aside for the page.
+    await expect(window).toBeHidden();
+
+    const title = `Pakovanje ${Date.now()}`;
+    await page.getByLabel('Naziv (vidite ga samo vi)').fill(title);
+    await page.getByLabel('Tekst odgovora').fill('Pakujemo u staklene tegle.');
+    await page.getByRole('button', { name: 'Sačuvaj odgovor' }).click();
+    await expect(page.getByText(title)).toBeVisible();
+
+    await page.getByRole('button', { name: /^Poruke/ }).click();
+    await window.getByRole('button', { name: 'Brzi odgovori' }).click();
+    await expect(page.getByRole('menuitem', { name: new RegExp(title) })).toBeVisible();
+});
