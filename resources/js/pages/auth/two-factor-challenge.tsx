@@ -19,7 +19,7 @@ export default function TwoFactorChallenge() {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(route('two-factor.challenge'), { onError: () => reset() });
+        post(route('two-factor.challenge'), { replace: true, onError: () => reset() });
     };
 
     const toggle = () => {

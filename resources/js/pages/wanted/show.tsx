@@ -10,6 +10,7 @@ import { formatDate, formatRelativeTime } from '@/lib/format';
 import { t } from '@/lib/i18n';
 import { thumbUrl } from '@/lib/media';
 import { sendOnEnter } from '@/lib/send-on-enter';
+import { useSignInUrl } from '@/lib/sign-in';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Link, router, useForm, usePage } from '@inertiajs/react';
 import { EyeOff } from 'lucide-react';
@@ -52,6 +53,7 @@ export default function WantedShow({
     canRespond: boolean;
 }) {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t('Tražim'), href: '/trazim' },
@@ -209,7 +211,7 @@ export default function WantedShow({
                             <p className="text-muted-foreground mt-3 text-sm leading-6">
                                 {t('Na oglase odgovaraju proizvođači sa odobrenom stranicom.')}{' '}
                                 <Link
-                                    href={auth.user ? route('producers.index') : route('login')}
+                                    href={auth.user ? route('producers.index') : signInUrl('login')}
                                     className="text-foreground font-medium underline underline-offset-4"
                                 >
                                     {auth.user ? t('Moji proizvođači') : t('Prijavite se')}

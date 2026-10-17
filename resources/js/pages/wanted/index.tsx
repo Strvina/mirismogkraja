@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { categoryOptions } from '@/lib/categories';
 import { t } from '@/lib/i18n';
+import { useSignInUrl } from '@/lib/sign-in';
 import { type Category, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
 import { Plus } from 'lucide-react';
@@ -35,6 +36,7 @@ export default function WantedIndex({
     filters: Filters;
 }) {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     const update = (patch: Partial<Filters>) =>
         router.get(route('wanted.index'), { ...filters, ...patch }, { preserveState: true, preserveScroll: true });
@@ -52,7 +54,7 @@ export default function WantedIndex({
                     </p>
                 </div>
                 <Button asChild>
-                    <Link href={auth.user ? route('wanted.create') : route('login')}>
+                    <Link href={auth.user ? route('wanted.create') : signInUrl('login', route('wanted.create'))}>
                         <Plus />
                         {t('Napiši šta tražiš')}
                     </Link>

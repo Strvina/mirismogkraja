@@ -3,6 +3,7 @@ import { HowItWorks } from '@/components/marketplace/payment-status';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
+import { useSignInUrl } from '@/lib/sign-in';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Handshake, MessageCircle, MessagesSquare, Search, Store, Wallet } from 'lucide-react';
@@ -14,6 +15,7 @@ import { Handshake, MessageCircle, MessagesSquare, Search, Store, Wallet } from 
  */
 export default function HowItWorksPage() {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     return (
         <MarketplaceLayout>
@@ -80,7 +82,9 @@ export default function HowItWorksPage() {
                 </div>
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Button asChild>
-                        <Link href={auth.user ? route('producers.create') : route('register')}>{t('Predstavi svoje proizvode')}</Link>
+                        <Link href={auth.user ? route('producers.create') : signInUrl('register', route('producers.create'))}>
+                            {t('Predstavi svoje proizvode')}
+                        </Link>
                     </Button>
                     <Button asChild variant="outline">
                         <Link href={route('info.producers')}>{t('Paketi i cene')}</Link>

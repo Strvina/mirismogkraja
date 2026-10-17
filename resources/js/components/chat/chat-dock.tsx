@@ -7,9 +7,15 @@ import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { MessageCircle, X } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ChatList from './chat-list';
 import ChatThread from './chat-thread';
+
+/** The unread count last seen, and whose: kept from one page to the next, so a message that came in meanwhile is noticed there too. */
+let lastSeen: { userId: number; unread: number } | null = null;
+
+/** How long the chat button rings: the `chat-ring` animation in app.css. */
+const RING_MS = 900;
 
 /**
  * Messages in the corner of every page, the way Instagram has them: the
@@ -32,6 +38,7 @@ export default function ChatDock() {
     const touch = useMediaQuery(TOUCH_SCREEN);
     const onMessagesPage = /^\/poruke(-proizvodjaca)?(\/|$|\?)/.test(url);
     const signedIn = Boolean(auth.user);
+    const unread = Number(unreadMessages ?? 0);
 
     useEffect(() => (signedIn && !onMessagesPage ? chat.attach() : undefined), [signedIn, onMessagesPage]);
 
@@ -48,6 +55,28 @@ export default function ChatDock() {
     const open = mine && state.open;
     const active = mine && state.view === 'thread' ? state.active : null;
     const takesScreen = phone && open;
+
+    // More unread than a moment ago: a message has just come in, and the
+    // button rings to say so - the number alone is easy to miss.
+    const [ringing, setRinging] = useState(false);
+    useEffect(() => {
+        if (!userId) {
+            return;
+        }
+        if (lastSeen?.userId === userId && unread > lastSeen.unread) {
+            setRinging(true);
+        }
+        lastSeen = { userId, unread };
+    }, [userId, unread]);
+    // Then still again, ready for the next one (the ring is RING_MS long, see app.css).
+    useEffect(() => {
+        if (!ringing) {
+            return;
+        }
+        const timer = window.setTimeout(() => setRinging(false), RING_MS);
+
+        return () => window.clearTimeout(timer);
+    }, [ringing]);
 
     const panel = useRef<HTMLDivElement>(null);
     useScrollLock(takesScreen, panel);
@@ -77,8 +106,6 @@ export default function ChatDock() {
     if (!signedIn || onMessagesPage) {
         return null;
     }
-
-    const unread = Number(unreadMessages ?? 0);
 
     return (
         <>
@@ -111,6 +138,7 @@ export default function ChatDock() {
                         'bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring/50 fixed right-4 bottom-4 z-40 grid size-14 place-items-center rounded-full shadow-lg transition-colors focus-visible:ring-4 focus-visible:outline-none',
                         // A thumb's reach on a phone, and out of the way of the page's own last line.
                         touch && 'size-13',
+                        ringing && !open && 'chat-ring',
                     )}
                 >
                     {open ? <X className="size-6" /> : <MessageCircle className="size-6" />}

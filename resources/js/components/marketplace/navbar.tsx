@@ -2,6 +2,7 @@ import ThemeToggle from '@/components/marketplace/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { t } from '@/lib/i18n';
+import { useSignInUrl } from '@/lib/sign-in';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, router, usePage, usePoll } from '@inertiajs/react';
@@ -41,6 +42,7 @@ const BADGE_POLL_MS = 30_000;
 
 export default function Navbar() {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     usePoll(BADGE_POLL_MS, { only: ['unreadMessages', 'unreadNotifications'] }, { autoStart: Boolean(auth.user) });
     const { url } = usePage();
@@ -175,12 +177,12 @@ export default function Navbar() {
                                     ))}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem asChild>
-                                        <Link href={route('login')} className="cursor-pointer py-2">
+                                        <Link href={signInUrl('login')} className="cursor-pointer py-2">
                                             {t('Prijava')}
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem asChild>
-                                        <Link href={route('register')} className="cursor-pointer py-2 font-medium">
+                                        <Link href={signInUrl('register')} className="cursor-pointer py-2 font-medium">
                                             {t('Otvori nalog')}
                                         </Link>
                                     </DropdownMenuItem>
@@ -188,10 +190,10 @@ export default function Navbar() {
                             </DropdownMenu>
 
                             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-                                <Link href={route('login')}>{t('Prijava')}</Link>
+                                <Link href={signInUrl('login')}>{t('Prijava')}</Link>
                             </Button>
                             <Button asChild size="sm" className="hidden sm:inline-flex">
-                                <Link href={route('register')}>{t('Otvori nalog')}</Link>
+                                <Link href={signInUrl('register')}>{t('Otvori nalog')}</Link>
                             </Button>
                         </>
                     )}
