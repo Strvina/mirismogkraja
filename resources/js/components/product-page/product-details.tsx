@@ -141,10 +141,21 @@ export default function ProductDetails({
 
     return (
         <>
-            <div className={cn('grid gap-10', compact ? 'md:grid-cols-2 md:gap-8' : 'lg:grid-cols-2')}>
+            {/* The photo beside the inquiry from a tablet up, and the narrower
+                column of the two: the question to the producer is what the
+                page is for. On a phone it is shorter than square for the same reason. */}
+            <div
+                className={cn(
+                    'grid gap-8',
+                    compact ? 'md:grid-cols-2' : 'md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12',
+                )}
+            >
                 {/* The card's small photo underneath, already loaded: the large one comes in over it, not out of nothing. */}
                 <div
-                    className="bg-muted aspect-square overflow-hidden rounded-md bg-cover bg-center"
+                    className={cn(
+                        'bg-muted overflow-hidden rounded-md bg-cover bg-center',
+                        compact ? 'aspect-square' : 'aspect-4/3 md:sticky md:top-24 md:aspect-square',
+                    )}
                     style={mainImage ? { backgroundImage: `url(${thumbUrl(mainImage.path)})` } : undefined}
                 >
                     {mainImage && (
@@ -363,7 +374,7 @@ export default function ProductDetails({
             {similar.length > 0 && (
                 <section className={compact ? 'mt-10' : 'mt-16'}>
                     <h2 className="font-serif text-2xl">{t('Slični proizvodi')}</h2>
-                    <div className={cn('mt-6 grid grid-cols-2 gap-6', compact ? 'sm:grid-cols-4' : 'lg:grid-cols-4')}>
+                    <div className={cn('mt-6 grid grid-cols-2 gap-6', compact ? 'sm:grid-cols-4' : 'md:grid-cols-4')}>
                         {similar.map((p) => (
                             <QuickViewLink
                                 key={p.id}
