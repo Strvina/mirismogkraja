@@ -51,77 +51,83 @@ export default function ProducerHeader({
     const founding = producer.founding_number !== null;
 
     return (
-        <div className="mt-6 flex flex-wrap items-start gap-4">
-            {producer.logo_path && (
-                <img src={thumbUrl(producer.logo_path)} alt="" className="size-14 shrink-0 rounded-full border object-cover sm:size-16" />
-            )}
+        // The name keeps room for itself: when a visitor's buttons would squeeze
+        // it, they move to a row of their own instead of covering it.
+        <div className="mt-6 flex flex-wrap items-start gap-x-6 gap-y-4">
+            <div className="flex min-w-[min(100%,22rem)] flex-1 items-start gap-4">
+                {producer.logo_path && (
+                    <img src={thumbUrl(producer.logo_path)} alt="" className="size-14 shrink-0 rounded-full border object-cover sm:size-16" />
+                )}
 
-            <div className="min-w-0 flex-1">
-                <h1 className="flex flex-wrap items-center gap-2 font-serif text-3xl break-words sm:text-4xl">
-                    {producer.name}
-                    {producer.verified_at && (
-                        <span
-                            title={t('Identitet proizvođača je proveren')}
-                            className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
-                        >
-                            <BadgeCheck className="size-3.5" />
-                            {t('Provereno')}
-                        </span>
-                    )}
-                    {isPremium && <PremiumBadge className="py-1" />}
-                    {(producer.verified_at || isPremium || founding) && (
-                        <InfoHint label={t('Šta znače oznake?')} title={t('Oznake na profilu')}>
-                            {producer.verified_at && (
-                                <p>
-                                    <strong>{t('Provereno')}</strong> {t('— proverili smo ko stoji iza ovog proizvođača.')}
-                                </p>
-                            )}
-                            {isPremium && (
-                                <p>
-                                    <strong>Premium</strong> {t('— proizvođač ima plaćeno Premium ili Pro članstvo na sajtu.')}
-                                </p>
-                            )}
-                            {founding && (
-                                <p>
-                                    <strong>{t('Osnivač')}</strong>{' '}
-                                    {t('— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.')}
-                                </p>
-                            )}
-                        </InfoHint>
-                    )}
-                </h1>
-                <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                    {producer.city && (
-                        <span className="flex items-center gap-1.5">
-                            <MapPin className="size-4 shrink-0" />
-                            {place ? (
-                                <Link
-                                    href={route('marketplace.places.show', place.slug)}
-                                    className="hover:text-foreground underline-offset-4 hover:underline"
-                                >
-                                    {producer.city}
-                                </Link>
-                            ) : (
-                                producer.city
-                            )}
-                        </span>
-                    )}
-                    <ResponseTimeBadge bucket={responseTime} />
-                    {reviewCount > 0 && (
-                        <span className="flex items-center gap-1">
-                            <Star className="fill-gold text-gold size-4 shrink-0" />
-                            {averageRating} ({reviewCount})
-                        </span>
-                    )}
-                    {followersCount > 0 && <span>{followersCount === 1 ? t('1 pratilac') : t(':count pratilaca', { count: followersCount })}</span>}
-                    {founding && (
-                        <Link
-                            href={route('marketplace.founding')}
-                            className="text-gold border-gold/40 rounded-full border px-2 py-0.5 text-xs font-semibold"
-                        >
-                            {t('Osnivač #:number', { number: String(producer.founding_number).padStart(2, '0') })}
-                        </Link>
-                    )}
+                <div className="min-w-0 flex-1">
+                    <h1 className="flex flex-wrap items-center gap-2 font-serif text-3xl break-words sm:text-4xl">
+                        {producer.name}
+                        {producer.verified_at && (
+                            <span
+                                title={t('Identitet proizvođača je proveren')}
+                                className="text-olive bg-olive-soft flex items-center gap-1 rounded-full px-2.5 py-1 font-sans text-xs font-semibold"
+                            >
+                                <BadgeCheck className="size-3.5" />
+                                {t('Provereno')}
+                            </span>
+                        )}
+                        {isPremium && <PremiumBadge className="py-1" />}
+                        {(producer.verified_at || isPremium || founding) && (
+                            <InfoHint label={t('Šta znače oznake?')} title={t('Oznake na profilu')}>
+                                {producer.verified_at && (
+                                    <p>
+                                        <strong>{t('Provereno')}</strong> {t('— proverili smo ko stoji iza ovog proizvođača.')}
+                                    </p>
+                                )}
+                                {isPremium && (
+                                    <p>
+                                        <strong>Premium</strong> {t('— proizvođač ima plaćeno Premium ili Pro članstvo na sajtu.')}
+                                    </p>
+                                )}
+                                {founding && (
+                                    <p>
+                                        <strong>{t('Osnivač')}</strong>{' '}
+                                        {t('— jedan od prvih proizvođača na sajtu; broj označava redosled pridruživanja.')}
+                                    </p>
+                                )}
+                            </InfoHint>
+                        )}
+                    </h1>
+                    <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                        {producer.city && (
+                            <span className="flex items-center gap-1.5">
+                                <MapPin className="size-4 shrink-0" />
+                                {place ? (
+                                    <Link
+                                        href={route('marketplace.places.show', place.slug)}
+                                        className="hover:text-foreground underline-offset-4 hover:underline"
+                                    >
+                                        {producer.city}
+                                    </Link>
+                                ) : (
+                                    producer.city
+                                )}
+                            </span>
+                        )}
+                        <ResponseTimeBadge bucket={responseTime} />
+                        {reviewCount > 0 && (
+                            <span className="flex items-center gap-1">
+                                <Star className="fill-gold text-gold size-4 shrink-0" />
+                                {averageRating} ({reviewCount})
+                            </span>
+                        )}
+                        {followersCount > 0 && (
+                            <span>{followersCount === 1 ? t('1 pratilac') : t(':count pratilaca', { count: followersCount })}</span>
+                        )}
+                        {founding && (
+                            <Link
+                                href={route('marketplace.founding')}
+                                className="text-gold border-gold/40 rounded-full border px-2 py-0.5 text-xs font-semibold"
+                            >
+                                {t('Osnivač #:number', { number: String(producer.founding_number).padStart(2, '0') })}
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
 

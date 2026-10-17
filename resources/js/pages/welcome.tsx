@@ -396,14 +396,16 @@ export default function Welcome({
 
                 <section
                     id="predstavi"
-                    className="bg-primary text-primary-foreground relative overflow-hidden px-5 py-20 text-center sm:px-8 lg:py-28"
+                    // In the dark theme the terracotta would be a bright slab in a
+                    // dark page: there it is a card, set apart by its borders.
+                    className="bg-primary text-primary-foreground dark:bg-card dark:text-foreground dark:border-border relative overflow-hidden px-5 py-20 text-center sm:px-8 lg:py-28 dark:border-y"
                 >
-                    <div className="bg-primary-foreground/10 absolute inset-y-0 left-[8%] w-px" />
-                    <div className="bg-primary-foreground/10 absolute inset-y-0 right-[8%] w-px" />
+                    <div className="bg-primary-foreground/10 dark:bg-border absolute inset-y-0 left-[8%] w-px" />
+                    <div className="bg-primary-foreground/10 dark:bg-border absolute inset-y-0 right-[8%] w-px" />
                     <div className="relative mx-auto max-w-3xl">
                         <Sprout className="text-gold mx-auto mb-6 size-8" />
                         <h2 className="font-serif text-4xl sm:text-6xl">{t('Jeste li proizvođač?')}</h2>
-                        <p className="text-primary-foreground/78 mx-auto mt-5 max-w-xl leading-7">
+                        <p className="text-primary-foreground/78 dark:text-muted-foreground mx-auto mt-5 max-w-xl leading-7">
                             {t('Otvorite svoju stranicu, postavite proizvode i primajte poruke ljudi koji traže domaće.')}
                         </p>
                         <Button asChild variant="cream" size="xl" className="mt-8">
