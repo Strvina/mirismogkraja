@@ -25,6 +25,8 @@ export default function ProducersIndex({
     districts,
     cities,
     filters,
+    perPage,
+    perPageOptions,
 }: {
     producers: Paginated<ProducerCardProducer>;
     featured: ProducerCardProducer[];
@@ -33,6 +35,8 @@ export default function ProducersIndex({
     districts: DistrictOption[];
     cities: string[];
     filters: { district: string | null; city: string | null; q: string | null; lat: number | null; lng: number | null; sort: string | null };
+    perPage: number;
+    perPageOptions: number[];
 }) {
     const [showMap, setShowMap] = useState(false);
 
@@ -45,8 +49,8 @@ export default function ProducersIndex({
         setShowMap(!showMap);
     };
 
-    const visit = (patch: Partial<typeof filters>) => {
-        const next = { ...filters, ...patch };
+    const visit = (patch: Partial<typeof filters> & { per_page?: number }) => {
+        const next = { ...filters, per_page: perPage, ...patch };
 
         router.get(
             '/proizvodjaci',
@@ -57,6 +61,8 @@ export default function ProducersIndex({
                 lat: next.lat ?? undefined,
                 lng: next.lng ?? undefined,
                 sort: next.sort || undefined,
+                // The size asked for stays as the list is narrowed; the default needs no saying.
+                per_page: next.per_page !== perPageOptions[0] ? next.per_page : undefined,
             },
             { preserveState: true, preserveScroll: true },
         );
@@ -221,15 +227,6 @@ export default function ProducersIndex({
                     />
                 )}
 
-                <CompactSelect
-                    label={t('Sortiraj')}
-                    className="hidden h-10 w-full sm:inline-flex sm:w-52"
-                    // Choosing an order leaves "nearest to me".
-                    value={sortedByDistance ? '' : (filters.sort ?? '')}
-                    onChange={(sort) => visit({ sort, lat: null, lng: null })}
-                    options={sortOptions}
-                />
-
                 {/* Pressed while the list is in order of distance; pressing it again puts the list back. */}
                 <Button
                     type="button"
@@ -247,16 +244,6 @@ export default function ProducersIndex({
                     <MapIcon className="size-4" />
                     {showMap ? t('Sakrij mapu') : t('Prikaži mapu')}
                 </Button>
-            </div>
-
-            {/* On a phone: how many, and "Sortiraj" beside it. */}
-            <div className="mt-4 flex items-center justify-between border-b pb-3 sm:hidden">
-                <p className="text-muted-foreground text-sm">{t('Proizvođača: :count', { count: producers.total })}</p>
-                <SortMenu
-                    value={sortedByDistance ? '' : (filters.sort ?? '')}
-                    options={sortOptions}
-                    onChange={(sort) => visit({ sort, lat: null, lng: null })}
-                />
             </div>
 
             {sortedByDistance && (
@@ -286,8 +273,56 @@ export default function ProducersIndex({
                     <PointsMap points={mapPoints} className="animate-in fade-in mt-4 h-96 duration-300" />
                 ))}
 
+            {/* Over the results, as in the catalogue: how many, the page size and the order. */}
+            <div className="border-border/70 mt-8 mb-6 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+                <p className="text-muted-foreground text-sm">
+                    {producers.total === 0
+                        ? t('Nema proizvođača')
+                        : t('Prikazano :from–:to od :total', { from: producers.from ?? 0, to: producers.to ?? 0, total: producers.total })}
+                </p>
+
+                {/* On a phone: "Sortiraj" beside the count. */}
+                <div className="sm:hidden">
+                    <SortMenu
+                        value={sortedByDistance ? '' : (filters.sort ?? '')}
+                        options={sortOptions}
+                        onChange={(sort) => visit({ sort, lat: null, lng: null })}
+                    />
+                </div>
+
+                <div className="hidden flex-wrap items-center gap-3 sm:flex">
+                    <span className="flex items-center gap-2 text-sm">
+                        <label htmlFor="producers-per-page" className="text-muted-foreground">
+                            {t('Po strani:')}
+                        </label>
+                        <CompactSelect
+                            id="producers-per-page"
+                            className="w-20"
+                            value={String(perPage)}
+                            onChange={(value) => visit({ per_page: Number(value) })}
+                            options={perPageOptions.map((option) => ({ value: String(option), label: String(option) }))}
+                        />
+                    </span>
+                    <span className="flex items-center gap-2 text-sm">
+                        <label htmlFor="producers-sort" className="text-muted-foreground">
+                            {t('Sortiraj:')}
+                        </label>
+                        <CompactSelect
+                            id="producers-sort"
+                            className="w-52"
+                            // Choosing an order leaves "nearest to me".
+                            value={sortedByDistance ? '' : (filters.sort ?? '')}
+                            onChange={(sort) => visit({ sort, lat: null, lng: null })}
+                            options={sortOptions}
+                        />
+                    </span>
+                </div>
+            </div>
+
             {featured.length > 0 && (
                 <FeaturedSection
+                    // Spaced by the results header above it, as in the catalogue.
+                    className=""
                     itemClassName="w-[80vw] sm:w-[340px] lg:w-[360px]"
                     title={filters.city ? `${t('Istaknuti proizvođači')} — ${filters.city}` : t('Istaknuti proizvođači')}
                     listLabel={filters.city ? `${t('Svi proizvođači')} — ${filters.city}` : t('Svi proizvođači')}
@@ -307,7 +342,6 @@ export default function ProducersIndex({
 
             {producers.data.length === 0 ? (
                 <EmptyState
-                    className="mt-8"
                     title={filters.q ? t('Nema proizvođača za „:query”', { query: filters.q }) : t('Nema proizvođača za prikaz.')}
                     actions={
                         (filters.q || filters.city || filters.district) && (
@@ -323,12 +357,7 @@ export default function ProducersIndex({
                 </EmptyState>
             ) : (
                 <>
-                    <CardGrid
-                        className={cn(
-                            'gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 min-[112.5rem]:grid-cols-5',
-                            featured.length === 0 && 'mt-8',
-                        )}
-                    >
+                    <CardGrid className="gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 min-[112.5rem]:grid-cols-5">
                         {producers.data.map((producer) => (
                             <ProducerCard key={producer.id} producer={producer} />
                         ))}

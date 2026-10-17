@@ -96,4 +96,19 @@ class PublicProducerListTest extends TestCase
         $this->getJson(route('marketplace.producers.count', ['district' => 'nisavski']))->assertExactJson(['count' => 2]);
         $this->getJson(route('marketplace.producers.count', ['city' => 'Vranje']))->assertExactJson(['count' => 1]);
     }
+
+    public function test_the_list_comes_in_the_page_sizes_the_catalogue_offers_and_no_others()
+    {
+        Producer::factory()->active()->count(30)->create();
+
+        $this->get(route('marketplace.producers.index'))->assertInertia(fn ($page) => $page
+            ->has('producers.data', 12)
+            ->where('perPage', 12)
+            ->where('perPageOptions', [12, 24, 48]));
+
+        $this->get(route('marketplace.producers.index', ['per_page' => 24]))->assertInertia(fn ($page) => $page->has('producers.data', 24)->where('perPage', 24));
+
+        // A size nobody offered is the first one.
+        $this->get(route('marketplace.producers.index', ['per_page' => 1000]))->assertInertia(fn ($page) => $page->has('producers.data', 12));
+    }
 }
