@@ -34,6 +34,9 @@ class ProducerController extends Controller
     /** Products on a producer's own page; "all of them" links to the catalogue. */
     private const PRODUCTS_SHOWN = 24;
 
+    /** Page sizes on offer, as the catalogue has them: whole rows of a grid three or four cards wide. */
+    private const PER_PAGE_OPTIONS = [12, 24, 48];
+
     /** The orders the list offers besides its own (by name, or by relevance to a search). */
     private const SORTS = ['rating', 'reviews', 'newest'];
 
@@ -62,7 +65,7 @@ class ProducerController extends Controller
             ->when(! $near && ! in_array($sort, self::SORTS, true), fn ($query) => Search::orderByRelevance($query, ['name', 'description'], $search))
             ->orderBy('name')
             ->orderBy('producers.id')
-            ->paginate(12)
+            ->paginate($perPage = $this->perPage($request))
             ->withQueryString();
 
         if ($near) {
@@ -126,7 +129,17 @@ class ProducerController extends Controller
                 'lng' => $near['lng'] ?? null,
                 'sort' => in_array($sort, self::SORTS, true) ? $sort : null,
             ],
+            'perPage' => $perPage,
+            'perPageOptions' => self::PER_PAGE_OPTIONS,
         ]);
+    }
+
+    /** Page size, limited to the offered options so a crafted query cannot ask for every producer at once. */
+    private function perPage(Request $request): int
+    {
+        $requested = $request->integer('per_page');
+
+        return in_array($requested, self::PER_PAGE_OPTIONS, true) ? $requested : self::PER_PAGE_OPTIONS[0];
     }
 
     /** How many producers the filters being chosen would show, for the phone's "Prikaži" button. */
