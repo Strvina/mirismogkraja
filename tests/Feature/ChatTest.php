@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Producer;
 use App\Models\ProducerMessage;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -155,5 +156,29 @@ class ChatTest extends TestCase
         $this->actingAs($buyer)->postJson(route('chat.send', [$producer->id, $buyer->id]), ['body' => 'Ima li?'])
             ->assertUnprocessable()
             ->assertJsonValidationErrors('body');
+    }
+
+    public function test_an_inquiry_from_a_product_goes_into_the_conversation_and_names_it_for_the_window()
+    {
+        [$buyer, $owner, $producer] = $this->thread();
+        $product = Product::factory()->for($producer)->create(['status' => 'active', 'name' => 'Bagremov med']);
+
+        $this->actingAs($buyer)->postJson(route('chat.inquiry', $product->slug), ['body' => 'Imate li tegle od kilo?'])
+            ->assertCreated()
+            ->assertJsonPath('thread.producer_id', $producer->id)
+            ->assertJsonPath('thread.buyer_id', $buyer->id)
+            ->assertJsonPath('thread.title', 'Pčelinjak Rtanj');
+
+        $message = ProducerMessage::sole();
+        $this->assertSame($product->id, $message->product_id);
+        $this->assertSame('Imate li tegle od kilo?', $message->body);
+
+        // The window then shows it with the product it was about.
+        $this->actingAs($buyer)->getJson(route('chat.thread', [$producer->id, $buyer->id]))
+            ->assertJsonPath('messages.0.product.name', 'Bagremov med');
+
+        // Not about one's own product, nor an empty one.
+        $this->actingAs($owner)->postJson(route('chat.inquiry', $product->slug), ['body' => 'Sam sebi'])->assertForbidden();
+        $this->actingAs($buyer)->postJson(route('chat.inquiry', $product->slug), ['body' => ''])->assertJsonValidationErrors('body');
     }
 }

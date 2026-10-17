@@ -12,7 +12,7 @@ import { type Message, type PendingMessage } from './types';
  * price, so a producer reading a week-old thread recognises the product
  * without opening it.
  */
-function ProductPreview({ product, mine }: { product: NonNullable<Message['product']>; mine: boolean }) {
+export function ProductPreview({ product, mine }: { product: NonNullable<Message['product']>; mine: boolean }) {
     return (
         <Link
             href={route('marketplace.products.show', product.slug)}

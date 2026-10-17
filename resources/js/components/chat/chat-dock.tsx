@@ -8,8 +8,9 @@ import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { MessageCircle, X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import { Avatar } from './chat-avatar';
 import ChatList from './chat-list';
-import ChatThread, { Avatar } from './chat-thread';
+import ChatThread from './chat-thread';
 
 /**
  * Messages in the corner of every page, the way Messenger has them: a

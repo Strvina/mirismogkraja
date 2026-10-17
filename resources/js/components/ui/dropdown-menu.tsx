@@ -3,10 +3,14 @@
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight, Circle } from 'lucide-react';
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 
 import { TOUCH_SCREEN, useMediaQuery } from '@/hooks/use-media-query';
 import { holdTouchUntilItEnds, useScrollLock } from '@/hooks/use-scroll-lock';
 import { cn } from '@/lib/utils';
+
+/** The menu's own open state, for its parts: a tap opens it, a scroll of the page closes it. */
+const MenuState = React.createContext<{ open: boolean; setOpen: (open: boolean) => void } | null>(null);
 
 /**
  * Never Radix's modal mode. Its lock sets `overflow: hidden` on the body,
@@ -15,10 +19,31 @@ import { cn } from '@/lib/utils';
  * button in it - jumps back to the top of the page, the menu with it, and
  * with a mouse the scrollbar goes and the page shifts sideways.
  *
- * On a touch screen the page is held still by DropdownMenuContent instead.
+ * Open or closed is kept here, whether or not the caller controls it, so
+ * the trigger and the content can open and close it themselves.
  */
-function DropdownMenu({ modal = false, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-    return <DropdownMenuPrimitive.Root modal={modal} {...props} />;
+function DropdownMenu({ modal = false, open: controlled, defaultOpen = false, onOpenChange, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+    const [own, setOwn] = React.useState(defaultOpen);
+    const open = controlled ?? own;
+
+    const setOpen = React.useCallback(
+        (next: boolean) => {
+            if (controlled === undefined) {
+                setOwn(next);
+            }
+
+            onOpenChange?.(next);
+        },
+        [controlled, onOpenChange],
+    );
+
+    const state = React.useMemo(() => ({ open, setOpen }), [open, setOpen]);
+
+    return (
+        <MenuState.Provider value={state}>
+            <DropdownMenuPrimitive.Root modal={modal} open={open} onOpenChange={setOpen} {...props} />
+        </MenuState.Provider>
+    );
 }
 
 /**
@@ -34,28 +59,29 @@ const DropdownMenuTrigger = React.forwardRef<
     React.ElementRef<typeof DropdownMenuPrimitive.Trigger>,
     React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Trigger>
 >(({ onPointerDown, onClick, ...props }, ref) => {
-    // From the press itself: older Safari does not say on a click what made it.
-    const byFinger = React.useRef(false);
+    const menu = React.useContext(MenuState);
+    // Read at the press: by the click, a touch outside the open menu may
+    // already have closed it, and the tap would open it again.
+    const press = React.useRef<{ finger: boolean; wasOpen: boolean }>({ finger: false, wasOpen: false });
 
     return (
         <DropdownMenuPrimitive.Trigger
             ref={ref}
             onPointerDown={(event) => {
                 onPointerDown?.(event);
-                byFinger.current = event.pointerType === 'touch';
+                press.current = { finger: event.pointerType === 'touch', wasOpen: menu?.open ?? false };
 
-                // Radix steps aside for a prevented event; the click below opens it instead.
-                if (byFinger.current) {
+                // Radix steps aside for a prevented event; the click below decides instead.
+                if (press.current.finger) {
                     event.preventDefault();
                 }
             }}
             onClick={(event) => {
                 onClick?.(event);
 
-                // A tap: hand Radix the press it waits for, as a mouse would make it.
-                if (byFinger.current && !event.defaultPrevented) {
-                    byFinger.current = false;
-                    event.currentTarget.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true, button: 0, pointerType: 'mouse' }));
+                if (press.current.finger && menu && !event.defaultPrevented) {
+                    press.current.finger = false;
+                    menu.setOpen(!press.current.wasOpen);
                 }
             }}
             {...props}
@@ -108,50 +134,73 @@ const DropdownMenuSubContent = React.forwardRef<
 ));
 DropdownMenuSubContent.displayName = DropdownMenuPrimitive.SubContent.displayName;
 
+/**
+ * Beside its button with a mouse; on a touch screen, a sheet from the foot
+ * of the screen over a dimmed page, as a phone's own menus are.
+ *
+ * A menu floating by its button has to be placed again as the page moves,
+ * and on the iPhone, where the address bar grows and shrinks with every
+ * scroll, it landed in the wrong place or followed the page about. A sheet
+ * at the foot of the screen has nothing to follow, is in reach of a thumb,
+ * and its items are big enough for a finger.
+ *
+ * With a mouse it closes as soon as the page scrolls or the window changes
+ * size, instead of trailing after its button.
+ */
 const DropdownMenuContent = React.forwardRef<
     React.ElementRef<typeof DropdownMenuPrimitive.Content>,
     React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
 >(({ className, sideOffset = 4, collisionPadding = 8, onPointerDownOutside, children, ...props }, ref) => {
     const touch = useMediaQuery(TOUCH_SCREEN);
+    const menu = React.useContext(MenuState);
     const own = React.useRef<HTMLDivElement>(null);
 
     return (
-        <DropdownMenuPrimitive.Portal>
-            <DropdownMenuPrimitive.Content
-                ref={(node) => {
-                    own.current = node;
+        <>
+            {/* The dimmed page behind a sheet: a touch on it closes the menu. */}
+            {touch && menu?.open && createPortal(<SheetBackdrop />, document.body)}
+            <DropdownMenuPrimitive.Portal>
+                <DropdownMenuPrimitive.Content
+                    ref={(node) => {
+                        own.current = node;
 
-                    if (typeof ref === 'function') {
-                        ref(node);
-                    } else if (ref) {
-                        ref.current = node;
-                    }
-                }}
-                sideOffset={sideOffset}
-                collisionPadding={collisionPadding}
-                onPointerDownOutside={(event) => {
-                    onPointerDownOutside?.(event);
+                        if (typeof ref === 'function') {
+                            ref(node);
+                        } else if (ref) {
+                            ref.current = node;
+                        }
+                    }}
+                    data-sheet={touch ? '' : undefined}
+                    sideOffset={sideOffset}
+                    collisionPadding={collisionPadding}
+                    onPointerDownOutside={(event) => {
+                        onPointerDownOutside?.(event);
 
-                    // A touch beside the menu closes it, and the rest of that touch is not a scroll.
-                    if (event.detail.originalEvent.pointerType === 'touch') {
-                        holdTouchUntilItEnds();
-                    }
-                }}
-                // Never taller than the room left on screen, and scrolling inside
-                // itself when its items need more: on a phone, a long menu (an
-                // admin's) used to run off the bottom with its last items out of
-                // reach, and a drag over it pulled at the page behind instead.
-                className={cn(
-                    'z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] overflow-y-auto overscroll-contain rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
-                    className,
-                )}
-                {...props}
-            >
-                {/* Inside the content, so it is there exactly while the menu is open. */}
-                {touch && <HoldPageStill panel={own} />}
-                {children}
-            </DropdownMenuPrimitive.Content>
-        </DropdownMenuPrimitive.Portal>
+                        // A touch beside the menu closes it, and the rest of that touch is not a scroll.
+                        if (event.detail.originalEvent.pointerType === 'touch') {
+                            holdTouchUntilItEnds();
+                        }
+                    }}
+                    // Never taller than the room left on screen, and scrolling inside
+                    // itself when its items need more: on a phone, a long menu (an
+                    // admin's) used to run off the bottom with its last items out of
+                    // reach, and a drag over it pulled at the page behind instead.
+                    className={cn(
+                        'z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] overflow-y-auto overscroll-contain rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+                        className,
+                        // After the caller's classes, and over them: a sheet is the
+                        // width of the screen whatever width the menu asked for.
+                        touch &&
+                            'z-[61]! w-full! max-w-none! min-w-0! max-h-[min(75dvh,36rem)]! rounded-t-2xl! rounded-b-none! border-x-0! border-b-0! p-2! pb-[calc(0.75rem+env(safe-area-inset-bottom))]! shadow-2xl! data-[state=open]:zoom-in-100! data-[state=closed]:zoom-out-100! data-[state=open]:slide-in-from-bottom-10 [&_[role^=menuitem]]:min-h-12 [&_[role^=menuitem]]:text-base',
+                    )}
+                    {...props}
+                >
+                    {/* Inside the content, so they are there exactly while the menu is open. */}
+                    {touch ? <HoldPageStill panel={own} /> : <CloseWithThePage panel={own} />}
+                    {children}
+                </DropdownMenuPrimitive.Content>
+            </DropdownMenuPrimitive.Portal>
+        </>
     );
 });
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
@@ -166,6 +215,54 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
  */
 function HoldPageStill({ panel }: { panel: React.RefObject<HTMLElement | null> }) {
     useScrollLock(true, panel);
+
+    return null;
+}
+
+/**
+ * The dimmed page behind a sheet. A touch on it closes the menu - and the
+ * backdrop goes with it, mid-touch, so the rest of that touch is sent to an
+ * element no longer in the page and never reaches a listener on the
+ * document. Its own listener still hears it: the drag is refused here.
+ */
+function SheetBackdrop() {
+    const backdrop = React.useRef<HTMLDivElement>(null);
+
+    React.useEffect(() => {
+        const element = backdrop.current;
+        const refuse = (event: TouchEvent) => event.cancelable && event.preventDefault();
+
+        element?.addEventListener('touchmove', refuse, { passive: false });
+
+        // Not taken off when it leaves the page: the touch that removed it is still going.
+    }, []);
+
+    return <div ref={backdrop} aria-hidden className="animate-in fade-in-0 fixed inset-0 z-[60] bg-black/40" />;
+}
+
+/** With a mouse: the page scrolled (not the menu itself) or the window changed - the menu goes. */
+function CloseWithThePage({ panel }: { panel: React.RefObject<HTMLElement | null> }) {
+    const menu = React.useContext(MenuState);
+
+    React.useEffect(() => {
+        if (!menu) {
+            return;
+        }
+
+        const close = (event: Event) => {
+            if (!(event.target instanceof Node && panel.current?.contains(event.target))) {
+                menu.setOpen(false);
+            }
+        };
+
+        window.addEventListener('scroll', close, { capture: true, passive: true });
+        window.addEventListener('resize', close);
+
+        return () => {
+            window.removeEventListener('scroll', close, { capture: true });
+            window.removeEventListener('resize', close);
+        };
+    }, [menu, panel]);
 
     return null;
 }

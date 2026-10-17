@@ -90,7 +90,12 @@ export function ProducerProducts({
             ) : (
                 <div className="mt-6 grid grid-cols-2 gap-6 lg:grid-cols-4">
                     {products.map((product) => (
-                        <QuickViewLink key={product.id} href={route('marketplace.products.show', product.slug)} className="group">
+                        <QuickViewLink
+                            key={product.id}
+                            href={route('marketplace.products.show', product.slug)}
+                            preview={{ name: product.name, price: product.price, unit: product.unit, image: product.images?.[0]?.path ?? null }}
+                            className="group"
+                        >
                             <div className="bg-muted aspect-square overflow-hidden rounded-md">
                                 {product.images?.[0] && (
                                     <img

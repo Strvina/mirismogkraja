@@ -1,11 +1,14 @@
 import { makeProducer, makeProduct, makeUser, paginated } from '@/__tests__/support/factories';
-import { lastVisit } from '@/__tests__/support/inertia';
+import { lastVisit, visits } from '@/__tests__/support/inertia';
 import { renderOnPage } from '@/__tests__/support/render';
+import { chat } from '@/lib/chat/store';
 import ProductsIndex from '@/pages/marketplace/products/index';
 import ProductShow from '@/pages/marketplace/products/show';
-import { act, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { type ComponentProps } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+afterEach(() => vi.unstubAllGlobals());
 
 const listing: ComponentProps<typeof ProductsIndex> = {
     products: paginated([]),
@@ -131,11 +134,61 @@ describe('catalogue pages', () => {
         expect(placeLink.parentElement?.closest('a')).toBeNull();
         expect(send).toBeDisabled();
         await user.type(screen.getByRole('textbox', { name: 'Poruka proizvođaču' }), 'Da li imate 5 tegli?');
+        // The question goes into the chat window, not to another page.
+        const answer = { ok: false, status: 429, body: { message: 'x', errors: { body: ['Sačekajte pre naredne poruke.'] } } as unknown };
+        const fetch = vi.fn(async (url: string) => ({
+            ok: url.includes('chat.inquiry') ? answer.ok : true,
+            status: url.includes('chat.inquiry') ? answer.status : 200,
+            json: async () => (url.includes('chat.inquiry') ? answer.body : { thread: null, messages: [], has_older: false, unread: 0 }),
+        }));
+        vi.stubGlobal('fetch', fetch);
+
         await user.click(send);
-        expect(lastVisit()).toMatchObject({ method: 'post', url: route('inquiries.store', 'domaci-ajvar'), data: { body: 'Da li imate 5 tegli?' } });
-        expect(send).toBeDisabled();
-        act(() => lastVisit().fail({ body: 'Sačekajte pre naredne poruke.' }));
-        expect(screen.getByRole('alert')).toHaveTextContent('Sačekajte pre naredne poruke.');
+        expect(fetch.mock.calls[0][0]).toBe(route('chat.inquiry', 'domaci-ajvar'));
+        expect(await screen.findByRole('alert')).toHaveTextContent('Sačekajte pre naredne poruke.');
+        expect(screen.getByRole('textbox', { name: 'Poruka proizvođaču' })).toHaveValue('Da li imate 5 tegli?');
         expect(send).toBeEnabled();
+    });
+
+    it('opens the conversation in the chat window once the inquiry is sent', async () => {
+        chat.reset();
+        const { user } = renderOnPage(
+            <ProductShow
+                product={{ ...makeProduct(), producer: makeProducer({ id: 4, slug: 'ana', name: 'Ana', city: 'Niš' }), category: undefined }}
+                similar={[]}
+                place={null}
+                canInquire
+                noInquiry={null}
+                pause={null}
+                canFollow={false}
+                isFollowing={false}
+                responseTime={null}
+                available
+                alertRequested={false}
+                canReport={false}
+                reportReasons={{}}
+                isFavorited={false}
+            />,
+            { url: '/proizvod/domaci-ajvar', props: { auth: { user: makeUser({ id: 9 }) } } },
+        );
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async (url: string) => ({
+                ok: true,
+                status: url.includes('chat.inquiry') ? 201 : 200,
+                json: async () =>
+                    url.includes('chat.inquiry')
+                        ? { thread: { producer_id: 4, buyer_id: 9, title: 'Ana', avatar_path: null } }
+                        : { thread: null, messages: [], has_older: false, unread: 0 },
+            })),
+        );
+
+        await user.type(screen.getByRole('textbox', { name: 'Poruka proizvođaču' }), 'Ima li?');
+        await user.click(screen.getByRole('button', { name: 'Pošalji upit' }));
+
+        expect(await screen.findByRole('dialog', { name: 'Razgovor' })).toBeInTheDocument();
+        expect(chat.get().active).toMatchObject({ producerId: 4, buyerId: 9 });
+        expect(screen.getByRole('textbox', { name: 'Poruka proizvođaču' })).toHaveValue('');
+        expect(visits()).toEqual([]);
     });
 });

@@ -95,3 +95,29 @@ export function formatRelativeTime(value: string | Date | null | undefined): str
 
     return t('upravo sada');
 }
+
+/**
+ * When a stretch of a chat was written, as a chat says it above the
+ * messages: "14:05" today, "juče 14:05", "pon 14:05" within the week,
+ * "3. okt 14:05" before that.
+ */
+export function formatChatTime(value: string | Date, now: Date = new Date()): string {
+    const date = value instanceof Date ? value : new Date(value);
+    const time = date.toLocaleTimeString(intlLocale(), { hour: '2-digit', minute: '2-digit' });
+    const startOfDay = (day: Date) => new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime();
+    const daysAgo = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
+
+    if (daysAgo <= 0) {
+        return time;
+    }
+
+    if (daysAgo === 1) {
+        return `${t('juče')} ${time}`;
+    }
+
+    if (daysAgo < 7) {
+        return `${date.toLocaleDateString(intlLocale(), { weekday: 'short' })} ${time}`;
+    }
+
+    return `${date.toLocaleDateString(intlLocale(), { day: 'numeric', month: 'short' })} ${time}`;
+}

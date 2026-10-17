@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // The chat window in the corner: the same threads, as JSON, without
     // leaving the page. A thread is named by its producer and its buyer,
     // whichever side is asking; ProducerMessagePolicy decides as above.
+    Route::post('/chat/upit/{product:slug}', [ChatController::class, 'inquiry'])->middleware('throttle:10,1')->name('chat.inquiry');
     Route::get('/chat/razgovori', [ChatController::class, 'conversations'])->middleware('throttle:60,1')->name('chat.conversations');
     Route::get('/chat/{producer}/{buyer}', [ChatController::class, 'thread'])->middleware('throttle:120,1')->withTrashed()->name('chat.thread');
     Route::post('/chat/{producer}/{buyer}', [ChatController::class, 'send'])->middleware('throttle:20,1')->withTrashed()->name('chat.send');

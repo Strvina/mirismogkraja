@@ -1,15 +1,14 @@
 import ClosedNotice from '@/components/messages/closed-notice';
 import Composer from '@/components/messages/composer';
-import { MessageBubble, PendingBubble } from '@/components/messages/message-bubbles';
 import { Button } from '@/components/ui/button';
 import { chat, threadKey, useChat, type ThreadRef } from '@/lib/chat/store';
 import { t } from '@/lib/i18n';
-import { thumbUrl } from '@/lib/media';
-import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowDown, ArrowLeft, LoaderCircle, Minus, X } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Avatar } from './chat-avatar';
+import ChatMessages from './chat-messages';
 
 /** How close to the bottom still counts as reading the newest messages. */
 const FOLLOW_PX = 80;
@@ -179,7 +178,7 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
                     onScroll={onScroll}
                     role="log"
                     aria-label={t('Poruke sa :name', { name: title })}
-                    className="h-full space-y-3 overflow-y-auto overscroll-contain px-3 py-3"
+                    className="h-full overflow-y-auto overscroll-contain px-3 pt-1 pb-3"
                 >
                     {thread?.hasOlder && (
                         <div className="flex justify-center">
@@ -220,25 +219,13 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
                         </p>
                     )}
 
-                    {messages.map((message) => (
-                        <MessageBubble key={message.id} message={message} />
-                    ))}
-
-                    {pending.map((message) => (
-                        <div key={message.key}>
-                            <PendingBubble
-                                message={message}
-                                senderName={auth.user?.name ?? ''}
-                                onRetry={() => void chat.send(ref, message.body, message.key)}
-                                onDiscard={() => chat.discard(ref, message.key)}
-                            />
-                            {message.failed && message.error && (
-                                <p className="text-destructive mt-1 text-right text-xs" role="alert">
-                                    {message.error}
-                                </p>
-                            )}
-                        </div>
-                    ))}
+                    <ChatMessages
+                        messages={messages}
+                        pending={pending}
+                        other={{ name: title, avatar: avatar ?? null }}
+                        onRetry={(message) => void chat.send(ref, message.body, message.key)}
+                        onDiscard={(message) => chat.discard(ref, message.key)}
+                    />
                 </div>
 
                 {newBelow && (
@@ -262,7 +249,8 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
                     draft={state.drafts[key] ?? ''}
                     onDraftChange={(text) => chat.setDraft(key, text)}
                     autoFocus={!phone}
-                    className="py-2"
+                    pill
+                    className="border-t-0 py-2"
                     onSend={(text) => {
                         following.current = true;
                         chat.setDraft(key, '');
@@ -271,15 +259,5 @@ export default function ChatThread({ thread: ref, phone }: { thread: ThreadRef; 
                 />
             )}
         </div>
-    );
-}
-
-export function Avatar({ path, name, className }: { path: string | null; name: string; className?: string }) {
-    return path ? (
-        <img src={thumbUrl(path)} alt="" className={cn('size-9 shrink-0 rounded-full object-cover', className)} />
-    ) : (
-        <span className={cn('bg-olive-soft text-olive grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold', className)}>
-            {name.charAt(0).toUpperCase()}
-        </span>
     );
 }

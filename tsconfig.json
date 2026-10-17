@@ -107,7 +107,7 @@
         /* Completeness */
         // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
         "skipLibCheck": true /* Skip type checking all .d.ts files. */,
-        "baseUrl": ".",
+        // No baseUrl: TypeScript 6 deprecates it, and paths starting with ./ resolve from this file without it.
         "paths": {
             "@/*": ["./resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"]

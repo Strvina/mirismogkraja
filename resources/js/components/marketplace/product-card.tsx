@@ -47,6 +47,7 @@ export default function ProductCard({
     return (
         <QuickViewLink
             href={route('marketplace.products.show', product.slug)}
+            preview={{ name: product.name, price: product.price, unit: product.unit, image: image?.path ?? null, producer: product.producer }}
             className={cn(
                 'group bg-background flex h-full flex-col overflow-hidden rounded-lg border transition-shadow duration-300 hover:shadow-lg',
                 featured ? 'border-gold/60 ring-gold/25 ring-1' : 'border-border/70 hover:border-border',

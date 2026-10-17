@@ -33,8 +33,11 @@ export interface DistrictOption {
     cities: string[];
 }
 
-/** What the panel narrows by; the search and the order are not its to change. */
-const KEYS = ['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period'] as const;
+/** What the panel narrows by. */
+const FILTERS = ['category_id', 'producer_id', 'district', 'city', 'min_price', 'max_price', 'in_stock', 'in_season', 'delivery', 'period'] as const;
+
+/** What it sets, the order too (on a phone, where it is the only place to set it); never the search. */
+const KEYS = [...FILTERS, 'sort'] as const;
 
 type Draft = Partial<Record<(typeof KEYS)[number], string>>;
 
@@ -53,6 +56,8 @@ interface Props {
     priceBounds: { min: number; max: number };
     /** How many the filters in force show. */
     total?: number;
+    /** The orders the list offers; on a phone they are chosen here, with the filters. */
+    sortOptions?: { value: string; label: string }[];
     onChange: (patch: ProductFilterValues) => void;
     onReset: () => void;
 }
@@ -65,8 +70,9 @@ interface Props {
  * first, a narrower field opening once the wider one is chosen (category,
  * then subcategory; district, then town); the rest folds away.
  *
- * Beside the list on a computer. On a phone a row of quick choices under
- * the search - each applied at once - and "Filteri" for the whole panel.
+ * Beside the list on a computer. On a phone everything - the order too - is
+ * behind one "Filteri" button: a row of quick choices beside it only said
+ * the same things twice.
  */
 export default function ProductFilters({ filters, total, onChange, onReset, ...choices }: Props) {
     const applied = draftOf(filters);
@@ -78,12 +84,12 @@ export default function ProductFilters({ filters, total, onChange, onReset, ...c
     // A list changed from outside the panel - a chip, "Poništi", the back button - starts it over.
     useEffect(() => setDraft(JSON.parse(appliedKey) as Draft), [appliedKey]);
 
-    const activeCount = Object.keys(applied).length;
+    // The order is not a filter: it narrows nothing.
+    const activeCount = FILTERS.filter((key) => applied[key]).length;
     const apply = (next: Draft = draft) => {
         onChange(Object.fromEntries(KEYS.map((key) => [key, next[key] || undefined])));
         setPanelOpen(false);
     };
-    const quick = (patch: Draft) => apply({ ...applied, ...patch });
 
     const panel = (
         <FilterFields
@@ -101,51 +107,21 @@ export default function ProductFilters({ filters, total, onChange, onReset, ...c
         />
     );
 
-    const roots = choices.categories.filter((category) => !category.parent_id);
-    const rootOf = (id?: string) => {
-        const category = choices.categories.find((option) => String(option.id) === id);
-
-        return category?.parent_id ? String(category.parent_id) : category ? String(category.id) : '';
-    };
-    const pill = (active: boolean) => cn('h-9 w-auto shrink-0 rounded-full px-4 font-medium', active && 'border-primary bg-primary/10 text-primary');
-
     return (
         <div className="lg:w-72 lg:shrink-0">
-            {/* On a phone: the quick choices, one swipe wide. */}
-            <div className="-mx-5 flex [scrollbar-width:none] gap-2 overflow-x-auto px-5 pb-1 lg:hidden [&::-webkit-scrollbar]:hidden">
-                <Button variant="outline" className={pill(activeCount > 0)} onClick={() => setPanelOpen(true)}>
-                    <SlidersHorizontal className="size-4" />
-                    {t('Filteri')}
-                    {activeCount > 0 && <span className="bg-primary text-primary-foreground rounded-full px-1.5 text-xs">{activeCount}</span>}
-                </Button>
-                <CompactSelect
-                    label={t('Kategorija')}
-                    className={pill(Boolean(applied.category_id))}
-                    value={rootOf(applied.category_id)}
-                    onChange={(value) => quick({ category_id: value })}
-                    options={[
-                        { value: '', label: t('Kategorija') },
-                        ...roots.map((category) => ({ value: String(category.id), label: t(category.name) })),
-                    ]}
-                />
-                {(choices.districts ?? []).length > 0 && (
-                    <CompactSelect
-                        label={t('Okrug')}
-                        className={pill(Boolean(applied.district))}
-                        value={applied.district ?? ''}
-                        onChange={(value) => quick({ district: value, city: '' })}
-                        options={[{ value: '', label: t('Okrug') }, ...(choices.districts ?? [])]}
-                    />
+            {/* On a phone: one way in, to everything. */}
+            <Button
+                variant="outline"
+                className={cn(
+                    'h-11 w-full justify-center gap-2 text-[0.95rem] font-medium lg:hidden',
+                    activeCount > 0 && 'border-primary text-primary',
                 )}
-                <Button
-                    variant="outline"
-                    className={pill(applied.in_stock === '1')}
-                    aria-pressed={applied.in_stock === '1'}
-                    onClick={() => quick({ in_stock: applied.in_stock === '1' ? '' : '1' })}
-                >
-                    {t('Dostupno odmah')}
-                </Button>
-            </div>
+                onClick={() => setPanelOpen(true)}
+            >
+                <SlidersHorizontal className="size-4" />
+                {t('Filteri i redosled')}
+                {activeCount > 0 && <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-xs">{activeCount}</span>}
+            </Button>
 
             <Dialog open={panelOpen} onOpenChange={setPanelOpen}>
                 <DialogContent
@@ -220,6 +196,7 @@ function FilterFields({
     districts = [],
     cities,
     priceBounds,
+    sortOptions,
 }: Omit<Props, 'filters' | 'total' | 'onChange' | 'onReset'> & {
     draft: Draft;
     setDraft: (update: (draft: Draft) => Draft) => void;
@@ -275,6 +252,21 @@ function FilterFields({
             </div>
 
             <div className="grid gap-5 p-5">
+                {sortOptions && sortOptions.length > 0 && (
+                    <div className="grid gap-2 lg:hidden">
+                        <Label htmlFor={`${id}-sort`} className={label}>
+                            {t('Redosled')}
+                        </Label>
+                        <CompactSelect
+                            id={`${id}-sort`}
+                            className={control}
+                            value={draft.sort ?? ''}
+                            onChange={(value) => set({ sort: value })}
+                            options={sortOptions}
+                        />
+                    </div>
+                )}
+
                 <p className="text-primary text-sm font-semibold">{t('Osnovni filteri')}</p>
 
                 <div className="grid gap-2">

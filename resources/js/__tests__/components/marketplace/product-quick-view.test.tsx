@@ -1,7 +1,7 @@
 import { makeProduct } from '@/__tests__/support/factories';
 import { currentPage, lastVisit, setPage, visits } from '@/__tests__/support/inertia';
 import { createUser } from '@/__tests__/support/render';
-import { QuickViewProvider } from '@/components/marketplace/product-quick-view';
+import { forgetAskedProducts, QuickViewProvider } from '@/components/marketplace/product-quick-view';
 import { QuickViewLink } from '@/components/marketplace/quick-view-link';
 import { type ProductPageProps } from '@/components/product-page/product-details';
 import { render, screen, waitFor } from '@testing-library/react';
@@ -54,7 +54,10 @@ function renderList(withProvider = true) {
 }
 
 describe('the product popup', () => {
-    beforeEach(() => setPage({ url: '/proizvodi?sort=price_asc', props: { products: [] } }));
+    beforeEach(() => {
+        forgetAskedProducts();
+        setPage({ url: '/proizvodi?sort=price_asc', props: { products: [] } });
+    });
     afterEach(() => vi.unstubAllGlobals());
 
     it('opens the product over the list, at the product’s own address', async () => {
@@ -101,8 +104,62 @@ describe('the product popup', () => {
         await user.keyboard('{Control>}');
         await user.click(screen.getByRole('link', { name: 'Domaći ajvar' }));
 
-        expect(fetch).not.toHaveBeenCalled();
+        // Asked for ahead, as for any press on the card - but nothing opens over the list.
+        expect(fetch.mock.calls.length).toBeLessThanOrEqual(1);
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+        expect(currentPage().url).toBe('/proizvodi?sort=price_asc');
         expect(visits()).toEqual([]);
+    });
+
+    it('opens at once with what the card showed, while the rest is on its way - no spinner', async () => {
+        let answer: (value: unknown) => void = () => undefined;
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() => new Promise((resolve) => (answer = resolve))),
+        );
+        render(
+            <QuickViewProvider>
+                <QuickViewLink
+                    href={HREF}
+                    preview={{
+                        name: 'Domaći ajvar',
+                        price: '650.00',
+                        unit: 'tegla',
+                        image: null,
+                        producer: { name: 'Bašta Ivanovića', city: 'Vranje' },
+                    }}
+                >
+                    Domaći ajvar
+                </QuickViewLink>
+            </QuickViewProvider>,
+        );
+
+        await createUser().click(screen.getByRole('link', { name: 'Domaći ajvar' }));
+
+        const dialog = screen.getByRole('dialog', { name: 'Domaći ajvar' });
+        expect(dialog).toHaveTextContent('Bašta Ivanovića');
+        expect(dialog).toHaveTextContent('/ tegla');
+        expect(dialog.querySelector('.animate-spin')).toBeNull();
+
+        answer({
+            ok: true,
+            headers: new Headers({ 'X-Inertia': 'true' }),
+            json: async () => ({ component: 'marketplace/products/show', url: HREF, props: productPage() }),
+        });
+        await waitFor(() => expect(currentPage().url).toBe(HREF));
+    });
+
+    it('asks for the product when the pointer rests on it, and the click uses that answer', async () => {
+        const fetch = serve();
+        const user = renderList();
+
+        await user.hover(screen.getByRole('link', { name: 'Domaći ajvar' }));
+        await waitFor(() => expect(fetch).toHaveBeenCalledTimes(1));
+
+        await user.click(screen.getByRole('link', { name: 'Domaći ajvar' }));
+
+        expect(await screen.findByRole('dialog', { name: 'Domaći ajvar' })).toBeInTheDocument();
+        expect(fetch).toHaveBeenCalledTimes(1);
     });
 
     it('is a plain link where there is no list to stay on', async () => {

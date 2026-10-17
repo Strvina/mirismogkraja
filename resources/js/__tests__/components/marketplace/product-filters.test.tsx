@@ -209,22 +209,44 @@ describe('ProductFilters', () => {
     });
 
     describe('on a phone', () => {
-        it('applies a quick choice at once', async () => {
-            const { user, onChange } = renderFilters();
+        it('has one way in, "Filteri", counting what is in force but not the order - nothing said twice beside it', async () => {
+            const { user } = renderFilters({ category_id: '2', in_stock: '1', sort: 'price_asc' });
+            const open = screen.getByRole('button', { name: /^Filteri i redosled/ });
 
-            await user.click(screen.getByRole('button', { name: 'Dostupno odmah' }));
-
-            expect(onChange).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ in_stock: '1' }));
-        });
-
-        it('opens the whole panel from "Filteri", counting what is in force', async () => {
-            const { user } = renderFilters({ category_id: '2', in_stock: '1' });
-            const open = screen.getByRole('button', { name: /^Filteri/ });
-
-            expect(open).toHaveTextContent('Filteri2');
+            expect(open).toHaveTextContent('Filteri i redosled2');
+            expect(screen.queryByRole('button', { name: 'Dostupno odmah' })).not.toBeInTheDocument();
             await user.click(open);
 
             expect(screen.getByRole('dialog', { name: 'Filteri' })).toBeInTheDocument();
+        });
+
+        it('sets the order in the panel too, applied with the rest', async () => {
+            const onChange = vi.fn();
+            const { user } = (() => {
+                render(
+                    <ProductFilters
+                        filters={{}}
+                        categories={CATEGORIES}
+                        producers={PRODUCERS}
+                        cities={[]}
+                        priceBounds={{ min: 1, max: 9 }}
+                        sortOptions={[
+                            { value: '', label: 'Najnovije' },
+                            { value: 'price_asc', label: 'Cena: niža prvo' },
+                        ]}
+                        onChange={onChange}
+                        onReset={vi.fn()}
+                    />,
+                );
+
+                return { user: createUser() };
+            })();
+
+            await choose(user, panel().getByLabelText('Redosled'), 'Cena: niža prvo');
+            expect(onChange).not.toHaveBeenCalled();
+            await user.click(applyButton());
+
+            expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ sort: 'price_asc' }));
         });
     });
 });

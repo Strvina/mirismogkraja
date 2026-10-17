@@ -21,28 +21,32 @@ test('a visitor searches from the header and finds the producer by name', async 
     await expect(page.locator('.leaflet-container')).toBeVisible();
 });
 
-test('a buyer sends an inquiry from a product page and lands in the conversation', async ({ page }) => {
+test('a buyer sends an inquiry from a product and the conversation opens in the chat window, on the same list', async ({ page }) => {
     await logIn(page, accounts.buyer);
     await page.goto('/proizvodi?in_stock=1');
     await page.locator('main a[href*="/proizvod/"]').first().click();
     await expect(page).toHaveURL(/\/proizvod\//);
 
     const message = `Da li imate ovo na stanju? (${Date.now()})`;
-    await page.getByRole('textbox', { name: 'Poruka proizvođaču' }).fill(message);
-    await page.getByRole('button', { name: 'Pošalji upit' }).click();
+    await page.getByRole('dialog').getByRole('textbox', { name: 'Poruka proizvođaču' }).fill(message);
+    await page.getByRole('dialog').getByRole('button', { name: 'Pošalji upit' }).click();
 
+    // The popup goes, the list stays, and the conversation is in the window.
+    const chat = page.getByRole('dialog', { name: 'Razgovor' });
+    await expect(chat.getByText(message)).toBeVisible();
+    await expect(page).toHaveURL(/\/proizvodi\?in_stock=1$/);
+
+    // A follow-up from the window: shown at once, and still there once the server has it.
+    const followUp = `I još nešto: da li šaljete kurirom? (${Date.now()})`;
+    await chat.getByRole('textbox', { name: 'Poruka', exact: true }).fill(followUp);
+    await chat.getByRole('textbox', { name: 'Poruka', exact: true }).press('Enter');
+    await expect(chat.getByText(followUp)).toBeVisible();
+    await expect(chat.getByRole('textbox', { name: 'Poruka', exact: true })).toHaveValue('');
+
+    // The same conversation on the messages page.
+    await chat.getByRole('link', { name: /Otvori ceo razgovor/ }).click();
     await expect(page).toHaveURL(/\/poruke\//);
     await expect(page.getByText(message)).toBeVisible();
-
-    // A follow-up from the conversation itself: shown at once, and still
-    // there once the server has it.
-    const followUp = `I još nešto: da li šaljete kurirom? (${Date.now()})`;
-    await page.getByRole('textbox', { name: 'Poruka', exact: true }).fill(followUp);
-    await page.getByRole('textbox', { name: 'Poruka', exact: true }).press('Enter');
-    await expect(page.getByText(followUp)).toBeVisible();
-    await expect(page.getByRole('textbox', { name: 'Poruka', exact: true })).toHaveValue('');
-
-    await page.reload();
     await expect(page.getByText(followUp)).toBeVisible();
     await expect(page.getByText('Nije poslato')).toHaveCount(0);
 });
