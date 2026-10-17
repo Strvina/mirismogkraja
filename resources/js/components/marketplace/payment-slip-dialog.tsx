@@ -70,26 +70,31 @@ export default function PaymentSlipDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-                <DialogTitle>{t('Nalog za uplatu')}</DialogTitle>
+            <DialogContent className="max-h-[90vh] overflow-y-auto p-4 sm:max-w-2xl sm:p-6">
+                <DialogTitle className="pr-6">{t('Nalog za uplatu')}</DialogTitle>
                 <DialogDescription>
                     {t('Skenirajte QR kod aplikacijom svoje banke i sva polja se popunjavaju sama. Članarinu aktiviramo čim vidimo uplatu.')}
                 </DialogDescription>
 
-                <div id="payment-slip" className="border-border/70 mt-2 rounded-lg border p-5">
-                    <div className="flex flex-wrap items-start justify-between gap-6">
-                        <dl className="min-w-0 flex-1 space-y-2.5">
+                <div id="payment-slip" className="border-border/70 mt-2 rounded-lg border p-4 sm:p-5">
+                    {/* Side by side only where both fit; on a phone the QR code
+                        goes under the fields instead of squeezing them. */}
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+                        <dl className="divide-border/60 min-w-0 divide-y sm:flex-1 sm:space-y-2.5 sm:divide-y-0">
                             {rows.map((row) => (
-                                <div key={row.label} className="grid grid-cols-[9rem_1fr] items-start gap-3 text-sm">
-                                    <dt className="text-muted-foreground">{row.label}</dt>
-                                    <dd className="flex items-start gap-2 font-medium break-words">
+                                <div
+                                    key={row.label}
+                                    className="grid gap-0.5 py-2 text-sm first:pt-0 last:pb-0 sm:grid-cols-[9rem_1fr] sm:items-start sm:gap-3 sm:py-0"
+                                >
+                                    <dt className="text-muted-foreground text-xs sm:text-sm">{row.label}</dt>
+                                    <dd className="flex min-w-0 items-start gap-2 font-medium wrap-anywhere">
                                         {row.value}
                                         {row.copyable && (
                                             <button
                                                 type="button"
                                                 onClick={() => copy(row.value)}
                                                 aria-label={`Kopiraj: ${row.label}`}
-                                                className="text-muted-foreground hover:text-foreground print:hidden"
+                                                className="text-muted-foreground hover:text-foreground -m-1 shrink-0 p-1 print:hidden"
                                             >
                                                 {copied === row.value ? <Check className="text-olive size-3.5" /> : <Copy className="size-3.5" />}
                                             </button>
@@ -99,9 +104,9 @@ export default function PaymentSlipDialog({
                             ))}
                         </dl>
 
-                        <figure className="shrink-0 text-center">
+                        <figure className="border-border/60 shrink-0 border-t pt-4 text-center sm:self-start sm:border-t-0 sm:pt-0">
                             {/* Fetched only now, when the slip is open. */}
-                            <img src={slip.qr_url} alt={t('IPS QR kod za plaćanje')} width={160} height={160} className="bg-muted size-40" />
+                            <img src={slip.qr_url} alt={t('IPS QR kod za plaćanje')} width={160} height={160} className="bg-muted mx-auto size-40" />
                             <figcaption className="text-muted-foreground mt-1 text-[0.65rem]">
                                 {t('IPS QR — skenirajte u aplikaciji banke')}
                             </figcaption>
@@ -109,7 +114,7 @@ export default function PaymentSlipDialog({
                     </div>
                 </div>
 
-                <div className="flex flex-wrap justify-end gap-2 print:hidden">
+                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end print:hidden">
                     <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
                         {t('Zatvori')}
                     </Button>
