@@ -33,3 +33,21 @@ test('a wrong password is refused with a message', async ({ page }) => {
     await expect(page).toHaveURL(/\/login$/);
     await expect(page.getByText('Pogrešan e-mail ili lozinka.')).toBeVisible();
 });
+
+test('a visitor asked to sign in on a product comes back to it, ready to write', async ({ page }) => {
+    await page.goto('/proizvodi?in_stock=1');
+    const product = (await page.locator('main a[href*="/proizvod/"]').first().getAttribute('href'))!;
+    await page.goto(product);
+
+    await page.getByRole('link', { name: 'Prijavite se da pošaljete upit' }).click();
+    await page.getByLabel('Email adresa').fill(accounts.buyer.email);
+    await page.getByLabel('Lozinka', { exact: true }).fill(accounts.buyer.password);
+    await page.getByRole('button', { name: 'Prijavi se' }).click();
+
+    await expect(page).toHaveURL(new URL(product, page.url()).href);
+    await expect(page.getByRole('textbox', { name: 'Poruka proizvođaču' })).toBeVisible();
+
+    // "Back" skips the finished login form.
+    await page.goBack();
+    await expect(page).not.toHaveURL(/\/login/);
+});

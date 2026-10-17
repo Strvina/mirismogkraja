@@ -5,6 +5,7 @@ import { HomeProducerCard, HomeProductCard, type HomeProducer, type HomeProduct 
 import PostCard from '@/components/marketplace/post-card';
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
+import { useSignInUrl } from '@/lib/sign-in';
 import { type PostSummary, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ArrowRight, Leaf, Sprout } from 'lucide-react';
@@ -122,6 +123,7 @@ export default function Welcome({
     categories: HomeCategory[];
 }) {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     return (
         <>
@@ -409,7 +411,7 @@ export default function Welcome({
                             {t('Otvorite svoju stranicu, postavite proizvode i primajte poruke ljudi koji traže domaće.')}
                         </p>
                         <Button asChild variant="cream" size="xl" className="mt-8">
-                            <Link href={auth.user ? route('producers.create') : route('register')}>
+                            <Link href={auth.user ? route('producers.create') : signInUrl('register', route('producers.create'))}>
                                 {t('Predstavi svoje proizvode')} <ArrowRight />
                             </Link>
                         </Button>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\Turnstile;
+use App\Services\AuthRedirectService;
 use App\Services\GoogleAuthService;
 use App\Services\ReferralService;
 use Illuminate\Auth\Events\Registered;
@@ -22,8 +23,11 @@ class RegisteredUserController extends Controller
     /**
      * Show the registration page.
      */
-    public function create(Request $request, ReferralService $referrals): Response
+    public function create(Request $request, ReferralService $referrals, AuthRedirectService $redirects): Response
     {
+        // Kept through the address confirmation: its link lands there too.
+        $redirects->rememberDestination($request);
+
         return Inertia::render('auth/register', [
             'captchaSiteKey' => Turnstile::siteKey(),
             'googleEnabled' => GoogleAuthService::enabled(),

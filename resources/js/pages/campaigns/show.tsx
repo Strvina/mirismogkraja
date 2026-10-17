@@ -4,12 +4,14 @@ import ProducerCard, { type ProducerCardProducer } from '@/components/marketplac
 import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { t } from '@/lib/i18n';
+import { useSignInUrl } from '@/lib/sign-in';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
 /** A seasonal campaign's page: the theme, and who takes part. */
 export default function CampaignShow({ campaign, producers }: { campaign: CampaignSummary; producers: ProducerCardProducer[] }) {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     return (
         <MarketplaceLayout>
@@ -40,7 +42,7 @@ export default function CampaignShow({ campaign, producers }: { campaign: Campai
                     <p className="text-muted-foreground mt-1 text-sm">{t('Pridružite se kampanji i budite ovde, pred kupcima koji traže baš to.')}</p>
                 </div>
                 <Button asChild variant="outline">
-                    <Link href={auth.user ? route('campaigns.index') : route('register')}>{t('Pridružite se')}</Link>
+                    <Link href={auth.user ? route('campaigns.index') : signInUrl('register', route('campaigns.index'))}>{t('Pridružite se')}</Link>
                 </Button>
             </aside>
         </MarketplaceLayout>

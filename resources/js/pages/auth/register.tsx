@@ -44,6 +44,8 @@ export default function Register({
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('register'), {
+            // As with logging in: "back" skips the finished form.
+            replace: true,
             onFinish: () => {
                 reset('password', 'password_confirmation');
                 setAttempt((n) => n + 1);

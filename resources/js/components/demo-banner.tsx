@@ -1,4 +1,5 @@
 import { t } from '@/lib/i18n';
+import { useSignInUrl } from '@/lib/sign-in';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -10,6 +11,7 @@ import { FlaskConical } from 'lucide-react';
  */
 export default function DemoBanner({ className }: { className?: string }) {
     const { demo, auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     if (!demo) {
         return null;
@@ -25,7 +27,7 @@ export default function DemoBanner({ className }: { className?: string }) {
                     )}
                 </span>
                 {!auth.user && (
-                    <Link href={route('login')} className="font-medium underline underline-offset-4">
+                    <Link href={signInUrl('login')} className="font-medium underline underline-offset-4">
                         {t('Prijavite se demo nalogom')}
                     </Link>
                 )}

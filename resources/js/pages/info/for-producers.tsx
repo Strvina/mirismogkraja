@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import MarketplaceLayout from '@/layouts/marketplace-layout';
 import { formatNumber } from '@/lib/format';
 import { t } from '@/lib/i18n';
+import { useSignInUrl } from '@/lib/sign-in';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { Check } from 'lucide-react';
@@ -24,6 +25,7 @@ export default function ForProducers({
     founding: { remaining: number; limit: number };
 }) {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
 
     return (
         <MarketplaceLayout>
@@ -98,7 +100,9 @@ export default function ForProducers({
 
             <div className="mt-12 flex flex-wrap gap-3">
                 <Button asChild size="lg">
-                    <Link href={auth.user ? route('producers.create') : route('register')}>{t('Predstavi svoje proizvode')}</Link>
+                    <Link href={auth.user ? route('producers.create') : signInUrl('register', route('producers.create'))}>
+                        {t('Predstavi svoje proizvode')}
+                    </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                     <Link href={route('info.faq')}>{t('Česta pitanja')}</Link>

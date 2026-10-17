@@ -254,9 +254,43 @@
     }
 }
 
+/* A message has just come in: the chat button rings, once. */
+@utility chat-ring {
+    animation: chat-ring 900ms ease-in-out;
+}
+
+@keyframes chat-ring {
+    0%,
+    100% {
+        transform: rotate(0) scale(1);
+    }
+    10% {
+        transform: rotate(-16deg) scale(1.12);
+    }
+    20% {
+        transform: rotate(14deg) scale(1.12);
+    }
+    30% {
+        transform: rotate(-12deg) scale(1.1);
+    }
+    40% {
+        transform: rotate(10deg) scale(1.08);
+    }
+    50% {
+        transform: rotate(-6deg) scale(1.05);
+    }
+    60% {
+        transform: rotate(4deg) scale(1.02);
+    }
+    70% {
+        transform: rotate(0) scale(1);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .reveal-up,
     .page-enter,
+    .chat-ring,
     .stagger-in > * {
         animation: none;
     }

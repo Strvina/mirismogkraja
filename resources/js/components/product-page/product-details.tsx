@@ -14,6 +14,7 @@ import { t } from '@/lib/i18n';
 import { mediaUrl, thumbUrl } from '@/lib/media';
 import { hasSeason, isInSeason, seasonLabel } from '@/lib/season';
 import { sendOnEnter } from '@/lib/send-on-enter';
+import { useSignInUrl } from '@/lib/sign-in';
 import { cn } from '@/lib/utils';
 import { type Producer, type Product, type SharedData } from '@/types';
 import { Link, router, usePage } from '@inertiajs/react';
@@ -83,6 +84,9 @@ export default function ProductDetails({
     title?: 'h1' | ((props: { className: string; children: ReactNode }) => ReactNode);
 }) {
     const { auth } = usePage<SharedData>().props;
+    const signInUrl = useSignInUrl();
+    // Over a list the popup's address is the list's; the way back is to the product itself.
+    const productUrl = route('marketplace.products.show', product.slug);
     const [message, setMessage] = useState('');
     const [sending, setSending] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -221,7 +225,7 @@ export default function ProductDetails({
                             ) : (
                                 <span>
                                     {t('Trenutno nije dostupno.')}{' '}
-                                    <Link href={route('login')} className="font-medium underline underline-offset-4">
+                                    <Link href={signInUrl('login', productUrl)} className="font-medium underline underline-offset-4">
                                         {t('Prijavite se')}
                                     </Link>{' '}
                                     {t('i javićemo vam kad stigne.')}
@@ -250,7 +254,10 @@ export default function ProductDetails({
                                 ) : (
                                     !auth.user && (
                                         <p className="text-muted-foreground">
-                                            <Link href={route('login')} className="text-foreground font-medium underline underline-offset-4">
+                                            <Link
+                                                href={signInUrl('login', productUrl)}
+                                                className="text-foreground font-medium underline underline-offset-4"
+                                            >
                                                 {t('Prijavite se')}
                                             </Link>{' '}
                                             {t('i javićemo vam kad se vrati.')}
@@ -307,7 +314,7 @@ export default function ProductDetails({
                                 !auth.user &&
                                 !pause && (
                                     <Button asChild>
-                                        <Link href={route('login')}>{t('Prijavite se da pošaljete upit')}</Link>
+                                        <Link href={signInUrl('login', productUrl)}>{t('Prijavite se da pošaljete upit')}</Link>
                                     </Button>
                                 )
                             )}
