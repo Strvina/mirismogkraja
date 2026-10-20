@@ -13,7 +13,7 @@ class CheckHealth extends Command
 {
     protected $signature = 'health:check';
 
-    protected $description = 'Check the database, the cache, the storage folders and that cron is running';
+    protected $description = 'Check the database, the cache, the storage folders, that cron is running and that backups are made';
 
     public function handle(): int
     {

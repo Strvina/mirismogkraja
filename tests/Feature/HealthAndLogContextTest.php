@@ -11,7 +11,8 @@ use Tests\TestCase;
 
 /**
  * Task 157: `/up` and `health:check` notice a cron that has stopped, and
- * every log line says which request and whose.
+ * every log line says which request and whose. Task 188: and a backup that
+ * has stopped being made.
  */
 class HealthAndLogContextTest extends TestCase
 {
@@ -46,8 +47,31 @@ class HealthAndLogContextTest extends TestCase
             ->assertFailed();
 
         Health::beat();
+        Health::backupMade();
 
         $this->artisan('health:check')->assertSuccessful();
+    }
+
+    public function test_a_backup_never_made_fails_only_the_command(): void
+    {
+        Health::beat();
+
+        $this->get('/up')->assertOk();
+        $this->artisan('health:check')->expectsOutputToContain('none made yet')->assertFailed();
+    }
+
+    public function test_up_fails_once_the_nights_go_by_without_a_backup(): void
+    {
+        Health::beat();
+        $this->travelTo(now()->subHours(Health::BACKUP_STALE_AFTER_HOURS + 1), fn () => Health::backupMade());
+
+        $this->get('/up')->assertStatus(500);
+        $this->artisan('health:check')->expectsOutputToContain('run php artisan backup:database')->assertFailed();
+
+        // Last night's backup went through.
+        Health::backupMade();
+
+        $this->get('/up')->assertOk();
     }
 
     public function test_the_scheduler_leaves_its_mark_every_minute(): void

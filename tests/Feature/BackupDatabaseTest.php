@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Support\Health;
 use Illuminate\Process\PendingProcess;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +30,9 @@ class BackupDatabaseTest extends TestCase
         ]);
     }
 
+    /** What mysqldump prints for a dump that ran to its end. */
+    private const DUMP = "CREATE TABLE `users` (id int);\n-- Dump completed on 2026-10-20  2:30:01\n";
+
     private function backups(): array
     {
         return Storage::disk('backups')->files('backups');
@@ -37,7 +41,7 @@ class BackupDatabaseTest extends TestCase
     public function test_a_mysql_dump_is_compressed_onto_the_backup_disk_without_the_password_on_the_command_line(): void
     {
         $this->useMysql();
-        Process::fake(['*' => Process::result(output: "CREATE TABLE `users` (id int);\n")]);
+        Process::fake(['*' => Process::result(output: self::DUMP)]);
 
         $this->artisan('backup:database')->assertSuccessful();
 
@@ -64,6 +68,29 @@ class BackupDatabaseTest extends TestCase
         $this->assertSame([], $this->backups());
     }
 
+    public function test_a_dump_that_stopped_before_its_end_is_not_kept(): void
+    {
+        $this->useMysql();
+        // Exit code 0, but the dump was cut off halfway through a table.
+        Process::fake(['*' => Process::result(output: "CREATE TABLE `users` (id int);\nINSERT INTO `users` VALUES (1),")]);
+
+        $this->artisan('backup:database')->expectsOutputToContain('stopped before the end')->assertFailed();
+
+        $this->assertSame([], $this->backups());
+        $this->assertNull(Health::problems(mustHaveRun: false)['backup']);
+        $this->assertNotNull(Health::problems()['backup']);
+    }
+
+    public function test_a_backup_kept_is_marked_for_the_health_check(): void
+    {
+        $this->useMysql();
+        Process::fake(['*' => Process::result(output: self::DUMP)]);
+
+        $this->artisan('backup:database')->assertSuccessful();
+
+        $this->assertNull(Health::problems()['backup']);
+    }
+
     public function test_an_sqlite_database_is_copied(): void
     {
         $file = tempnam(sys_get_temp_dir(), 'db');
@@ -82,7 +109,7 @@ class BackupDatabaseTest extends TestCase
     public function test_old_backups_are_deleted_but_never_the_newest(): void
     {
         $this->useMysql();
-        Process::fake(['*' => Process::result(output: 'dump')]);
+        Process::fake(['*' => Process::result(output: self::DUMP)]);
         $disk = Storage::disk('backups');
 
         $disk->put('backups/old.sql.gz', 'old');

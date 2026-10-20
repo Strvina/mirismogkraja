@@ -16,11 +16,13 @@ assume the site is in `/var/www/vrelina-juga`.
 There is no queue worker to watch: side jobs run after the response is sent or from the scheduler.
 
 `php artisan health:check` asks all of it at once and names what is wrong: the database, the cache,
-that `storage` can be written to, and that cron has called in the last ten minutes.
+that `storage` can be written to, that cron has called in the last ten minutes, and that a backup
+was made in the last 26 hours.
 
 An outside monitor (UptimeRobot is enough) should watch both `/up` and the home page. `/up` answers
 500 when the database, the cache or the storage folder is gone, and when cron has been silent for
-ten minutes: the pages still open then, but no mail goes out and nothing expires. `/up` alone keeps
+ten minutes, or no backup has been made for 26 hours: the pages still open then, but no mail goes
+out, nothing expires or nothing is backed up. `/up` alone keeps
 answering 200 in maintenance mode, where a deployment that stopped half-way leaves the site; the
 home page answers 503 then.
 
@@ -50,6 +52,19 @@ deletes those older than `BACKUP_KEEP_DAYS` (14). With the default `local` disk 
 `storage/app/private/backups` on the same server, which covers a mistake and not a lost server:
 point `BACKUP_DISK` at storage somewhere else as soon as there is one. `BACKUP_NOTIFY_EMAIL` gets a
 mail when a night's backup fails.
+
+A file is kept only when it is whole: a dump that stops before mysqldump's closing
+`-- Dump completed` line, or that could not be written in full (a full disk), fails the run and
+leaves nothing behind. Each backup kept is recorded, and `/up` and `health:check` report it once 26
+hours go by without one, which also catches the nights the command did not run at all.
+
+**What can be lost.** A backup is made once a night, so a database lost at 18:00 comes back as it
+was at 02:30. To get closer, MySQL 8 keeps a binary log of every change by default (30 days,
+`SHOW VARIABLES LIKE 'log_bin'`; on MariaDB it has to be turned on with `log_bin` in its
+configuration): after restoring the night's file, the changes since then can be replayed with
+`mysqlbinlog --start-datetime="<the time in the file's name>" --stop-datetime="<just before the
+mistake>" <binlog files> | mysql -u USER -p DATABASE`. Starting from the time is close, not exact:
+a change in the same second as the dump's start can come twice, so look at what was replayed.
 
 The pictures are not in it. Copy `storage/app/public` (and `storage/app/private`, which holds the
 certificates) with the server's own backup.
