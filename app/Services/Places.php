@@ -25,7 +25,12 @@ class Places
 {
     private const CACHE_KEY = 'places:v2';
 
-    private const CACHE_SECONDS = 600;
+    /**
+     * Fresh for ten minutes; for twenty more the old one is still served while
+     * a new one is worked out after the response (Cache::flexible), so no
+     * visitor waits for it and many at once do not all work it out.
+     */
+    private const CACHE_SECONDS = [600, 1800];
 
     /**
      * Every place with published products, by name.
@@ -34,7 +39,7 @@ class Places
      */
     public function all(): array
     {
-        return Cache::remember(self::CACHE_KEY, self::CACHE_SECONDS, function () {
+        return Cache::flexible(self::CACHE_KEY, self::CACHE_SECONDS, function () {
             $rows = Product::query()
                 ->published()
                 ->join('producers', 'producers.id', '=', 'products.producer_id')

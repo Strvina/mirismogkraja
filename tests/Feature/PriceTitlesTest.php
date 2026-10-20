@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Services\CategoryPrices;
 use App\Support\Price;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Defer\DeferredCallbackCollection;
 use Tests\TestCase;
 
 /**
@@ -116,5 +117,22 @@ class PriceTitlesTest extends TestCase
             ->assertSee('<title inertia>Domaći ajvar Leskovac: cena i prodaja | Vrelina juga</title>', false);
         $this->get(route('wanted.index'))
             ->assertSee('<title inertia>Kupujem domaće proizvode: oglasi kupaca | Vrelina juga</title>', false);
+    }
+
+    public function test_an_old_price_range_is_served_while_the_new_one_is_worked_out_after_the_response(): void
+    {
+        $this->product($this->ajvar, 550, 'kg');
+        $prices = app(CategoryPrices::class);
+        $this->assertSame('550 RSD/kg', $prices->summary($this->ajvar));
+
+        $this->product($this->ajvar, 800, 'kg');
+        $this->travel(11)->minutes();
+
+        // Past ten minutes the visitor still gets the old range at once...
+        $this->assertSame('550 RSD/kg', $prices->summary($this->ajvar));
+
+        // ...and the new one is in place once the response has gone out.
+        app(DeferredCallbackCollection::class)->invoke();
+        $this->assertSame('550–800 RSD/kg', $prices->summary($this->ajvar));
     }
 }

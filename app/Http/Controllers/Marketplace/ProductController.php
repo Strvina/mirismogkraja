@@ -47,8 +47,13 @@ class ProductController extends Controller
     /** @var list<int> */
     private const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
-    /** How long the filter choices (categories, producers, cities, prices) are kept. */
-    private const FILTERS_SECONDS = 600;
+    /**
+     * How long the filter choices (categories, producers, cities, prices)
+     * are kept. Fresh for ten minutes; for twenty more the old one is still served while
+     * a new one is worked out after the response (Cache::flexible), so no
+     * visitor waits for it and many at once do not all work it out.
+     */
+    private const FILTERS_SECONDS = [600, 1800];
 
     /** The columns of the products FULLTEXT index. */
     private const SEARCHED = ['name', 'description'];
@@ -222,7 +227,7 @@ class ProductController extends Controller
      */
     private function filterChoices(): array
     {
-        return Cache::remember('catalog:filter-choices:v3', self::FILTERS_SECONDS, function () {
+        return Cache::flexible('catalog:filter-choices:v3', self::FILTERS_SECONDS, function () {
             // Cities straight off Producer, not by loading every product.
             $sellingProducers = Producer::published()
                 ->whereHas('products', fn ($query) => $query->where('status', 'active'));

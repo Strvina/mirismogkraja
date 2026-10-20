@@ -23,7 +23,12 @@ use Illuminate\Support\Facades\Cache;
  */
 class CategoryPrices
 {
-    private const CACHE_SECONDS = 600;
+    /**
+     * Fresh for ten minutes; for twenty more the old one is still served while
+     * a new one is worked out after the response (Cache::flexible), so no
+     * visitor waits for it and many at once do not all work it out.
+     */
+    private const CACHE_SECONDS = [600, 1800];
 
     /** The units most of the category is sold by; the rest would be noise. */
     private const UNITS_SHOWN = 3;
@@ -36,7 +41,7 @@ class CategoryPrices
      */
     public function for(Category $category): array
     {
-        return Cache::remember("category-prices:{$category->id}", self::CACHE_SECONDS, fn () => Product::query()
+        return Cache::flexible("category-prices:{$category->id}", self::CACHE_SECONDS, fn () => Product::query()
             ->published()
             ->inCategory($category->id)
             ->toBase()
