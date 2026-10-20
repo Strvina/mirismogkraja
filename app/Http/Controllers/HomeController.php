@@ -23,8 +23,11 @@ class HomeController extends Controller
      * How long the popularity rankings are kept. Ranking means counting
      * favourites and reviews for every producer and product, on the most
      * visited page; a ranking a few minutes old is just as true.
+     * Fresh for ten minutes; for twenty more the old one is still served while
+     * a new one is worked out after the response (Cache::flexible), so no
+     * visitor waits for it and many at once do not all work it out.
      */
-    private const RANKING_SECONDS = 600;
+    private const RANKING_SECONDS = [600, 1800];
 
     /**
      * The landing page is the discovery surface: newest producers, the ones
@@ -101,7 +104,7 @@ class HomeController extends Controller
                 ->get(Post::CARD_COLUMNS),
             // Which categories have anything in them changes rarely, and
             // finding out means looking through the whole catalogue.
-            'categories' => Cache::remember('home:categories:v3', self::RANKING_SECONDS, fn () => Category::query()
+            'categories' => Cache::flexible('home:categories:v3', self::RANKING_SECONDS, fn () => Category::query()
                 // The general ones; their subcategories are a click further.
                 ->roots()
                 ->stocked()
@@ -190,7 +193,7 @@ class HomeController extends Controller
      */
     private function popularProducerIds(): array
     {
-        return Cache::remember('home:popular-producers', self::RANKING_SECONDS, fn () => Producer::published()
+        return Cache::flexible('home:popular-producers', self::RANKING_SECONDS, fn () => Producer::published()
             ->withCount(['favorites', 'reviews' => fn ($query) => $query->approved()])
             ->withAvg(['reviews' => fn ($query) => $query->approved()], 'rating')
             ->orderByRaw('(favorites_count + reviews_count) desc')
@@ -204,7 +207,7 @@ class HomeController extends Controller
     /** @return list<int> */
     private function popularProductIds(): array
     {
-        return Cache::remember('home:popular-products', self::RANKING_SECONDS, fn () => Product::published()
+        return Cache::flexible('home:popular-products', self::RANKING_SECONDS, fn () => Product::published()
             ->withCount(['favorites', 'inquiries'])
             ->orderByDesc('favorites_count')
             ->orderByDesc('inquiries_count')
@@ -239,7 +242,7 @@ class HomeController extends Controller
      */
     private function seasonalProductIds(): array
     {
-        return Cache::remember('home:seasonal-products:'.now()->month, self::RANKING_SECONDS, fn () => Product::published()
+        return Cache::flexible('home:seasonal-products:'.now()->month, self::RANKING_SECONDS, fn () => Product::published()
             ->seasonal()
             ->latest()
             ->take(10)

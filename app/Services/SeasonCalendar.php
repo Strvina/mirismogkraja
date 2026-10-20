@@ -24,7 +24,12 @@ class SeasonCalendar
 
     private const CACHE_KEY = 'season:months';
 
-    private const CACHE_SECONDS = 600;
+    /**
+     * Fresh for ten minutes; for twenty more the old one is still served while
+     * a new one is worked out after the response (Cache::flexible), so no
+     * visitor waits for it and many at once do not all work it out.
+     */
+    private const CACHE_SECONDS = [600, 1800];
 
     public function slug(int $month): string
     {
@@ -51,7 +56,7 @@ class SeasonCalendar
      */
     public function monthsWithProducts(): array
     {
-        return Cache::remember(self::CACHE_KEY, self::CACHE_SECONDS, function () {
+        return Cache::flexible(self::CACHE_KEY, self::CACHE_SECONDS, function () {
             $months = [];
 
             $seasons = Product::query()
